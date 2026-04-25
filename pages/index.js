@@ -359,6 +359,12 @@ export default function App() {
   const [auditSearch, setAuditSearch] = useState(''); const [auditFType, setAuditFType] = useState('')
   const [npiInput, setNpiInput] = useState(''); const [npiResult, setNpiResult] = useState(null); const [npiLoading, setNpiLoading] = useState(false)
 
+  // Provider Lookup page state
+  const [lookupForm, setLookupForm] = useState({ firstName:'', lastName:'', state:'OR', specialty:'', npi:'' })
+  const [lookupResults, setLookupResults] = useState(null)
+  const [lookupLoading, setLookupLoading] = useState(false)
+  const [importingNpi, setImportingNpi] = useState(null)
+
   // ─── AUTH ────────────────────────────────────────────────────────────────────
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -626,6 +632,43 @@ export default function App() {
     setNpiLoading(false)
   }
 
+  // ─── IMPORT PROVIDER FROM NPPES LOOKUP ───────────────────────────────────────
+  async function handleImportProvider(result) {
+    setImportingNpi(result.npi)
+    try {
+      // Map NPPES taxonomy to our cred/spec fields
+      const taxDesc = (result.taxonomies?.[0]?.desc || '').toLowerCase()
+      let cred = 'Other', spec = 'Mental Health'
+      if (taxDesc.includes('clinical social')) { cred = 'LCSW'; spec = 'Mental Health' }
+      else if (taxDesc.includes('counselor') || taxDesc.includes('counseling')) { cred = 'LPC'; spec = 'Mental Health' }
+      else if (taxDesc.includes('marriage') || taxDesc.includes('family')) { cred = 'LMFT'; spec = 'Mental Health' }
+      else if (taxDesc.includes('psychologist')) { cred = 'Licensed Psychologist'; spec = 'Mental Health' }
+      else if (taxDesc.includes('psychiatric') || taxDesc.includes('nurse')) { cred = 'PMHNP'; spec = 'Mental Health' }
+      else if (taxDesc.includes('naturo')) { cred = 'Naturopathic Physician'; spec = 'Naturopathic' }
+      else if (taxDesc.includes('chiro')) { cred = 'Chiropractor'; spec = 'Chiropractic' }
+      else if (taxDesc.includes('acupunct')) { cred = 'Acupuncturist'; spec = 'Acupuncture' }
+      else if (taxDesc.includes('massage')) { cred = 'LMT'; spec = 'Massage Therapy' }
+      else if (taxDesc.includes('physician') || taxDesc.includes('doctor of medicine')) { cred = 'MD'; spec = 'Mental Health' }
+
+      const loc = result.addresses?.[0] || {}
+      const provData = {
+        fname: result.fname || '',
+        lname: result.lname || '',
+        cred,
+        spec,
+        status: 'Pending',
+        npi: result.npi,
+        focus: result.taxonomies?.[0]?.desc || '',
+        notes: `Imported from NPPES on ${new Date().toLocaleDateString()}. Address: ${[loc.address_1, loc.city, loc.state, loc.postal_code].filter(Boolean).join(', ')}`,
+      }
+      const saved = await upsertProvider(provData)
+      setDb(prev => ({ ...prev, providers: [...prev.providers, saved] }))
+      toast(`${saved.fname} ${saved.lname} imported successfully! Review and complete their profile.`, 'success')
+      await addAudit('Provider', 'Imported from NPPES', `${saved.fname} ${saved.lname} NPI:${result.npi}`, saved.id)
+    } catch(err) { toast('Import failed: ' + err.message, 'error') }
+    setImportingNpi(null)
+  }
+
   // ─── LOAD SAMPLE DATA ─────────────────────────────────────────────────────────
   async function loadSampleData() {
     if (!confirm('Load sample data? This will add sample providers and payers.')) return
@@ -755,6 +798,8 @@ export default function App() {
               {page === 'reports' && <Reports db={db} exportJSON={exportJSON} />}
               {page === 'audit' && <Audit db={db} search={auditSearch} setSearch={setAuditSearch} fType={auditFType} setFType={setAuditFType} handleClearAudit={handleClearAudit} />}
               {page === 'settings' && <Settings settingsForm={settingsForm} setSettingsForm={setSettingsForm} handleSaveSettings={handleSaveSettings} exportJSON={exportJSON} />}
+              {page === 'provider-lookup' && <ProviderLookup db={db} lookupForm={lookupForm} setLookupForm={setLookupForm} lookupResults={lookupResults} setLookupResults={setLookupResults} lookupLoading={lookupLoading} setLookupLoading={setLookupLoading} importingNpi={importingNpi} setImportingNpi={setImportingNpi} handleImportProvider={handleImportProvider} toast={toast} />}
+              {page === 'license-verify' && <LicenseVerify db={db} />}
             </div>
           )}
         </div>
@@ -819,6 +864,9 @@ function Sidebar({ page, setPage, alertCount, pendingEnroll, expDocs, user, sign
         {navItem('audit','◨','Audit Trail')}
         <div className="sb-section">System</div>
         {navItem('settings','◫','Settings')}
+        <div className="sb-section">Tools</div>
+        {navItem('provider-lookup','🔭','Provider Lookup')}
+        {navItem('license-verify','✅','License Verify')}
       </nav>
       <div className="sb-footer">
         <div className="sb-user">
@@ -834,7 +882,7 @@ function Sidebar({ page, setPage, alertCount, pendingEnroll, expDocs, user, sign
 }
 
 function Topbar({ page, setPage, openEnrollModal, openPayerModal, openDocModal, openTaskModal, exportJSON, loadSampleData, saving }) {
-  const titles = { dashboard:'Dashboard', alerts:'Alerts', providers:'All Providers', 'add-provider':'Add Provider', enrollments:'Payer Enrollments', payers:'Payer Directory', documents:'Documents & Expiry', workflows:'Workflows & Tasks', reports:'Reports & Analytics', audit:'Audit Trail', settings:'Settings' }
+  const titles = { dashboard:'Dashboard', alerts:'Alerts', providers:'All Providers', 'add-provider':'Add Provider', enrollments:'Payer Enrollments', payers:'Payer Directory', documents:'Documents & Expiry', workflows:'Workflows & Tasks', reports:'Reports & Analytics', audit:'Audit Trail', settings:'Settings', 'provider-lookup':'Provider Lookup — NPPES Registry', 'license-verify':'License Verification — Oregon Boards' }
   function topCTA() {
     if (page==='enrollments') openEnrollModal()
     else if (page==='payers') openPayerModal()
@@ -1573,6 +1621,370 @@ function ProvDetailModal({ prov, db, tab, setTab, onClose, editProvider, openEnr
   </Modal>
 }
 
+
+
+// ─── PROVIDER LOOKUP PAGE ─────────────────────────────────────────────────────
+const US_STATES = ['AK','AL','AR','AZ','CA','CO','CT','DC','DE','FL','GA','HI','IA','ID','IL','IN','KS','KY','LA','MA','MD','ME','MI','MN','MO','MS','MT','NC','ND','NE','NH','NJ','NM','NV','NY','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VA','VT','WA','WI','WV','WY']
+
+const NPPES_TAXONOMIES = [
+  { label:'Any Specialty', value:'' },
+  { label:'Clinical Social Worker', value:'1041C0700X' },
+  { label:'Licensed Professional Counselor', value:'101YP2500X' },
+  { label:'Marriage & Family Therapist', value:'106H00000X' },
+  { label:'Psychologist', value:'103T00000X' },
+  { label:'Psychiatric Nurse Practitioner', value:'364SP0809X' },
+  { label:'Naturopathic Physician', value:'175F00000X' },
+  { label:'Chiropractor', value:'111N00000X' },
+  { label:'Acupuncturist', value:'171100000X' },
+  { label:'Massage Therapist', value:'225700000X' },
+  { label:'Physician (MD/DO)', value:'208D00000X' },
+]
+
+function ProviderLookup({ db, lookupForm, setLookupForm, lookupResults, setLookupResults, lookupLoading, setLookupLoading, importingNpi, setImportingNpi, handleImportProvider }) {
+  const set = (k, v) => setLookupForm(prev => ({ ...prev, [k]: v }))
+  const existingNpis = new Set(db.providers.map(p => p.npi).filter(Boolean))
+
+  async function doSearch() {
+    const { firstName, lastName, state, specialty, npi } = lookupForm
+    if (!firstName && !lastName && !npi) { alert('Enter at least a first name, last name, or NPI to search.'); return }
+    setLookupLoading(true)
+    setLookupResults(null)
+    try {
+      const params = new URLSearchParams({ version: '2.1', limit: 20 })
+      if (npi) {
+        params.set('number', npi)
+      } else {
+        if (firstName) params.set('first_name', firstName + '*')
+        if (lastName) params.set('last_name', lastName + '*')
+        if (state) params.set('state', state)
+        if (specialty) params.set('taxonomy_description', specialty)
+        params.set('enumeration_type', 'NPI-1')
+      }
+      const res = await fetch(`https://npiregistry.cms.hhs.gov/api/?${params}`)
+      const data = await res.json()
+      const results = (data.results || []).map(r => {
+        const basic = r.basic || {}
+        return {
+          npi: r.number,
+          fname: basic.first_name || '',
+          lname: basic.last_name || '',
+          credential: (basic.credential || '').replace(/\./g, '').trim(),
+          status: basic.status || '',
+          taxonomies: r.taxonomies || [],
+          addresses: r.addresses || [],
+        }
+      })
+      setLookupResults(results)
+    } catch(e) { alert('Could not reach NPPES registry. Check your connection.') }
+    setLookupLoading(false)
+  }
+
+  return (
+    <div className="page">
+      <div style={{ background:'#fffbeb', border:'1px solid #fde68a', borderRadius:10, padding:'12px 16px', marginBottom:20, display:'flex', alignItems:'flex-start', gap:12 }}>
+        <div style={{ fontSize:18, flexShrink:0 }}>ℹ️</div>
+        <div>
+          <div style={{ fontWeight:600, fontSize:13, color:'#92400e', marginBottom:3 }}>About CAQH ProView</div>
+          <div style={{ fontSize:12.5, color:'#92400e', lineHeight:1.6 }}>
+            CAQH has no public search API. Your organization needs a <strong>Participating Organization (PO) agreement</strong> with CAQH to access provider data.
+            Once enrolled, use <a href="https://proview.caqh.org" target="_blank" rel="noreferrer" style={{ color:'#b45309', fontWeight:600 }}>CAQH ProView ↗</a> to look up providers.
+            Providers must separately authorize your organization within ProView.
+          </div>
+        </div>
+      </div>
+
+      <div className="card mb-20">
+        <div className="card-header">
+          <h3>🔭 Search NPPES National Provider Registry</h3>
+          <div className="ch-meta">Search by name, state, specialty, or NPI — results come live from npiregistry.cms.hhs.gov</div>
+        </div>
+        <div className="card-body">
+          <div className="form-grid">
+            <div className="fg">
+              <label>First Name</label>
+              <input type="text" value={lookupForm.firstName} onChange={e=>set('firstName',e.target.value)} onKeyDown={e=>e.key==='Enter'&&doSearch()} placeholder="Jane" />
+            </div>
+            <div className="fg">
+              <label>Last Name</label>
+              <input type="text" value={lookupForm.lastName} onChange={e=>set('lastName',e.target.value)} onKeyDown={e=>e.key==='Enter'&&doSearch()} placeholder="Smith" />
+            </div>
+            <div className="fg">
+              <label>State</label>
+              <select value={lookupForm.state} onChange={e=>set('state',e.target.value)}>
+                <option value="">Any State</option>
+                {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+            <div className="fg">
+              <label>Specialty / Taxonomy</label>
+              <select value={lookupForm.specialty} onChange={e=>set('specialty',e.target.value)}>
+                {NPPES_TAXONOMIES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </select>
+            </div>
+            <div className="fg">
+              <label>NPI Number (search by NPI directly)</label>
+              <input type="text" value={lookupForm.npi} onChange={e=>set('npi',e.target.value.replace(/\D/g,''))} onKeyDown={e=>e.key==='Enter'&&doSearch()} placeholder="1234567890" maxLength={10} />
+            </div>
+            <div className="fg" style={{ justifyContent:'flex-end' }}>
+              <label>&nbsp;</label>
+              <button className="btn btn-primary" onClick={doSearch} disabled={lookupLoading} style={{ alignSelf:'flex-end' }}>
+                {lookupLoading ? <><span className="spinner"></span> Searching…</> : '🔍 Search Registry'}
+              </button>
+            </div>
+          </div>
+          <div className="field-note" style={{ marginTop:8 }}>Wildcard search applied automatically. Results capped at 20 — narrow your search if needed.</div>
+        </div>
+      </div>
+
+      {lookupLoading && (
+        <div style={{ textAlign:'center', padding:48, color:'var(--ink-4)' }}>
+          <div className="spinner-lg" style={{ margin:'0 auto 16px' }}></div>
+          <div>Searching NPPES registry…</div>
+        </div>
+      )}
+
+      {lookupResults && !lookupLoading && (
+        <div>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
+            <div style={{ fontSize:13, color:'var(--ink-3)', fontWeight:500 }}>
+              {lookupResults.length === 0 ? 'No results found.' : `${lookupResults.length} result${lookupResults.length===1?'':'s'} found`}
+            </div>
+            {lookupResults.length === 20 && <div style={{ fontSize:12, color:'var(--amber)' }}>⚠ Results capped at 20 — narrow your search</div>}
+          </div>
+          {lookupResults.length === 0 ? (
+            <div className="empty-state"><div className="ei">🔍</div><h4>No providers found</h4><p>Try broader search terms or remove specialty filters.</p></div>
+          ) : (
+            <div className="tbl-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th className="no-sort">NPI</th>
+                    <th className="no-sort">Name</th>
+                    <th className="no-sort">Credential</th>
+                    <th className="no-sort">Specialty / Taxonomy</th>
+                    <th className="no-sort">Practice Address</th>
+                    <th className="no-sort">Status</th>
+                    <th className="no-sort">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {lookupResults.map(r => {
+                    const addr = r.addresses.find(a => a.address_purpose === 'LOCATION') || r.addresses[0] || {}
+                    const taxonomy = r.taxonomies[0] || {}
+                    const alreadyIn = existingNpis.has(r.npi)
+                    const isImporting = importingNpi === r.npi
+                    return (
+                      <tr key={r.npi}>
+                        <td><code style={{ background:'var(--surface-2)', padding:'2px 6px', borderRadius:4, fontSize:11.5 }}>{r.npi}</code></td>
+                        <td>
+                          <div style={{ fontWeight:600, fontSize:13 }}>{r.fname} {r.lname}</div>
+                          {r.credential && <div className="text-xs text-muted">{r.credential}</div>}
+                        </td>
+                        <td style={{ fontSize:12.5 }}>{r.credential || '—'}</td>
+                        <td>
+                          <div style={{ fontSize:12.5 }}>{taxonomy.desc || '—'}</div>
+                          {taxonomy.state && <div className="text-xs text-muted">Licensed: {taxonomy.state}</div>}
+                        </td>
+                        <td style={{ fontSize:12, color:'var(--ink-3)' }}>
+                          {[addr.address_1, addr.city, addr.state, addr.postal_code].filter(Boolean).join(', ') || '—'}
+                        </td>
+                        <td><span className={`badge ${r.status==='A'?'b-green':'b-gray'}`}>{r.status==='A'?'Active':'Inactive'}</span></td>
+                        <td>
+                          {alreadyIn ? (
+                            <span className="badge b-teal">✓ In System</span>
+                          ) : (
+                            <button className="btn btn-primary btn-sm" onClick={() => handleImportProvider(r)} disabled={isImporting}>
+                              {isImporting ? <><span className="spinner"></span> Importing…</> : '⬇ Import'}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ─── LICENSE VERIFICATION PAGE ────────────────────────────────────────────────
+const OR_BOARDS = [
+  {
+    name: 'Oregon Board of Licensed Professional Counselors & Therapists',
+    abbr: 'OBLPCT',
+    emoji: '🧠',
+    covers: ['LPC','LMFT','MFT Associate','LCSW Associate'],
+    buildUrl: (p) => 'https://www.oregon.gov/oblpct/Pages/verify.aspx',
+    note: 'Covers LPC, LMFT, and associates. Manual search on their portal.',
+    color: '#3563c9',
+  },
+  {
+    name: 'Oregon Board of Clinical Social Workers',
+    abbr: 'OBCSW',
+    emoji: '👥',
+    covers: ['LCSW','LCSW Associate'],
+    buildUrl: (p) => 'https://www.oregon.gov/OBCSW/Pages/LicenseLookup.aspx',
+    note: 'Covers LCSW and LCSW Associates.',
+    color: '#0891b2',
+  },
+  {
+    name: 'Oregon Psychology Board',
+    abbr: 'OPB',
+    emoji: '🎓',
+    covers: ['Licensed Psychologist'],
+    buildUrl: (p) => 'https://www.oregon.gov/opb/pages/licensee.aspx',
+    note: 'Covers licensed psychologists (PhD/PsyD).',
+    color: '#6d3fb5',
+  },
+  {
+    name: 'Oregon Medical Board',
+    abbr: 'OMB',
+    emoji: '🩺',
+    covers: ['MD','DO','PMHNP','Naturopathic Physician'],
+    buildUrl: (p) => p && p.license
+      ? `https://omb.oregon.gov/Clients/ORMB/PublicLookup/GeneralInformation.aspx?LicenseeNumber=${encodeURIComponent(p.license)}`
+      : 'https://omb.oregon.gov/Clients/ORMB/PublicLookup/',
+    note: 'Covers MD, DO, PMHNP, and Naturopathic Physicians. Pre-fills license number when available.',
+    color: '#dc2626',
+  },
+  {
+    name: 'Oregon Board of Naturopathic Medicine',
+    abbr: 'OBNM',
+    emoji: '🌿',
+    covers: ['Naturopathic Physician'],
+    buildUrl: (p) => 'https://www.oregon.gov/obnm/pages/verify.aspx',
+    note: 'Covers Naturopathic Physicians (ND).',
+    color: '#16a34a',
+  },
+  {
+    name: 'Oregon Board of Chiropractic Examiners',
+    abbr: 'OBCE',
+    emoji: '🦴',
+    covers: ['Chiropractor'],
+    buildUrl: (p) => 'https://www.oregon.gov/obce/Pages/verify.aspx',
+    note: 'Covers licensed chiropractors (DC).',
+    color: '#c97d1e',
+  },
+  {
+    name: 'Oregon Health Licensing Office (HLO)',
+    abbr: 'HLO',
+    emoji: '📋',
+    covers: ['Acupuncturist','LMT'],
+    buildUrl: (p) => 'https://hlo.oregon.gov/DesktopDefault.aspx?tabid=17',
+    note: 'Covers LAc, LMT, and many allied health professions.',
+    color: '#1a8a7a',
+  },
+  {
+    name: 'NPPES NPI Registry',
+    abbr: 'NPPES',
+    emoji: '🏛️',
+    covers: ['All'],
+    buildUrl: (p) => p && p.npi ? `https://npiregistry.cms.hhs.gov/provider-view/${p.npi}` : 'https://npiregistry.cms.hhs.gov/',
+    note: 'Federal NPI registry. Pre-fills NPI when available.',
+    color: '#2563eb',
+  },
+]
+
+function credMatchesBoard(cred, board) {
+  if (board.covers.includes('All')) return true
+  return board.covers.some(c => (cred || '').toLowerCase().includes(c.toLowerCase()) || c.toLowerCase().includes((cred || '').split(' ')[0].toLowerCase()))
+}
+
+function LicenseVerify({ db }) {
+  const [selectedProv, setSelectedProv] = useState('')
+  const prov = db.providers.find(p => p.id === selectedProv) || null
+
+  return (
+    <div className="page">
+      <div style={{ background:'#eff6ff', border:'1px solid #bfdbfe', borderRadius:10, padding:'12px 16px', marginBottom:20, display:'flex', alignItems:'flex-start', gap:12 }}>
+        <div style={{ fontSize:18, flexShrink:0 }}>ℹ️</div>
+        <div>
+          <div style={{ fontWeight:600, fontSize:13, color:'#1e40af', marginBottom:3 }}>Oregon License Verification — Smart Deep Links</div>
+          <div style={{ fontSize:12.5, color:'#1e40af', lineHeight:1.6 }}>
+            Oregon licensing boards have no public API. These links open the correct board portal directly.
+            Select a provider below to filter to their relevant boards and pre-fill their license number or NPI where supported.
+          </div>
+        </div>
+      </div>
+
+      <div className="card mb-20">
+        <div className="card-header"><h3>Select Provider to Filter Boards</h3><div className="ch-meta">Optional — shows all boards if none selected</div></div>
+        <div className="card-body">
+          <div style={{ display:'flex', alignItems:'center', gap:12, flexWrap:'wrap' }}>
+            <select className="filter-select" value={selectedProv} onChange={e=>setSelectedProv(e.target.value)} style={{ minWidth:300 }}>
+              <option value="">— Show all boards —</option>
+              {db.providers.map(p => <option key={p.id} value={p.id}>{p.fname} {p.lname} — {p.cred}</option>)}
+            </select>
+            {prov && (
+              <div style={{ display:'flex', gap:6, flexWrap:'wrap' }}>
+                <span className="badge b-blue">NPI: {prov.npi || 'Not set'}</span>
+                <span className="badge b-gray">License: {prov.license || 'Not set'}</span>
+                <span className="badge b-purple">{prov.cred}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, minmax(340px, 1fr))', gap:14 }}>
+        {OR_BOARDS
+          .filter(board => !prov || credMatchesBoard(prov.cred, board))
+          .map(board => {
+            const url = board.buildUrl(prov)
+            return (
+              <div key={board.abbr} className="card">
+                <div className="card-header" style={{ borderLeft:`4px solid ${board.color}` }}>
+                  <div style={{ fontSize:20, flexShrink:0 }}>{board.emoji}</div>
+                  <div style={{ flex:1 }}>
+                    <h3 style={{ fontSize:13.5 }}>{board.name}</h3>
+                    <div className="ch-meta">{board.abbr} · Covers: {board.covers.join(', ')}</div>
+                  </div>
+                </div>
+                <div className="card-body" style={{ paddingTop:12, paddingBottom:14 }}>
+                  <div style={{ fontSize:12, color:'var(--ink-3)', marginBottom:12, lineHeight:1.6 }}>{board.note}</div>
+                  {prov && (
+                    <div style={{ background:'var(--surface-2)', borderRadius:8, padding:'8px 12px', marginBottom:12, fontSize:12, color:'var(--ink-3)' }}>
+                      <strong style={{ color:'var(--ink-2)' }}>Verifying:</strong> {prov.fname} {prov.lname}
+                      {prov.npi && <span style={{ marginLeft:8 }}>· NPI: <code style={{ fontSize:11 }}>{prov.npi}</code></span>}
+                      {prov.license && <span style={{ marginLeft:8 }}>· License: <code style={{ fontSize:11 }}>{prov.license}</code></span>}
+                    </div>
+                  )}
+                  <a href={url} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm"
+                    style={{ display:'inline-flex', width:'100%', justifyContent:'center', textDecoration:'none' }}>
+                    Open {board.abbr} Verification ↗
+                  </a>
+                </div>
+              </div>
+            )
+          })}
+      </div>
+
+      {prov && (
+        <div className="card mt-12">
+          <div className="card-header"><h3>📋 All Oregon Boards Reference</h3></div>
+          <div className="card-body" style={{ padding:0 }}>
+            <table>
+              <thead><tr><th className="no-sort">Board</th><th className="no-sort">Covers</th><th className="no-sort">Verify Link</th></tr></thead>
+              <tbody>
+                {OR_BOARDS.map(b => (
+                  <tr key={b.abbr}>
+                    <td><strong>{b.abbr}</strong><div className="text-xs text-muted">{b.name}</div></td>
+                    <td style={{ lineHeight:2 }}>{b.covers.map(c => <span key={c} className="badge b-gray" style={{ marginRight:3, fontSize:10 }}>{c}</span>)}</td>
+                    <td><a href={b.buildUrl(null)} target="_blank" rel="noreferrer" style={{ color:'var(--primary)', fontSize:12, fontWeight:500 }}>Open ↗</a></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // CSS
