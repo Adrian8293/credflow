@@ -49,190 +49,285 @@ const SAMPLE_PAYERS = [
 
 
 const CSS = `
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap');
+
 :root {
-  --ink:#0f1a0f;--ink-2:#2d3d2d;--ink-3:#5a6e5a;--ink-4:#8fa08f;
-  --line:#e4ece4;--line-2:#f0f5f0;--bg:#f8fbf8;--surface:#ffffff;--surface-2:#f3f7f3;
-  --primary:#1e6b3f;--primary-h:#155430;--primary-l:#e8f4ed;--primary-ll:#f2faf5;
-  --accent:#2d9e5f;--red:#c5383a;--red-l:#fdf0f0;--amber:#c97d1e;--amber-l:#fdf5e8;
-  --blue:#2563a8;--blue-l:#edf3fc;--purple:#6d3fb5;--purple-l:#f3eeff;
-  --teal:#1a8a7a;--teal-l:#e8f6f4;--gold:#b8880d;--gold-l:#fef9e6;
-  --r:10px;--r-lg:16px;--r-xl:22px;
-  --shadow:0 1px 3px rgba(15,26,15,.06),0 4px 16px rgba(15,26,15,.05);
-  --shadow-md:0 4px 24px rgba(15,26,15,.10);--shadow-lg:0 16px 48px rgba(15,26,15,.14);
-  --transition:0.18s cubic-bezier(.4,0,.2,1);
+  --navy:#0f1f3d; --navy-deep:#091630; --navy-mid:#162847; --navy-light:#1e3561;
+  --navy-hover:#243e70; --navy-active:#2d4d85; --navy-border:rgba(255,255,255,0.08);
+  --sidebar-text:rgba(255,255,255,0.55); --sidebar-active:#ffffff; --sidebar-accent:#4f9cf9;
+  --bg:#f0f2f7; --surface:#ffffff; --surface-2:#f7f9fc;
+  --border:#e2e8f0; --border-2:#edf0f5;
+  --ink:#0d1b35; --ink-2:#2d3f5c; --ink-3:#5a6d8a; --ink-4:#9aa5b8;
+  --primary:#1a6ef5; --primary-h:#1260e0; --primary-l:#eff5ff; --accent:#0ea5e9;
+  --green:#16a34a; --green-l:#f0fdf4; --green-b:#bbf7d0;
+  --red:#dc2626; --red-l:#fef2f2; --red-b:#fecaca;
+  --amber:#d97706; --amber-l:#fffbeb; --amber-b:#fed7aa;
+  --blue:#2563eb; --blue-l:#eff6ff; --blue-b:#bfdbfe;
+  --teal:#0891b2; --teal-l:#ecfeff; --teal-b:#a5f3fc;
+  --purple:#7c3aed; --purple-l:#f5f3ff; --purple-b:#ddd6fe;
+  --gold:#ca8a04; --gold-l:#fefce8; --gold-b:#fde68a;
+  --r:6px; --r-md:10px; --r-lg:14px; --r-xl:20px;
+  --shadow-sm:0 1px 3px rgba(15,31,61,.08),0 1px 2px rgba(15,31,61,.04);
+  --shadow:0 4px 12px rgba(15,31,61,.08),0 2px 4px rgba(15,31,61,.04);
+  --shadow-md:0 8px 24px rgba(15,31,61,.12);
+  --shadow-lg:0 20px 60px rgba(15,31,61,.18);
+  --t:0.16s cubic-bezier(.4,0,.2,1);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{font-size:14px;}
-body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;}
+a{text-decoration:none;color:inherit;}
+
 .app-root{display:flex;min-height:100vh;}
-.sidebar{width:220px;min-height:100vh;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:200;overflow-y:auto;}
-.sb-logo{padding:20px 18px 14px;border-bottom:1px solid var(--line);}
-.sb-logo-mark{display:flex;align-items:center;gap:9px;}
-.sb-logo-icon{width:32px;height:32px;background:var(--primary);border-radius:9px;display:flex;align-items:center;justify-content:center;color:white;font-size:15px;flex-shrink:0;}
-.sb-logo h1{font-family:'Instrument Serif',serif;font-size:16px;color:var(--ink);line-height:1.2;letter-spacing:-0.2px;}
-.sb-logo p{font-size:10.5px;color:var(--ink-4);margin-top:2px;letter-spacing:0.3px;}
-.sb-nav{padding:10px 8px;flex:1;}
-.sb-section{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--ink-4);padding:10px 10px 4px;margin-top:4px;}
-.sb-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;color:var(--ink-3);font-size:13px;font-weight:400;transition:all var(--transition);margin-bottom:1px;user-select:none;position:relative;}
-.sb-item:hover{background:var(--surface-2);color:var(--ink);}
-.sb-item.active{background:var(--primary-l);color:var(--primary);font-weight:500;}
-.sb-item.active::before{content:'';position:absolute;left:-8px;top:6px;bottom:6px;width:3px;background:var(--primary);border-radius:0 2px 2px 0;}
-.sb-icon{font-size:14px;width:16px;text-align:center;flex-shrink:0;}
-.sb-badge{margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:600;border-radius:20px;padding:1px 6px;min-width:18px;text-align:center;line-height:1.6;}
+
+/* SIDEBAR */
+.sidebar{width:232px;min-height:100vh;background:var(--navy);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:200;overflow-y:auto;}
+.sb-logo{padding:22px 18px 18px;border-bottom:1px solid var(--navy-border);}
+.sb-logo-mark{display:flex;align-items:center;gap:10px;}
+.sb-logo-icon{width:36px;height:36px;background:var(--sidebar-accent);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;color:white;flex-shrink:0;box-shadow:0 4px 12px rgba(79,156,249,.4);}
+.sb-logo h1{font-family:'DM Serif Display',serif;font-size:16px;color:#fff;line-height:1.2;letter-spacing:-0.3px;}
+.sb-logo p{font-size:10.5px;color:var(--sidebar-text);margin-top:2px;}
+.sb-nav{padding:12px 10px;flex:1;}
+.sb-section{font-size:9.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,0.3);padding:14px 10px 5px;margin-top:2px;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:var(--sidebar-text);font-size:13px;font-weight:400;transition:all var(--t);margin-bottom:2px;user-select:none;position:relative;}
+.sb-item:hover{background:var(--navy-hover);color:rgba(255,255,255,0.85);}
+.sb-item.active{background:var(--navy-active);color:var(--sidebar-active);font-weight:500;}
+.sb-item.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;background:var(--sidebar-accent);border-radius:0 3px 3px 0;}
+.sb-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
+.sb-badge{margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;border-radius:20px;padding:1px 7px;min-width:20px;text-align:center;line-height:1.7;}
 .sb-badge.amber{background:var(--amber);}
-.sb-footer{padding:12px 18px;border-top:1px solid var(--line);font-size:11px;color:var(--ink-4);}
-.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
-.topbar{background:var(--surface);border-bottom:1px solid var(--line);padding:0 28px;height:56px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;}
-.topbar-left{flex:1;display:flex;align-items:baseline;gap:10px;}
-.topbar-title{font-family:'Instrument Serif',serif;font-size:19px;color:var(--ink);letter-spacing:-0.3px;}
+.sb-footer{padding:14px 18px;border-top:1px solid var(--navy-border);}
+.sb-user{display:flex;align-items:center;gap:10px;}
+.sb-avatar{width:32px;height:32px;border-radius:50%;background:var(--navy-active);border:2px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(255,255,255,0.8);font-weight:600;flex-shrink:0;}
+.sb-user-info{flex:1;min-width:0;}
+.sb-user-email{font-size:11px;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sb-signout{background:none;border:none;color:rgba(255,255,255,0.35);font-size:10.5px;cursor:pointer;padding:0;margin-top:2px;font-family:inherit;transition:color var(--t);}
+.sb-signout:hover{color:rgba(255,255,255,0.65);}
+
+/* MAIN */
+.main{margin-left:232px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);}
+.topbar-left{flex:1;display:flex;align-items:center;gap:8px;}
+.topbar-crumb{font-size:11px;color:var(--ink-4);font-weight:500;letter-spacing:0.3px;}
+.topbar-sep{color:var(--border);font-size:16px;}
+.topbar-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);letter-spacing:-0.3px;}
 .topbar-actions{display:flex;gap:8px;align-items:center;}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-family:'Geist',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all var(--transition);white-space:nowrap;line-height:1;}
-.btn:disabled{opacity:.6;cursor:not-allowed;}
-.btn-primary{background:var(--primary);color:white;border-color:var(--primary);}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r-md);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all var(--t);white-space:nowrap;line-height:1;}
+.btn:disabled{opacity:.55;cursor:not-allowed;}
+.btn-primary{background:var(--primary);color:white;border-color:var(--primary);box-shadow:0 2px 8px rgba(26,110,245,.25);}
 .btn-primary:hover:not(:disabled){background:var(--primary-h);}
-.btn-secondary{background:var(--surface);color:var(--ink-2);border-color:var(--line);}
+.btn-secondary{background:var(--surface);color:var(--ink-2);border-color:var(--border);}
 .btn-secondary:hover:not(:disabled){background:var(--surface-2);border-color:var(--ink-4);}
 .btn-ghost{background:transparent;color:var(--ink-3);border-color:transparent;}
 .btn-ghost:hover:not(:disabled){background:var(--surface-2);color:var(--ink);}
-.btn-danger{background:var(--red-l);color:var(--red);border-color:#f0c8c8;}
-.btn-danger:hover:not(:disabled){background:#f9e0e0;}
-.btn-sm{padding:5px 10px;font-size:11.5px;border-radius:6px;}
-.btn-green{background:var(--primary-l);color:var(--primary);border-color:#b8dfc7;}
-.btn-green:hover:not(:disabled){background:#d2edd9;}
+.btn-danger{background:var(--red-l);color:var(--red);border-color:var(--red-b);}
+.btn-danger:hover:not(:disabled){background:#fee2e2;}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:var(--r);}
+.btn-green{background:var(--green-l);color:var(--green);border-color:var(--green-b);}
+.btn-green:hover:not(:disabled){background:#dcfce7;}
+.btn-navy{background:var(--navy);color:white;border-color:var(--navy);}
+.btn-navy:hover:not(:disabled){background:var(--navy-mid);}
+
+/* PAGES */
 .pages{padding:24px 28px;}
-.page{animation:pageIn 0.2s ease;}
-@keyframes pageIn{from{opacity:0;transform:translateY(3px);}to{opacity:1;transform:none;}}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow);overflow:hidden;margin-bottom:0;}
-.card-header{padding:16px 20px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;}
-.card-header h3{font-family:'Instrument Serif',serif;font-size:15.5px;color:var(--ink);letter-spacing:-0.1px;flex:1;}
+.page{animation:pageIn .18s ease;}
+@keyframes pageIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-sm);overflow:hidden;}
+.card-header{padding:16px 20px 14px;border-bottom:1px solid var(--border-2);display:flex;align-items:center;gap:10px;}
+.card-header h3{font-family:'DM Serif Display',serif;font-size:16px;color:var(--ink);letter-spacing:-0.2px;flex:1;}
 .ch-meta{font-size:12px;color:var(--ink-4);}
 .card-body{padding:18px 20px;}
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:22px;}
-.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 20px 16px;box-shadow:var(--shadow);transition:box-shadow var(--transition);position:relative;overflow:hidden;}
-.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--kpi-color,var(--primary));opacity:0.7;}
-.kpi-label{font-size:11px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:var(--ink-4);margin-bottom:8px;}
-.kpi-value{font-family:'Instrument Serif',serif;font-size:38px;line-height:1;color:var(--ink);margin-bottom:4px;}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:14px;margin-bottom:22px;}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);padding:18px 20px 16px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:box-shadow var(--t),transform var(--t);}
+.kpi:hover{box-shadow:var(--shadow);transform:translateY(-1px);}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kpi-color,var(--primary));}
+.kpi-icon{width:36px;height:36px;border-radius:var(--r-md);background:var(--kpi-bg,var(--primary-l));display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:12px;}
+.kpi-label{font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink-4);margin-bottom:6px;}
+.kpi-value{font-family:'DM Serif Display',serif;font-size:36px;line-height:1;color:var(--ink);margin-bottom:4px;}
 .kpi-sub{font-size:11.5px;color:var(--ink-4);}
-.kpi.kpi-red{--kpi-color:var(--red);}
-.kpi.kpi-amber{--kpi-color:var(--amber);}
-.kpi.kpi-blue{--kpi-color:var(--blue);}
-.kpi.kpi-teal{--kpi-color:var(--teal);}
-.kpi.kpi-purple{--kpi-color:var(--purple);}
-.tbl-wrap{border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow);}
+.kpi.kpi-red{--kpi-color:var(--red);--kpi-bg:var(--red-l);}
+.kpi.kpi-amber{--kpi-color:var(--amber);--kpi-bg:var(--amber-l);}
+.kpi.kpi-blue{--kpi-color:var(--blue);--kpi-bg:var(--blue-l);}
+.kpi.kpi-teal{--kpi-color:var(--teal);--kpi-bg:var(--teal-l);}
+.kpi.kpi-purple{--kpi-color:var(--purple);--kpi-bg:var(--purple-l);}
+
+/* TABLE */
+.tbl-wrap{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
 table{width:100%;border-collapse:collapse;background:var(--surface);}
-thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:0.6px;text-transform:uppercase;color:var(--ink-3);background:var(--surface-2);border-bottom:1px solid var(--line);white-space:nowrap;user-select:none;}
-tbody td{padding:11px 14px;border-bottom:1px solid var(--line-2);font-size:13px;vertical-align:middle;}
+thead th{padding:11px 14px;text-align:left;font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink-3);background:var(--surface-2);border-bottom:1px solid var(--border);white-space:nowrap;user-select:none;cursor:pointer;transition:background var(--t);}
+thead th:hover{background:#edf2f8;color:var(--ink-2);}
+thead th.sort-asc::after{content:' ↑';color:var(--primary);}
+thead th.sort-desc::after{content:' ↓';color:var(--primary);}
+thead th.no-sort{cursor:default;}
+thead th.no-sort:hover{background:var(--surface-2);color:var(--ink-3);}
+tbody td{padding:12px 14px;border-bottom:1px solid var(--border-2);font-size:13px;vertical-align:middle;}
 tbody tr:last-child td{border-bottom:none;}
-tbody tr{transition:background var(--transition);}
-tbody tr:hover{background:var(--primary-ll);}
-.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap;line-height:1.6;}
-.badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor;opacity:0.7;display:none;}
-.badge-dot::before{display:inline-block;}
-.b-green{background:#dff4e7;color:#177a3a;}
-.b-red{background:var(--red-l);color:var(--red);}
-.b-amber{background:var(--amber-l);color:var(--amber);}
-.b-blue{background:var(--blue-l);color:var(--blue);}
-.b-purple{background:var(--purple-l);color:var(--purple);}
-.b-teal{background:var(--teal-l);color:var(--teal);}
-.b-gold{background:var(--gold-l);color:var(--gold);}
-.b-gray{background:var(--surface-2);color:var(--ink-3);border:1px solid var(--line);}
+tbody tr{transition:background var(--t);}
+tbody tr:hover{background:#f8fafd;}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:500;white-space:nowrap;line-height:1.5;}
+.badge-dot::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.7;}
+.b-green{background:var(--green-l);color:var(--green);border:1px solid var(--green-b);}
+.b-red{background:var(--red-l);color:var(--red);border:1px solid var(--red-b);}
+.b-amber{background:var(--amber-l);color:var(--amber);border:1px solid var(--amber-b);}
+.b-blue{background:var(--blue-l);color:var(--blue);border:1px solid var(--blue-b);}
+.b-teal{background:var(--teal-l);color:var(--teal);border:1px solid var(--teal-b);}
+.b-purple{background:var(--purple-l);color:var(--purple);border:1px solid var(--purple-b);}
+.b-gold{background:var(--gold-l);color:var(--gold);border:1px solid var(--gold-b);}
+.b-gray{background:var(--surface-2);color:var(--ink-3);border:1px solid var(--border);}
+
+/* TOOLBAR */
 .toolbar{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
 .search-box{position:relative;}
-.search-box input{padding:7px 12px 7px 32px;border:1px solid var(--line);border-radius:8px;font-family:'Geist',sans-serif;font-size:12.5px;color:var(--ink);background:var(--surface);outline:none;width:220px;transition:border-color var(--transition),box-shadow var(--transition);}
-.search-box input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(30,107,63,.1);}
-.search-box .si{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--ink-4);font-size:13px;pointer-events:none;}
-.filter-select{padding:6px 10px;border:1px solid var(--line);border-radius:8px;font-family:'Geist',sans-serif;font-size:12.5px;color:var(--ink);background:var(--surface);outline:none;cursor:pointer;}
+.search-box input{padding:8px 12px 8px 36px;border:1px solid var(--border);border-radius:var(--r-md);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--surface);outline:none;width:240px;transition:border-color var(--t),box-shadow var(--t);}
+.search-box input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,110,245,.12);}
+.search-box .si{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink-4);font-size:14px;pointer-events:none;}
+.filter-select{padding:7px 12px;border:1px solid var(--border);border-radius:var(--r-md);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--surface);outline:none;cursor:pointer;transition:border-color var(--t);}
 .filter-select:focus{border-color:var(--primary);}
 .toolbar-right{margin-left:auto;display:flex;gap:8px;}
+
+/* FORMS */
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .form-grid .full{grid-column:1/-1;}
 .fg{display:flex;flex-direction:column;gap:5px;}
-.fg label{font-size:11.5px;font-weight:500;color:var(--ink-3);}
-.fg input,.fg select,.fg textarea{padding:7px 10px;border:1px solid var(--line);border-radius:7px;font-family:'Geist',sans-serif;font-size:12.5px;color:var(--ink);background:var(--surface);outline:none;transition:border-color var(--transition),box-shadow var(--transition);}
-.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(30,107,63,.1);}
+.fg label{font-size:12px;font-weight:600;color:var(--ink-3);}
+.fg input,.fg select,.fg textarea{padding:8px 11px;border:1px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--surface);outline:none;transition:border-color var(--t),box-shadow var(--t);}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,110,245,.12);}
 .fg textarea{resize:vertical;min-height:72px;line-height:1.5;}
-.field-note{font-size:10.5px;color:var(--ink-4);margin-top:2px;}
-.section-divider{font-size:10.5px;font-weight:600;letter-spacing:0.8px;text-transform:uppercase;color:var(--primary);background:var(--primary-ll);border:1px solid #c8e6d4;border-radius:6px;padding:5px 10px;grid-column:1/-1;margin-top:4px;}
-.overlay{display:none;position:fixed;inset:0;background:rgba(10,20,10,.35);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center;padding:24px;}
+.field-note{font-size:11px;color:var(--ink-4);margin-top:2px;}
+.section-divider{font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--primary);background:var(--primary-l);border:1px solid #c3d9fd;border-radius:var(--r);padding:5px 10px;grid-column:1/-1;margin-top:6px;}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(9,22,48,.5);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center;padding:24px;}
 .overlay.open{display:flex;}
-.modal{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);width:100%;max-width:620px;max-height:88vh;overflow-y:auto;animation:modalIn 0.2s ease;}
+.modal{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--shadow-lg);width:100%;max-width:620px;max-height:90vh;overflow-y:auto;animation:modalIn .2s ease;}
 .modal-lg{max-width:780px;}
-@keyframes modalIn{from{opacity:0;transform:scale(.97) translateY(8px);}to{opacity:1;transform:none;}}
-.modal-header{padding:20px 24px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;position:sticky;top:0;background:var(--surface);z-index:2;border-radius:var(--r-xl) var(--r-xl) 0 0;}
-.modal-header h3{font-family:'Instrument Serif',serif;font-size:19px;flex:1;letter-spacing:-0.2px;}
-.mh-sub{font-size:12px;color:var(--ink-4);}
-.modal-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--ink-4);padding:4px;border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;}
-.modal-close:hover{background:var(--surface-2);color:var(--ink);}
+@keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(12px);}to{opacity:1;transform:none;}}
+.modal-header{padding:22px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px;position:sticky;top:0;background:var(--surface);z-index:2;border-radius:var(--r-xl) var(--r-xl) 0 0;}
+.modal-header h3{font-family:'DM Serif Display',serif;font-size:20px;flex:1;letter-spacing:-0.3px;}
+.mh-sub{font-size:12px;color:var(--ink-4);margin-top:2px;}
+.modal-close{background:var(--surface-2);border:1px solid var(--border);font-size:14px;cursor:pointer;color:var(--ink-3);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--t);}
+.modal-close:hover{background:var(--red-l);border-color:var(--red-b);color:var(--red);}
 .modal-body{padding:20px 24px;}
-.modal-footer{padding:14px 24px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:var(--surface);border-radius:0 0 var(--r-xl) var(--r-xl);}
-.tabs{display:flex;border-bottom:1px solid var(--line);margin-bottom:18px;}
-.tab{padding:9px 16px;cursor:pointer;font-size:13px;color:var(--ink-4);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all var(--transition);white-space:nowrap;}
-.tab:hover{color:var(--ink);}
-.tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:500;}
-.prov-card{display:grid;grid-template-columns:auto 1fr auto;align-items:start;gap:14px;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);margin-bottom:10px;cursor:pointer;transition:all var(--transition);box-shadow:var(--shadow);}
-.prov-card:hover{border-color:#a8d5be;box-shadow:var(--shadow-md);transform:translateY(-1px);}
-.prov-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Instrument Serif',serif;font-size:17px;color:white;flex-shrink:0;}
-.prov-name{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:2px;}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end;position:sticky;bottom:0;background:var(--surface);border-radius:0 0 var(--r-xl) var(--r-xl);}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:18px;}
+.tab{padding:10px 16px;cursor:pointer;font-size:13px;font-weight:500;color:var(--ink-4);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all var(--t);white-space:nowrap;}
+.tab:hover{color:var(--ink);background:var(--surface-2);}
+.tab.active{color:var(--primary);border-bottom-color:var(--primary);}
+
+/* PROVIDER CARDS */
+.prov-card{display:grid;grid-template-columns:auto 1fr auto;align-items:start;gap:14px;padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);margin-bottom:10px;cursor:pointer;transition:all var(--t);box-shadow:var(--shadow-sm);}
+.prov-card:hover{border-color:#93c5fd;box-shadow:var(--shadow);transform:translateY(-1px);}
+.prov-avatar{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:17px;color:white;flex-shrink:0;box-shadow:0 4px 12px rgba(0,0,0,.15);}
+.prov-name{font-size:14.5px;font-weight:600;color:var(--ink);margin-bottom:2px;}
 .prov-title{font-size:12px;color:var(--ink-3);margin-bottom:8px;}
 .prov-chips{display:flex;gap:5px;flex-wrap:wrap;}
 .prov-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end;}
+
+/* WORKFLOW STEPS */
 .workflow-steps{display:flex;align-items:center;overflow-x:auto;padding:4px 0;}
 .ws{display:flex;flex-direction:column;align-items:center;flex-shrink:0;min-width:72px;position:relative;}
-.ws:not(:last-child)::after{content:'';position:absolute;left:50%;top:14px;width:100%;height:2px;background:var(--line);z-index:0;}
+.ws:not(:last-child)::after{content:'';position:absolute;left:50%;top:14px;width:100%;height:2px;background:var(--border-2);z-index:0;}
 .ws.done:not(:last-child)::after{background:var(--primary);}
-.ws-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink-4);z-index:1;position:relative;transition:all var(--transition);}
+.ws-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink-4);z-index:1;position:relative;transition:all var(--t);}
 .ws.done .ws-dot{background:var(--primary);border-color:var(--primary);color:white;}
-.ws.active .ws-dot{border-color:var(--primary);color:var(--primary);box-shadow:0 0 0 4px rgba(30,107,63,.15);}
+.ws.active .ws-dot{border-color:var(--primary);color:var(--primary);box-shadow:0 0 0 4px rgba(26,110,245,.15);}
 .ws-label{font-size:9.5px;color:var(--ink-4);margin-top:5px;text-align:center;max-width:68px;line-height:1.3;}
-.ws.done .ws-label,.ws.active .ws-label{color:var(--primary);font-weight:500;}
-.alert-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:9px;margin-bottom:8px;font-size:12.5px;}
+.ws.done .ws-label,.ws.active .ws-label{color:var(--primary);font-weight:600;}
+
+/* ALERTS */
+.alert-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-radius:10px;margin-bottom:8px;font-size:13px;}
 .alert-item.al-red{background:var(--red-l);border-left:3px solid var(--red);}
 .alert-item.al-amber{background:var(--amber-l);border-left:3px solid var(--amber);}
 .alert-item.al-blue{background:var(--blue-l);border-left:3px solid var(--blue);}
-.al-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+.al-icon{font-size:15px;flex-shrink:0;margin-top:1px;}
 .al-body{flex:1;}
-.al-title{font-weight:500;color:var(--ink);margin-bottom:1px;}
+.al-title{font-weight:600;color:var(--ink);margin-bottom:2px;}
 .al-sub{color:var(--ink-3);font-size:11.5px;}
-.stat-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line-2);font-size:13px;}
+
+/* MISC */
+.stat-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border-2);font-size:13px;}
 .stat-row:last-child{border-bottom:none;}
 .stat-row-label{color:var(--ink-3);}
 .stat-row-value{font-weight:600;color:var(--ink);}
 .donut-wrap{display:flex;align-items:center;gap:24px;}
 .donut-legend{flex:1;}
 .donut-legend-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12px;}
-.donut-legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
-.npi-result-box{border-radius:9px;padding:12px 14px;margin-top:8px;}
+.donut-legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+.npi-result-box{border-radius:10px;padding:12px 14px;margin-top:8px;}
 .nr-name{font-weight:600;font-size:14px;color:var(--ink);}
 .nr-detail{font-size:12px;color:var(--ink-3);margin-top:3px;}
-.report-card{padding:16px;background:var(--surface-2);border-radius:10px;border:1px solid var(--line);margin-bottom:10px;cursor:pointer;transition:all var(--transition);}
-.report-card:hover{background:var(--primary-ll);border-color:#b8dfc7;}
+.report-card{padding:16px;background:var(--surface-2);border-radius:10px;border:1px solid var(--border);margin-bottom:10px;cursor:pointer;transition:all var(--t);}
+.report-card:hover{background:var(--primary-l);border-color:#c3d9fd;}
 .report-card h4{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:3px;}
 .report-card p{font-size:12px;color:var(--ink-4);}
-.audit-entry{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line-2);font-size:12.5px;}
+.audit-entry{display:flex;gap:12px;padding:11px 0;border-bottom:1px solid var(--border-2);font-size:12.5px;}
 .audit-entry:last-child{border-bottom:none;}
 .audit-dot{width:8px;height:8px;border-radius:50%;background:var(--primary);flex-shrink:0;margin-top:5px;}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
 .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
 .mb-12{margin-bottom:12px;}.mb-16{margin-bottom:16px;}.mb-20{margin-bottom:20px;}.mt-12{margin-top:12px;}
 .text-muted{color:var(--ink-4);font-size:12px;}
-.text-sm{font-size:12.5px;}.text-xs{font-size:11px;}.font-500{font-weight:500;}
-.empty-state{text-align:center;padding:48px 20px;color:var(--ink-4);}
-.ei{font-size:36px;margin-bottom:10px;}
-.empty-state h4{font-size:15px;color:var(--ink-3);margin-bottom:5px;}
-.info-chip{display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:3px 8px;font-size:11.5px;color:var(--ink-3);}
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--primary);border-radius:50%;animation:spin 0.7s linear infinite;}
-.spinner-lg{display:inline-block;width:32px;height:32px;border:3px solid var(--line);border-top-color:var(--primary);border-radius:50%;animation:spin 0.7s linear infinite;}
+.text-sm{font-size:12.5px;}.text-xs{font-size:11.5px;}.font-500{font-weight:500;}
+.info-chip{display:inline-flex;align-items:center;gap:4px;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11.5px;color:var(--ink-3);}
+.empty-state{text-align:center;padding:52px 20px;color:var(--ink-4);}
+.ei{font-size:38px;margin-bottom:12px;opacity:.6;}
+.empty-state h4{font-size:15px;color:var(--ink-3);margin-bottom:6px;font-weight:600;}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;}
+.spinner-lg{display:inline-block;width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;}
-.toast-wrap{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
-.toast{background:var(--ink);color:white;padding:10px 16px;border-radius:10px;font-size:12.5px;box-shadow:var(--shadow-lg);animation:toastIn 0.2s ease;display:flex;align-items:center;gap:9px;min-width:230px;pointer-events:auto;}
-@keyframes toastIn{from{opacity:0;transform:translateY(6px) scale(.98);}to{opacity:1;transform:none;}}
-.t-success{border-left:3px solid var(--accent);}
-.t-error{border-left:3px solid var(--red);}
-.t-warn{border-left:3px solid var(--amber);}
-.t-info{border-left:3px solid var(--blue);}
-@media(max-width:860px){.sidebar{width:180px;}.main{margin-left:180px;}.kpi-grid{grid-template-columns:repeat(2,1fr);}.form-grid,.grid-2,.grid-3{grid-template-columns:1fr;}.form-grid .full{grid-column:1;}}
+.loading-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px;}
+.loading-screen p{color:var(--ink-4);font-size:13px;}
+.toast-wrap{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+.toast{background:var(--navy);color:white;padding:12px 16px;border-radius:12px;font-size:13px;box-shadow:var(--shadow-lg);animation:toastIn .2s ease;display:flex;align-items:center;gap:10px;min-width:240px;pointer-events:auto;}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px) scale(.97);}to{opacity:1;transform:none;}}
+.toast-icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.t-success .toast-icon{background:var(--green);}
+.t-error .toast-icon{background:var(--red);}
+.t-warn .toast-icon{background:var(--amber);}
+.t-info .toast-icon{background:var(--blue);}
+.sort-pill-row{display:flex;gap:5px;align-items:center;margin-left:6px;}
+.sort-pill{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--ink-3);transition:all var(--t);}
+.sort-pill:hover{border-color:var(--primary);color:var(--primary);}
+.sort-pill.active{background:var(--primary);border-color:var(--primary);color:white;}
+.progress-bar{height:8px;background:var(--border-2);border-radius:4px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:4px;transition:width .4s ease;}
+@media(max-width:900px){.sidebar{width:190px;}.main{margin-left:190px;}.kpi-grid{grid-template-columns:repeat(2,1fr);}.form-grid,.grid-2,.grid-3{grid-template-columns:1fr;}.form-grid .full{grid-column:1;}}
 `
+
+
+
+// ─── SORT HOOK ────────────────────────────────────────────────────────────────
+function useSorted(items, defaultKey, defaultDir='asc') {
+  const [sortKey, setSortKey] = useState(defaultKey)
+  const [sortDir, setSortDir] = useState(defaultDir)
+  function toggleSort(key) {
+    if (sortKey===key) setSortDir(d=>d==='asc'?'desc':'asc')
+    else { setSortKey(key); setSortDir('asc') }
+  }
+  const sorted = [...(items||[])].sort((a,b)=>{
+    const av=a[sortKey]??'', bv=b[sortKey]??''
+    const cmp = typeof av==='number'&&typeof bv==='number' ? av-bv : String(av).localeCompare(String(bv),undefined,{numeric:true})
+    return sortDir==='asc'?cmp:-cmp
+  })
+  function thProps(key, label, noSort=false) {
+    if(noSort) return {className:'no-sort',children:label}
+    return {onClick:()=>toggleSort(key),className:sortKey===key?`sort-${sortDir}`:'',children:label,style:{cursor:'pointer'}}
+  }
+  return {sorted,sortKey,sortDir,toggleSort,thProps}
+}
+
 
 export default function App() {
   const [user, setUser] = useState(null)
@@ -313,7 +408,7 @@ export default function App() {
   }
 
   // ─── AUTH GUARD ───────────────────────────────────────────────────────────────
-  if (authLoading) return <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Geist,sans-serif', color:'#5a6e5a' }}>Loading…</div>
+  if (authLoading) return <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'DM Sans,sans-serif', color:'#5a6e5a' }}>Loading…</div>
   if (!user) {
     if (typeof window !== 'undefined') window.location.href = '/login'
     return null
@@ -511,7 +606,7 @@ export default function App() {
     setNpiLoading(true)
     setNpiResult(null)
     try {
-      const res = await fetch(`https://npiregistry.cms.hhs.gov/api/?number=${npiInput}&version=2.1`)
+      const res = await fetch(`/api/npi?number=${npiInput}`)
       const data = await res.json()
       if (!data.results?.length) { setNpiResult({ error: 'No provider found for this NPI.' }); return }
       const r = data.results[0]
@@ -631,7 +726,7 @@ export default function App() {
     <>
       <Head>
         <title>CredentialIQ — Positive Inner Self</title>
-        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
         <style>{CSS}</style>
       </Head>
       <div className="app-root">
@@ -675,7 +770,7 @@ export default function App() {
         <div className="toast-wrap">
           {toasts.map(t => (
             <div key={t.id} className={`toast t-${t.type}`}>
-              <span>{t.type==='success'?'✓':t.type==='error'?'✕':t.type==='warn'?'⚠':'ℹ'}</span>
+              <div className="toast-icon">{t.type==='success'?'✓':t.type==='error'?'✕':t.type==='warn'?'!':'i'}</div>
               {t.msg}
             </div>
           ))}
@@ -692,40 +787,47 @@ export default function App() {
 function Sidebar({ page, setPage, alertCount, pendingEnroll, expDocs, user, signOut }) {
   const navItem = (pg, icon, label, badge, badgeClass) => (
     <div className={`sb-item ${page===pg?'active':''}`} onClick={() => setPage(pg)}>
-      <span className="sb-icon">{icon}</span> {label}
+      <span className="sb-icon">{icon}</span>
+      <span>{label}</span>
       {badge > 0 && <span className={`sb-badge ${badgeClass||''}`}>{badge}</span>}
     </div>
   )
+  const emailInitial = (user?.email||'U')[0].toUpperCase()
   return (
     <nav className="sidebar">
       <div className="sb-logo">
         <div className="sb-logo-mark">
-          <div className="sb-logo-icon">✦</div>
+          <div className="sb-logo-icon">⬡</div>
           <div><h1>CredentialIQ</h1><p>Positive Inner Self</p></div>
         </div>
       </div>
       <nav className="sb-nav">
         <div className="sb-section">Overview</div>
-        {navItem('dashboard','▦','Dashboard')}
-        {navItem('alerts','🔔','Alerts', alertCount)}
+        {navItem('dashboard','◈','Dashboard')}
+        {navItem('alerts','◉','Alerts', alertCount)}
         <div className="sb-section">Providers</div>
-        {navItem('providers','👤','All Providers')}
-        {navItem('add-provider','＋','Add Provider')}
+        {navItem('providers','⊞','All Providers')}
+        {navItem('add-provider','⊕','Add Provider')}
         <div className="sb-section">Enrollments</div>
-        {navItem('enrollments','🏥','Payer Enrollments', pendingEnroll, 'amber')}
-        {navItem('payers','🗂','Payer Directory')}
+        {navItem('enrollments','⊟','Payer Enrollments', pendingEnroll, 'amber')}
+        {navItem('payers','⊠','Payer Directory')}
         <div className="sb-section">Compliance</div>
-        {navItem('documents','📎','Documents & Expiry', expDocs)}
+        {navItem('documents','⊡','Documents & Expiry', expDocs)}
         {navItem('workflows','⚡','Workflows & Tasks')}
         <div className="sb-section">Analytics</div>
-        {navItem('reports','📊','Reports')}
-        {navItem('audit','📋','Audit Trail')}
-        <div className="sb-section">Settings</div>
-        {navItem('settings','⚙️','Settings')}
+        {navItem('reports','◧','Reports')}
+        {navItem('audit','◨','Audit Trail')}
+        <div className="sb-section">System</div>
+        {navItem('settings','◫','Settings')}
       </nav>
       <div className="sb-footer">
-        <strong style={{ display:'block', fontSize:'12px', color:'#2d3d2d', fontWeight:500, marginBottom:1 }}>{user?.email}</strong>
-        <button onClick={signOut} style={{ background:'none', border:'none', color:'#5a6e5a', fontSize:'11px', cursor:'pointer', padding:0, marginTop:4 }}>Sign out →</button>
+        <div className="sb-user">
+          <div className="sb-avatar">{emailInitial}</div>
+          <div className="sb-user-info">
+            <div className="sb-user-email">{user?.email}</div>
+            <button className="sb-signout" onClick={signOut}>Sign out →</button>
+          </div>
+        </div>
       </div>
     </nav>
   )
@@ -743,7 +845,11 @@ function Topbar({ page, setPage, openEnrollModal, openPayerModal, openDocModal, 
   const ctaLabel = page==='enrollments'?'＋ New Enrollment':page==='payers'?'＋ Add Payer':page==='documents'?'＋ Add Document':page==='workflows'?'＋ New Task':['reports','audit','settings'].includes(page)?null:'＋ Add Provider'
   return (
     <div className="topbar">
-      <div className="topbar-left"><div className="topbar-title">{titles[page]||page}</div></div>
+      <div className="topbar-left">
+        <span className="topbar-crumb">CredentialIQ</span>
+        <span className="topbar-sep"> / </span>
+        <span className="topbar-title">{titles[page]||page}</span>
+      </div>
       <div className="topbar-actions">
         <button className="btn btn-ghost btn-sm" onClick={exportJSON}>⬇ Export</button>
         <button className="btn btn-secondary btn-sm" onClick={loadSampleData} disabled={saving}>↺ Sample Data</button>
@@ -905,7 +1011,7 @@ function Providers({ db, search, setSearch, fStatus, setFStatus, fSpec, setFSpec
   })
   return <div className="page">
     <div className="toolbar">
-      <div className="search-box"><span className="si">🔍</span><input type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search providers…" /></div>
+      <div className="search-box"><span className="si">🔍</span><input type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by name, NPI, license, specialty…" style={{width:280}} /></div>
       <select className="filter-select" value={fStatus} onChange={e=>setFStatus(e.target.value)}><option value="">All Statuses</option><option>Active</option><option>Pending</option><option>Inactive</option></select>
       <select className="filter-select" value={fSpec} onChange={e=>setFSpec(e.target.value)}><option value="">All Specialties</option><option>Mental Health</option><option>Massage Therapy</option><option>Naturopathic</option><option>Chiropractic</option><option>Acupuncture</option></select>
       <div className="toolbar-right"><button className="btn btn-primary btn-sm" onClick={()=>{setProvForm({});setEditingId(e=>({...e,provider:null}));setNpiInput('');setNpiResult(null);setPage('add-provider')}}>＋ Add Provider</button></div>
@@ -1030,10 +1136,11 @@ function AddProvider({ db, provForm, setProvForm, editingId, setEditingId, npiIn
 
 // ─── ENROLLMENTS ───────────────────────────────────────────────────────────────
 function Enrollments({ db, search, setSearch, fStage, setFStage, fProv, setFProv, openEnrollModal, handleDeleteEnrollment }) {
-  const list = db.enrollments.filter(e => {
+  const filtered = db.enrollments.filter(e => {
     const txt = `${pName(db.providers,e.provId)} ${payName(db.payers,e.payId)} ${e.stage} ${e.notes}`.toLowerCase()
     return (!search||txt.includes(search.toLowerCase())) && (!fStage||e.stage===fStage) && (!fProv||e.provId===fProv)
   })
+  const {sorted:list, thProps} = useSorted(filtered, 'stage')
   return <div className="page">
     <div className="toolbar">
       <div className="search-box"><span className="si">🔍</span><input type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search enrollments…" /></div>
@@ -1048,7 +1155,16 @@ function Enrollments({ db, search, setSearch, fStage, setFStage, fProv, setFProv
       <div className="toolbar-right"><button className="btn btn-primary btn-sm" onClick={()=>openEnrollModal()}>＋ New Enrollment</button></div>
     </div>
     <div className="tbl-wrap">
-      <table><thead><tr><th>Provider</th><th>Payer</th><th>Stage</th><th>Submitted</th><th>Effective</th><th>EFT / ERA</th><th>Follow-up</th><th>Actions</th></tr></thead>
+      <table><thead><tr>
+          <th {...thProps('provId','Provider')} />
+          <th {...thProps('payId','Payer')} />
+          <th {...thProps('stage','Stage')} />
+          <th {...thProps('submitted','Submitted')} />
+          <th {...thProps('effective','Effective')} />
+          <th className="no-sort">EFT / ERA</th>
+          <th {...thProps('followup','Follow-up')} />
+          <th className="no-sort">Actions</th>
+        </tr></thead>
         <tbody>
           {!list.length ? <tr><td colSpan={8}><div className="empty-state"><div className="ei">🏥</div><h4>No enrollments found</h4></div></td></tr> : list.map(e => {
             const fuD = daysUntil(e.followup)
@@ -1075,7 +1191,8 @@ function Enrollments({ db, search, setSearch, fStage, setFStage, fProv, setFProv
 
 // ─── PAYERS ────────────────────────────────────────────────────────────────────
 function Payers({ db, search, setSearch, fType, setFType, openPayerModal, handleDeletePayer }) {
-  const list = db.payers.filter(p => `${p.name} ${p.payerId} ${p.type}`.toLowerCase().includes(search.toLowerCase()) && (!fType||p.type===fType))
+  const rawPayers = db.payers.filter(p => `${p.name} ${p.payerId} ${p.type}`.toLowerCase().includes(search.toLowerCase()) && (!fType||p.type===fType))
+  const {sorted:list, thProps} = useSorted(rawPayers, 'name')
   return <div className="page">
     <div className="toolbar">
       <div className="search-box"><span className="si">🔍</span><input type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search payers…" /></div>
@@ -1083,7 +1200,16 @@ function Payers({ db, search, setSearch, fType, setFType, openPayerModal, handle
       <div className="toolbar-right"><button className="btn btn-primary btn-sm" onClick={()=>openPayerModal()}>＋ Add Payer</button></div>
     </div>
     <div className="tbl-wrap">
-      <table><thead><tr><th>Payer Name</th><th>Payer ID</th><th>Type</th><th>Phone</th><th>Portal</th><th>Timeline</th><th>Notes</th><th>Actions</th></tr></thead>
+      <table><thead><tr>
+          <th {...thProps('name','Payer Name')} />
+          <th {...thProps('payerId','Payer ID')} />
+          <th {...thProps('type','Type')} />
+          <th className="no-sort">Phone</th>
+          <th className="no-sort">Portal</th>
+          <th {...thProps('timeline','Timeline')} />
+          <th className="no-sort">Notes</th>
+          <th className="no-sort">Actions</th>
+        </tr></thead>
         <tbody>
           {!list.length ? <tr><td colSpan={8}><div className="empty-state"><div className="ei">🗂</div><h4>No payers found</h4></div></td></tr> : list.map(p => (
             <tr key={p.id}>
@@ -1108,7 +1234,7 @@ function Payers({ db, search, setSearch, fType, setFType, openPayerModal, handle
 
 // ─── DOCUMENTS ─────────────────────────────────────────────────────────────────
 function Documents({ db, search, setSearch, fType, setFType, fStatus, setFStatus, openDocModal, handleDeleteDocument }) {
-  const list = db.documents.filter(d => {
+  const rawDocs = db.documents.filter(d => {
     const txt = `${pName(db.providers,d.provId)} ${d.type} ${d.issuer} ${d.number}`.toLowerCase()
     if (!txt.includes(search.toLowerCase())) return false
     if (fType && d.type !== fType) return false
@@ -1120,7 +1246,8 @@ function Documents({ db, search, setSearch, fType, setFType, fStatus, setFStatus
       if (fStatus==='ok' && (days===null||days<=90)) return false
     }
     return true
-  }).sort((a,b) => (daysUntil(a.exp)||9999)-(daysUntil(b.exp)||9999))
+  })
+  const {sorted:list, thProps} = useSorted(rawDocs, 'exp')
   return <div className="page">
     <div className="toolbar">
       <div className="search-box"><span className="si">🔍</span><input type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search documents…" /></div>
@@ -1129,7 +1256,16 @@ function Documents({ db, search, setSearch, fType, setFType, fStatus, setFStatus
       <div className="toolbar-right"><button className="btn btn-primary btn-sm" onClick={()=>openDocModal()}>＋ Add Document</button></div>
     </div>
     <div className="tbl-wrap">
-      <table><thead><tr><th>Provider</th><th>Type</th><th>Issuer</th><th>Number</th><th>Expiration</th><th>Days Left</th><th>Status</th><th>Actions</th></tr></thead>
+      <table><thead><tr>
+          <th {...thProps('provId','Provider')} />
+          <th {...thProps('type','Type')} />
+          <th {...thProps('issuer','Issuer')} />
+          <th className="no-sort">Number</th>
+          <th {...thProps('exp','Expiration')} />
+          <th className="no-sort">Days Left</th>
+          <th className="no-sort">Status</th>
+          <th className="no-sort">Actions</th>
+        </tr></thead>
         <tbody>
           {!list.length ? <tr><td colSpan={8}><div className="empty-state"><div className="ei">📎</div><h4>No documents found</h4></div></td></tr> : list.map(d => {
             const days = daysUntil(d.exp)
@@ -1156,15 +1292,12 @@ function Documents({ db, search, setSearch, fType, setFType, fStatus, setFStatus
 
 // ─── WORKFLOWS ─────────────────────────────────────────────────────────────────
 function Workflows({ db, search, setSearch, fPriority, setFPriority, fStatus, setFStatus, openTaskModal, handleMarkDone, handleDeleteTask }) {
-  const list = db.tasks.filter(t => {
+  const rawTasks = db.tasks.filter(t => {
     const txt = `${t.task} ${pName(db.providers,t.provId)} ${payName(db.payers,t.payId)} ${t.cat}`.toLowerCase()
     return txt.includes(search.toLowerCase()) && (!fPriority||t.priority===fPriority) && (!fStatus||t.status===fStatus)
-  }).sort((a,b) => {
-    const pd={Urgent:0,High:1,Medium:2,Low:3}; const sd={Open:0,'In Progress':1,Waiting:2,Done:3}
-    if(a.status!==b.status) return sd[a.status]-sd[b.status]
-    if(a.priority!==b.priority) return pd[a.priority]-pd[b.priority]
-    return (a.due||'').localeCompare(b.due||'')
   })
+  const {sorted:list, thProps} = useSorted(rawTasks, 'due')
+
   return <div className="page">
     <div className="toolbar">
       <div className="search-box"><span className="si">🔍</span><input type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search tasks…" /></div>
@@ -1173,7 +1306,16 @@ function Workflows({ db, search, setSearch, fPriority, setFPriority, fStatus, se
       <div className="toolbar-right"><button className="btn btn-primary btn-sm" onClick={()=>openTaskModal()}>＋ New Task</button></div>
     </div>
     <div className="tbl-wrap">
-      <table><thead><tr><th>Due Date</th><th>Task</th><th>Provider</th><th>Payer</th><th>Priority</th><th>Status</th><th>Category</th><th>Actions</th></tr></thead>
+      <table><thead><tr>
+          <th {...thProps('due','Due Date')} />
+          <th {...thProps('task','Task')} />
+          <th {...thProps('provId','Provider')} />
+          <th className="no-sort">Payer</th>
+          <th {...thProps('priority','Priority')} />
+          <th {...thProps('status','Status')} />
+          <th {...thProps('cat','Category')} />
+          <th className="no-sort">Actions</th>
+        </tr></thead>
         <tbody>
           {!list.length ? <tr><td colSpan={8}><div className="empty-state"><div className="ei">⚡</div><h4>No tasks found</h4></div></td></tr> : list.map(t => {
             const dd = daysUntil(t.due)
