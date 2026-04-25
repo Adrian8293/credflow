@@ -2088,11 +2088,11 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
     {
       icon: '🏥',
       title: 'OHA Medicaid Provider Enrollment Check',
-      desc: 'Verify if a provider is currently enrolled in Oregon Health Plan (OHP/Medicaid). Enter the provider's NPI on OHA's tool.',
+      desc: 'Verify if a provider is currently enrolled in Oregon Health Plan (OHP/Medicaid). Enter the provider NPI on the OHA tool.',
       bg: '#f0fdf4', color: '#16a34a',
       cta: 'Check OHA Enrollment →',
       href: 'https://www.oregon.gov/oha/hsd/ohp/pages/provider-enroll.aspx',
-      note: 'Enter the provider's NPI at the OHA tool to check enrollment status.',
+      note: 'Enter the provider NPI at the OHA tool to check enrollment status.',
     },
     {
       icon: '🚨',
@@ -2101,7 +2101,7 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
       bg: '#fef2f2', color: '#dc2626',
       cta: 'Search OIG Exclusions →',
       href: 'https://exclusions.oig.hhs.gov/',
-      note: 'Always run this check before credentialing a new provider. Free, real-time.',
+      note: 'Always run this check before credentialing a new provider. Free and real-time.',
     },
     {
       icon: '💊',
