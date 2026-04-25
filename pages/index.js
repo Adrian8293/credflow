@@ -3542,6 +3542,12 @@ function ClaimsPage({ db, toast }) {
       )}
 
       {modal && (
+        <div className="overlay open" onClick={e=>e.target===e.currentTarget&&setModal(false)}>
+          <div className="modal modal-lg">
+            <div className="modal-header">
+              <div><h3>{form.id?'Edit Claim':'New Claim'}</h3><div className="mh-sub">Log a claim from SimplePractice or your clearinghouse</div></div>
+              <button className="modal-close" onClick={()=>setModal(false)}>✕</button>
+            </div>
             <div className="modal-body">
               <div className="form-grid">
                 <div className="fg"><label>Claim Number</label><input value={form.claim_num||''} onChange={e=>setForm(f=>({...f,claim_num:e.target.value}))} placeholder="Clearinghouse claim #" /></div>
