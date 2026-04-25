@@ -2677,7 +2677,7 @@ function PsychologyToday({ db, setPage, editProvider }) {
                   ['🔧 Edit Your Profile','Update bio, photo, specialties','https://member.psychologytoday.com'],
                   ['💰 Subscription & Billing','Manage $29.95/mo fee','https://member.psychologytoday.com'],
                   ['📚 PT Help Center','Guides on optimizing your listing','https://support.psychologytoday.com'],
-                  ['🔍 Preview Your Listing','See how clients see your profile','https://www.psychologytoday.com/us/therapists'],
+                  ['🔍 Preview Your Listing','See how clients see our profile','https://www.psychologytoday.com/us/therapists/positive-inner-self-llc-beaverton-or/751449'],
                   ['📧 Contact PT Support','Questions about your account','https://support.psychologytoday.com'],
                 ].map(([title, desc, href]) => (
                   <a key={title} href={href} target="_blank" rel="noreferrer" className="report-card" style={{textDecoration:'none'}}>
