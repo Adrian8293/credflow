@@ -1083,7 +1083,7 @@ function Alerts({ db }) {
 function Providers({ db, search, setSearch, fStatus, setFStatus, fSpec, setFSpec, openProvDetail, editProvider, setPage, setProvForm, setEditingId, setNpiInput, setNpiResult }) {
   const list = db.providers.filter(p => {
     const txt = `${p.fname} ${p.lname} ${p.cred} ${p.npi} ${p.focus} ${p.spec} ${p.email||''} ${p.phone||''} ${p.license||''} ${p.medicaid||''} ${p.caqh||''} ${p.dea||''} ${p.supervisor||''} ${p.notes||''}`.toLowerCase()
-    return (!search || txt.includes(search.toLowerCase())) && (!fStatus || p.status===fStatus) && (!fSpec || p.spec===fSpec)
+    return (!search || txt.includes(search.toLowerCase())) && (!fStatus || (p.status||'').trim()===fStatus) && (!fSpec || (p.spec||'').trim().toLowerCase()===fSpec.toLowerCase())
   })
   return <div className="page">
     <div className="toolbar">
@@ -2020,24 +2020,24 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
   }
 
   const VERIF_SOURCES = [
-    {
-      icon: '🏛️',
-      title: 'NPPES NPI Registry',
-      desc: 'Official CMS database of all licensed US healthcare providers. Search by name, NPI, specialty, or location. Free, real-time, no login required.',
-      bg: '#eff6ff', color: '#2563eb',
-      cta: 'Search NPPES →',
-      href: 'https://npiregistry.cms.hhs.gov/search',
-      note: 'Also available above in the "NPI Registry Search" tab.',
-      apiAvail: true,
-    },
+
     {
       icon: '🎓',
-      title: 'OBLPCT — Oregon Board of Licensed Professional Counselors & Therapists',
-      desc: 'Verify licenses for LPCs, LMFTs, and associates (LPCA, LMFTA). Covers the most common mental health credentials at Positive Inner Self.',
+      title: 'OBLPCT — LPCs & MFTs (Oregon Board of LPC & Therapists)',
+      desc: 'Verify licenses for Licensed Professional Counselors (LPC, LPCA), Licensed Marriage & Family Therapists (LMFT, LMFTA). Most common mental health credentials at Positive Inner Self.',
       bg: '#f0fdf4', color: '#16a34a',
-      cta: 'Verify License →',
-      href: 'https://oblpct.state.or.us/lookup/default.aspx',
-      note: 'Covers: LPC, LPCA, LMFT, LMFTA',
+      cta: 'Verify LPC / LMFT License →',
+      href: 'https://oblpct.us.thentiacloud.net/webs/oblpct/register/#',
+      note: 'Covers: LPC, LPCA, LMFT, LMFTA — Powered by Thentia Cloud (Oregon official registry)',
+    },
+    {
+      icon: '🧩',
+      title: 'BLSW — LCSWs (Oregon Board of Licensed Social Workers)',
+      desc: 'Verify licenses for Licensed Clinical Social Workers (LCSW) and Clinical Social Work Associates (CSWA). Required for Sarah Chen and similar providers.',
+      bg: '#f0fdf4', color: '#0891b2',
+      cta: 'Verify LCSW License →',
+      href: 'https://blsw.us.thentiacloud.net/webs/blsw/register/#/',
+      note: 'Covers: LCSW, CSWA, LSW — Powered by Thentia Cloud (Oregon official registry)',
     },
     {
       icon: '🧠',
@@ -2045,8 +2045,8 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
       desc: 'Verify licenses for Licensed Psychologists (PhD/PsyD). Required for Elena Vasquez and similar providers.',
       bg: '#faf5ff', color: '#7c3aed',
       cta: 'Verify License →',
-      href: 'https://psychology.oregon.gov/Pages/license_verify.aspx',
-      note: 'Covers: Licensed Psychologist, Psychological Associate',
+      href: 'https://obp.us.thentiacloud.net/webs/obp/register/#',
+      note: 'Covers: Licensed Psychologist, Psychological Associate — Powered by Thentia Cloud (Oregon official registry)',
     },
     {
       icon: '🌿',
@@ -2054,8 +2054,8 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
       desc: 'Verify ND (Naturopathic Doctor) licenses. Required for Priya Nair and naturopathic providers.',
       bg: '#f0fdf4', color: '#0891b2',
       cta: 'Verify License →',
-      href: 'https://www.oregon.gov/obnm/pages/license-verification.aspx',
-      note: 'Covers: Naturopathic Physician (ND)',
+      href: 'https://obnm.us.thentiacloud.net/webs/obnm/register/#',
+      note: 'Covers: Naturopathic Physician (ND) — Powered by Thentia Cloud (Oregon official registry)',
     },
     {
       icon: '🦴',
@@ -2063,8 +2063,8 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
       desc: 'Verify DC (Doctor of Chiropractic) licenses. Required for David Park and chiropractic providers.',
       bg: '#fffbeb', color: '#d97706',
       cta: 'Verify License →',
-      href: 'https://www.oregon.gov/obce/Pages/LicenseLookup.aspx',
-      note: 'Covers: Doctor of Chiropractic (DC)',
+      href: 'https://obce.us.thentiacloud.net/webs/obce/register/#',
+      note: 'Covers: Doctor of Chiropractic (DC) — Powered by Thentia Cloud (Oregon official registry)',
     },
     {
       icon: '⚕️',
@@ -2072,8 +2072,8 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
       desc: 'Central hub for massage therapists, acupuncturists, and 19 other health professions licensed in Oregon.',
       bg: '#fef2f2', color: '#dc2626',
       cta: 'Verify License →',
-      href: 'https://hlo.oregon.gov/Lookup/LicenseLookup.aspx',
-      note: 'Covers: LMT, LAc, and 17 other professions',
+      href: 'https://hlo.us.thentiacloud.net/webs/hlo/register/#',
+      note: 'Covers: LMT, LAc, and 17 other health professions — Powered by Thentia Cloud (Oregon official registry)',
     },
     {
       icon: '📋',
@@ -2109,7 +2109,7 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
       desc: 'Verify active DEA registration for providers with prescribing authority (NDs, PMHNPs, MDs). Requires DEA number.',
       bg: '#faf5ff', color: '#7c3aed',
       cta: 'Verify DEA →',
-      href: 'https://www.deadiversion.usdoj.gov/webforms/validateLogin.jsp',
+      href: 'https://apps.deadiversion.usdoj.gov/webforms2/spring/validationLogin',
       note: 'DEA verification requires a DEA account. Contact your DEA Diversion Investigator for access if needed.',
     },
   ]
