@@ -41,7 +41,7 @@ export default function Login() {
   return (
     <>
       <Head>
-        <title>CredentialIQ — Sign In</title>
+        <title>CredFlow — Sign In</title>
         <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </Head>
       <div style={styles.bg}>
@@ -49,8 +49,7 @@ export default function Login() {
           <div style={styles.logoWrap}>
             <div style={styles.logoIcon}>✦</div>
             <div>
-              <div style={styles.logoTitle}>CredentialIQ</div>
-              <div style={styles.logoSub}>Positive Inner Self</div>
+              <div style={styles.logoTitle}>CredFlow</div>
             </div>
           </div>
 
@@ -59,7 +58,7 @@ export default function Login() {
           </h2>
           <p style={styles.subheading}>
             {mode === 'login' ? 'Sign in to your credentialing dashboard' :
-             mode === 'signup' ? 'Set up your CredentialIQ account' :
+             mode === 'signup' ? 'Set up your CredFlow account' :
              'Enter your email and we\'ll send a reset link'}
           </p>
 
@@ -75,7 +74,7 @@ export default function Login() {
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="you@positiveinnerself.com"
+                  placeholder="you@yourpractice.com"
                   required
                   style={styles.input}
                 />
@@ -147,7 +146,6 @@ const styles = {
   logoTitle: {
     fontFamily: "'Instrument Serif', serif", fontSize: '18px', color: '#0f1a0f', lineHeight: 1.2,
   },
-  logoSub: { fontSize: '11px', color: '#8fa08f', marginTop: '2px' },
   heading: {
     fontFamily: "'Instrument Serif', serif", fontSize: '24px', color: '#0f1a0f',
     marginBottom: '6px', letterSpacing: '-0.3px',
