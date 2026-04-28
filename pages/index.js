@@ -640,7 +640,6 @@ tbody tr:hover{background:#f8fafd;}
 .payer-req-expanded{display:none;}.payer-req-card.expanded .payer-req-expanded{display:block;}
 .payer-req-toggle{background:none;border:none;font-size:11.5px;color:var(--primary);cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;padding:0;margin-top:4px;transition:color var(--t);}
 .payer-req-toggle:hover{color:var(--primary-h);}`
-`
 
 
 
