@@ -906,7 +906,7 @@ export default function App() {
 
         {/* ─── MAIN ─── */}
         <div className="main">
-          <Topbar page={page} setPage={setPage} openEnrollModal={openEnrollModal} openPayerModal={openPayerModal} openDocModal={openDocModal} openTaskModal={openTaskModal} exportJSON={exportJSON} loadSampleData={loadSampleData} saving={saving} onOpenSearch={()=>setGlobalSearchOpen(true)} />
+          <Topbar page={page} setPage={setPage} openEnrollModal={openEnrollModal} openPayerModal={openPayerModal} openDocModal={openDocModal} openTaskModal={openTaskModal} exportJSON={exportJSON} saving={saving} onOpenSearch={()=>setGlobalSearchOpen(true)} />
 
           {loading ? (
             <div className="loading-screen">
@@ -1044,7 +1044,7 @@ function Sidebar({ page, setPage, alertCount, pendingEnroll, expDocs, user, sign
   )
 }
 
-function Topbar({ page, setPage, openEnrollModal, openPayerModal, openDocModal, openTaskModal, exportJSON, loadSampleData, saving, onOpenSearch }) {
+function Topbar({ page, setPage, openEnrollModal, openPayerModal, openDocModal, openTaskModal, exportJSON, saving, onOpenSearch }) {
   const titles = { dashboard:'Dashboard', alerts:'Alerts', providers:'All Providers', 'add-provider':'Add Provider', 'provider-lookup':'Provider Lookup', 'psychology-today':'Psychology Today', enrollments:'Payer Enrollments', payers:'Payer Directory', documents:'Documents & Expiry', workflows:'Workflows & Tasks', reports:'Reports & Analytics', audit:'Audit Trail', settings:'Settings', eligibility:'Eligibility Verification', claims:'Claims Tracker', denials:'Denial Log', revenue:'Revenue Analytics' }
   function topCTA() {
     if (page==='enrollments') openEnrollModal()
@@ -1068,7 +1068,7 @@ function Topbar({ page, setPage, openEnrollModal, openPayerModal, openDocModal, 
       </div>
       <div className="topbar-actions">
         <button className="btn btn-ghost btn-sm" onClick={exportJSON}>⬇ Export</button>
-        <button className="btn btn-secondary btn-sm" onClick={loadSampleData} disabled={saving}>↺ Sample Data</button>
+
         {ctaLabel && <button className="btn btn-primary btn-sm" onClick={topCTA}>{ctaLabel}</button>}
       </div>
     </div>
