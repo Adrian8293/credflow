@@ -19,6 +19,169 @@ import {
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 const STAGES = ['Not Started','Application Submitted','Awaiting CAQH','Pending Verification','Additional Info Requested','Under Review','Approved – Awaiting Contract','Contracted – Pending Effective Date','Active','Denied']
+
+// ─── KANBAN COLUMNS ───────────────────────────────────────────────────────────
+const KANBAN_COLUMNS = [
+  { id:'submitted', label:'Submitted', stages:['Application Submitted'], color:'#2563eb', icon:'📨' },
+  { id:'in_progress', label:'In Progress', stages:['Awaiting CAQH','Pending Verification','Under Review'], color:'#d97706', icon:'⚙️' },
+  { id:'followup', label:'Follow-up Needed', stages:['Additional Info Requested'], color:'#dc2626', icon:'🔔' },
+  { id:'approved', label:'Approved', stages:['Approved – Awaiting Contract','Contracted – Pending Effective Date','Active'], color:'#10b981', icon:'✅' },
+  { id:'rejected', label:'Rejected', stages:['Denied'], color:'#6b7280', icon:'❌' },
+]
+
+// ─── PAYER REQUIREMENTS ───────────────────────────────────────────────────────
+const PAYER_REQUIREMENTS = {
+  'Aetna': {
+    requirements: ['CAQH Profile (must be current)', 'Aetna Provider Application', 'W-9 Form', 'Current CV/Resume', 'Copy of License', 'Malpractice Insurance Certificate', 'DEA Certificate (if applicable)', 'NPI Type 1 & Type 2'],
+    submission: 'Availity Provider Enrollment portal',
+    portalUrl: 'https://www.availity.com',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'CAQH must be attested within last 120 days. Requires both Type 1 and Type 2 NPI. Group enrollment separate from individual.',
+    specialNotes: ['CAQH attestation required', 'Portal: Availity', 'Group & individual enrollment both required'],
+    color: '#C8102E',
+  },
+  'BCBS Oregon (Regence)': {
+    requirements: ['CAQH Profile', 'Regence Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'OHA Participation (recommended)', 'NPI Type 1'],
+    submission: 'Regence Provider Portal or paper application',
+    portalUrl: 'https://www.regence.com/providers',
+    timeline: '45–60 days',
+    revalidation: 'Every 3 years',
+    notes: 'OHA/Medicaid participation often required first for behavioral health. Contact Provider Relations for behavioral health contracts.',
+    specialNotes: ['OHA participation recommended first', 'Behavioral health contracts handled separately'],
+    color: '#00539F',
+  },
+  'OHP / Medicaid (OHA)': {
+    requirements: ['DMAP Enrollment Form', 'W-9 Form', 'Oregon License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check Authorization', 'Medicaid Provider Agreement'],
+    submission: 'Oregon DMAP Online Enrollment System',
+    portalUrl: 'https://www.oregon.gov/oha/hsd/ohp',
+    timeline: '45–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Oregon Health Plan enrollment through DMAP. Required for most Medicaid-accepting practices. Supervising provider must also be enrolled.',
+    specialNotes: ['Supervisor must be enrolled if applicable', 'Background check required', 'DMAP system enrollment'],
+    color: '#006400',
+  },
+  'Cigna': {
+    requirements: ['CAQH Profile', 'Cigna Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Cigna for Health Care Professionals portal',
+    portalUrl: 'https://cignaforhcp.cigna.com',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Submit via Cigna for Health Care Professionals portal. Mental health providers may need to contact Evernorth separately. CAQH must be complete and attested.',
+    specialNotes: ['Mental health may route through Evernorth', 'Portal submission required', 'CAQH attestation required'],
+    color: '#004B87',
+  },
+  'UnitedHealthcare': {
+    requirements: ['CAQH Profile', 'UHC Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume', 'Revalidation Form (if revalidating)'],
+    submission: 'Provider Express portal (providerexpress.com)',
+    portalUrl: 'https://www.providerexpress.com',
+    timeline: '60–120 days',
+    revalidation: 'Every 3 years (required)',
+    notes: 'UHC requires mandatory revalidation every 3 years — failure to revalidate results in termination. Optum manages behavioral health credentialing. Separate enrollment for Optum/Behavioral Health.',
+    specialNotes: ['Revalidation every 3 years mandatory', 'Behavioral health via Optum', 'Longest credentialing timeline'],
+    color: '#006699',
+  },
+  'Providence Health Plan': {
+    requirements: ['Providence Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume', 'CAQH Profile'],
+    submission: 'Providence Provider Relations (phone/email/portal)',
+    portalUrl: 'https://www.providence.org/providers',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'Oregon-specific payer. Strong presence in Portland metro. Contact Provider Relations directly for application packets.',
+    specialNotes: ['Oregon/Pacific NW regional payer', 'Direct contact with Provider Relations recommended'],
+    color: '#0061A1',
+  },
+  'Moda Health': {
+    requirements: ['Moda Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CAQH Profile', 'CV/Resume'],
+    submission: 'Moda Provider Portal or paper application',
+    portalUrl: 'https://www.modahealth.com/medical/provider',
+    timeline: '30–60 days',
+    revalidation: 'Every 3 years',
+    notes: 'Oregon-based regional payer. Behavioral health credentialing through Moda directly. Often faster than national payers.',
+    specialNotes: ['Oregon regional payer', 'Faster timeline than nationals', 'Behavioral health credentialed directly'],
+    color: '#C41E3A',
+  },
+  'PacificSource Health Plans': {
+    requirements: ['PacificSource Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume'],
+    submission: 'PacificSource Provider Relations',
+    portalUrl: 'https://www.pacificsource.com/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 3 years',
+    notes: 'Northwest regional payer covering Oregon and surrounding states. Direct application process.',
+    specialNotes: ['Northwest regional payer', 'Direct application process'],
+    color: '#0033A0',
+  },
+  'Kaiser Permanente': {
+    requirements: ['Kaiser Application (invitation only)', 'CAQH Profile', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Board Certification (if applicable)'],
+    submission: 'Kaiser Provider Network Relations (invitation required)',
+    portalUrl: 'https://providers.kaiserpermanente.org',
+    timeline: '90–120 days',
+    revalidation: 'Every 2 years',
+    notes: 'INVITATION ONLY network. Providers must be invited to join. Closed panel in many markets. Contact Network Relations to inquire about open panels.',
+    specialNotes: ['⚠️ Invitation only — closed panel', 'Board certification may be required', 'Longest revalidation cycle (2 years)'],
+    color: '#003781',
+  },
+  'Humana': {
+    requirements: ['CAQH Profile', 'Humana Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or Humana Provider Portal',
+    portalUrl: 'https://www.humana.com/provider',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Submit via Availity or directly through Humana Provider Portal. Behavioral health credentialing may route through Humana Behavioral Health.',
+    specialNotes: ['Availity or direct portal', 'Behavioral health may be separate', 'CAQH required'],
+    color: '#006F44',
+  },
+  'Anthem / Elevance Health': {
+    requirements: ['CAQH Profile', 'Anthem Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or Anthem provider portal',
+    portalUrl: 'https://www.anthem.com/provider',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Anthem operates as Elevance Health nationally. Behavioral health credentialing through Beacon Health Options in some markets.',
+    specialNotes: ['Now operating as Elevance Health', 'Beacon Health Options for behavioral health', 'Availity submission preferred'],
+    color: '#0079C1',
+  },
+  'Molina Healthcare': {
+    requirements: ['Molina Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Medicaid Provider Agreement', 'Background Check'],
+    submission: 'Molina Provider Services (phone or portal)',
+    portalUrl: 'https://www.molinahealthcare.com/providers',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'Medicaid-focused managed care organization. Background check required. Oregon Medicaid (OHP) enrollment often required first.',
+    specialNotes: ['Medicaid/OHP enrollment recommended first', 'Background check required', 'MCO for OHP population'],
+    color: '#007DC3',
+  },
+  'Medicare (Novitas / CGS)': {
+    requirements: ['Medicare Enrollment Application (CMS-855)', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'PECOS Enrollment', 'Background Check'],
+    submission: 'PECOS (Provider Enrollment Chain and Ownership System)',
+    portalUrl: 'https://pecos.cms.hhs.gov',
+    timeline: '60–90 days',
+    revalidation: 'Every 5 years',
+    notes: 'Medicare enrollment through PECOS. Most providers must complete PECOS enrollment. Opt-out available for certain providers.',
+    specialNotes: ['PECOS enrollment required', 'CMS-855 application form', 'Opt-out option available'],
+    color: '#1B3A6B',
+  },
+  'TriCare': {
+    requirements: ['TRICARE Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume', 'Board Certification preferred'],
+    submission: 'Humana Military (TRICARE East) or Health Net Federal Services (West)',
+    portalUrl: 'https://www.tricare.mil/providers',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Military health program. Oregon falls under TRICARE West (Health Net Federal Services). Separate enrollment from commercial plans.',
+    specialNotes: ['Oregon = TRICARE West region', 'Health Net Federal Services contact', 'Military health program'],
+    color: '#003087',
+  },
+  'Oscar Health': {
+    requirements: ['Oscar Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CAQH Profile', 'CV/Resume'],
+    submission: 'Oscar Provider Relations portal',
+    portalUrl: 'https://www.hioscar.com/providers',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'Newer national payer with growing Oregon presence. Technology-forward approach. Direct portal submission.',
+    specialNotes: ['Growing Oregon presence', 'Tech-forward portal', 'Newer payer — check panel status'],
+    color: '#EF4923',
+  },
+}
 const STAGE_COLOR = { 'Active':'b-green','Denied':'b-red','Not Started':'b-gray','Application Submitted':'b-blue','Awaiting CAQH':'b-amber','Pending Verification':'b-amber','Additional Info Requested':'b-red','Under Review':'b-blue','Approved – Awaiting Contract':'b-teal','Contracted – Pending Effective Date':'b-teal' }
 const SPEC_COLORS = { 'Mental Health':'#3563c9','Massage Therapy':'#1a8a7a','Naturopathic':'#6d3fb5','Chiropractic':'#c97d1e','Acupuncture':'#b8292e' }
 const PRIORITY_COLOR = { 'Urgent':'b-red','High':'b-amber','Medium':'b-blue','Low':'b-gray' }
@@ -432,6 +595,51 @@ tbody tr:hover{background:#f8fafd;}
 .import-val{color:var(--ink);font-weight:500;}
 .progress-fill{height:100%;border-radius:4px;transition:width .4s ease;}
 @media(max-width:900px){.sidebar{width:180px;}.main{margin-left:180px;}.kpi-grid{grid-template-columns:repeat(2,1fr);}.form-grid,.grid-2,.grid-3{grid-template-columns:1fr;}.form-grid .full{grid-column:1;}}
+
+/* KANBAN BOARD */
+.kanban-board{display:flex;gap:14px;overflow-x:auto;padding-bottom:12px;align-items:flex-start;min-height:60vh;}
+.kanban-col{flex:0 0 260px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-lg);display:flex;flex-direction:column;max-height:calc(100vh - 180px);}
+.kanban-col-header{padding:12px 14px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;position:sticky;top:0;background:var(--surface-2);border-radius:var(--r-lg) var(--r-lg) 0 0;}
+.kanban-col-title{font-size:12.5px;font-weight:700;color:var(--ink-2);flex:1;}
+.kanban-col-count{background:var(--surface);border:1px solid var(--border);border-radius:20px;font-size:11px;font-weight:700;color:var(--ink-3);padding:1px 8px;}
+.kanban-col-accent{width:3px;height:20px;border-radius:2px;flex-shrink:0;}
+.kanban-cards{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;}
+.kanban-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 14px;cursor:pointer;transition:all var(--t);box-shadow:var(--shadow-sm);}
+.kanban-card:hover{border-color:#93c5fd;box-shadow:var(--shadow);transform:translateY(-1px);}
+.kanban-card-prov{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;}
+.kanban-card-payer{font-size:11.5px;color:var(--ink-3);margin-bottom:8px;}
+.kanban-card-meta{display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.kanban-card-fu{font-size:10.5px;color:var(--red);font-weight:600;margin-top:5px;padding:3px 7px;background:var(--red-l);border-radius:4px;display:inline-flex;align-items:center;gap:4px;}
+.kanban-empty{text-align:center;padding:28px 12px;color:var(--ink-4);font-size:12px;opacity:.7;}
+
+/* MISSING DOCS */
+.missing-doc-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;margin-bottom:7px;background:var(--red-l);border:1px solid var(--red-b);}
+.missing-doc-row.warn{background:var(--amber-l);border-color:var(--amber-b);}
+.missing-doc-icon{font-size:16px;flex-shrink:0;}
+.missing-doc-body{flex:1;}
+.missing-doc-title{font-size:13px;font-weight:600;color:var(--ink);}
+.missing-doc-sub{font-size:11.5px;color:var(--ink-3);}
+.missing-doc-badge{flex-shrink:0;}
+
+/* PAYER REQUIREMENTS */
+.payer-req-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;}
+.payer-req-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);transition:box-shadow var(--t);}
+.payer-req-card:hover{box-shadow:var(--shadow);}
+.payer-req-header{padding:14px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.payer-req-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.payer-req-name{font-size:14.5px;font-weight:700;color:var(--ink);flex:1;}
+.payer-req-body{padding:14px 16px;}
+.payer-req-section{margin-bottom:12px;}
+.payer-req-section-label{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--ink-4);margin-bottom:6px;}
+.payer-req-item{display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--ink-2);padding:2px 0;}
+.payer-req-item::before{content:'•';color:var(--primary);font-weight:700;flex-shrink:0;margin-top:1px;}
+.payer-req-note{font-size:11.5px;color:var(--ink-4);background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;line-height:1.5;}
+.payer-req-special{display:flex;align-items:flex-start;gap:6px;font-size:11.5px;color:var(--amber);background:var(--amber-l);border:1px solid var(--amber-b);border-radius:5px;padding:4px 8px;margin-bottom:4px;font-weight:500;}
+.payer-req-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.payer-req-chip{display:inline-flex;align-items:center;gap:4px;background:var(--primary-l);border:1px solid #c3d9fd;border-radius:5px;padding:3px 8px;font-size:11px;color:var(--primary);font-weight:500;}
+.payer-req-expanded{display:none;}.payer-req-card.expanded .payer-req-expanded{display:block;}
+.payer-req-toggle{background:none;border:none;font-size:11.5px;color:var(--primary);cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;padding:0;margin-top:4px;transition:color var(--t);}
+.payer-req-toggle:hover{color:var(--primary-h);}`
 `
 
 
@@ -920,6 +1128,9 @@ export default function App() {
               {page === 'providers' && <Providers db={db} search={provSearch} setSearch={setProvSearch} fStatus={provFStatus} setFStatus={setProvFStatus} fSpec={provFSpec} setFSpec={setProvFSpec} openProvDetail={openProvDetail} editProvider={editProvider} setPage={setPage} setProvForm={setProvForm} setEditingId={setEditingId} setNpiInput={setNpiInput} setNpiResult={setNpiResult} />}
               {page === 'provider-lookup' && <ProviderLookup db={db} setPage={setPage} setProvForm={setProvForm} setEditingId={setEditingId} setNpiInput={setNpiInput} setNpiResult={setNpiResult} />}
               {page === 'add-provider' && <AddProvider db={db} provForm={provForm} setProvForm={setProvForm} editingId={editingId} setEditingId={setEditingId} npiInput={npiInput} setNpiInput={setNpiInput} npiResult={npiResult} setNpiResult={setNpiResult} npiLoading={npiLoading} lookupNPI={lookupNPI} handleSaveProvider={handleSaveProvider} handleDeleteProvider={handleDeleteProvider} handlePhotoUpload={handlePhotoUpload} handleDeletePhoto={handleDeletePhoto} photoUploading={photoUploading} setPage={setPage} saving={saving} />}
+              {page === 'pipeline' && <KanbanPipeline db={db} openEnrollModal={openEnrollModal} />}
+              {page === 'missing-docs' && <MissingDocuments db={db} />}
+              {page === 'payer-requirements' && <PayerRequirements db={db} />}
               {page === 'enrollments' && <Enrollments db={db} search={enrSearch} setSearch={setEnrSearch} fStage={enrFStage} setFStage={setEnrFStage} fProv={enrFProv} setFProv={setEnrFProv} openEnrollModal={openEnrollModal} handleDeleteEnrollment={handleDeleteEnrollment} />}
               {page === 'payers' && <Payers db={db} search={paySearch} setSearch={setPaySearch} fType={payFType} setFType={setPayFType} openPayerModal={openPayerModal} handleDeletePayer={handleDeletePayer} />}
               {page === 'documents' && <Documents db={db} search={docSearch} setSearch={setDocSearch} fType={docFType} setFType={setDocFType} fStatus={docFStatus} setFStatus={setDocFStatus} openDocModal={openDocModal} handleDeleteDocument={handleDeleteDocument} />}
@@ -1008,10 +1219,13 @@ function Sidebar({ page, setPage, alertCount, pendingEnroll, expDocs, user, sign
             {navItem('provider-lookup','Provider Lookup')}
           </Group>
           <Group id="enrollments" label="Enrollments">
+            {navItem('pipeline','🗂 Pipeline (Kanban)')}
             {navItem('enrollments','Payer Enrollments', pendingEnroll, 'amber')}
             {navItem('payers','Payer Directory')}
+            {navItem('payer-requirements','Payer Requirements')}
           </Group>
           <Group id="compliance" label="Compliance">
+            {navItem('missing-docs','🔍 Missing Documents')}
             {navItem('documents','Documents & Expiry', expDocs)}
             {navItem('workflows','Workflows & Tasks')}
             {navItem('psychology-today','Psychology Today')}
@@ -1045,7 +1259,7 @@ function Sidebar({ page, setPage, alertCount, pendingEnroll, expDocs, user, sign
 }
 
 function Topbar({ page, setPage, openEnrollModal, openPayerModal, openDocModal, openTaskModal, exportJSON, saving, onOpenSearch }) {
-  const titles = { dashboard:'Dashboard', alerts:'Alerts', providers:'All Providers', 'add-provider':'Add Provider', 'provider-lookup':'Provider Lookup', 'psychology-today':'Psychology Today', enrollments:'Payer Enrollments', payers:'Payer Directory', documents:'Documents & Expiry', workflows:'Workflows & Tasks', reports:'Reports & Analytics', audit:'Audit Trail', settings:'Settings', eligibility:'Eligibility Verification', claims:'Claims Tracker', denials:'Denial Log', revenue:'Revenue Analytics' }
+  const titles = { dashboard:'Dashboard', alerts:'Alerts', providers:'All Providers', 'add-provider':'Add Provider', 'provider-lookup':'Provider Lookup', 'psychology-today':'Psychology Today', enrollments:'Payer Enrollments', pipeline:'Pipeline (Kanban)', 'payer-requirements':'Payer Requirements', 'missing-docs':'Missing Documents', payers:'Payer Directory', documents:'Documents & Expiry', workflows:'Workflows & Tasks', reports:'Reports & Analytics', audit:'Audit Trail', settings:'Settings', eligibility:'Eligibility Verification', claims:'Claims Tracker', denials:'Denial Log', revenue:'Revenue Analytics' }
   function topCTA() {
     if (page==='enrollments') openEnrollModal()
     else if (page==='payers') openPayerModal()
@@ -1053,7 +1267,7 @@ function Topbar({ page, setPage, openEnrollModal, openPayerModal, openDocModal, 
     else if (page==='workflows') openTaskModal()
     else setPage('add-provider')
   }
-  const ctaLabel = page==='enrollments'?'＋ New Enrollment':page==='payers'?'＋ Add Payer':page==='documents'?'＋ Add Document':page==='workflows'?'＋ New Task':['reports','audit','settings','eligibility','claims','denials','revenue'].includes(page)?null:'＋ Add Provider'
+  const ctaLabel = page==='enrollments'?'＋ New Enrollment':page==='pipeline'?'＋ New Enrollment':page==='payers'?'＋ Add Payer':page==='documents'?'＋ Add Document':page==='workflows'?'＋ New Task':['reports','audit','settings','eligibility','claims','denials','revenue','missing-docs','payer-requirements'].includes(page)?null:'＋ Add Provider'
   return (
     <div className="topbar">
       <div className="topbar-left">
@@ -1221,15 +1435,31 @@ function Alerts({ db }) {
 
 // ─── PROVIDERS PAGE ────────────────────────────────────────────────────────────
 function Providers({ db, search, setSearch, fStatus, setFStatus, fSpec, setFSpec, openProvDetail, editProvider, setPage, setProvForm, setEditingId, setNpiInput, setNpiResult }) {
-  const list = db.providers.filter(p => {
+  const [sortBy, setSortBy] = useState('name')
+  const filtered = db.providers.filter(p => {
     const txt = `${p.fname} ${p.lname} ${p.cred} ${p.npi} ${p.focus} ${p.spec} ${p.email||''} ${p.phone||''} ${p.license||''} ${p.medicaid||''} ${p.caqh||''} ${p.dea||''} ${p.supervisor||''} ${p.notes||''}`.toLowerCase()
     return (!search || txt.includes(search.toLowerCase())) && (!fStatus || (p.status||'').trim()===fStatus) && (!fSpec || (p.spec||'').trim().toLowerCase()===fSpec.toLowerCase())
+  })
+  const list = [...filtered].sort((a, b) => {
+    if (sortBy === 'name') return `${a.lname} ${a.fname}`.localeCompare(`${b.lname} ${b.fname}`)
+    if (sortBy === 'spec') return (a.spec||'').localeCompare(b.spec||'')
+    if (sortBy === 'status') return (a.status||'').localeCompare(b.status||'')
+    if (sortBy === 'license') { const da=daysUntil(a.licenseExp), db2=daysUntil(b.licenseExp); return (da??99999)-(db2??99999) }
+    if (sortBy === 'panels') { const pa=db.enrollments.filter(e=>e.provId===a.id&&e.stage==='Active').length; const pb=db.enrollments.filter(e=>e.provId===b.id&&e.stage==='Active').length; return pb-pa }
+    return 0
   })
   return <div className="page">
     <div className="toolbar">
       <div className="search-box"><span className="si">🔍</span><input type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by name, NPI, license, specialty…" style={{width:280}} /></div>
       <select className="filter-select" value={fStatus} onChange={e=>setFStatus(e.target.value)}><option value="">All Statuses</option><option>Active</option><option>Pending</option><option>Inactive</option></select>
       <select className="filter-select" value={fSpec} onChange={e=>setFSpec(e.target.value)}><option value="">All Specialties</option><option>Mental Health</option><option>Massage Therapy</option><option>Naturopathic</option><option>Chiropractic</option><option>Acupuncture</option></select>
+      <select className="filter-select" value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{minWidth:140}}>
+        <option value="name">Sort: A–Z Name</option>
+        <option value="spec">Sort: Specialty</option>
+        <option value="status">Sort: Status</option>
+        <option value="license">Sort: License Expiry</option>
+        <option value="panels">Sort: Active Panels</option>
+      </select>
       <div className="toolbar-right"><button className="btn btn-primary btn-sm" onClick={()=>{setProvForm({});setEditingId(e=>({...e,provider:null}));setNpiInput('');setNpiResult(null);setPage('add-provider')}}>＋ Add Provider</button></div>
     </div>
     {!list.length ? <div className="empty-state"><div className="ei">👤</div><h4>No providers found</h4></div> : list.map(p => {
@@ -1852,6 +2082,241 @@ function ProvDetailModal({ prov, db, tab, setTab, onClose, editProvider, openEnr
 // CSS
 // ═══════════════════════════════════════════════════════════════════════════════
 
+
+// ─── KANBAN PIPELINE ───────────────────────────────────────────────────────────
+function KanbanPipeline({ db, openEnrollModal }) {
+  const [filterProv, setFilterProv] = useState('')
+  const filtered = db.enrollments.filter(e => !filterProv || e.provId === filterProv)
+  return (
+    <div className="page">
+      <div className="toolbar" style={{ marginBottom:18 }}>
+        <select className="filter-select" value={filterProv} onChange={e=>setFilterProv(e.target.value)}>
+          <option value="">All Providers</option>
+          {db.providers.map(p=><option key={p.id} value={p.id}>{p.fname} {p.lname}</option>)}
+        </select>
+        <div className="toolbar-right">
+          <button className="btn btn-primary btn-sm" onClick={()=>openEnrollModal()}>＋ New Enrollment</button>
+        </div>
+      </div>
+      <div className="kanban-board">
+        {KANBAN_COLUMNS.map(col => {
+          const cards = filtered.filter(e => col.stages.includes(e.stage))
+          return (
+            <div key={col.id} className="kanban-col">
+              <div className="kanban-col-header">
+                <div className="kanban-col-accent" style={{ background: col.color }} />
+                <span className="kanban-col-title">{col.icon} {col.label}</span>
+                <span className="kanban-col-count">{cards.length}</span>
+              </div>
+              <div className="kanban-cards">
+                {!cards.length
+                  ? <div className="kanban-empty">No enrollments</div>
+                  : cards.map(e => {
+                      const prov = db.providers.find(p => p.id === e.provId)
+                      const payer = db.payers.find(p => p.id === e.payId)
+                      const fuD = daysUntil(e.followup)
+                      const overdue = fuD !== null && fuD <= 0
+                      const dueSoon = fuD !== null && fuD > 0 && fuD <= 7
+                      return (
+                        <div key={e.id} className="kanban-card" onClick={() => openEnrollModal(e.id)}>
+                          <div className="kanban-card-prov">{prov ? `${prov.fname} ${prov.lname}` : '—'}</div>
+                          <div className="kanban-card-payer">{payer?.name || '—'}</div>
+                          <div className="kanban-card-meta">
+                            <StageBadge stage={e.stage} />
+                            {e.submitted && <span className="info-chip" style={{fontSize:'10.5px'}}>📅 {fmtDate(e.submitted)}</span>}
+                          </div>
+                          {(overdue || dueSoon) && (
+                            <div className="kanban-card-fu">
+                              {overdue ? `⚠ Follow-up overdue ${Math.abs(fuD)}d` : `📌 Follow-up in ${fuD}d`}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })
+                }
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+// ─── MISSING DOCUMENTS DETECTION ───────────────────────────────────────────────
+const REQUIRED_DOCS = [
+  { key: 'license', field: 'licenseExp', label: 'State License', severity: 'error' },
+  { key: 'malpractice', field: 'malExp', label: 'Malpractice Insurance', severity: 'error' },
+  { key: 'w9', field: null, label: 'W-9 Form', checkFn: (p, docs) => docs.some(d => d.provId === p.id && d.type === 'W-9'), severity: 'error' },
+  { key: 'caqh', field: 'caqh', label: 'CAQH Number on File', checkFn: (p) => !!p.caqh, severity: 'warn' },
+  { key: 'caqhAttest', field: 'caqhDue', label: 'CAQH Attestation Due', severity: 'warn' },
+  { key: 'dea', field: null, label: 'DEA Certificate', checkFn: (p) => !p.dea || !!p.deaExp, severity: 'warn', skipIf: (p) => !p.dea },
+  { key: 'npi', field: null, label: 'NPI Number', checkFn: (p) => !!p.npi, severity: 'error' },
+  { key: 'recred', field: 'recred', label: 'Recredentialing Date Set', severity: 'warn' },
+  { key: 'supAgreement', field: null, label: 'Supervision Agreement', checkFn: (p, docs) => !p.supervisor || docs.some(d => d.provId === p.id && d.type === 'Supervision Agreement'), severity: 'warn', skipIf: (p) => !p.supervisor },
+]
+
+function MissingDocuments({ db }) {
+  const [filterSeverity, setFilterSeverity] = useState('')
+  const [filterProv, setFilterProv] = useState('')
+
+  const issues = []
+  db.providers.filter(p => p.status === 'Active').forEach(prov => {
+    REQUIRED_DOCS.forEach(req => {
+      if (req.skipIf && req.skipIf(prov)) return
+      let missing = false
+      if (req.checkFn) {
+        missing = !req.checkFn(prov, db.documents)
+      } else if (req.field) {
+        const val = prov[req.field]
+        if (!val) { missing = true }
+        else {
+          const days = daysUntil(val)
+          if (days !== null && days < 0) missing = true
+        }
+      }
+      if (missing) issues.push({ prov, label: req.label, severity: req.severity, key: req.key })
+    })
+    // Also flag expired documents from the documents table
+    db.documents.filter(d => d.provId === prov.id).forEach(doc => {
+      const days = daysUntil(doc.exp)
+      if (days !== null && days < 0) {
+        issues.push({ prov, label: `${doc.type} EXPIRED`, severity: 'error', key: `doc-${doc.id}`, detail: `Expired ${Math.abs(days)} days ago` })
+      } else if (days !== null && days <= 30) {
+        issues.push({ prov, label: `${doc.type} expiring soon`, severity: 'warn', key: `doc-exp-${doc.id}`, detail: `${days} days remaining` })
+      }
+    })
+  })
+
+  const filtered = issues.filter(i =>
+    (!filterSeverity || i.severity === filterSeverity) &&
+    (!filterProv || i.prov.id === filterProv)
+  )
+  const errors = filtered.filter(i => i.severity === 'error')
+  const warns = filtered.filter(i => i.severity === 'warn')
+
+  return (
+    <div className="page">
+      <div className="toolbar" style={{ marginBottom:18 }}>
+        <select className="filter-select" value={filterSeverity} onChange={e=>setFilterSeverity(e.target.value)}>
+          <option value="">All Issues</option>
+          <option value="error">Critical Only</option>
+          <option value="warn">Warnings Only</option>
+        </select>
+        <select className="filter-select" value={filterProv} onChange={e=>setFilterProv(e.target.value)}>
+          <option value="">All Providers</option>
+          {db.providers.filter(p=>p.status==='Active').map(p=><option key={p.id} value={p.id}>{p.fname} {p.lname}</option>)}
+        </select>
+        <div style={{ marginLeft:'auto', display:'flex', gap:8 }}>
+          {errors.length > 0 && <span className="badge b-red">⚠ {errors.length} Critical</span>}
+          {warns.length > 0 && <span className="badge b-amber">! {warns.length} Warnings</span>}
+          {filtered.length === 0 && <span className="badge b-green">✅ All Clear</span>}
+        </div>
+      </div>
+      {filtered.length === 0 ? (
+        <div className="empty-state"><div className="ei">✅</div><h4>No issues found</h4><p>All required documents are on file and current.</p></div>
+      ) : (
+        <>
+          {errors.length > 0 && (
+            <div className="mb-20">
+              <div className="text-xs font-500" style={{ letterSpacing:'.6px', textTransform:'uppercase', color:'var(--red)', marginBottom:10 }}>🔴 Critical — Missing or Expired ({errors.length})</div>
+              {errors.map((issue, i) => (
+                <div key={i} className="missing-doc-row">
+                  <div className="missing-doc-icon">❌</div>
+                  <div className="missing-doc-body">
+                    <div className="missing-doc-title">{issue.prov.fname} {issue.prov.lname}{issue.prov.cred ? `, ${issue.prov.cred}` : ''}</div>
+                    <div className="missing-doc-sub">{issue.label}{issue.detail ? ` · ${issue.detail}` : ''}</div>
+                  </div>
+                  <div className="missing-doc-badge"><span className="badge b-red">Action Required</span></div>
+                </div>
+              ))}
+            </div>
+          )}
+          {warns.length > 0 && (
+            <div>
+              <div className="text-xs font-500" style={{ letterSpacing:'.6px', textTransform:'uppercase', color:'var(--amber)', marginBottom:10 }}>🟡 Warnings — Review Recommended ({warns.length})</div>
+              {warns.map((issue, i) => (
+                <div key={i} className="missing-doc-row warn">
+                  <div className="missing-doc-icon">⚠️</div>
+                  <div className="missing-doc-body">
+                    <div className="missing-doc-title">{issue.prov.fname} {issue.prov.lname}{issue.prov.cred ? `, ${issue.prov.cred}` : ''}</div>
+                    <div className="missing-doc-sub">{issue.label}{issue.detail ? ` · ${issue.detail}` : ''}</div>
+                  </div>
+                  <div className="missing-doc-badge"><span className="badge b-amber">Review</span></div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
+// ─── PAYER REQUIREMENTS ─────────────────────────────────────────────────────────
+function PayerRequirements({ db }) {
+  const [search, setSearch] = useState('')
+  const [expanded, setExpanded] = useState({})
+  const toggle = name => setExpanded(e => ({ ...e, [name]: !e[name] }))
+
+  const allPayers = Object.keys(PAYER_REQUIREMENTS)
+  const filtered = allPayers.filter(name => name.toLowerCase().includes(search.toLowerCase()))
+
+  return (
+    <div className="page">
+      <div className="toolbar" style={{ marginBottom:18 }}>
+        <div className="search-box">
+          <span className="si">🔍</span>
+          <input type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search payers…" />
+        </div>
+        <span className="text-muted" style={{ marginLeft:8 }}>{filtered.length} payers</span>
+      </div>
+      <div className="payer-req-grid">
+        {filtered.map(name => {
+          const req = PAYER_REQUIREMENTS[name]
+          const isExp = expanded[name]
+          return (
+            <div key={name} className={`payer-req-card ${isExp ? 'expanded' : ''}`}>
+              <div className="payer-req-header">
+                <div className="payer-req-dot" style={{ background: req.color }} />
+                <div className="payer-req-name">{name}</div>
+                <span className="badge b-blue" style={{ fontSize:'10px' }}>{req.timeline}</span>
+              </div>
+              <div className="payer-req-body">
+                <div className="payer-req-meta">
+                  <span className="payer-req-chip">🔄 Revalidation: {req.revalidation}</span>
+                  {req.portalUrl && <a href={req.portalUrl} target="_blank" rel="noreferrer" className="payer-req-chip" style={{ color:'var(--primary)', textDecoration:'none' }}>🔗 Portal ↗</a>}
+                </div>
+                {req.specialNotes.map((n, i) => (
+                  <div key={i} className="payer-req-special">⚡ {n}</div>
+                ))}
+                <div className="payer-req-section" style={{ marginTop:10 }}>
+                  <div className="payer-req-section-label">Submission Method</div>
+                  <div style={{ fontSize:'12.5px', color:'var(--ink-2)' }}>{req.submission}</div>
+                </div>
+                <div className="payer-req-expanded">
+                  <div className="payer-req-section">
+                    <div className="payer-req-section-label">Required Documents</div>
+                    {req.requirements.map((r, i) => (
+                      <div key={i} className="payer-req-item">{r}</div>
+                    ))}
+                  </div>
+                  <div className="payer-req-section">
+                    <div className="payer-req-section-label">Notes</div>
+                    <div className="payer-req-note">{req.notes}</div>
+                  </div>
+                </div>
+                <button className="payer-req-toggle" onClick={() => toggle(name)}>
+                  {isExp ? '▲ Show less' : '▼ Show requirements & notes'}
+                </button>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 // ─── GLOBAL SEARCH ─────────────────────────────────────────────────────────────
 function GlobalSearch({ db, onClose, setPage, openProvDetail, openEnrollModal }) {
