@@ -621,6 +621,29 @@ tbody tr:hover{background:#f8fafd;}
 .missing-doc-sub{font-size:11.5px;color:var(--ink-3);}
 .missing-doc-badge{flex-shrink:0;}
 
+/* PAYER PICKER */
+.payer-picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;max-height:380px;overflow-y:auto;padding:2px;}
+.payer-pick-btn{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--r-md);background:var(--surface);cursor:pointer;transition:all var(--t);text-align:left;}
+.payer-pick-btn:hover{border-color:var(--primary);background:var(--primary-l);box-shadow:var(--shadow-sm);}
+.payer-pick-btn.selected{border-color:var(--primary);background:var(--primary-l);box-shadow:0 0 0 3px rgba(37,99,235,.15);}
+.payer-pick-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.payer-pick-name{font-size:13px;font-weight:600;color:var(--ink);line-height:1.3;}
+.payer-pick-type{font-size:11px;color:var(--ink-4);}
+.payer-pick-custom{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px dashed var(--border);border-radius:var(--r-md);background:var(--surface-2);cursor:pointer;transition:all var(--t);}
+.payer-pick-custom:hover{border-color:var(--primary);background:var(--primary-l);}
+.guideline-box{background:var(--primary-l);border:1px solid #c3d9fd;border-radius:var(--r-md);padding:14px 16px;margin-bottom:16px;}
+.guideline-box-title{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--primary);margin-bottom:10px;}
+.guideline-item{display:flex;align-items:flex-start;gap:6px;font-size:12px;color:var(--ink-2);padding:2.5px 0;}
+.guideline-item::before{content:'✓';color:var(--primary);font-weight:700;flex-shrink:0;}
+.guideline-warn{background:var(--amber-l);border:1px solid var(--amber-b);border-radius:var(--r);padding:8px 10px;font-size:11.5px;color:var(--amber);font-weight:500;margin-top:8px;}
+.modal-step-indicator{display:flex;align-items:center;gap:0;margin-bottom:20px;}
+.msi-step{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--ink-4);}
+.msi-step.active{color:var(--primary);}
+.msi-step.done{color:var(--green);}
+.msi-num{width:22px;height:22px;border-radius:50%;border:2px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.msi-line{flex:1;height:2px;background:var(--border);margin:0 8px;min-width:20px;}
+.msi-line.done{background:var(--green);}
+
 /* PAYER REQUIREMENTS */
 .payer-req-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;}
 .payer-req-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);transition:box-shadow var(--t);}
@@ -1987,22 +2010,225 @@ function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSaveEnrol
   </Modal>
 }
 
+// ─── PAYER CATALOG ─────────────────────────────────────────────────────────────
+const PAYER_CATALOG = [
+  { name:'Aetna', payerId:'60054', type:'Commercial', phone:'1-800-872-3862', portal:'https://www.availity.com', timeline:'60–90 days', color:'#C8102E',
+    notes:'Submit via Availity. CAQH must be attested within last 120 days. Group and individual enrollment both required.',
+    guidelines:['Complete CAQH profile (attested within 120 days)','Submit application via Availity portal','Include NPI Type 1 and Type 2','Provide current CV/Resume','Attach copy of state license','Attach malpractice insurance certificate','Include W-9 form','DEA certificate if prescribing'],
+    warn:'Group enrollment is separate from individual — submit both if billing under a group NPI.' },
+  { name:'BCBS Oregon (Regence)', payerId:'00550', type:'Commercial', phone:'1-800-452-7278', portal:'https://www.regence.com/providers', timeline:'45–60 days', color:'#00539F',
+    notes:'OHA/Medicaid participation often recommended first for behavioral health. Contact Provider Relations for behavioral health contracts.',
+    guidelines:['Complete CAQH profile','Submit Regence provider application (paper or portal)','Include state license copy','Include malpractice insurance certificate','Include W-9 form','NPI Type 1 required','CV/Resume required'],
+    warn:'For behavioral health: OHA enrollment is recommended before applying to Regence.' },
+  { name:'OHP / Medicaid (OHA)', payerId:'OROHP', type:'Medicaid', phone:'1-800-273-0557', portal:'https://www.oregon.gov/oha/hsd/ohp', timeline:'45–60 days', color:'#2d6a4f',
+    notes:'Oregon Health Plan enrollment through DMAP. Supervising provider must also be enrolled if applicable.',
+    guidelines:['Complete DMAP enrollment form (via OHA portal)','Provide Oregon license copy','Include malpractice insurance certificate','W-9 form required','NPI Type 1 required','Background check authorization','Medicaid Provider Agreement','Supervising provider must be enrolled separately'],
+    warn:'Associates/interns under supervision: the supervising clinician must be enrolled in OHP first.' },
+  { name:'Cigna / Evernorth', payerId:'62308', type:'Commercial', phone:'1-800-735-1459', portal:'https://cignaforhcp.cigna.com', timeline:'60–90 days', color:'#004B87',
+    notes:'Submit via Cigna for Health Care Professionals portal. Mental health providers may route through Evernorth. CAQH must be complete.',
+    guidelines:['Complete CAQH profile','Submit via Cigna for Health Care Professionals portal','NPI Type 1 and Type 2','Current CV/Resume','State license copy','Malpractice insurance certificate','W-9 form','DEA if prescribing'],
+    warn:'Mental health and substance use providers: contact Evernorth Behavioral Health separately for network participation.' },
+  { name:'UnitedHealthcare / Optum', payerId:'87726', type:'Commercial', phone:'1-877-842-3210', portal:'https://www.providerexpress.com', timeline:'60–120 days', color:'#006699',
+    notes:'Mandatory revalidation every 3 years — failure results in termination. Behavioral health credentialing through Optum/Provider Express.',
+    guidelines:['Complete CAQH profile','Submit via Provider Express (providerexpress.com)','NPI Type 1 and Type 2','Current CV/Resume','State license copy','Malpractice insurance certificate','W-9 form','Revalidation form if revalidating'],
+    warn:'⚠ Revalidation every 3 years is MANDATORY. Missing the revalidation window results in automatic termination from the network.' },
+  { name:'Providence Health Plan', payerId:'93029', type:'Commercial', phone:'1-800-891-2803', portal:'https://www.providence.org/providers', timeline:'45–75 days', color:'#0061A1',
+    notes:'Oregon-specific payer with strong Portland metro presence. Contact Provider Relations directly for application packets.',
+    guidelines:['Submit Providence provider application','Include state license copy','Include malpractice insurance certificate','W-9 form','NPI Type 1','CV/Resume','CAQH profile','Contact Provider Relations for application packet'],
+    warn:null },
+  { name:'Moda Health', payerId:'MODA1', type:'Commercial', phone:'1-855-718-1768', portal:'https://www.modahealth.com/medical/provider', timeline:'30–60 days', color:'#C41E3A',
+    notes:'Oregon-based regional payer. Behavioral health credentialing handled directly by Moda. Often faster than national payers.',
+    guidelines:['Submit Moda provider application (portal or paper)','State license copy','Malpractice insurance certificate','W-9 form','NPI Type 1','CAQH profile','CV/Resume'],
+    warn:null },
+  { name:'PacificSource Health Plans', payerId:'93015', type:'Commercial', phone:'1-888-977-9299', portal:'https://www.pacificsource.com/providers', timeline:'30–60 days', color:'#0033A0',
+    notes:'Northwest regional payer covering Oregon, Idaho, and Montana. Direct application process.',
+    guidelines:['Submit PacificSource provider application','State license copy','Malpractice insurance certificate','W-9 form','NPI Type 1','CV/Resume','Contact Provider Relations for current application form'],
+    warn:null },
+  { name:'Kaiser Permanente', payerId:'94456', type:'Commercial', phone:'1-800-813-2000', portal:'https://providers.kaiserpermanente.org', timeline:'90–120 days', color:'#003781',
+    notes:'INVITATION ONLY — closed panel in most markets. Contact Network Relations to inquire about open panels.',
+    guidelines:['Receive invitation from Kaiser Network Relations','Complete Kaiser credentialing application','CAQH profile required','Board certification may be required','State license copy','Malpractice insurance certificate','W-9 form','NPI Type 1'],
+    warn:'⚠ Kaiser is an invitation-only, closed panel network. Do not apply without first confirming an open panel with Network Relations.' },
+  { name:'Humana', payerId:'61101', type:'Commercial', phone:'1-800-626-2741', portal:'https://www.humana.com/provider', timeline:'60–90 days', color:'#006F44',
+    notes:'Submit via Availity or Humana Provider Portal. Behavioral health may route through Humana Behavioral Health.',
+    guidelines:['Complete CAQH profile','Submit via Availity or Humana provider portal','NPI Type 1 and Type 2','State license copy','Malpractice insurance certificate','W-9 form','CV/Resume'],
+    warn:'Behavioral health providers: confirm whether enrollment routes through Humana Behavioral Health or main credentialing.' },
+  { name:'Anthem / Elevance Health', payerId:'00530', type:'Commercial', phone:'1-800-676-2583', portal:'https://www.anthem.com/provider', timeline:'60–90 days', color:'#0079C1',
+    notes:'Operates as Elevance Health nationally. Behavioral health credentialing through Beacon Health Options in some markets.',
+    guidelines:['Complete CAQH profile','Submit via Availity or Anthem provider portal','NPI Type 1 and Type 2','State license copy','Malpractice insurance certificate','W-9 form','CV/Resume'],
+    warn:'Behavioral health providers: Beacon Health Options manages behavioral health credentialing in some Anthem markets — verify routing.' },
+  { name:'Molina Healthcare', payerId:'MOLIN', type:'Medicaid', phone:'1-888-665-4621', portal:'https://www.molinahealthcare.com/providers', timeline:'45–75 days', color:'#007DC3',
+    notes:'Medicaid-focused MCO. OHP enrollment often required first. Background check required.',
+    guidelines:['Enroll in OHP/Medicaid first (recommended)','Complete Molina provider application','W-9 form','State license copy','Malpractice insurance certificate','NPI Type 1','Medicaid Provider Agreement','Background check authorization'],
+    warn:'OHP/DMAP enrollment is strongly recommended before applying to Molina, as Molina serves the OHP population.' },
+  { name:'Medicare (Novitas/CGS)', payerId:'MDCR1', type:'Medicare', phone:'1-855-252-8782', portal:'https://pecos.cms.hhs.gov', timeline:'60–90 days', color:'#1B3A6B',
+    notes:'Medicare enrollment through PECOS. CMS-855 application required. Opt-out available for some provider types.',
+    guidelines:['Enroll via PECOS (pecos.cms.hhs.gov)','Complete CMS-855 application form','State license copy','Malpractice insurance certificate','NPI Type 1','W-9 form','Background check authorization','Assign/reassign benefits if billing under group'],
+    warn:'Providers who do not accept Medicare must formally opt-out via CMS. Failing to enroll or opt-out may result in claims issues.' },
+  { name:'Medicare Advantage (various)', payerId:'', type:'Medicare Advantage', phone:'', portal:'', timeline:'60–90 days', color:'#374151',
+    notes:'Each Medicare Advantage plan credentials separately. Common MA plans in Oregon: UHC MA, Aetna MA, Humana MA, Kaiser MA.',
+    guidelines:['Enroll in Medicare (Part B) first via PECOS','Apply to each MA plan separately','CAQH profile generally required','State license copy','Malpractice insurance certificate','NPI Type 1','W-9 form'],
+    warn:'Medicare Advantage credentialing is separate from traditional Medicare — you must apply to each MA plan individually.' },
+  { name:'TRICARE (West – Health Net)', payerId:'TRIC1', type:'Commercial', phone:'1-844-866-9378', portal:'https://www.tricare.mil/providers', timeline:'60–90 days', color:'#003087',
+    notes:'Oregon is in the TRICARE West region, managed by Health Net Federal Services.',
+    guidelines:['Submit TRICARE application via Health Net Federal Services','State license copy','Malpractice insurance certificate','NPI Type 1','W-9 form','CV/Resume','Board certification preferred'],
+    warn:'Oregon is TRICARE West — contact Health Net Federal Services, not Humana Military (which manages TRICARE East).' },
+  { name:'Oscar Health', payerId:'OSCAR', type:'Commercial', phone:'1-855-672-2788', portal:'https://www.hioscar.com/providers', timeline:'45–75 days', color:'#EF4923',
+    notes:'Growing Oregon presence. Technology-forward submission process. Check panel availability before applying.',
+    guidelines:['Submit application via Oscar provider portal','State license copy','Malpractice insurance certificate','NPI Type 1','CAQH profile','W-9 form','CV/Resume'],
+    warn:'Confirm open panels in your area before applying — Oscar is still expanding its Oregon network.' },
+  { name:'First Choice Health', payerId:'FCHP1', type:'Commercial', phone:'1-800-231-6935', portal:'https://www.fchn.com/providers', timeline:'30–60 days', color:'#008080',
+    notes:'Pacific Northwest regional network. Often used as a leased network by other payers in the region.',
+    guidelines:['Submit First Choice Health application','State license copy','Malpractice insurance certificate','NPI Type 1','W-9 form','CV/Resume'],
+    warn:null },
+  { name:'Multiplan / PHCS', payerId:'MPLAN', type:'Commercial', phone:'1-800-950-7040', portal:'https://www.multiplan.com/providers', timeline:'30–45 days', color:'#6B21A8',
+    notes:'Leased network accessed by many self-funded employer plans. Joining Multiplan expands reach significantly.',
+    guidelines:['Submit Multiplan network application','State license copy','Malpractice insurance certificate','NPI Type 1','W-9 form','CV/Resume','Current CAQH profile'],
+    warn:null },
+]
+
 function PayerModal({ payerForm, setPayerForm, editingId, handleSavePayer, onClose, saving }) {
+  const [step, setStep] = useState(editingId.payer ? 2 : 1)
+  const [pickerSearch, setPickerSearch] = useState('')
+  const [selectedCatalog, setSelectedCatalog] = useState(null)
   const f = k => payerForm[k] ?? ''
   const set = (k, v) => setPayerForm(prev => ({ ...prev, [k]: v }))
-  return <Modal title={editingId.payer?'Edit Payer':'Add Payer'} onClose={onClose}
-    footer={<><button className="btn btn-ghost" onClick={onClose}>Cancel</button><button className="btn btn-primary" onClick={handleSavePayer} disabled={saving}>{saving?'Saving…':'Save Payer'}</button></>}>
-    <div className="form-grid">
-      <div className="fg full"><label>Payer Name *</label><input type="text" value={f('name')} onChange={e=>set('name',e.target.value)} placeholder="Aetna" /></div>
-      <div className="fg"><label>Payer ID / EDI ID</label><input type="text" value={f('payerId')} onChange={e=>set('payerId',e.target.value)} placeholder="60054" /></div>
-      <div className="fg"><label>Type</label><select value={f('type')} onChange={e=>set('type',e.target.value)}><option>Commercial</option><option>Medicaid</option><option>Medicare</option><option>Medicare Advantage</option><option>EAP</option><option>Other</option></select></div>
-      <div className="fg"><label>Provider Relations Phone</label><input type="tel" value={f('phone')} onChange={e=>set('phone',e.target.value)} /></div>
-      <div className="fg"><label>Credentialing Email</label><input type="email" value={f('email')} onChange={e=>set('email',e.target.value)} /></div>
-      <div className="fg"><label>Provider Portal URL</label><input type="text" value={f('portal')} onChange={e=>set('portal',e.target.value)} placeholder="https://…" /></div>
-      <div className="fg"><label>Avg. Credentialing Timeline</label><select value={f('timeline')} onChange={e=>set('timeline',e.target.value)}><option>30–45 days</option><option>45–60 days</option><option>60–90 days</option><option>90–120 days</option><option>120+ days</option></select></div>
-      <div className="fg full"><label>Notes</label><textarea value={f('notes')} onChange={e=>set('notes',e.target.value)} placeholder="Submission requirements, contacts…"></textarea></div>
-    </div>
-  </Modal>
+
+  function pickPayer(catalog) {
+    setSelectedCatalog(catalog)
+    setPayerForm({
+      name: catalog.name,
+      payerId: catalog.payerId,
+      type: catalog.type,
+      phone: catalog.phone,
+      portal: catalog.portal,
+      timeline: catalog.timeline,
+      notes: catalog.notes,
+      email: '',
+    })
+    setStep(2)
+  }
+
+  function pickCustom() {
+    setSelectedCatalog(null)
+    setPayerForm({ type:'Commercial', timeline:'60–90 days' })
+    setStep(2)
+  }
+
+  const filteredCatalog = PAYER_CATALOG.filter(p =>
+    p.name.toLowerCase().includes(pickerSearch.toLowerCase()) ||
+    p.type.toLowerCase().includes(pickerSearch.toLowerCase())
+  )
+
+  const guidelines = selectedCatalog || (editingId.payer ? PAYER_CATALOG.find(p => p.name === payerForm.name) : null)
+
+  return (
+    <Modal title={editingId.payer ? 'Edit Payer' : (step === 1 ? 'Add Payer — Choose Payer' : 'Add Payer — Details')} onClose={onClose}
+      lg={step === 1}
+      footer={
+        step === 1
+          ? <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+          : <>
+              {!editingId.payer && <button className="btn btn-ghost" onClick={() => setStep(1)}>← Back</button>}
+              <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
+              <button className="btn btn-primary" onClick={handleSavePayer} disabled={saving}>{saving ? 'Saving…' : 'Save Payer'}</button>
+            </>
+      }>
+
+      {step === 1 && (
+        <>
+          {!editingId.payer && (
+            <div className="modal-step-indicator" style={{ marginBottom:16 }}>
+              <div className="msi-step active"><div className="msi-num">1</div><span>Choose Payer</span></div>
+              <div className="msi-line" />
+              <div className="msi-step"><div className="msi-num">2</div><span>Review & Save</span></div>
+            </div>
+          )}
+          <div style={{ marginBottom:12 }}>
+            <div className="search-box" style={{ marginBottom:12 }}>
+              <span className="si">🔍</span>
+              <input type="text" value={pickerSearch} onChange={e => setPickerSearch(e.target.value)}
+                placeholder="Search payers…" style={{ width:'100%' }} autoFocus />
+            </div>
+          </div>
+          <div className="payer-picker-grid">
+            {filteredCatalog.map(p => (
+              <button key={p.name} className="payer-pick-btn" onClick={() => pickPayer(p)}>
+                <div className="payer-pick-dot" style={{ background: p.color }} />
+                <div>
+                  <div className="payer-pick-name">{p.name}</div>
+                  <div className="payer-pick-type">{p.type} · {p.timeline}</div>
+                </div>
+              </button>
+            ))}
+            <button className="payer-pick-custom" onClick={pickCustom}>
+              <div style={{ fontSize:18, opacity:.5 }}>＋</div>
+              <div>
+                <div className="payer-pick-name" style={{ color:'var(--ink-3)' }}>Custom / Unlisted</div>
+                <div className="payer-pick-type">Enter details manually</div>
+              </div>
+            </button>
+          </div>
+        </>
+      )}
+
+      {step === 2 && (
+        <>
+          {!editingId.payer && (
+            <div className="modal-step-indicator">
+              <div className="msi-step done"><div className="msi-num">✓</div><span>Choose Payer</span></div>
+              <div className="msi-line done" />
+              <div className="msi-step active"><div className="msi-num">2</div><span>Review & Save</span></div>
+            </div>
+          )}
+
+          {guidelines && (
+            <div className="guideline-box">
+              <div className="guideline-box-title">📋 Credentialing Guidelines — {guidelines.name}</div>
+              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'2px 16px', marginBottom: guidelines.warn ? 8 : 0 }}>
+                {guidelines.guidelines.map((g, i) => (
+                  <div key={i} className="guideline-item">{g}</div>
+                ))}
+              </div>
+              {guidelines.warn && <div className="guideline-warn">⚡ {guidelines.warn}</div>}
+            </div>
+          )}
+
+          <div className="form-grid">
+            <div className="fg full"><label>Payer Name *</label>
+              <input type="text" value={f('name')} onChange={e => set('name', e.target.value)} placeholder="Payer name" />
+            </div>
+            <div className="fg"><label>Payer ID / EDI ID</label>
+              <input type="text" value={f('payerId')} onChange={e => set('payerId', e.target.value)} placeholder="60054" />
+            </div>
+            <div className="fg"><label>Type</label>
+              <select value={f('type')} onChange={e => set('type', e.target.value)}>
+                <option>Commercial</option><option>Medicaid</option><option>Medicare</option>
+                <option>Medicare Advantage</option><option>EAP</option><option>Other</option>
+              </select>
+            </div>
+            <div className="fg"><label>Provider Relations Phone</label>
+              <input type="tel" value={f('phone')} onChange={e => set('phone', e.target.value)} />
+            </div>
+            <div className="fg"><label>Credentialing Email</label>
+              <input type="email" value={f('email')} onChange={e => set('email', e.target.value)} />
+            </div>
+            <div className="fg"><label>Provider Portal URL</label>
+              <input type="text" value={f('portal')} onChange={e => set('portal', e.target.value)} placeholder="https://…" />
+            </div>
+            <div className="fg"><label>Avg. Credentialing Timeline</label>
+              <select value={f('timeline')} onChange={e => set('timeline', e.target.value)}>
+                <option>30–45 days</option><option>45–60 days</option><option>60–90 days</option>
+                <option>90–120 days</option><option>120+ days</option>
+              </select>
+            </div>
+            <div className="fg full"><label>Notes</label>
+              <textarea value={f('notes')} onChange={e => set('notes', e.target.value)} placeholder="Submission requirements, contacts, special instructions…" />
+            </div>
+          </div>
+        </>
+      )}
+    </Modal>
+  )
 }
 
 function DocModal({ db, docForm, setDocForm, editingId, handleSaveDocument, onClose, saving }) {
@@ -2796,11 +3022,11 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
                 <div className="form-grid" style={{marginBottom:14}}>
                   <div className="fg">
                     <label>First Name</label>
-                    <input type="text" value={fname} onChange={e=>setFname(e.target.value)} placeholder="First Name" />
+                    <input type="text" value={fname} onChange={e=>setFname(e.target.value)} placeholder="Sarah" />
                   </div>
                   <div className="fg">
                     <label>Last Name</label>
-                    <input type="text" value={lname} onChange={e=>setLname(e.target.value)} placeholder="Last Name" />
+                    <input type="text" value={lname} onChange={e=>setLname(e.target.value)} placeholder="Chen" />
                   </div>
                   <div className="fg">
                     <label>State</label>
