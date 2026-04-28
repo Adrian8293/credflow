@@ -2796,11 +2796,11 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
                 <div className="form-grid" style={{marginBottom:14}}>
                   <div className="fg">
                     <label>First Name</label>
-                    <input type="text" value={fname} onChange={e=>setFname(e.target.value)} placeholder="Sarah" />
+                    <input type="text" value={fname} onChange={e=>setFname(e.target.value)} placeholder="First Name" />
                   </div>
                   <div className="fg">
                     <label>Last Name</label>
-                    <input type="text" value={lname} onChange={e=>setLname(e.target.value)} placeholder="Chen" />
+                    <input type="text" value={lname} onChange={e=>setLname(e.target.value)} placeholder="Last Name" />
                   </div>
                   <div className="fg">
                     <label>State</label>
