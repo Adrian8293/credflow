@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Head from 'next/head'
 import { supabase } from '../lib/supabase'
+import EnrollmentKanban from '../components/EnrollmentKanban'
 import {
   loadAll, upsertProvider, deleteProvider,
   upsertPayer, deletePayer,
@@ -1041,20 +1042,29 @@ export default function App() {
       const res = await fetch(`/api/npi?number=${npiInput}`)
       const data = await res.json()
       if (!data.results?.length) { setNpiResult({ error: 'No provider found for this NPI.' }); return }
-      const r = data.results[0]
-      const basic = r.basic || {}
-      const isOrg = r.enumeration_type === 'NPI-2'
-      const fname = isOrg ? '' : (basic.first_name || '')
-      const lname = isOrg ? (basic.organization_name || '') : (basic.last_name || '')
-      const cred = isOrg ? '' : (basic.credential || '').replace(/\./g, '').trim()
-      const spec = r.taxonomies?.[0]?.desc || ''
-      const loc = r.addresses?.[0]
-      const addr = loc ? [loc.address_1, loc.city, loc.state, loc.postal_code].filter(Boolean).join(', ') : ''
-      setNpiResult({ fname, lname, cred, spec, addr, npi: npiInput })
-      setProvForm(f => ({ ...f, fname: fname||f.fname, lname: lname||f.lname, npi: npiInput }))
-      await addAudit('Provider', 'NPI Lookup', `NPI ${npiInput} → ${fname} ${lname}`, '')
+
+      // ── Use npiMapper for richer, taxonomy-aware data ──────────────────────
+      const { mapNpiResponse, npiCardToProviderDefaults } = await import('../lib/npiMapper')
+      const card = mapNpiResponse(data)
+      if (!card) { setNpiResult({ error: 'No provider found for this NPI.' }); return }
+
+      // addr string for the result box
+      const addr = [card.address, card.city, card.state, card.zip].filter(Boolean).join(', ')
+      setNpiResult({ ...card, addr, npi: npiInput })
+
+      // Pre-fill form with mapped defaults (only fills empty fields)
+      const defaults = npiCardToProviderDefaults(card)
+      setProvForm(f => ({
+        ...f,
+        ...Object.fromEntries(
+          Object.entries(defaults).filter(([k, v]) => v && !f[k])
+        ),
+        npi: npiInput,
+      }))
+
+      await addAudit('Provider', 'NPI Lookup', `NPI ${npiInput} → ${card.fname} ${card.lname} (${card.taxonomyDesc})`, '')
       toast('NPI data loaded!', 'success')
-    } catch(e) { setNpiResult({ error: 'Could not reach NPI registry.' }) }
+    } catch(e) { setNpiResult({ error: e.message || 'Could not reach NPI registry.' }) }
     setNpiLoading(false)
   }
 
@@ -2447,47 +2457,22 @@ function KanbanPipeline({ db, openEnrollModal }) {
           <button className="btn btn-primary btn-sm" onClick={()=>openEnrollModal()}>＋ New Enrollment</button>
         </div>
       </div>
-      <div className="kanban-board">
-        {KANBAN_COLUMNS.map(col => {
-          const cards = filtered.filter(e => col.stages.includes(e.stage))
-          return (
-            <div key={col.id} className="kanban-col">
-              <div className="kanban-col-header">
-                <div className="kanban-col-accent" style={{ background: col.color }} />
-                <span className="kanban-col-title">{col.icon} {col.label}</span>
-                <span className="kanban-col-count">{cards.length}</span>
-              </div>
-              <div className="kanban-cards">
-                {!cards.length
-                  ? <div className="kanban-empty">No enrollments</div>
-                  : cards.map(e => {
-                      const prov = db.providers.find(p => p.id === e.provId)
-                      const payer = db.payers.find(p => p.id === e.payId)
-                      const fuD = daysUntil(e.followup)
-                      const overdue = fuD !== null && fuD <= 0
-                      const dueSoon = fuD !== null && fuD > 0 && fuD <= 7
-                      return (
-                        <div key={e.id} className="kanban-card" onClick={() => openEnrollModal(e.id)}>
-                          <div className="kanban-card-prov">{prov ? `${prov.fname} ${prov.lname}` : '—'}</div>
-                          <div className="kanban-card-payer">{payer?.name || '—'}</div>
-                          <div className="kanban-card-meta">
-                            <StageBadge stage={e.stage} />
-                            {e.submitted && <span className="info-chip" style={{fontSize:'10.5px'}}>📅 {fmtDate(e.submitted)}</span>}
-                          </div>
-                          {(overdue || dueSoon) && (
-                            <div className="kanban-card-fu">
-                              {overdue ? `⚠ Follow-up overdue ${Math.abs(fuD)}d` : `📌 Follow-up in ${fuD}d`}
-                            </div>
-                          )}
-                        </div>
-                      )
-                    })
-                }
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      <EnrollmentKanban
+        enrollments={filtered}
+        providers={db.providers}
+        payers={db.payers}
+        onStageChange={async (enrollmentId, newStage) => {
+          const enr = db.enrollments.find(e => e.id === enrollmentId)
+          if (!enr) return
+          const updated = { ...enr, stage: newStage }
+          const prov  = db.providers.find(p => p.id === enr.provId)
+          const payer = db.payers.find(p => p.id === enr.payId)
+          const saved = await upsertEnrollment(updated, prov ? `${prov.fname} ${prov.lname}` : '', payer?.name || '')
+          setDb(prev => ({ ...prev, enrollments: prev.enrollments.map(e => e.id === saved.id ? saved : e) }))
+          toast(`Moved to ${newStage}`, 'success')
+        }}
+        onOpen={(enr) => openEnrollModal(enr.id)}
+      />
     </div>
   )
 }
