@@ -859,6 +859,31 @@ export default function App() {
 
   async function handleSaveProvider() {
     if (!provForm.fname?.trim() || !provForm.lname?.trim()) { toast('First and last name required.', 'error'); return }
+
+    // ── Duplicate detection (skip when editing an existing provider) ───────────
+    if (!editingId.provider) {
+      const fname = provForm.fname.trim().toLowerCase()
+      const lname = provForm.lname.trim().toLowerCase()
+      const npi   = provForm.npi?.trim()
+
+      const duplicate = db.providers.find(p => {
+        // NPI match is definitive (NPIs are unique per provider)
+        if (npi && p.npi && p.npi === npi) return true
+        // Name match as fallback (case-insensitive)
+        const sameName = p.fname.trim().toLowerCase() === fname &&
+                         p.lname.trim().toLowerCase() === lname
+        return sameName
+      })
+
+      if (duplicate) {
+        toast(
+          `Duplicate: ${duplicate.fname} ${duplicate.lname}${duplicate.cred ? ', ' + duplicate.cred : ''} is already on file.`,
+          'error'
+        )
+        return
+      }
+    }
+
     setSaving(true)
     try {
       const saved = await upsertProvider({ ...provForm, id: editingId.provider || undefined })
@@ -2458,7 +2483,7 @@ function KanbanPipeline({ db, openEnrollModal }) {
         </div>
       </div>
       <EnrollmentKanban
-        enrollments={filtered}
+        enrollments={db.enrollments}
         providers={db.providers}
         payers={db.payers}
         onStageChange={async (enrollmentId, newStage) => {
