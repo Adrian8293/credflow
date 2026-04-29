@@ -3391,7 +3391,7 @@ function PsychologyToday({ db, setPage, editProvider }) {
             <div className="card">
               <div className="card-header">
                 <h3>Active PT Profiles</h3>
-                <a href="https://www.psychologytoday.com/us/therapists/oregon/beaverton" target="_blank" rel="noreferrer" className="btn btn-sm btn-primary">Search PT Directory ↗</a>
+                <a href="https://www.psychologytoday.com/us/therapists/positive-inner-self-llc-beaverton-or/751449" target="_blank" rel="noreferrer" className="btn btn-sm btn-primary">Search PT Directory ↗</a>
               </div>
               <div className="card-body" style={{padding:'12px 16px'}}>
                 {listed.length === 0 ? (
