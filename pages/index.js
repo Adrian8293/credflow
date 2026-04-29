@@ -319,12 +319,45 @@ a{text-decoration:none;color:inherit;}
 .main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
 
 /* TOPBAR */
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);}
-.topbar-left{flex:1;display:flex;align-items:center;gap:8px;}
-.topbar-crumb{font-size:11px;color:var(--ink-4);font-weight:500;letter-spacing:0.3px;}
-.topbar-sep{color:var(--border);font-size:16px;}
-.topbar-title{font-family:'Poppins',sans-serif;font-size:20px;color:var(--ink);letter-spacing:-0.3px;}
-.topbar-actions{display:flex;gap:8px;align-items:center;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:64px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);}
+.topbar-left{flex:1;display:flex;flex-direction:column;justify-content:center;}
+.topbar-crumb{font-size:11px;color:var(--ink-4);font-weight:500;letter-spacing:0.3px;line-height:1;}
+.topbar-title{font-family:'Poppins',sans-serif;font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-0.4px;line-height:1.2;}
+.topbar-actions{display:flex;gap:10px;align-items:center;margin-left:auto;}
+
+/* TOPBAR SEARCH */
+.topbar-search-wrap{position:relative;display:flex;align-items:center;}
+.topbar-search-wrap input{width:220px;padding:9px 14px 9px 38px;border:1.5px solid var(--border);border-radius:var(--r-md);font-family:'Poppins',sans-serif;font-size:13px;color:var(--ink);background:var(--surface-2);outline:none;transition:all var(--t);}
+.topbar-search-wrap input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(37,99,235,.1);background:var(--surface);width:260px;}
+.topbar-search-wrap input::placeholder{color:var(--ink-4);}
+.topbar-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--ink-4);}
+.topbar-search-kbd{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:var(--border-2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:10px;color:var(--ink-4);font-family:'Poppins',sans-serif;}
+
+/* TOPBAR ICON BUTTONS */
+.topbar-icon-btn{position:relative;width:38px;height:38px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--t);color:var(--ink-3);}
+.topbar-icon-btn:hover{background:var(--surface-2);border-color:var(--ink-4);color:var(--ink);}
+.topbar-notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--red);border:2px solid var(--surface);}
+.topbar-notif-badge{position:absolute;top:4px;right:4px;min-width:16px;height:16px;border-radius:10px;background:var(--red);border:2px solid var(--surface);font-size:9px;font-weight:700;color:white;display:flex;align-items:center;justify-content:center;padding:0 3px;}
+
+/* USER AVATAR BUTTON */
+.topbar-user-btn{position:relative;display:flex;align-items:center;gap:8px;padding:5px 10px 5px 5px;border-radius:999px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;transition:all var(--t);}
+.topbar-user-btn:hover{background:var(--surface-2);border-color:var(--ink-4);}
+.topbar-user-avatar{width:30px;height:30px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;}
+.topbar-user-name{font-size:12.5px;font-weight:600;color:var(--ink);white-space:nowrap;}
+.topbar-user-role{font-size:10px;color:var(--ink-4);line-height:1;}
+.topbar-caret{font-size:10px;color:var(--ink-4);margin-left:2px;}
+
+/* USER DROPDOWN */
+.user-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:200px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-md);z-index:300;overflow:hidden;animation:modalIn .15s ease;}
+.user-dropdown-header{padding:12px 14px;border-bottom:1px solid var(--border-2);background:var(--surface-2);}
+.user-dropdown-name{font-size:13px;font-weight:600;color:var(--ink);}
+.user-dropdown-email{font-size:11px;color:var(--ink-4);margin-top:1px;word-break:break-all;}
+.user-dropdown-item{display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:13px;color:var(--ink-2);cursor:pointer;transition:background var(--t);}
+.user-dropdown-item:hover{background:var(--surface-2);}
+.user-dropdown-item svg{color:var(--ink-4);flex-shrink:0;}
+.user-dropdown-divider{border:none;border-top:1px solid var(--border-2);margin:4px 0;}
+.user-dropdown-item.danger{color:var(--red);}
+.user-dropdown-item.danger svg{color:var(--red);}
 
 /* BUTTONS */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--r-md);font-family:'Poppins',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all var(--t);white-space:nowrap;line-height:1;}
@@ -536,9 +569,7 @@ tbody tr:hover{background:#f8fafd;}
 .gsearch-empty{text-align:center;padding:36px 20px;color:var(--ink-4);font-size:13px;}
 .gsearch-footer{padding:10px 20px;border-top:1px solid var(--border);display:flex;gap:16px;align-items:center;}
 .gsearch-hint{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink-4);}
-.topbar-search-btn{display:flex;align-items:center;gap:8px;padding:7px 14px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--surface-2);cursor:pointer;color:var(--ink-4);font-size:12.5px;font-family:'Poppins',sans-serif;transition:all var(--t);min-width:200px;}
-.topbar-search-btn:hover{border-color:var(--primary);color:var(--ink);}
-.topbar-search-btn span{flex:1;}
+.topbar-search-btn-OLD{display:none;}
 .progress-bar{height:8px;background:var(--border-2);border-radius:4px;overflow:hidden;}
 
 /* PROVIDER PHOTO */
@@ -1136,7 +1167,7 @@ export default function App() {
 
         {/* ─── MAIN ─── */}
         <div className="main">
-          <Topbar page={page} setPage={setPage} openEnrollModal={openEnrollModal} openPayerModal={openPayerModal} openDocModal={openDocModal} openTaskModal={openTaskModal} exportJSON={exportJSON} saving={saving} onOpenSearch={()=>setGlobalSearchOpen(true)} />
+          <Topbar page={page} setPage={setPage} openEnrollModal={openEnrollModal} openPayerModal={openPayerModal} openDocModal={openDocModal} openTaskModal={openTaskModal} exportJSON={exportJSON} saving={saving} onOpenSearch={()=>setGlobalSearchOpen(true)} alertCount={alertCount} user={user} signOut={signOut} />
 
           {loading ? (
             <div className="loading-screen">
@@ -1201,9 +1232,33 @@ function Sidebar({ page, setPage, alertCount, pendingEnroll, expDocs, user, sign
   const [open, setOpen] = useState({ overview:true, providers:true, enrollments:true, compliance:true, rcm:true, analytics:false, system:false })
   const toggle = g => setOpen(o => ({ ...o, [g]: !o[g] }))
 
+  const NAV_ICONS = {
+    dashboard: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>,
+    alerts: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
+    providers: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+    'add-provider': <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>,
+    'provider-lookup': <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+    pipeline: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="5" height="8" rx="1"/></svg>,
+    enrollments: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
+    payers: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
+    'payer-requirements': <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>,
+    'missing-docs': <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+    documents: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>,
+    workflows: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>,
+    'psychology-today': <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>,
+    eligibility: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
+    claims: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>,
+    denials: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>,
+    revenue: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
+    reports: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><bar-chart/><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>,
+    audit: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
+    settings: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M20.49 12H22M2 12h1.51M19.07 19.07l-1.41-1.41M5.34 5.34L3.93 3.93M12 20.49V22M12 2v1.51"/></svg>,
+  }
+
   const navItem = (pg, label, badge, badgeClass) => (
     <div className={`sb-item ${page===pg?'active':''}`} onClick={() => setPage(pg)}>
-      <span>{label}</span>
+      {NAV_ICONS[pg] || <span style={{width:15,flexShrink:0}}/>}
+      <span style={{marginLeft:8}}>{label}</span>
       {badge > 0 && <span className={`sb-badge ${badgeClass||''}`}>{badge}</span>}
     </div>
   )
@@ -1226,7 +1281,7 @@ function Sidebar({ page, setPage, alertCount, pendingEnroll, expDocs, user, sign
           <div className="sb-logo-icon">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
           </div>
-          <div><h1>Cred<span>Flow</span></h1></div>
+          <div><h1>Cred<span>Flow</span></h1><div style={{fontSize:9.5,color:'rgba(255,255,255,0.4)',fontWeight:500,letterSpacing:'0.5px',marginTop:1}}>Credentialing Suite</div></div>
         </div>
       </div>
       <div className="sb-nav">
@@ -1280,7 +1335,19 @@ function Sidebar({ page, setPage, alertCount, pendingEnroll, expDocs, user, sign
   )
 }
 
-function Topbar({ page, setPage, openEnrollModal, openPayerModal, openDocModal, openTaskModal, exportJSON, saving, onOpenSearch }) {
+function Topbar({ page, setPage, openEnrollModal, openPayerModal, openDocModal, openTaskModal, exportJSON, saving, onOpenSearch, alertCount, user, signOut }) {
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [searchVal, setSearchVal] = useState('')
+  const userMenuRef = useRef(null)
+
+  useEffect(() => {
+    function handleClick(e) {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setUserMenuOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
   const titles = { dashboard:'Dashboard', alerts:'Alerts', providers:'All Providers', 'add-provider':'Add Provider', 'provider-lookup':'Provider Lookup', 'psychology-today':'Psychology Today', enrollments:'Payer Enrollments', pipeline:'Pipeline (Kanban)', 'payer-requirements':'Payer Requirements', 'missing-docs':'Missing Documents', payers:'Payer Directory', documents:'Documents & Expiry', workflows:'Workflows & Tasks', reports:'Reports & Analytics', audit:'Audit Trail', settings:'Settings', eligibility:'Eligibility Verification', claims:'Claims Tracker', denials:'Denial Log', revenue:'Revenue Analytics' }
   function topCTA() {
     if (page==='enrollments') openEnrollModal()
@@ -1290,22 +1357,79 @@ function Topbar({ page, setPage, openEnrollModal, openPayerModal, openDocModal, 
     else setPage('add-provider')
   }
   const ctaLabel = page==='enrollments'?'＋ New Enrollment':page==='pipeline'?'＋ New Enrollment':page==='payers'?'＋ Add Payer':page==='documents'?'＋ Add Document':page==='workflows'?'＋ New Task':['reports','audit','settings','eligibility','claims','denials','revenue','missing-docs','payer-requirements'].includes(page)?null:'＋ Add Provider'
+  const emailInitial = (user?.email||'A')[0].toUpperCase()
+  const displayEmail = user?.email || 'admin@credflow.io'
+  const displayName = 'Admin User'
+
   return (
     <div className="topbar">
+      {/* LEFT: breadcrumb + page title */}
       <div className="topbar-left">
-        <span className="topbar-crumb">CredFlow</span>
-        <span className="topbar-sep"> / </span>
+        <span className="topbar-crumb">Home &rsaquo; {titles[page]||page}</span>
         <span className="topbar-title">{titles[page]||page}</span>
-        <button className="topbar-search-btn" onClick={onOpenSearch} style={{marginLeft:20}}>
-          <span style={{fontSize:14,opacity:.6}}>🔍</span>
-          <span>Search everything…</span>
-          <span className="gsearch-kbd">⌘K</span>
-        </button>
       </div>
-      <div className="topbar-actions">
-        <button className="btn btn-ghost btn-sm" onClick={exportJSON}>⬇ Export</button>
 
+      {/* RIGHT: CTA, search, bell, user */}
+      <div className="topbar-actions">
         {ctaLabel && <button className="btn btn-primary btn-sm" onClick={topCTA}>{ctaLabel}</button>}
+
+        {/* Search bar */}
+        <div className="topbar-search-wrap" onClick={onOpenSearch} style={{cursor:'pointer'}}>
+          <span className="topbar-search-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </span>
+          <input
+            readOnly
+            value={searchVal}
+            placeholder="Search anything..."
+            style={{cursor:'pointer'}}
+            onFocus={onOpenSearch}
+          />
+          <span className="topbar-search-kbd">⌘K</span>
+        </div>
+
+        {/* Notification bell */}
+        <div className="topbar-icon-btn" title="Alerts & Notifications" onClick={() => setPage('alerts')}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          {alertCount > 0 && <span className="topbar-notif-badge">{alertCount > 9 ? '9+' : alertCount}</span>}
+        </div>
+
+        {/* User / Admin button */}
+        <div style={{position:'relative'}} ref={userMenuRef}>
+          <div className="topbar-user-btn" onClick={() => setUserMenuOpen(o => !o)}>
+            <div className="topbar-user-avatar">{emailInitial}</div>
+            <div style={{display:'flex',flexDirection:'column',lineHeight:1.2}}>
+              <span className="topbar-user-name">{displayName}</span>
+              <span className="topbar-user-role">Administrator</span>
+            </div>
+            <svg className="topbar-caret" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          {userMenuOpen && (
+            <div className="user-dropdown">
+              <div className="user-dropdown-header">
+                <div className="user-dropdown-name">{displayName}</div>
+                <div className="user-dropdown-email">{displayEmail}</div>
+              </div>
+              <div className="user-dropdown-item" onClick={() => { setPage('settings'); setUserMenuOpen(false) }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M20.49 12H22M2 12h1.51M19.07 19.07l-1.41-1.41M5.34 5.34L3.93 3.93M12 20.49V22M12 2v1.51"/></svg>
+                Settings
+              </div>
+              <div className="user-dropdown-item" onClick={() => { setPage('audit'); setUserMenuOpen(false) }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                Audit Log
+              </div>
+              <div className="user-dropdown-item" onClick={() => { exportJSON(); setUserMenuOpen(false) }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export Data
+              </div>
+              <hr className="user-dropdown-divider" />
+              <div className="user-dropdown-item danger" onClick={() => { setUserMenuOpen(false); if(signOut) signOut() }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Sign Out
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
