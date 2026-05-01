@@ -15,15 +15,15 @@
  *  - WorkflowKanban: drag-drop kanban (uses existing EnrollmentKanban underneath)
  */
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 
-const TODAY = new Date()
-
+// NOTE: Do NOT cache TODAY at module level — specialists leave tabs open for
+// days and stale dates cause wrong urgency calculations. Compute fresh per call.
 export function daysUntilWF(d) {
   if (!d) return null
-  return Math.ceil((new Date(d) - TODAY) / 86400000)
+  return Math.ceil((new Date(d) - new Date()) / 86400000)
 }
 
 export function fmtDateWF(d) {
@@ -38,11 +38,13 @@ export function providerReadiness(prov) {
   const licD = daysUntilWF(prov.licenseExp)
   if (licD === null || licD < 0) score -= 25
   else if (licD <= 30) score -= 10
+  // Only penalize malpractice when a date is actually set but expired/expiring.
+  // null = not required for this provider type (e.g. some LCSW positions) — no penalty.
   const malD = daysUntilWF(prov.malExp)
-  if (malD === null || malD < 0) score -= 25
-  else if (malD <= 30) score -= 10
+  if (malD !== null && malD < 0) score -= 25
+  else if (malD !== null && malD <= 30) score -= 10
   const caqhD = daysUntilWF(prov.caqhDue)
-  if (caqhD === null || caqhD < 0) score -= 15
+  if (caqhD !== null && caqhD < 0) score -= 15
   return Math.max(0, score)
 }
 
@@ -102,7 +104,7 @@ export function ReadinessRing({ score, size = 72 }) {
 
 export function SLABadge({ submitted, slaTarget = 90 }) {
   if (!submitted) return null
-  const elapsed = Math.floor((TODAY - new Date(submitted)) / 86400000)
+  const elapsed = Math.floor((new Date() - new Date(submitted)) / 86400000)
   const pct = (elapsed / slaTarget) * 100
   if (pct >= 100) return (
     <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 4, background: '#fef2f2', color: '#dc2626', border: '1px solid #fca5a5' }}>
@@ -123,10 +125,42 @@ export function SLABadge({ submitted, slaTarget = 90 }) {
 
 // ─── ENROLLMENT STAGE BAR ─────────────────────────────────────────────────────
 
+// Stages that require a specific next action from the specialist.
+// Each entry defines the banner label, button text, and optional external URL.
+const STAGE_ACTIONS = {
+  'Awaiting CAQH': {
+    icon: '🔗',
+    label: 'CAQH profile must be attested before this enrollment can proceed.',
+    btnText: 'Attest CAQH →',
+    url: 'https://proview.caqh.org',
+  },
+  'Additional Info Requested': {
+    icon: '📋',
+    label: null, // uses notes prop
+    btnText: 'Upload doc →',
+    url: null,
+  },
+  'Approved – Awaiting Contract': {
+    icon: '📝',
+    label: 'Payer approved — follow up to obtain and execute the contract.',
+    btnText: 'Follow up →',
+    url: null,
+  },
+}
+
 export function EnrollmentStageBar({ stage, submitted, slaTarget, notes, onAction }) {
   const progress = stageProgress(stage)
   const color = stageColor(stage)
-  const needsAction = stage === 'Additional Info Requested'
+  const stageAction = STAGE_ACTIONS[stage] || null
+
+  function handleBannerClick() {
+    if (stageAction?.url) {
+      window.open(stageAction.url, '_blank', 'noopener,noreferrer')
+    } else if (onAction) {
+      onAction()
+    }
+  }
+
   return (
     <div style={{ marginTop: 8 }}>
       <div style={{ height: 4, background: '#e2e8f0', borderRadius: 2, overflow: 'hidden', marginBottom: 6 }}>
@@ -136,22 +170,22 @@ export function EnrollmentStageBar({ stage, submitted, slaTarget, notes, onActio
         <span style={{ color: '#94a3b8' }}>Submitted {fmtDateWF(submitted)}</span>
         <SLABadge submitted={submitted} slaTarget={slaTarget} />
       </div>
-      {needsAction && (
+      {stageAction && (
         <div style={{
           marginTop: 8, background: 'linear-gradient(135deg, #1e40af 0%, #2563eb 100%)',
           borderRadius: 8, padding: '9px 13px', display: 'flex', alignItems: 'center', gap: 10, color: 'white'
         }}>
-          <span style={{ fontSize: 13 }}>📋</span>
+          <span style={{ fontSize: 13 }}>{stageAction.icon}</span>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 600, fontSize: 11.5, marginBottom: 1 }}>
-              Action: {notes || 'Submit requested information'}
+              Action: {stageAction.label ?? notes ?? 'Submit requested information'}
             </div>
           </div>
-          <button onClick={onAction} style={{
+          <button onClick={handleBannerClick} style={{
             background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.25)',
             borderRadius: 6, padding: '4px 10px', fontSize: 11, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit'
           }}>
-            Upload doc →
+            {stageAction.btnText}
           </button>
         </div>
       )}
@@ -221,7 +255,7 @@ export function ProviderReadinessBar({ prov }) {
 // ─── WORKFLOW DASHBOARD ────────────────────────────────────────────────────────
 // Replaces the old Dashboard with action-led layout
 
-export function WorkflowDashboard({ db, setPage, openEnrollModal }) {
+export function WorkflowDashboard({ db, setPage, openEnrollModal, openProvDetail }) {
   const alertDays = db.settings?.alertDays || 90
 
   // Priority tasks: overdue or urgent
@@ -232,7 +266,7 @@ export function WorkflowDashboard({ db, setPage, openEnrollModal }) {
   const overdueTasks = db.tasks.filter(t => t.status !== 'Done' && daysUntilWF(t.due) < 0)
   const pendingEnr = db.enrollments.filter(e => !['Active', 'Denied'].includes(e.stage))
   const overdueEnr = pendingEnr.filter(e =>
-    e.submitted && (TODAY - new Date(e.submitted)) / 86400000 > (e.slaTarget || 90)
+    e.submitted && (new Date() - new Date(e.submitted)) / 86400000 > (e.slaTarget || 90)
   )
 
   // Top task
@@ -340,7 +374,7 @@ export function WorkflowDashboard({ db, setPage, openEnrollModal }) {
               {overdueEnr.length === 0 ? (
                 <div style={{ color: 'var(--ink-4)', fontSize: 13, padding: '8px 0' }}>All enrollments within SLA.</div>
               ) : overdueEnr.slice(0, 4).map(e => {
-                const elapsed = Math.floor((TODAY - new Date(e.submitted)) / 86400000)
+                const elapsed = Math.floor((new Date() - new Date(e.submitted)) / 86400000)
                 return (
                   <div key={e.id} className="alert-item al-red mb-16">
                     <div className="al-body">
@@ -362,7 +396,7 @@ export function WorkflowDashboard({ db, setPage, openEnrollModal }) {
           <div className="card">
             <div className="card-header">
               <h3>⚠ Expiring Soon</h3>
-              <button className="btn btn-ghost btn-sm" onClick={() => setPage('alerts')}>View all →</button>
+              <button className="btn btn-ghost btn-sm" onClick={() => setPage('documents')}>View all →</button>
             </div>
             <div className="card-body" style={{ paddingTop: 12 }}>
               {expiringProvs.slice(0, 4).map(p => {
@@ -370,7 +404,12 @@ export function WorkflowDashboard({ db, setPage, openEnrollModal }) {
                 const malD = daysUntilWF(p.malExp)
                 const caqhD = daysUntilWF(p.caqhDue)
                 return (
-                  <div key={p.id} className="alert-item al-amber mb-16" style={{ cursor: 'pointer' }}>
+                  <div
+                    key={p.id}
+                    className="alert-item al-amber mb-16"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => openProvDetail(p.id)}
+                  >
                     <div className="al-body">
                       <div className="al-title">{p.fname} {p.lname}, {p.cred}</div>
                       <div style={{ display: 'flex', gap: 5, marginTop: 4, flexWrap: 'wrap' }}>
@@ -390,6 +429,9 @@ export function WorkflowDashboard({ db, setPage, openEnrollModal }) {
                           </span>
                         )}
                       </div>
+                    </div>
+                    <div style={{ flexShrink: 0, alignSelf: 'center', fontSize: 11, color: '#d97706', fontWeight: 600 }}>
+                      View →
                     </div>
                   </div>
                 )
@@ -472,20 +514,27 @@ export function ProviderCommandCenter({ prov, db, onClose, onEdit, openEnrollMod
 
   const score = providerReadiness(prov)
 
-  // Build alerts
+  // Build alerts — compute once per field, not inline per condition
   const alerts = []
-  if (daysUntilWF(prov.licenseExp) !== null && daysUntilWF(prov.licenseExp) < 0)
+  const _licD = daysUntilWF(prov.licenseExp)
+  const _malD = daysUntilWF(prov.malExp)
+  const _caqhD = daysUntilWF(prov.caqhDue)
+
+  if (_licD !== null && _licD < 0)
     alerts.push({ label: 'State License EXPIRED', sev: 'error' })
-  else if (daysUntilWF(prov.licenseExp) !== null && daysUntilWF(prov.licenseExp) <= 30)
-    alerts.push({ label: `License expires in ${daysUntilWF(prov.licenseExp)}d`, sev: 'warn' })
+  else if (_licD !== null && _licD <= 30)
+    alerts.push({ label: `License expires in ${_licD}d`, sev: 'warn' })
 
-  if (daysUntilWF(prov.malExp) !== null && daysUntilWF(prov.malExp) < 0)
-    alerts.push({ label: 'Malpractice Insurance EXPIRED', sev: 'error' })
-  else if (daysUntilWF(prov.malExp) !== null && daysUntilWF(prov.malExp) <= 30)
-    alerts.push({ label: `Malpractice expires in ${daysUntilWF(prov.malExp)}d`, sev: 'warn' })
+  // Only flag malpractice if a value is on file — null = not required for this provider type
+  if (prov.malExp) {
+    if (_malD < 0)
+      alerts.push({ label: 'Malpractice Insurance EXPIRED', sev: 'error' })
+    else if (_malD <= 30)
+      alerts.push({ label: `Malpractice expires in ${_malD}d`, sev: 'warn' })
+  }
 
-  if (daysUntilWF(prov.caqhDue) !== null && daysUntilWF(prov.caqhDue) < 0)
-    alerts.push({ label: `CAQH attestation overdue (${Math.abs(daysUntilWF(prov.caqhDue))}d)`, sev: 'error' })
+  if (_caqhD !== null && _caqhD < 0)
+    alerts.push({ label: `CAQH attestation overdue (${Math.abs(_caqhD)}d)`, sev: 'error' })
 
   const STAGE_BADGE = {
     'Not Started': 'b-gray', 'Application Submitted': 'b-blue',
@@ -748,10 +797,11 @@ export function WorkflowTasks({ db, openTaskModal, handleMarkDone, handleDeleteT
   const [tasks, setTasks] = useState(db.tasks)
   const [completing, setCompleting] = useState(new Set())
 
-  // Sync when db.tasks changes
-  if (tasks !== db.tasks && tasks.length !== db.tasks.length) {
+  // Sync when db.tasks changes (e.g. after Supabase realtime event).
+  // useEffect avoids the reference-equality trap and catches edits to existing tasks.
+  useEffect(() => {
     setTasks(db.tasks)
-  }
+  }, [db.tasks])
 
   function pName(id) {
     const p = db.providers.find(x => x.id === id)
