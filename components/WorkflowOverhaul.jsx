@@ -535,12 +535,11 @@ export function ProviderCommandCenter({ prov, db, onClose, onEdit, openEnrollMod
             {prov.fname} {prov.lname}, {prov.cred}
           </div>
           <div style={{ fontSize: 12.5, color: 'var(--ink-3)', marginBottom: 4 }}>
-            {prov.spec}{prov.focus ? ' · ' + prov.focus : ''}
+            {prov.spec}{prov.taxonomyDesc ? ' · ' + prov.taxonomyDesc : prov.focus ? ' · ' + prov.focus : ''}
           </div>
-          {(prov.taxonomyDesc || prov.taxonomyCode) && (
+          {prov.taxonomyCode && (
             <div style={{ fontSize: 11.5, color: 'var(--ink-4)', marginBottom: 7 }}>
-              {prov.taxonomyDesc || prov.focus}
-              {prov.taxonomyCode && <span style={{ fontFamily: 'monospace', marginLeft: 6, opacity: 0.7 }}>· {prov.taxonomyCode}</span>}
+              <span style={{ fontFamily: 'monospace' }}>{prov.taxonomyCode}</span>
             </div>
           )}
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
