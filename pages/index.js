@@ -3,6 +3,19 @@ import Head from 'next/head'
 import { supabase } from '../lib/supabase'
 import EnrollmentKanban from '../components/EnrollmentKanban'
 import {
+  WorkflowDashboard,
+  WorkflowProviderCard,
+  WorkflowTasks,
+  WorkflowDocuments,
+  ProviderCommandCenter,
+  ReadinessRing,
+  NextActionBanner,
+  ProviderReadinessBar,
+  EnrollmentStageBar,
+  SLABadge,
+  providerReadiness,
+} from '../components/WorkflowOverhaul'
+import {
   loadAll, upsertProvider, deleteProvider,
   upsertPayer, deletePayer,
   upsertEnrollment, deleteEnrollment,
@@ -2344,7 +2357,7 @@ export default function App() {
             </div>
           ) : (
             <div className="pages">
-              {page === 'dashboard' && <Dashboard db={db} setPage={setPage} openEnrollModal={openEnrollModal} />}
+              {page === 'dashboard' && <WorkflowDashboard db={db} setPage={setPage} openEnrollModal={openEnrollModal} />}
               {page === 'alerts' && <Alerts db={db} />}
               {page === 'providers' && <Providers db={db} search={provSearch} setSearch={setProvSearch} fStatus={provFStatus} setFStatus={setProvFStatus} fSpec={provFSpec} setFSpec={setProvFSpec} openProvDetail={openProvDetail} editProvider={editProvider} setPage={setPage} setProvForm={setProvForm} setEditingId={setEditingId} setNpiInput={setNpiInput} setNpiResult={setNpiResult} />}
               {page === 'provider-lookup' && <ProviderLookup db={db} setPage={setPage} setProvForm={setProvForm} setEditingId={setEditingId} setNpiInput={setNpiInput} setNpiResult={setNpiResult} />}
@@ -2355,8 +2368,8 @@ export default function App() {
               {page === 'payer-requirements' && <PayerHub db={db} initialTab="library" openEnrollModal={openEnrollModal} openPayerModal={openPayerModal} search={enrSearch} setSearch={setEnrSearch} fStage={enrFStage} setFStage={setEnrFStage} fProv={enrFProv} setFProv={setEnrFProv} handleDeleteEnrollment={handleDeleteEnrollment} paySearch={paySearch} setPaySearch={setPaySearch} payFType={payFType} setPayFType={setPayFType} handleDeletePayer={handleDeletePayer} />}
               {page === 'payer-hub' && <PayerHub db={db} initialTab="directory" openEnrollModal={openEnrollModal} openPayerModal={openPayerModal} search={enrSearch} setSearch={setEnrSearch} fStage={enrFStage} setFStage={setEnrFStage} fProv={enrFProv} setFProv={setEnrFProv} handleDeleteEnrollment={handleDeleteEnrollment} paySearch={paySearch} setPaySearch={setPaySearch} payFType={payFType} setPayFType={setPayFType} handleDeletePayer={handleDeletePayer} />}
               {page === 'missing-docs' && <MissingDocuments db={db} />}
-              {page === 'documents' && <Documents db={db} search={docSearch} setSearch={setDocSearch} fType={docFType} setFType={setDocFType} fStatus={docFStatus} setFStatus={setDocFStatus} openDocModal={openDocModal} handleDeleteDocument={handleDeleteDocument} />}
-              {page === 'workflows' && <Workflows db={db} search={wfSearch} setSearch={setWfSearch} fPriority={wfFPriority} setFPriority={setWfFPriority} fStatus={wfFStatus} setFStatus={setWfFStatus} openTaskModal={openTaskModal} handleMarkDone={handleMarkDone} handleDeleteTask={handleDeleteTask} />}
+              {page === 'documents' && <WorkflowDocuments db={db} openDocModal={openDocModal} handleDeleteDocument={handleDeleteDocument} />}
+              {page === 'workflows' && <WorkflowTasks db={db} openTaskModal={openTaskModal} handleMarkDone={handleMarkDone} handleDeleteTask={handleDeleteTask} />}
               {page === 'reports' && <Reports db={db} exportJSON={exportJSON} />}
               {page === 'audit' && <Audit db={db} search={auditSearch} setSearch={setAuditSearch} fType={auditFType} setFType={setAuditFType} handleClearAudit={handleClearAudit} />}
               {page === 'psychology-today' && <PsychologyToday db={db} setPage={setPage} editProvider={editProvider} />}
@@ -2374,7 +2387,7 @@ export default function App() {
         {modal === 'payer' && <PayerModal payerForm={payerForm} setPayerForm={setPayerForm} editingId={editingId} handleSavePayer={handleSavePayer} onClose={()=>{setModal(null);setPayerForm({});setEditingId(e=>({...e,payer:null}))}} saving={saving} />}
         {modal === 'doc' && <DocModal db={db} docForm={docForm} setDocForm={setDocForm} editingId={editingId} handleSaveDocument={handleSaveDocument} onClose={()=>{setModal(null);setDocForm({});setEditingId(e=>({...e,doc:null}))}} saving={saving} />}
         {modal === 'task' && <TaskModal db={db} taskForm={taskForm} setTaskForm={setTaskForm} editingId={editingId} handleSaveTask={handleSaveTask} onClose={()=>{setModal(null);setTaskForm({});setEditingId(e=>({...e,task:null}))}} saving={saving} />}
-        {modal === 'provDetail' && provDetail && <ProvDetailModal prov={provDetail} db={db} tab={provDetailTab} setTab={setProvDetailTab} onClose={()=>setModal(null)} editProvider={editProvider} openEnrollModal={openEnrollModal} />}
+        {modal === 'provDetail' && provDetail && <ProvDetailModal prov={provDetail} db={db} tab={provDetailTab} setTab={setProvDetailTab} onClose={()=>setModal(null)} editProvider={editProvider} openEnrollModal={openEnrollModal} toast={toast} />}
 
         {/* ─── TOASTS ─── */}
         {globalSearchOpen && <GlobalSearch db={db} onClose={()=>setGlobalSearchOpen(false)} setPage={setPage} openProvDetail={openProvDetail} openEnrollModal={openEnrollModal} />}
@@ -2758,6 +2771,7 @@ function Providers({ db, search, setSearch, fStatus, setFStatus, fSpec, setFSpec
     if (sortBy === 'status') return (a.status||'').localeCompare(b.status||'')
     if (sortBy === 'license') { const da=daysUntil(a.licenseExp), db2=daysUntil(b.licenseExp); return (da??99999)-(db2??99999) }
     if (sortBy === 'panels') { const pa=db.enrollments.filter(e=>e.provId===a.id&&e.stage==='Active').length; const pb=db.enrollments.filter(e=>e.provId===b.id&&e.stage==='Active').length; return pb-pa }
+    if (sortBy === 'readiness') { return providerReadiness(a) - providerReadiness(b) }
     return 0
   })
   return <div className="page">
@@ -2771,41 +2785,20 @@ function Providers({ db, search, setSearch, fStatus, setFStatus, fSpec, setFSpec
         <option value="status">Sort: Status</option>
         <option value="license">Sort: License Expiry</option>
         <option value="panels">Sort: Active Panels</option>
+        <option value="readiness">Sort: Readiness ↑</option>
       </select>
       <div className="toolbar-right"><button className="btn btn-primary btn-sm" onClick={()=>{setProvForm({});setEditingId(e=>({...e,provider:null}));setNpiInput('');setNpiResult(null);setPage('add-provider')}}>＋ Add Provider</button></div>
     </div>
-    {!list.length ? <div className="empty-state"><div className="ei">👤</div><h4>No providers found</h4></div> : list.map(p => {
-      const licD=daysUntil(p.licenseExp); const malD=daysUntil(p.malExp); const caqhD=daysUntil(p.caqhDue)
-      const urgent=(licD!==null&&licD<=30)||(malD!==null&&malD<=30)||(caqhD!==null&&caqhD<=30)
-      const activeP=db.enrollments.filter(e=>e.provId===p.id&&e.stage==='Active').length
-      const totalP=db.enrollments.filter(e=>e.provId===p.id).length
-      return <div key={p.id} className="prov-card" onClick={()=>openProvDetail(p.id)}>
-        <div className="prov-avatar" style={{ background: SPEC_COLORS[p.spec]||'#4f7ef8' }}>
-          {p.avatarUrl
-            ? <img src={p.avatarUrl} alt={p.fname} style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:12}} onError={e=>{e.target.style.display='none'}} />
-            : initials(p)
-          }
-        </div>
-        <div>
-          <div className="prov-name">{p.fname} {p.lname}</div>
-          <div className="prov-title">{p.cred}{p.focus?' · '+p.focus:''}</div>
-          <div className="prov-chips">
-            <span className={`badge ${p.status==='Active'?'b-green':p.status==='Pending'?'b-amber':'b-gray'} badge-dot`}>{p.status}</span>
-            <span className="badge b-gray">{p.spec}</span>
-            {p.npi && <span className="info-chip">NPI: {p.npi}</span>}
-            {activeP>0 && <span className="badge b-teal">{activeP}/{totalP} panels</span>}
-            {urgent && <span className="badge b-red">⚠ Expiring Soon</span>}
-            {p.supervisor && <span className="badge b-purple">Supervised</span>}
-            {p.ptStatus === 'Active' && <span className="badge b-green">🧠 PT Listed</span>}
-            {p.ptStatus === 'None' && p.spec === 'Mental Health' && <span className="badge b-gray">No PT Profile</span>}
-          </div>
-        </div>
-        <div className="prov-actions" onClick={e=>e.stopPropagation()}>
-          <button className="btn btn-secondary btn-sm" onClick={()=>openProvDetail(p.id)}>View</button>
-          <button className="btn btn-ghost btn-sm" onClick={()=>editProvider(p.id)}>Edit</button>
-        </div>
-      </div>
-    })}
+    {!list.length ? <div className="empty-state"><div className="ei">👤</div><h4>No providers found</h4></div> : list.map(p => (
+      <WorkflowProviderCard
+        key={p.id}
+        prov={p}
+        db={db}
+        onOpen={openProvDetail}
+        onEdit={editProvider}
+        onEnroll={null}
+      />
+    ))}
   </div>
 }
 
@@ -3710,40 +3703,33 @@ function TaskModal({ db, taskForm, setTaskForm, editingId, handleSaveTask, onClo
   </Modal>
 }
 
-function ProvDetailModal({ prov, db, tab, setTab, onClose, editProvider, openEnrollModal }) {
-  const enrs = db.enrollments.filter(e => e.provId === prov.id)
-  const docs = db.documents.filter(d => d.provId === prov.id)
-  const tabs = [['profile','Profile'],['creds','Credentials'],['enrollments',`Enrollments (${enrs.length})`],['documents',`Documents (${docs.length})`]]
-  return <Modal lg title={`${prov.fname} ${prov.lname}, ${prov.cred}`} sub={`${prov.spec} · ${prov.status}`} onClose={onClose}
-    footer={<><button className="btn btn-ghost" onClick={onClose}>Close</button><button className="btn btn-secondary" onClick={()=>{onClose();editProvider(prov.id)}}>Edit Provider</button><button className="btn btn-primary" onClick={()=>{onClose();openEnrollModal(null,prov.id)}}>＋ Add Enrollment</button></>}>
-    <div className="tabs">{tabs.map(([k,l])=><div key={k} className={`tab ${tab===k?'active':''}`} onClick={()=>setTab(k)}>{l}</div>)}</div>
-    {tab==='profile' && <div className="grid-2" style={{ gap:12 }}>
-      <div className="fg"><div className="text-xs text-muted">Email</div><div>{prov.email||'—'}</div></div>
-      <div className="fg"><div className="text-xs text-muted">Phone</div><div>{prov.phone||'—'}</div></div>
-      <div className="fg"><div className="text-xs text-muted">Specialty Focus</div><div>{prov.focus||'—'}</div></div>
-      <div className="fg"><div className="text-xs text-muted">Supervisor</div><div>{prov.supervisor||'—'}</div></div>
-      {prov.notes && <div className="fg full"><div className="text-xs text-muted">Notes</div><div style={{ fontSize:13, color:'var(--ink-2)', background:'var(--surface-2)', padding:'10px 12px', borderRadius:8 }}>{prov.notes}</div></div>}
-    </div>}
-    {tab==='creds' && <div className="grid-2" style={{ gap:12 }}>
-      {[['NPI',prov.npi],['CAQH ID',prov.caqh],['CAQH Due',prov.caqhDue?`${fmtDate(prov.caqhDue)} `:null],['Medicaid / DMAP',prov.medicaid],['Medicare PTAN',prov.ptan],['License #',prov.license],['License Exp',prov.licenseExp?fmtDate(prov.licenseExp):null],['Malpractice',prov.malCarrier?`${prov.malCarrier} (${prov.malPolicy})`:null],['Mal. Exp',prov.malExp?fmtDate(prov.malExp):null],['DEA #',prov.dea],['DEA Exp',prov.deaExp?fmtDate(prov.deaExp):null],['Recredentialing Due',prov.recred?fmtDate(prov.recred):null]].map(([l,v])=>(
-        <div key={l} className="fg"><div className="text-xs text-muted">{l}</div><div style={{ display:'flex', alignItems:'center', gap:6 }}>{v||'—'}{['CAQH Due','License Exp','Mal. Exp','DEA Exp','Recredentialing Due'].includes(l)&&<ExpiryBadge date={prov[{['CAQH Due']:'caqhDue',['License Exp']:'licenseExp',['Mal. Exp']:'malExp',['DEA Exp']:'deaExp',['Recredentialing Due']:'recred'}[l]]} />}</div></div>
-      ))}
-    </div>}
-    {tab==='enrollments' && (!enrs.length ? <div className="text-muted" style={{ padding:'12px 0' }}>No enrollments on file.</div> : enrs.map(e=>(
-      <div key={e.id} style={{ padding:'10px 0', borderBottom:'1px solid var(--line-2)' }}>
-        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:4 }}><strong style={{ flex:1 }}>{payName(db.payers,e.payId)}</strong><StageBadge stage={e.stage} /></div>
-        <div className="text-sm text-muted">Submitted: {fmtDate(e.submitted)} · Effective: {fmtDate(e.effective)} · EFT: {e.eft} · ERA: {e.era}</div>
-        {e.followup && <div className="text-sm text-muted">Follow-up: {fmtDate(e.followup)}</div>}
+function ProvDetailModal({ prov, db, tab, setTab, onClose, editProvider, openEnrollModal, toast }) {
+  return (
+    <div className="overlay open" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
+      <div className="modal modal-lg" style={{ maxWidth: 860, maxHeight: '92vh', overflowY: 'auto' }}>
+        <div className="modal-header" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
+          <div>
+            <h3>Provider Command Center</h3>
+            <div className="mh-sub">{prov.spec} · {prov.status}</div>
+          </div>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="modal-body">
+          <ProviderCommandCenter
+            prov={prov}
+            db={db}
+            onClose={onClose}
+            onEdit={(id) => { onClose(); editProvider(id) }}
+            openEnrollModal={openEnrollModal}
+            toast={toast}
+          />
+        </div>
+        <div className="modal-footer">
+          <button className="btn btn-ghost" onClick={onClose}>Close</button>
+        </div>
       </div>
-    )))}
-    {tab==='documents' && (!docs.length ? <div className="text-muted" style={{ padding:'12px 0' }}>No documents on file.</div> : docs.map(d=>(
-      <div key={d.id} style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 0', borderBottom:'1px solid var(--line-2)' }}>
-        <div style={{ width:34, height:34, borderRadius:8, background:'var(--blue-l)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0 }}>📄</div>
-        <div style={{ flex:1 }}><div style={{ fontSize:13, fontWeight:500 }}>{d.type}</div><div className="text-xs text-muted">{d.issuer} {d.number?'· '+d.number:''}</div></div>
-        <ExpiryBadge date={d.exp} />
-      </div>
-    )))}
-  </Modal>
+    </div>
+  )
 }
 
 
