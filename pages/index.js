@@ -4921,14 +4921,6 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
                           {inSystem && <span className="badge b-green">✓ In CredFlow</span>}
                         </div>
 
-                        {/* Full record button */}
-                        <button
-                          className="btn btn-ghost btn-sm"
-                          style={{ marginTop: 8, fontSize: 12, padding: '4px 10px' }}
-                          onClick={() => setNppesModal(r)}
-                        >
-                          📋 Full NPPES Record
-                        </button>
                       </div>
 
                       {/* Actions */}
@@ -4950,6 +4942,13 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
                         >
                           NPPES ↗
                         </a>
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          style={{ fontSize: 12 }}
+                          onClick={() => setNppesModal(r)}
+                        >
+                          View Full NPPES Record
+                        </button>
                       </div>
                     </div>
 
@@ -5001,9 +5000,9 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
       {nppesModal && (() => {
         const r = nppesModal
         return (
-          <div className="modal-overlay" onClick={() => setNppesModal(null)}>
-            <div className="modal" style={{ maxWidth: 720, maxHeight: '85vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
-              <div className="modal-header">
+          <div className="overlay open" onClick={e => { if (e.target === e.currentTarget) setNppesModal(null) }}>
+            <div className="modal modal-lg" style={{ maxWidth: 860, maxHeight: '92vh', overflowY: 'auto' }}>
+              <div className="modal-header" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
                 <div>
                   <h3>Full NPPES Record</h3>
                   <div className="mh-sub">
