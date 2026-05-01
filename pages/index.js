@@ -2527,6 +2527,7 @@ function Sidebar({ page, setPage, alertCount, pendingEnroll, expDocs, user, sign
     providers: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
     'add-provider': <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>,
     'provider-lookup': <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+    'license-verification': <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>,
     pipeline: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="10" y="3" width="5" height="12" rx="1"/><rect x="17" y="3" width="5" height="8" rx="1"/></svg>,
     enrollments: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>,
     payers: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{flexShrink:0,opacity:.75}}><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
@@ -4721,7 +4722,7 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
   const [resultCount, setResultCount] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [expanded, setExpanded] = useState({})   // { [npi]: true }
+  const [nppesModal, setNppesModal] = useState(null)  // holds full result record
   const [importing, setImporting] = useState(null)
 
   const STATES = ['AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA','HI','ID','IL','IN','IA','KS','KY','LA','ME','MD','MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ','NM','NY','NC','ND','OH','OK','OR','PA','RI','SC','SD','TN','TX','UT','VT','VA','WA','WV','WI','WY']
@@ -4738,7 +4739,7 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
     if (!npiNumber.trim() && !fname.trim() && !lname.trim() && !orgName.trim()) {
       setError('Enter an NPI number, a name, or an organization name.'); return
     }
-    setLoading(true); setError(''); setResults(null); setExpanded({}); setImporting(null)
+    setLoading(true); setError(''); setResults(null); setNppesModal(null); setImporting(null)
     try {
       const params = new URLSearchParams()
       if (npiNumber.trim()) {
@@ -4763,10 +4764,6 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
       setError('Could not reach the NPI registry. Please try again.')
     }
     setLoading(false)
-  }
-
-  function toggleExpand(npi) {
-    setExpanded(prev => ({ ...prev, [npi]: !prev[npi] }))
   }
 
   function guessSpec(tax) {
@@ -4872,7 +4869,7 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
                     {loading ? <><span className="spinner"></span> Searching NPPES…</> : '🔍 Search Registry'}
                   </button>
                   {results && (
-                    <button type="button" className="btn btn-ghost btn-sm" onClick={()=>{setResults(null);setFname('');setLname('');setOrgName('');setNpiNumber('');setState('OR');setCity('');setZip('');setSpecialty('');setExpanded({})}}>
+                    <button type="button" className="btn btn-ghost btn-sm" onClick={()=>{setResults(null);setFname('');setLname('');setOrgName('');setNpiNumber('');setState('OR');setCity('');setZip('');setSpecialty('');setNppesModal(null)}}>
                       Clear
                     </button>
                   )}
@@ -4894,7 +4891,6 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
 
               {results.map((r, i) => {
                 const inSystem = alreadyInSystem(r.npi)
-                const isExpanded = !!expanded[r.npi]
                 const isImporting = importing?.npi === r.npi
                 const displayName = r.orgName || `${r.fname} ${r.mname ? r.mname + ' ' : ''}${r.lname}${r.suffix ? ' ' + r.suffix : ''}`
 
@@ -4925,13 +4921,13 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
                           {inSystem && <span className="badge b-green">✓ In CredFlow</span>}
                         </div>
 
-                        {/* Expand toggle */}
+                        {/* Full record button */}
                         <button
                           className="btn btn-ghost btn-sm"
                           style={{ marginTop: 8, fontSize: 12, padding: '4px 10px' }}
-                          onClick={() => toggleExpand(r.npi)}
+                          onClick={() => setNppesModal(r)}
                         >
-                          {isExpanded ? '▲ Hide full record' : '▼ Show full NPPES record'}
+                          📋 Full NPPES Record
                         </button>
                       </div>
 
@@ -4981,128 +4977,6 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
                       </div>
                     )}
 
-                    {/* ── Expanded full NPPES record ── */}
-                    {isExpanded && (
-                      <div style={{ borderTop: '1px solid var(--border)', padding: '16px 20px', background: 'var(--surface-2)' }}>
-                        <div className="grid-2" style={{ gap: 24 }}>
-                          {/* Column 1: Identity + Contact */}
-                          <div>
-                            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--primary)', marginBottom: 8 }}>Identity</div>
-                            <InfoRow label="NPI Number" value={r.npi} />
-                            <InfoRow label="NPI Type" value={r.enumType} />
-                            <InfoRow label="NPI Status" value={r.npiStatus} />
-                            <InfoRow label="First Name" value={r.fname} />
-                            <InfoRow label="Middle Name" value={r.mname} />
-                            <InfoRow label="Last Name" value={r.lname} />
-                            <InfoRow label="Suffix" value={r.suffix} />
-                            <InfoRow label="Credential" value={r.credential} />
-                            <InfoRow label="Gender" value={r.gender === 'M' ? 'Male' : r.gender === 'F' ? 'Female' : r.gender} />
-                            <InfoRow label="Sole Proprietor" value={r.soloProprietor} />
-                            {r.orgName && <InfoRow label="Organization Name" value={r.orgName} />}
-                            {r.orgSubpart && <InfoRow label="Org Subpart" value={r.orgSubpart} />}
-
-                            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--primary)', margin: '14px 0 8px' }}>Enumeration</div>
-                            <InfoRow label="Enumeration Date" value={r.enumerationDate} />
-                            <InfoRow label="Last Updated" value={r.lastUpdated} />
-                            <InfoRow label="Certification Date" value={r.certificationDate} />
-                          </div>
-
-                          {/* Column 2: Address + Taxonomy */}
-                          <div>
-                            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--primary)', marginBottom: 8 }}>Practice Location</div>
-                            <InfoRow label="Address 1" value={r.address1} />
-                            <InfoRow label="Address 2" value={r.address2} />
-                            <InfoRow label="City" value={r.city} />
-                            <InfoRow label="State" value={r.state} />
-                            <InfoRow label="ZIP" value={r.zip} />
-                            <InfoRow label="Country" value={r.country} />
-                            <InfoRow label="Phone" value={r.phone} />
-                            <InfoRow label="Fax" value={r.fax} />
-
-                            {r.mailCity && <>
-                              <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--primary)', margin: '14px 0 8px' }}>Mailing Address</div>
-                              <InfoRow label="Address" value={[r.mailAddress1, r.mailAddress2].filter(Boolean).join(', ')} />
-                              <InfoRow label="City / State / ZIP" value={[r.mailCity, r.mailState, r.mailZip].filter(Boolean).join(', ')} />
-                              <InfoRow label="Phone" value={r.mailPhone} />
-                            </>}
-                          </div>
-                        </div>
-
-                        {/* Taxonomies */}
-                        {r.allTaxonomies?.length > 0 && (
-                          <div style={{ marginTop: 16 }}>
-                            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--primary)', marginBottom: 8 }}>
-                              Taxonomies / Specialties
-                            </div>
-                            <div className="tbl-wrap">
-                              <table>
-                                <thead><tr>
-                                  <th className="no-sort">Code</th>
-                                  <th className="no-sort">Description</th>
-                                  <th className="no-sort">License #</th>
-                                  <th className="no-sort">State</th>
-                                  <th className="no-sort">Primary</th>
-                                </tr></thead>
-                                <tbody>
-                                  {r.allTaxonomies.map((t, ti) => (
-                                    <tr key={ti}>
-                                      <td><code style={{ fontSize: 11 }}>{t.code}</code></td>
-                                      <td style={{ fontSize: 12 }}>{t.desc}</td>
-                                      <td style={{ fontSize: 12 }}>{t.license || '—'}</td>
-                                      <td style={{ fontSize: 12 }}>{t.state || '—'}</td>
-                                      <td>{t.primary && <span className="badge b-green" style={{ fontSize: 10 }}>Primary</span>}</td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Other Identifiers */}
-                        {r.identifiers?.length > 0 && (
-                          <div style={{ marginTop: 16 }}>
-                            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--primary)', marginBottom: 8 }}>
-                              Other Identifiers (State Licenses, Medicaid, etc.)
-                            </div>
-                            <div className="tbl-wrap">
-                              <table>
-                                <thead><tr>
-                                  <th className="no-sort">Type</th>
-                                  <th className="no-sort">Identifier</th>
-                                  <th className="no-sort">State</th>
-                                  <th className="no-sort">Issuer</th>
-                                </tr></thead>
-                                <tbody>
-                                  {r.identifiers.map((id, ii) => (
-                                    <tr key={ii}>
-                                      <td style={{ fontSize: 12 }}>{id.desc || id.code}</td>
-                                      <td style={{ fontSize: 12, fontFamily: 'monospace' }}>{id.identifier}</td>
-                                      <td style={{ fontSize: 12 }}>{id.state || '—'}</td>
-                                      <td style={{ fontSize: 12 }}>{id.issuer || '—'}</td>
-                                    </tr>
-                                  ))}
-                                </tbody>
-                              </table>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Other Names */}
-                        {r.otherNames?.length > 0 && (
-                          <div style={{ marginTop: 16 }}>
-                            <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--primary)', marginBottom: 8 }}>
-                              Other / Former Names
-                            </div>
-                            {r.otherNames.map((n, ni) => (
-                              <div key={ni} style={{ fontSize: 12, color: 'var(--ink-3)', padding: '4px 0' }}>
-                                {[n.fname, n.lname].filter(Boolean).join(' ')} {n.type ? `(${n.type})` : ''}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
                   </div>
                 )
               })}
@@ -5114,8 +4988,8 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
               <div className="ei">🔍</div>
               <h4>Search the national provider registry</h4>
               <p style={{ maxWidth: 440, margin: '0 auto', lineHeight: 1.6 }}>
-                Search 8M+ providers in the CMS NPPES database. Expand any result to view
-                the full record — all taxonomies, addresses, identifiers, and enumeration dates.
+                Search 8M+ providers in the CMS NPPES database. Click <strong>Full NPPES Record</strong> on any result to view
+                all taxonomies, addresses, identifiers, and enumeration dates.
                 Import directly into CredFlow with one click.
               </p>
             </div>
@@ -5123,7 +4997,130 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
         </div>
       )}
 
-      {/* ── TAB 2: VERIFICATION SOURCES ── */}
+      {/* ── NPPES Full Record Modal ── */}
+      {nppesModal && (() => {
+        const r = nppesModal
+        return (
+          <div className="modal-overlay" onClick={() => setNppesModal(null)}>
+            <div className="modal" style={{ maxWidth: 720, maxHeight: '85vh', overflowY: 'auto' }} onClick={e => e.stopPropagation()}>
+              <div className="modal-header">
+                <div>
+                  <h3>Full NPPES Record</h3>
+                  <div className="mh-sub">
+                    {r.orgName || `${r.fname} ${r.lname}${r.credential ? ', ' + r.credential : ''}`} · NPI {r.npi}
+                  </div>
+                </div>
+                <button className="modal-close" onClick={() => setNppesModal(null)}>✕</button>
+              </div>
+              <div className="modal-body">
+                <div className="grid-2" style={{ gap: 24 }}>
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--primary)', marginBottom: 8 }}>Identity</div>
+                    <InfoRow label="NPI Number" value={r.npi} />
+                    <InfoRow label="NPI Type" value={r.enumType} />
+                    <InfoRow label="NPI Status" value={r.npiStatus} />
+                    <InfoRow label="First Name" value={r.fname} />
+                    <InfoRow label="Middle Name" value={r.mname} />
+                    <InfoRow label="Last Name" value={r.lname} />
+                    <InfoRow label="Suffix" value={r.suffix} />
+                    <InfoRow label="Credential" value={r.credential} />
+                    <InfoRow label="Gender" value={r.gender === 'M' ? 'Male' : r.gender === 'F' ? 'Female' : r.gender} />
+                    <InfoRow label="Sole Proprietor" value={r.soloProprietor} />
+                    {r.orgName && <InfoRow label="Organization Name" value={r.orgName} />}
+                    {r.orgSubpart && <InfoRow label="Org Subpart" value={r.orgSubpart} />}
+                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--primary)', margin: '14px 0 8px' }}>Enumeration</div>
+                    <InfoRow label="Enumeration Date" value={r.enumerationDate} />
+                    <InfoRow label="Last Updated" value={r.lastUpdated} />
+                    <InfoRow label="Certification Date" value={r.certificationDate} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--primary)', marginBottom: 8 }}>Practice Location</div>
+                    <InfoRow label="Address 1" value={r.address1} />
+                    <InfoRow label="Address 2" value={r.address2} />
+                    <InfoRow label="City" value={r.city} />
+                    <InfoRow label="State" value={r.state} />
+                    <InfoRow label="ZIP" value={r.zip} />
+                    <InfoRow label="Country" value={r.country} />
+                    <InfoRow label="Phone" value={r.phone} />
+                    <InfoRow label="Fax" value={r.fax} />
+                    {r.mailCity && <>
+                      <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--primary)', margin: '14px 0 8px' }}>Mailing Address</div>
+                      <InfoRow label="Address" value={[r.mailAddress1, r.mailAddress2].filter(Boolean).join(', ')} />
+                      <InfoRow label="City / State / ZIP" value={[r.mailCity, r.mailState, r.mailZip].filter(Boolean).join(', ')} />
+                      <InfoRow label="Phone" value={r.mailPhone} />
+                    </>}
+                  </div>
+                </div>
+
+                {r.allTaxonomies?.length > 0 && (
+                  <div style={{ marginTop: 16 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--primary)', marginBottom: 8 }}>Taxonomies / Specialties</div>
+                    <div className="tbl-wrap">
+                      <table>
+                        <thead><tr>
+                          <th className="no-sort">Code</th>
+                          <th className="no-sort">Description</th>
+                          <th className="no-sort">License #</th>
+                          <th className="no-sort">State</th>
+                          <th className="no-sort">Primary</th>
+                        </tr></thead>
+                        <tbody>
+                          {r.allTaxonomies.map((t, ti) => (
+                            <tr key={ti}>
+                              <td><code style={{ fontSize: 11 }}>{t.code}</code></td>
+                              <td style={{ fontSize: 12 }}>{t.desc}</td>
+                              <td style={{ fontSize: 12 }}>{t.license || '—'}</td>
+                              <td style={{ fontSize: 12 }}>{t.state || '—'}</td>
+                              <td>{t.primary && <span className="badge b-green" style={{ fontSize: 10 }}>Primary</span>}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {r.identifiers?.length > 0 && (
+                  <div style={{ marginTop: 16 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--primary)', marginBottom: 8 }}>Other Identifiers</div>
+                    <div className="tbl-wrap">
+                      <table>
+                        <thead><tr>
+                          <th className="no-sort">Type</th>
+                          <th className="no-sort">Identifier</th>
+                          <th className="no-sort">State</th>
+                          <th className="no-sort">Issuer</th>
+                        </tr></thead>
+                        <tbody>
+                          {r.identifiers.map((id, ii) => (
+                            <tr key={ii}>
+                              <td style={{ fontSize: 12 }}>{id.desc || id.code}</td>
+                              <td style={{ fontSize: 12, fontFamily: 'monospace' }}>{id.identifier}</td>
+                              <td style={{ fontSize: 12 }}>{id.state || '—'}</td>
+                              <td style={{ fontSize: 12 }}>{id.issuer || '—'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {r.otherNames?.length > 0 && (
+                  <div style={{ marginTop: 16 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--primary)', marginBottom: 8 }}>Other / Former Names</div>
+                    {r.otherNames.map((n, ni) => (
+                      <div key={ni} style={{ fontSize: 12, color: 'var(--ink-3)', padding: '4px 0' }}>
+                        {[n.fname, n.lname].filter(Boolean).join(' ')} {n.type ? `(${n.type})` : ''}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )
+      })()}
     </div>
   )
 
