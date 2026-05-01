@@ -1895,6 +1895,7 @@ export default function App() {
   const [wfSearch, setWfSearch] = useState(''); const [wfFPriority, setWfFPriority] = useState(''); const [wfFStatus, setWfFStatus] = useState('')
   const [auditSearch, setAuditSearch] = useState(''); const [auditFType, setAuditFType] = useState('')
   const [npiInput, setNpiInput] = useState(''); const [npiResult, setNpiResult] = useState(null); const [npiLoading, setNpiLoading] = useState(false)
+  const [npiSyncModal, setNpiSyncModal] = useState(null)
   const [globalSearchOpen, setGlobalSearchOpen] = useState(false)
 
   // ─── AUTH ────────────────────────────────────────────────────────────────────
@@ -2243,8 +2244,6 @@ export default function App() {
   // Fetches fresh NPPES data for a provider by their stored NPI, diffs it
   // against what's in CredFlow, and opens a confirmation modal showing exactly
   // what will change before saving anything.
-
-  const [npiSyncModal, setNpiSyncModal] = useState(null)
   // npiSyncModal shape: { prov, diffs: [{field, label, npiValue, storedValue}], card }
 
   async function syncFromNPPES(provId) {
