@@ -5,21 +5,28 @@ function formatPhone(raw = '') {
 }
 
 export default async function handler(req, res) {
-  const { first_name, last_name, state, taxonomy, city, zip, npi_type = 'NPI-1', limit = 25 } = req.query
+  const { number, first_name, last_name, organization_name, state, taxonomy, city, zip, npi_type = 'NPI-1', limit = 25 } = req.query
 
-  if (!first_name && !last_name) {
-    return res.status(400).json({ error: 'At least first or last name is required.' })
+  if (!number && !first_name && !last_name && !organization_name) {
+    return res.status(400).json({ error: 'Enter an NPI number, a name, or an organization name.' })
   }
 
   try {
     const params = new URLSearchParams({ version: '2.1', limit })
-    if (first_name) params.append('first_name', first_name + '*')
-    if (last_name)  params.append('last_name',  last_name  + '*')
-    if (state)      params.append('state', state)
-    if (city)       params.append('city', city)
-    if (zip)        params.append('postal_code', zip)
-    if (taxonomy)   params.append('taxonomy_description', taxonomy + '*')
-    params.append('enumeration_type', npi_type)
+    if (number) {
+      params.append('number', number)
+    } else if (npi_type === 'NPI-2') {
+      if (organization_name) params.append('organization_name', organization_name + '*')
+      params.append('enumeration_type', 'NPI-2')
+    } else {
+      if (first_name) params.append('first_name', first_name + '*')
+      if (last_name)  params.append('last_name',  last_name  + '*')
+      params.append('enumeration_type', 'NPI-1')
+    }
+    if (state)    params.append('state', state)
+    if (city)     params.append('city', city)
+    if (zip)      params.append('postal_code', zip)
+    if (taxonomy) params.append('taxonomy_description', taxonomy + '*')
 
     const url = `https://npiregistry.cms.hhs.gov/api/?${params.toString()}`
     const response = await fetch(url, {
