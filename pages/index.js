@@ -31,8 +31,12 @@ const KANBAN_COLUMNS = [
 ]
 
 // ─── PAYER REQUIREMENTS ───────────────────────────────────────────────────────
+// states: array of state abbreviations where this payer operates. 'ALL' = nationwide.
+// type: 'National','Regional','Medicaid','Medicare','Military','Marketplace'
 const PAYER_REQUIREMENTS = {
+  // ── NATIONAL PAYERS ───────────────────────────────────────────────────────
   'Aetna': {
+    states: 'ALL', type: 'National',
     requirements: ['CAQH Profile (must be current)', 'Aetna Provider Application', 'W-9 Form', 'Current CV/Resume', 'Copy of License', 'Malpractice Insurance Certificate', 'DEA Certificate (if applicable)', 'NPI Type 1 & Type 2'],
     submission: 'Availity Provider Enrollment portal',
     portalUrl: 'https://www.availity.com',
@@ -42,97 +46,41 @@ const PAYER_REQUIREMENTS = {
     specialNotes: ['CAQH attestation required', 'Portal: Availity', 'Group & individual enrollment both required'],
     color: '#C8102E',
   },
-  'BCBS Oregon (Regence)': {
-    requirements: ['CAQH Profile', 'Regence Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'OHA Participation (recommended)', 'NPI Type 1'],
-    submission: 'Regence Provider Portal or paper application',
-    portalUrl: 'https://www.regence.com/providers',
-    timeline: '45–60 days',
-    revalidation: 'Every 3 years',
-    notes: 'OHA/Medicaid participation often required first for behavioral health. Contact Provider Relations for behavioral health contracts.',
-    specialNotes: ['OHA participation recommended first', 'Behavioral health contracts handled separately'],
-    color: '#00539F',
-  },
-  'OHP / Medicaid (OHA)': {
-    requirements: ['DMAP Enrollment Form', 'W-9 Form', 'Oregon License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check Authorization', 'Medicaid Provider Agreement'],
-    submission: 'Oregon DMAP Online Enrollment System',
-    portalUrl: 'https://www.oregon.gov/oha/hsd/ohp',
-    timeline: '45–60 days',
-    revalidation: 'Every 5 years',
-    notes: 'Oregon Health Plan enrollment through DMAP. Required for most Medicaid-accepting practices. Supervising provider must also be enrolled.',
-    specialNotes: ['Supervisor must be enrolled if applicable', 'Background check required', 'DMAP system enrollment'],
-    color: '#006400',
-  },
-  'Cigna': {
-    requirements: ['CAQH Profile', 'Cigna Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
-    submission: 'Cigna for Health Care Professionals portal',
-    portalUrl: 'https://cignaforhcp.cigna.com',
-    timeline: '60–90 days',
-    revalidation: 'Every 3 years',
-    notes: 'Submit via Cigna for Health Care Professionals portal. Mental health providers may need to contact Evernorth separately. CAQH must be complete and attested.',
-    specialNotes: ['Mental health may route through Evernorth', 'Portal submission required', 'CAQH attestation required'],
-    color: '#004B87',
-  },
   'UnitedHealthcare': {
+    states: 'ALL', type: 'National',
     requirements: ['CAQH Profile', 'UHC Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume', 'Revalidation Form (if revalidating)'],
     submission: 'Provider Express portal (providerexpress.com)',
     portalUrl: 'https://www.providerexpress.com',
     timeline: '60–120 days',
     revalidation: 'Every 3 years (required)',
-    notes: 'UHC requires mandatory revalidation every 3 years — failure to revalidate results in termination. Optum manages behavioral health credentialing. Separate enrollment for Optum/Behavioral Health.',
+    notes: 'UHC requires mandatory revalidation every 3 years. Optum manages behavioral health credentialing. Separate enrollment for Optum/Behavioral Health.',
     specialNotes: ['Revalidation every 3 years mandatory', 'Behavioral health via Optum', 'Longest credentialing timeline'],
     color: '#006699',
   },
-  'Providence Health Plan': {
-    requirements: ['Providence Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume', 'CAQH Profile'],
-    submission: 'Providence Provider Relations (phone/email/portal)',
-    portalUrl: 'https://www.providence.org/providers',
-    timeline: '45–75 days',
+  'Cigna / Evernorth': {
+    states: 'ALL', type: 'National',
+    requirements: ['CAQH Profile', 'Cigna Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Cigna for Health Care Professionals portal',
+    portalUrl: 'https://cignaforhcp.cigna.com',
+    timeline: '60–90 days',
     revalidation: 'Every 3 years',
-    notes: 'Oregon-specific payer. Strong presence in Portland metro. Contact Provider Relations directly for application packets.',
-    specialNotes: ['Oregon/Pacific NW regional payer', 'Direct contact with Provider Relations recommended'],
-    color: '#0061A1',
-  },
-  'Moda Health': {
-    requirements: ['Moda Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CAQH Profile', 'CV/Resume'],
-    submission: 'Moda Provider Portal or paper application',
-    portalUrl: 'https://www.modahealth.com/medical/provider',
-    timeline: '30–60 days',
-    revalidation: 'Every 3 years',
-    notes: 'Oregon-based regional payer. Behavioral health credentialing through Moda directly. Often faster than national payers.',
-    specialNotes: ['Oregon regional payer', 'Faster timeline than nationals', 'Behavioral health credentialed directly'],
-    color: '#C41E3A',
-  },
-  'PacificSource Health Plans': {
-    requirements: ['PacificSource Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume'],
-    submission: 'PacificSource Provider Relations',
-    portalUrl: 'https://www.pacificsource.com/providers',
-    timeline: '30–60 days',
-    revalidation: 'Every 3 years',
-    notes: 'Northwest regional payer covering Oregon and surrounding states. Direct application process.',
-    specialNotes: ['Northwest regional payer', 'Direct application process'],
-    color: '#0033A0',
-  },
-  'Kaiser Permanente': {
-    requirements: ['Kaiser Application (invitation only)', 'CAQH Profile', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Board Certification (if applicable)'],
-    submission: 'Kaiser Provider Network Relations (invitation required)',
-    portalUrl: 'https://providers.kaiserpermanente.org',
-    timeline: '90–120 days',
-    revalidation: 'Every 2 years',
-    notes: 'INVITATION ONLY network. Providers must be invited to join. Closed panel in many markets. Contact Network Relations to inquire about open panels.',
-    specialNotes: ['⚠️ Invitation only — closed panel', 'Board certification may be required', 'Longest revalidation cycle (2 years)'],
-    color: '#003781',
+    notes: 'Mental health providers may need to contact Evernorth separately. CAQH must be complete and attested.',
+    specialNotes: ['Mental health may route through Evernorth', 'Portal submission required', 'CAQH attestation required'],
+    color: '#004B87',
   },
   'Humana': {
+    states: 'ALL', type: 'National',
     requirements: ['CAQH Profile', 'Humana Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
     submission: 'Availity or Humana Provider Portal',
     portalUrl: 'https://www.humana.com/provider',
     timeline: '60–90 days',
     revalidation: 'Every 3 years',
-    notes: 'Submit via Availity or directly through Humana Provider Portal. Behavioral health credentialing may route through Humana Behavioral Health.',
+    notes: 'Submit via Availity or Humana Provider Portal. Behavioral health may route through Humana Behavioral Health.',
     specialNotes: ['Availity or direct portal', 'Behavioral health may be separate', 'CAQH required'],
     color: '#006F44',
   },
   'Anthem / Elevance Health': {
+    states: ['CA','CO','CT','GA','IN','KY','ME','MO','NV','NH','NY','OH','VA','WI'], type: 'National',
     requirements: ['CAQH Profile', 'Anthem Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
     submission: 'Availity or Anthem provider portal',
     portalUrl: 'https://www.anthem.com/provider',
@@ -143,46 +91,1228 @@ const PAYER_REQUIREMENTS = {
     color: '#0079C1',
   },
   'Molina Healthcare': {
+    states: ['CA','FL','ID','IL','KY','MI','MS','NE','NM','NY','OH','OR','SC','TX','UT','VA','WA','WI'], type: 'Medicaid',
     requirements: ['Molina Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Medicaid Provider Agreement', 'Background Check'],
     submission: 'Molina Provider Services (phone or portal)',
     portalUrl: 'https://www.molinahealthcare.com/providers',
     timeline: '45–75 days',
     revalidation: 'Every 3 years',
-    notes: 'Medicaid-focused managed care organization. Background check required. Oregon Medicaid (OHP) enrollment often required first.',
-    specialNotes: ['Medicaid/OHP enrollment recommended first', 'Background check required', 'MCO for OHP population'],
+    notes: 'Medicaid-focused managed care organization. Background check required. State Medicaid enrollment often required first.',
+    specialNotes: ['State Medicaid enrollment recommended first', 'Background check required', 'MCO for Medicaid population'],
     color: '#007DC3',
   },
-  'Medicare (Novitas / CGS)': {
+  'Medicare (PECOS)': {
+    states: 'ALL', type: 'Medicare',
     requirements: ['Medicare Enrollment Application (CMS-855)', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'PECOS Enrollment', 'Background Check'],
     submission: 'PECOS (Provider Enrollment Chain and Ownership System)',
     portalUrl: 'https://pecos.cms.hhs.gov',
     timeline: '60–90 days',
     revalidation: 'Every 5 years',
-    notes: 'Medicare enrollment through PECOS. Most providers must complete PECOS enrollment. Opt-out available for certain providers.',
+    notes: 'Medicare enrollment through PECOS. Most providers must complete PECOS enrollment. Opt-out available for certain providers. MAC assignment depends on provider state.',
     specialNotes: ['PECOS enrollment required', 'CMS-855 application form', 'Opt-out option available'],
     color: '#1B3A6B',
   },
-  'TriCare': {
+  'TRICARE': {
+    states: 'ALL', type: 'Military',
     requirements: ['TRICARE Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume', 'Board Certification preferred'],
-    submission: 'Humana Military (TRICARE East) or Health Net Federal Services (West)',
+    submission: 'Humana Military (TRICARE East) or TriWest (West)',
     portalUrl: 'https://www.tricare.mil/providers',
     timeline: '60–90 days',
     revalidation: 'Every 3 years',
-    notes: 'Military health program. Oregon falls under TRICARE West (Health Net Federal Services). Separate enrollment from commercial plans.',
-    specialNotes: ['Oregon = TRICARE West region', 'Health Net Federal Services contact', 'Military health program'],
+    notes: 'Military health program. East region: Humana Military. West region: TriWest Healthcare Alliance.',
+    specialNotes: ['East: Humana Military | West: TriWest', 'Separate from commercial enrollment', 'Military health program'],
     color: '#003087',
   },
   'Oscar Health': {
+    states: ['AZ','CA','CO','FL','GA','IL','KS','MI','MO','NJ','NY','OH','OK','OR','PA','TN','TX','VA'], type: 'Marketplace',
     requirements: ['Oscar Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CAQH Profile', 'CV/Resume'],
     submission: 'Oscar Provider Relations portal',
     portalUrl: 'https://www.hioscar.com/providers',
     timeline: '45–75 days',
     revalidation: 'Every 3 years',
-    notes: 'Newer national payer with growing Oregon presence. Technology-forward approach. Direct portal submission.',
-    specialNotes: ['Growing Oregon presence', 'Tech-forward portal', 'Newer payer — check panel status'],
+    notes: 'Newer national payer with growing presence. Technology-forward approach. Direct portal submission.',
+    specialNotes: ['Growing multi-state presence', 'Tech-forward portal', 'Check panel status before applying'],
     color: '#EF4923',
   },
+  'Kaiser Permanente': {
+    states: ['CA','CO','GA','HI','MD','OR','VA','WA','DC'], type: 'Regional',
+    requirements: ['Kaiser Application (invitation only)', 'CAQH Profile', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Board Certification (if applicable)'],
+    submission: 'Kaiser Provider Network Relations (invitation required)',
+    portalUrl: 'https://providers.kaiserpermanente.org',
+    timeline: '90–120 days',
+    revalidation: 'Every 2 years',
+    notes: 'INVITATION ONLY network. Providers must be invited to join. Closed panel in many markets.',
+    specialNotes: ['Invitation only — closed panel', 'Board certification may be required', 'Revalidation every 2 years'],
+    color: '#003781',
+  },
+  'Centene / WellCare': {
+    states: ['AZ','AR','CA','FL','GA','IL','IN','KS','KY','LA','MA','MI','MN','MS','MO','NE','NV','NJ','NM','NY','NC','OH','OR','PA','SC','TN','TX','UT','VA','WA','WI'], type: 'Medicaid',
+    requirements: ['CAQH Profile', 'Centene Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Medicaid Agreement'],
+    submission: 'Centene Provider Portal or state-specific subsidiary portal',
+    portalUrl: 'https://www.centene.com/providers.html',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'Centene operates through state subsidiaries (WellCare, Ambetter, Peach State, etc.). Enrollment is state-specific.',
+    specialNotes: ['Operates via state subsidiaries', 'Contact local plan for enrollment', 'Medicaid & Marketplace products'],
+    color: '#006B3C',
+  },
+  'Magellan Health': {
+    states: 'ALL', type: 'National',
+    requirements: ['CAQH Profile', 'Magellan Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume'],
+    submission: 'Magellan Provider Portal',
+    portalUrl: 'https://www.magellanprovider.com',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'Behavioral health managed care organization. Primarily credentialing behavioral health and substance use disorder providers.',
+    specialNotes: ['Behavioral health specialty payer', 'CAQH required', 'Focus on mental health & SUD providers'],
+    color: '#00528C',
+  },
+  'Beacon Health Options': {
+    states: 'ALL', type: 'National',
+    requirements: ['CAQH Profile', 'Beacon Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume'],
+    submission: 'Beacon Provider Relations portal',
+    portalUrl: 'https://www.beaconhealthoptions.com/providers',
+    timeline: '45–60 days',
+    revalidation: 'Every 3 years',
+    notes: 'Behavioral health carve-out for Anthem in many states. Also manages behavioral health for various state Medicaid programs.',
+    specialNotes: ['Behavioral health carve-out for Anthem', 'Manages state Medicaid BH in some states', 'CAQH required'],
+    color: '#0060A9',
+  },
+  'Optum / UBH': {
+    states: 'ALL', type: 'National',
+    requirements: ['CAQH Profile', 'Optum Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Provider Express portal',
+    portalUrl: 'https://www.providerexpress.com',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Behavioral health arm of UnitedHealth Group. Credential separately from UHC medical. Manages behavioral health for many employer plans.',
+    specialNotes: ['Behavioral health arm of UHC', 'Separate from UHC medical enrollment', 'Use Provider Express portal'],
+    color: '#E87722',
+  },
+
+  // ── OREGON ────────────────────────────────────────────────────────────────
+  'BCBS Oregon (Regence)': {
+    states: ['OR','WA','ID','UT'], type: 'Regional',
+    requirements: ['CAQH Profile', 'Regence Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'OHA Participation (recommended)', 'NPI Type 1'],
+    submission: 'Regence Provider Portal or paper application',
+    portalUrl: 'https://www.regence.com/providers',
+    timeline: '45–60 days',
+    revalidation: 'Every 3 years',
+    notes: 'OHA/Medicaid participation often required first for behavioral health. Contact Provider Relations for behavioral health contracts.',
+    specialNotes: ['OHA participation recommended first', 'Behavioral health contracts handled separately'],
+    color: '#00539F',
+  },
+  'OHP / Medicaid (OHA)': {
+    states: ['OR'], type: 'Medicaid',
+    requirements: ['DMAP Enrollment Form', 'W-9 Form', 'Oregon License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check Authorization', 'Medicaid Provider Agreement'],
+    submission: 'Oregon DMAP Online Enrollment System',
+    portalUrl: 'https://www.oregon.gov/oha/hsd/ohp',
+    timeline: '45–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Oregon Health Plan enrollment through DMAP. Required for most Medicaid-accepting practices. Supervising provider must also be enrolled.',
+    specialNotes: ['Supervisor must be enrolled if applicable', 'Background check required', 'DMAP system enrollment'],
+    color: '#006400',
+  },
+  'Providence Health Plan': {
+    states: ['OR','WA'], type: 'Regional',
+    requirements: ['Providence Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume', 'CAQH Profile'],
+    submission: 'Providence Provider Relations (phone/email/portal)',
+    portalUrl: 'https://www.providence.org/providers',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'Strong presence in Oregon and Washington. Contact Provider Relations directly for application packets.',
+    specialNotes: ['Oregon/Pacific NW regional payer', 'Direct contact with Provider Relations recommended'],
+    color: '#0061A1',
+  },
+  'Moda Health': {
+    states: ['OR','AK'], type: 'Regional',
+    requirements: ['Moda Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CAQH Profile', 'CV/Resume'],
+    submission: 'Moda Provider Portal or paper application',
+    portalUrl: 'https://www.modahealth.com/medical/provider',
+    timeline: '30–60 days',
+    revalidation: 'Every 3 years',
+    notes: 'Oregon-based regional payer. Behavioral health credentialing through Moda directly. Often faster than national payers.',
+    specialNotes: ['Oregon regional payer', 'Faster timeline than nationals', 'Behavioral health credentialed directly'],
+    color: '#C41E3A',
+  },
+  'PacificSource Health Plans': {
+    states: ['OR','ID','MT'], type: 'Regional',
+    requirements: ['PacificSource Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume'],
+    submission: 'PacificSource Provider Relations',
+    portalUrl: 'https://www.pacificsource.com/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 3 years',
+    notes: 'Northwest regional payer covering Oregon, Idaho, and Montana. Direct application process.',
+    specialNotes: ['Northwest regional payer', 'Direct application process'],
+    color: '#0033A0',
+  },
+  'OHSU Health Plan': {
+    states: ['OR'], type: 'Regional',
+    requirements: ['OHSU Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CAQH Profile'],
+    submission: 'OHSU Health Plan Provider Relations',
+    portalUrl: 'https://www.ohsu.edu/health',
+    timeline: '30–60 days',
+    revalidation: 'Every 3 years',
+    notes: 'Oregon Health & Science University health plan. Academic medical center affiliated plan.',
+    specialNotes: ['Academic medical center affiliated', 'Oregon only', 'Direct Provider Relations contact'],
+    color: '#007030',
+  },
+
+  // ── CALIFORNIA ────────────────────────────────────────────────────────────
+  'Blue Shield of California': {
+    states: ['CA'], type: 'Regional',
+    requirements: ['CAQH Profile', 'Blue Shield Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or Blue Shield Provider Portal',
+    portalUrl: 'https://www.blueshieldca.com/providers',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'California-only nonprofit plan. CAQH required. Behavioral health may route through Magellan.',
+    specialNotes: ['California only', 'Behavioral health via Magellan in some cases', 'CAQH required'],
+    color: '#005EB8',
+  },
+  'Health Net (CA)': {
+    states: ['CA','AZ','OR','WA'], type: 'Regional',
+    requirements: ['CAQH Profile', 'Health Net Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume'],
+    submission: 'Availity or Health Net Provider Portal',
+    portalUrl: 'https://www.healthnet.com/content/healthnet/en_us/providers.html',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'Major California plan, also manages TRICARE West. Centene subsidiary.',
+    specialNotes: ['Centene subsidiary', 'Also manages TRICARE West', 'CAQH required'],
+    color: '#009A44',
+  },
+  'L.A. Care Health Plan': {
+    states: ['CA'], type: 'Medicaid',
+    requirements: ['L.A. Care Provider Application', 'W-9 Form', 'California License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Medi-Cal Agreement', 'Background Check'],
+    submission: 'L.A. Care Provider Relations',
+    portalUrl: 'https://www.lacare.org/providers',
+    timeline: '45–60 days',
+    revalidation: 'Every 3 years',
+    notes: 'Public plan serving Los Angeles County Medi-Cal population. One of the largest publicly operated health plans in the US.',
+    specialNotes: ['Los Angeles County only', 'Medi-Cal managed care', 'Medi-Cal enrollment required first'],
+    color: '#003087',
+  },
+  'Inland Empire Health Plan (IEHP)': {
+    states: ['CA'], type: 'Medicaid',
+    requirements: ['IEHP Provider Application', 'W-9 Form', 'California License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Medi-Cal Agreement'],
+    submission: 'IEHP Provider Relations',
+    portalUrl: 'https://www.iehp.org/en/providers',
+    timeline: '45–60 days',
+    revalidation: 'Every 3 years',
+    notes: 'Serves Riverside and San Bernardino counties. Medi-Cal and Medicare managed care.',
+    specialNotes: ['Inland Empire (Riverside/San Bernardino) only', 'Medi-Cal managed care', 'Medi-Cal enrollment required'],
+    color: '#007A4D',
+  },
+
+  // ── WASHINGTON ────────────────────────────────────────────────────────────
+  'Premera Blue Cross (WA)': {
+    states: ['WA','AK'], type: 'Regional',
+    requirements: ['CAQH Profile', 'Premera Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume'],
+    submission: 'Premera Provider Portal or Availity',
+    portalUrl: 'https://www.premera.com/providers',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'Washington and Alaska regional payer. Largest health plan in Washington state.',
+    specialNotes: ['WA/AK regional payer', 'CAQH required', 'Direct portal or Availity'],
+    color: '#0054A6',
+  },
+  'Washington Apple Health (Medicaid)': {
+    states: ['WA'], type: 'Medicaid',
+    requirements: ['WA Medicaid Provider Enrollment Application', 'W-9 Form', 'Washington License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'Provider Agreement'],
+    submission: 'Washington ProviderOne system',
+    portalUrl: 'https://www.hca.wa.gov/billers-providers-partners',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Washington State Medicaid through HCA. Enrollment via ProviderOne portal. Managed care plans require separate enrollment after.',
+    specialNotes: ['ProviderOne enrollment required', 'Separate MCO enrollments required', 'Background check required'],
+    color: '#00843D',
+  },
+  'Coordinated Care (WA)': {
+    states: ['WA'], type: 'Medicaid',
+    requirements: ['CAQH Profile', 'Coordinated Care Application', 'W-9 Form', 'Washington License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Apple Health enrollment required'],
+    submission: 'Coordinated Care Provider Relations',
+    portalUrl: 'https://www.coordinatedcarehealth.com/providers',
+    timeline: '30–45 days',
+    revalidation: 'Every 3 years',
+    notes: 'Centene subsidiary providing Medicaid managed care in Washington. Apple Health (Medicaid) enrollment required first.',
+    specialNotes: ['Centene subsidiary', 'Apple Health enrollment required first', 'Medicaid managed care WA'],
+    color: '#005BAB',
+  },
+
+  // ── TEXAS ─────────────────────────────────────────────────────────────────
+  'BCBS of Texas': {
+    states: ['TX'], type: 'Regional',
+    requirements: ['CAQH Profile', 'BCBS TX Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or BCBS TX provider portal',
+    portalUrl: 'https://www.bcbstx.com/provider',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Largest health plan in Texas. HCSC subsidiary. Behavioral health managed separately.',
+    specialNotes: ['Texas only', 'HCSC subsidiary', 'Availity preferred submission'],
+    color: '#00539F',
+  },
+  'Texas Medicaid (TMHP)': {
+    states: ['TX'], type: 'Medicaid',
+    requirements: ['TMHP Enrollment Application', 'W-9 Form', 'Texas License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'Medicaid Provider Agreement'],
+    submission: 'Texas Medicaid & Healthcare Partnership (TMHP) portal',
+    portalUrl: 'https://www.tmhp.com',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Texas Medicaid enrollment through TMHP. Required before enrolling in Texas Medicaid MCOs.',
+    specialNotes: ['TMHP enrollment first', 'Required for all TX Medicaid MCOs', 'Background check required'],
+    color: '#B5121B',
+  },
+
+  // ── FLORIDA ───────────────────────────────────────────────────────────────
+  'Florida Blue (BCBS FL)': {
+    states: ['FL'], type: 'Regional',
+    requirements: ['CAQH Profile', 'Florida Blue Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or Florida Blue provider portal',
+    portalUrl: 'https://www.floridablue.com/providers',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Largest health insurer in Florida. Independent BCBS plan. CAQH required.',
+    specialNotes: ['Florida only', 'Largest FL insurer', 'Availity submission preferred'],
+    color: '#003087',
+  },
+  'Florida Medicaid (AHCA)': {
+    states: ['FL'], type: 'Medicaid',
+    requirements: ['FL Medicaid Enrollment Application', 'W-9 Form', 'Florida License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'Medicaid Provider Agreement'],
+    submission: 'Florida AHCA Medicaid portal',
+    portalUrl: 'https://ahca.myflorida.com/medicaid',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Florida Medicaid enrollment through AHCA. Required before enrolling in Florida Medicaid managed care plans.',
+    specialNotes: ['AHCA enrollment first', 'Background check required', 'Required before FL MCO enrollment'],
+    color: '#FF6600',
+  },
+  'Sunshine Health (FL)': {
+    states: ['FL'], type: 'Medicaid',
+    requirements: ['Sunshine Health Application', 'W-9 Form', 'Florida License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'FL Medicaid enrollment required'],
+    submission: 'Sunshine Health Provider Relations',
+    portalUrl: 'https://www.sunshinehealth.com/providers.html',
+    timeline: '30–45 days',
+    revalidation: 'Every 3 years',
+    notes: 'Centene subsidiary providing Medicaid managed care in Florida. FL Medicaid enrollment through AHCA required first.',
+    specialNotes: ['Centene subsidiary', 'FL Medicaid enrollment required first', 'Medicaid managed care FL'],
+    color: '#F7A800',
+  },
+
+  // ── NEW YORK ──────────────────────────────────────────────────────────────
+  'Empire BCBS (NY)': {
+    states: ['NY'], type: 'Regional',
+    requirements: ['CAQH Profile', 'Empire BCBS Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or Empire BCBS provider portal',
+    portalUrl: 'https://www.empireblue.com/provider',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Anthem subsidiary serving New York. CAQH required. Behavioral health through Beacon.',
+    specialNotes: ['Anthem/Elevance subsidiary in NY', 'Behavioral health via Beacon', 'CAQH required'],
+    color: '#0079C1',
+  },
+  'New York Medicaid (eMedNY)': {
+    states: ['NY'], type: 'Medicaid',
+    requirements: ['NY Medicaid Provider Enrollment', 'W-9 Form', 'New York License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'Medicaid Provider Agreement'],
+    submission: 'eMedNY Provider Enrollment Portal',
+    portalUrl: 'https://www.emedny.org',
+    timeline: '45–75 days',
+    revalidation: 'Every 5 years',
+    notes: 'New York Medicaid enrollment via eMedNY. Required before enrolling in NY Medicaid managed care plans.',
+    specialNotes: ['eMedNY portal enrollment', 'Background check required', 'Required before NY MCO enrollment'],
+    color: '#003366',
+  },
+  'EmblemHealth (NY)': {
+    states: ['NY'], type: 'Regional',
+    requirements: ['CAQH Profile', 'EmblemHealth Provider Application', 'W-9 Form', 'New York License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume'],
+    submission: 'EmblemHealth Provider Relations',
+    portalUrl: 'https://www.emblemhealth.com/providers',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'New York-based nonprofit health plan (GHI + HIP merger). Major presence in NYC metro area.',
+    specialNotes: ['NYC metro focus', 'GHI + HIP merger', 'Nonprofit plan'],
+    color: '#007AC2',
+  },
+  'Fidelis Care (NY)': {
+    states: ['NY'], type: 'Medicaid',
+    requirements: ['Fidelis Provider Application', 'W-9 Form', 'New York License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'NY Medicaid enrollment required'],
+    submission: 'Fidelis Care Provider Relations',
+    portalUrl: 'https://www.fideliscare.org/en-us/Providers',
+    timeline: '30–45 days',
+    revalidation: 'Every 3 years',
+    notes: 'Centene subsidiary in New York. Medicaid managed care across New York State.',
+    specialNotes: ['Centene subsidiary in NY', 'NY Medicaid enrollment required first', 'Statewide Medicaid managed care'],
+    color: '#E4002B',
+  },
+
+  // ── ILLINOIS ──────────────────────────────────────────────────────────────
+  'BCBS of Illinois': {
+    states: ['IL'], type: 'Regional',
+    requirements: ['CAQH Profile', 'BCBS IL Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or BCBS IL provider portal',
+    portalUrl: 'https://www.bcbsil.com/provider',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'HCSC subsidiary. Largest health insurer in Illinois.',
+    specialNotes: ['HCSC subsidiary', 'Availity submission preferred', 'CAQH required'],
+    color: '#00539F',
+  },
+  'Illinois Medicaid (HFS)': {
+    states: ['IL'], type: 'Medicaid',
+    requirements: ['HFS Provider Enrollment Application', 'W-9 Form', 'Illinois License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'IL Provider Agreement'],
+    submission: 'Illinois HFS IMPACT enrollment system',
+    portalUrl: 'https://www.illinois.gov/hfs/MedicalProviders',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Illinois Medicaid enrollment via HFS IMPACT system. Required before enrolling in IL Medicaid managed care plans.',
+    specialNotes: ['IMPACT system enrollment', 'Background check required', 'Required before IL MCO enrollment'],
+    color: '#003A70',
+  },
+
+  // ── PENNSYLVANIA ──────────────────────────────────────────────────────────
+  'Independence Blue Cross (PA)': {
+    states: ['PA'], type: 'Regional',
+    requirements: ['CAQH Profile', 'IBC Provider Application', 'W-9 Form', 'Pennsylvania License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or IBC provider portal',
+    portalUrl: 'https://www.ibx.com/providers',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Southeastern Pennsylvania BlueCross plan. Major presence in Philadelphia metro area.',
+    specialNotes: ['Southeastern PA / Philadelphia focus', 'CAQH required', 'Availity preferred'],
+    color: '#003082',
+  },
+  'UPMC Health Plan (PA)': {
+    states: ['PA','WV'], type: 'Regional',
+    requirements: ['CAQH Profile', 'UPMC Health Plan Application', 'W-9 Form', 'PA/WV License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume'],
+    submission: 'UPMC Health Plan Provider Relations',
+    portalUrl: 'https://www.upmchealthplan.com/providers',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'Academic medical center affiliated plan in western Pennsylvania.',
+    specialNotes: ['Academic medical center affiliated', 'Western PA / WV focus', 'CAQH required'],
+    color: '#002F6C',
+  },
+  'Highmark BCBS (PA)': {
+    states: ['PA','WV','DE'], type: 'Regional',
+    requirements: ['CAQH Profile', 'Highmark Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or Highmark provider portal',
+    portalUrl: 'https://www.highmarkprovider.com',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Largest health insurer in western Pennsylvania. Also covers West Virginia and Delaware.',
+    specialNotes: ['Western PA / WV / DE', 'CAQH required', 'Availity preferred'],
+    color: '#005EB8',
+  },
+  'PA Medicaid (PROMISe)': {
+    states: ['PA'], type: 'Medicaid',
+    requirements: ['PROMISe Enrollment Application', 'W-9 Form', 'Pennsylvania License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'PA Provider Agreement'],
+    submission: 'Pennsylvania PROMISe provider enrollment portal',
+    portalUrl: 'https://www.dhs.pa.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Pennsylvania Medicaid via PROMISe system. Required before enrolling in PA Medicaid managed care.',
+    specialNotes: ['PROMISe portal enrollment', 'Background check required', 'Required before PA MCO enrollment'],
+    color: '#4A0E8F',
+  },
+
+  // ── OHIO ──────────────────────────────────────────────────────────────────
+  'Medical Mutual of Ohio': {
+    states: ['OH'], type: 'Regional',
+    requirements: ['Medical Mutual Provider Application', 'W-9 Form', 'Ohio License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CAQH Profile', 'CV/Resume'],
+    submission: 'Medical Mutual Provider Relations',
+    portalUrl: 'https://www.medmutual.com/For-Providers.aspx',
+    timeline: '45–60 days',
+    revalidation: 'Every 3 years',
+    notes: 'Largest Ohio-based health insurer. Direct enrollment through Provider Relations.',
+    specialNotes: ['Ohio regional payer', 'Direct enrollment', 'CAQH preferred'],
+    color: '#D52B1E',
+  },
+  'Ohio Medicaid (ODM)': {
+    states: ['OH'], type: 'Medicaid',
+    requirements: ['OH Medicaid Enrollment Application', 'W-9 Form', 'Ohio License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'OH Provider Agreement'],
+    submission: 'Ohio Department of Medicaid enrollment portal',
+    portalUrl: 'https://medicaid.ohio.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Ohio Medicaid enrollment. Required before enrolling in Ohio Medicaid managed care plans.',
+    specialNotes: ['ODM enrollment first', 'Required before OH MCO enrollment', 'Background check required'],
+    color: '#C8102E',
+  },
+  'CareSource': {
+    states: ['OH','GA','IN','KY','WV','NC'], type: 'Medicaid',
+    requirements: ['CareSource Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'State Medicaid enrollment required', 'CAQH Profile'],
+    submission: 'CareSource Provider Portal',
+    portalUrl: 'https://www.caresource.com/providers',
+    timeline: '30–45 days',
+    revalidation: 'Every 3 years',
+    notes: 'Multi-state Medicaid managed care organization. State Medicaid enrollment required before CareSource enrollment.',
+    specialNotes: ['Multi-state Medicaid MCO', 'State Medicaid enrollment required first', 'Operates in OH, GA, IN, KY, WV, NC'],
+    color: '#009A44',
+  },
+
+  // ── MICHIGAN ──────────────────────────────────────────────────────────────
+  'BCBS of Michigan': {
+    states: ['MI'], type: 'Regional',
+    requirements: ['CAQH Profile', 'BCBS MI Provider Application', 'W-9 Form', 'Michigan License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'BCBS MI provider portal or Availity',
+    portalUrl: 'https://www.bcbsm.com/providers',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Largest health insurer in Michigan. Independent BCBS plan. CAQH required.',
+    specialNotes: ['Michigan only', 'Largest MI insurer', 'CAQH required'],
+    color: '#00539F',
+  },
+  'Priority Health (MI)': {
+    states: ['MI'], type: 'Regional',
+    requirements: ['Priority Health Provider Application', 'W-9 Form', 'Michigan License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CAQH Profile', 'CV/Resume'],
+    submission: 'Priority Health Provider Relations',
+    portalUrl: 'https://www.priorityhealth.com/provider',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'Michigan nonprofit health plan. Strong presence in West Michigan.',
+    specialNotes: ['Michigan regional payer', 'Nonprofit plan', 'CAQH required'],
+    color: '#00B140',
+  },
+  'Michigan Medicaid (MDHHS)': {
+    states: ['MI'], type: 'Medicaid',
+    requirements: ['MI Medicaid Enrollment Application', 'W-9 Form', 'Michigan License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'MI Provider Agreement'],
+    submission: 'Michigan MDHHS online enrollment',
+    portalUrl: 'https://www.michigan.gov/mdhhs',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Michigan Medicaid enrollment via MDHHS. Required before enrolling in MI Medicaid MCOs.',
+    specialNotes: ['MDHHS enrollment first', 'Required before MI MCO enrollment', 'Background check required'],
+    color: '#00A3E0',
+  },
+
+  // ── GEORGIA ───────────────────────────────────────────────────────────────
+  'BCBS of Georgia': {
+    states: ['GA'], type: 'Regional',
+    requirements: ['CAQH Profile', 'Anthem/BCBS GA Provider Application', 'W-9 Form', 'Georgia License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or Anthem GA provider portal',
+    portalUrl: 'https://www.bcbsga.com/provider',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Anthem subsidiary in Georgia. Uses Anthem enrollment infrastructure.',
+    specialNotes: ['Anthem subsidiary in GA', 'Availity preferred', 'CAQH required'],
+    color: '#0079C1',
+  },
+  'Georgia Medicaid (DCH)': {
+    states: ['GA'], type: 'Medicaid',
+    requirements: ['GA Medicaid Enrollment Application', 'W-9 Form', 'Georgia License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'GA Provider Agreement'],
+    submission: 'Georgia MMIS portal',
+    portalUrl: 'https://dch.georgia.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Georgia Medicaid via DCH. Enrollment required before Georgia Medicaid MCO enrollment.',
+    specialNotes: ['DCH enrollment first', 'Required before GA MCO enrollment', 'Background check required'],
+    color: '#B5121B',
+  },
+  'Peach State Health Management (GA)': {
+    states: ['GA'], type: 'Medicaid',
+    requirements: ['Peach State Provider Application', 'W-9 Form', 'Georgia License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'GA Medicaid enrollment required'],
+    submission: 'Peach State Provider Relations',
+    portalUrl: 'https://www.pshpgeorgia.com/providers.html',
+    timeline: '30–45 days',
+    revalidation: 'Every 3 years',
+    notes: 'Centene subsidiary in Georgia providing Medicaid managed care. GA Medicaid enrollment required first.',
+    specialNotes: ['Centene subsidiary in GA', 'GA Medicaid enrollment required first', 'Medicaid managed care GA'],
+    color: '#E8A900',
+  },
+
+  // ── NORTH CAROLINA ────────────────────────────────────────────────────────
+  'BCBS of North Carolina': {
+    states: ['NC'], type: 'Regional',
+    requirements: ['CAQH Profile', 'BCBS NC Provider Application', 'W-9 Form', 'NC License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or BCBS NC provider portal',
+    portalUrl: 'https://www.bcbsnc.com/assets/providers',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Independent BCBS plan in North Carolina. Largest NC insurer. CAQH required.',
+    specialNotes: ['NC only', 'Largest NC insurer', 'CAQH required'],
+    color: '#004990',
+  },
+  'NC Medicaid (DHHS)': {
+    states: ['NC'], type: 'Medicaid',
+    requirements: ['NC Medicaid Enrollment Application', 'W-9 Form', 'NC License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'NC Provider Agreement'],
+    submission: 'NC Medicaid Direct enrollment portal',
+    portalUrl: 'https://medicaid.ncdhhs.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'NC Medicaid via DHHS. NC has transitioned to PHP model. PHP enrollment required after state enrollment.',
+    specialNotes: ['DHHS enrollment first', 'NC PHP enrollment required', 'Background check required'],
+    color: '#CC0000',
+  },
+
+  // ── VIRGINIA ──────────────────────────────────────────────────────────────
+  'Anthem BCBS Virginia': {
+    states: ['VA'], type: 'Regional',
+    requirements: ['CAQH Profile', 'Anthem VA Provider Application', 'W-9 Form', 'Virginia License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or Anthem VA provider portal',
+    portalUrl: 'https://www.anthem.com/provider',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Anthem/Elevance Health subsidiary in Virginia. CAQH required.',
+    specialNotes: ['Anthem/Elevance in VA', 'CAQH required', 'Availity preferred'],
+    color: '#0079C1',
+  },
+  'Virginia Medicaid (DMAS)': {
+    states: ['VA'], type: 'Medicaid',
+    requirements: ['VA Medicaid Enrollment Application', 'W-9 Form', 'Virginia License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'VA Provider Agreement'],
+    submission: 'Virginia DMAS enrollment portal',
+    portalUrl: 'https://www.dmas.virginia.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Virginia Medicaid enrollment via DMAS. CCC Plus managed care enrollment required after for dual eligibles.',
+    specialNotes: ['DMAS enrollment first', 'CCC Plus MCO enrollment may be required', 'Background check required'],
+    color: '#003366',
+  },
+
+  // ── ARIZONA ───────────────────────────────────────────────────────────────
+  'BCBS of Arizona': {
+    states: ['AZ'], type: 'Regional',
+    requirements: ['CAQH Profile', 'BCBS AZ Provider Application', 'W-9 Form', 'Arizona License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or BCBS AZ provider portal',
+    portalUrl: 'https://www.azblue.com/providers',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Independent BCBS plan in Arizona. CAQH required.',
+    specialNotes: ['AZ only', 'CAQH required', 'Availity preferred'],
+    color: '#003A70',
+  },
+  'Arizona Medicaid (AHCCCS)': {
+    states: ['AZ'], type: 'Medicaid',
+    requirements: ['AHCCCS Enrollment Application', 'W-9 Form', 'Arizona License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'AZ Provider Agreement'],
+    submission: 'AHCCCS online enrollment portal',
+    portalUrl: 'https://www.azahcccs.gov/PlansandProviders',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Arizona Health Care Cost Containment System (AHCCCS) is AZ Medicaid. Enrollment required before AZ Medicaid MCO enrollment.',
+    specialNotes: ['AHCCCS enrollment first', 'Required before AZ MCO enrollment', 'Background check required'],
+    color: '#8B0000',
+  },
+
+  // ── COLORADO ──────────────────────────────────────────────────────────────
+  'Rocky Mountain Health Plans (CO)': {
+    states: ['CO'], type: 'Regional',
+    requirements: ['Rocky Mountain Provider Application', 'W-9 Form', 'Colorado License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CAQH Profile', 'CV/Resume'],
+    submission: 'Rocky Mountain Provider Relations or UHC portal',
+    portalUrl: 'https://www.rmhp.org/providers',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'Western Colorado regional plan, now a UnitedHealthcare subsidiary.',
+    specialNotes: ['Western CO regional plan', 'UHC subsidiary', 'CAQH required'],
+    color: '#00843D',
+  },
+  'Colorado Medicaid (HCPF)': {
+    states: ['CO'], type: 'Medicaid',
+    requirements: ['CO Medicaid Enrollment Application', 'W-9 Form', 'Colorado License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'CO Provider Agreement'],
+    submission: 'Colorado HCPF provider enrollment portal',
+    portalUrl: 'https://hcpf.colorado.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Colorado Medicaid via HCPF. Colorado has both fee-for-service and managed care Medicaid.',
+    specialNotes: ['HCPF enrollment first', 'Background check required', 'Fee-for-service and managed care options'],
+    color: '#1E4D8C',
+  },
+
+  // ── MASSACHUSETTS ─────────────────────────────────────────────────────────
+  'BCBS of Massachusetts': {
+    states: ['MA'], type: 'Regional',
+    requirements: ['CAQH Profile', 'BCBS MA Provider Application', 'W-9 Form', 'Massachusetts License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or BCBS MA provider portal',
+    portalUrl: 'https://www.bluecrossma.org/providers',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Largest health insurer in Massachusetts. Independent BCBS plan. CAQH required.',
+    specialNotes: ['MA only', 'Largest MA insurer', 'CAQH required'],
+    color: '#003087',
+  },
+  'Tufts Health Plan (MA/RI/NH)': {
+    states: ['MA','RI','NH'], type: 'Regional',
+    requirements: ['CAQH Profile', 'Tufts Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume'],
+    submission: 'Tufts Provider Relations or Availity',
+    portalUrl: 'https://www.tuftshealthplan.com/providers',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'Nonprofit plan serving New England. Now part of Point32Health (Harvard Pilgrim merger).',
+    specialNotes: ['Part of Point32Health', 'New England regional plan', 'CAQH required'],
+    color: '#005EB8',
+  },
+  'MassHealth (MA Medicaid)': {
+    states: ['MA'], type: 'Medicaid',
+    requirements: ['MassHealth Enrollment Application', 'W-9 Form', 'Massachusetts License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'MA Provider Agreement'],
+    submission: 'MassHealth enrollment portal',
+    portalUrl: 'https://www.mass.gov/masshealth-provider-enrollment',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Massachusetts Medicaid. Strong behavioral health coverage. Enrollment required before ACO/MCO enrollment.',
+    specialNotes: ['MassHealth enrollment first', 'Background check required', 'Strong BH coverage'],
+    color: '#003A6C',
+  },
+
+  // ── MINNESOTA ─────────────────────────────────────────────────────────────
+  'HealthPartners (MN/WI)': {
+    states: ['MN','WI'], type: 'Regional',
+    requirements: ['CAQH Profile', 'HealthPartners Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume'],
+    submission: 'HealthPartners Provider Relations',
+    portalUrl: 'https://www.healthpartners.com/providers',
+    timeline: '45–60 days',
+    revalidation: 'Every 3 years',
+    notes: 'Nonprofit Minnesota health plan and medical group. Strong Twin Cities presence.',
+    specialNotes: ['MN/WI regional plan', 'Nonprofit', 'CAQH preferred'],
+    color: '#007A53',
+  },
+  'UCare (MN)': {
+    states: ['MN'], type: 'Medicaid',
+    requirements: ['UCare Provider Application', 'W-9 Form', 'Minnesota License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'MN Medicaid enrollment required', 'CAQH Profile'],
+    submission: 'UCare Provider Relations',
+    portalUrl: 'https://www.ucare.org/providers',
+    timeline: '30–45 days',
+    revalidation: 'Every 3 years',
+    notes: 'Minnesota nonprofit health plan serving Medicare and Medicaid populations.',
+    specialNotes: ['Minnesota Medicaid managed care', 'Nonprofit plan', 'MN Medicaid enrollment required first'],
+    color: '#0060A9',
+  },
+  'Minnesota Medicaid (DHS)': {
+    states: ['MN'], type: 'Medicaid',
+    requirements: ['MN Medicaid Enrollment Application', 'W-9 Form', 'Minnesota License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'MN Provider Agreement'],
+    submission: 'Minnesota DHS provider enrollment portal',
+    portalUrl: 'https://mn.gov/dhs/partners-and-providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Minnesota Medicaid (Medical Assistance). Enrollment via DHS portal.',
+    specialNotes: ['DHS enrollment first', 'Background check required', 'Required before MN MCO enrollment'],
+    color: '#003865',
+  },
+
+  // ── TENNESSEE ─────────────────────────────────────────────────────────────
+  'BCBS of Tennessee': {
+    states: ['TN'], type: 'Regional',
+    requirements: ['CAQH Profile', 'BCBS TN Provider Application', 'W-9 Form', 'Tennessee License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or BCBS TN provider portal',
+    portalUrl: 'https://www.bcbst.com/providers',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Independent BCBS plan in Tennessee. CAQH required.',
+    specialNotes: ['TN only', 'CAQH required', 'Availity preferred'],
+    color: '#00539F',
+  },
+  'Tennessee Medicaid (TennCare)': {
+    states: ['TN'], type: 'Medicaid',
+    requirements: ['TennCare Provider Enrollment', 'W-9 Form', 'Tennessee License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'TN Provider Agreement'],
+    submission: 'TennCare Solutions enrollment portal',
+    portalUrl: 'https://www.tn.gov/tenncare/providers.html',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Tennessee Medicaid managed care through TennCare. All TennCare is managed care.',
+    specialNotes: ['All TennCare is managed care', 'MCO enrollment required', 'Background check required'],
+    color: '#006E51',
+  },
+
+  // ── INDIANA ───────────────────────────────────────────────────────────────
+  'Anthem BCBS Indiana': {
+    states: ['IN'], type: 'Regional',
+    requirements: ['CAQH Profile', 'Anthem IN Provider Application', 'W-9 Form', 'Indiana License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or Anthem IN provider portal',
+    portalUrl: 'https://www.anthem.com/provider',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Anthem/Elevance subsidiary in Indiana. CAQH required.',
+    specialNotes: ['Anthem/Elevance in IN', 'CAQH required', 'Availity preferred'],
+    color: '#0079C1',
+  },
+  'Indiana Medicaid (OMPP)': {
+    states: ['IN'], type: 'Medicaid',
+    requirements: ['IN Medicaid Enrollment Application', 'W-9 Form', 'Indiana License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'IN Provider Agreement'],
+    submission: 'Indiana OMPP enrollment portal',
+    portalUrl: 'https://www.in.gov/medicaid/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Indiana Medicaid. Enrollment required before Hoosier Healthwise MCO enrollment.',
+    specialNotes: ['OMPP enrollment first', 'Background check required', 'Required before Hoosier Healthwise MCO enrollment'],
+    color: '#B5121B',
+  },
+
+  // ── MARYLAND / DC ─────────────────────────────────────────────────────────
+  'CareFirst BCBS (MD/DC/VA)': {
+    states: ['MD','DC','VA'], type: 'Regional',
+    requirements: ['CAQH Profile', 'CareFirst Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or CareFirst provider portal',
+    portalUrl: 'https://provider.carefirst.com',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Largest health insurer in the DC metro region serving Maryland, DC, and northern Virginia.',
+    specialNotes: ['MD/DC/VA regional plan', 'CAQH required', 'Availity preferred'],
+    color: '#003087',
+  },
+  'Maryland Medicaid (MDH)': {
+    states: ['MD'], type: 'Medicaid',
+    requirements: ['MD Medicaid Enrollment Application', 'W-9 Form', 'Maryland License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'MD Provider Agreement'],
+    submission: 'Maryland MDH MMIS provider enrollment',
+    portalUrl: 'https://mmcp.health.maryland.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Maryland Medicaid via MDH. HealthChoice managed care program for most Medicaid beneficiaries.',
+    specialNotes: ['MDH enrollment first', 'HealthChoice MCO enrollment required', 'Background check required'],
+    color: '#CC0000',
+  },
+  'DC Medicaid (DHCF)': {
+    states: ['DC'], type: 'Medicaid',
+    requirements: ['DC Medicaid Enrollment Application', 'W-9 Form', 'DC License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'DC Provider Agreement'],
+    submission: 'DC DHCF Medicaid provider enrollment portal',
+    portalUrl: 'https://dhcf.dc.gov/service/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'DC Medicaid via DHCF. Managed care through AmeriHealth Caritas DC, MedStar Family Choice, and Trusted Health Plan.',
+    specialNotes: ['DHCF enrollment first', 'Background check required', 'MCO enrollment required'],
+    color: '#003087',
+  },
+
+  // ── NEW JERSEY ────────────────────────────────────────────────────────────
+  'Horizon BCBS New Jersey': {
+    states: ['NJ'], type: 'Regional',
+    requirements: ['CAQH Profile', 'Horizon BCBS NJ Provider Application', 'W-9 Form', 'NJ License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or Horizon BCBS NJ provider portal',
+    portalUrl: 'https://www.horizonblue.com/providers',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Largest health insurer in New Jersey. Independent BCBS plan. CAQH required.',
+    specialNotes: ['NJ only', 'Largest NJ insurer', 'CAQH required'],
+    color: '#003087',
+  },
+  'New Jersey Medicaid (FamilyCare)': {
+    states: ['NJ'], type: 'Medicaid',
+    requirements: ['NJ Medicaid Enrollment Application', 'W-9 Form', 'NJ License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'NJ Provider Agreement'],
+    submission: 'NJ FamilyCare provider enrollment portal',
+    portalUrl: 'https://www.njfamilycare.org/providers.aspx',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'New Jersey Medicaid (NJ FamilyCare). Managed care through Aetna Better Health NJ, Horizon NJ Health, and others.',
+    specialNotes: ['NJ FamilyCare enrollment first', 'Background check required', 'MCO enrollment required'],
+    color: '#CC0000',
+  },
+
+  // ── CONNECTICUT ────────────────────────────────────────────────────────────
+  'Anthem BCBS Connecticut': {
+    states: ['CT'], type: 'Regional',
+    requirements: ['CAQH Profile', 'Anthem CT Provider Application', 'W-9 Form', 'Connecticut License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or Anthem CT provider portal',
+    portalUrl: 'https://www.anthem.com/provider',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Anthem/Elevance subsidiary in Connecticut. Largest commercial insurer in CT.',
+    specialNotes: ['Anthem/Elevance in CT', 'CAQH required', 'Availity preferred'],
+    color: '#0079C1',
+  },
+  'Connecticut Medicaid (HUSKY)': {
+    states: ['CT'], type: 'Medicaid',
+    requirements: ['CT Medicaid Enrollment Application', 'W-9 Form', 'Connecticut License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'CT Provider Agreement'],
+    submission: 'Connecticut HUSKY Health provider enrollment',
+    portalUrl: 'https://www.huskyhealthct.org/providers.html',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Connecticut Medicaid via HUSKY Health. Managed care through various MCOs.',
+    specialNotes: ['HUSKY enrollment first', 'Background check required', 'MCO enrollment required'],
+    color: '#003087',
+  },
+
+  // ── HAWAII ────────────────────────────────────────────────────────────────
+  'HMSA (BCBS Hawaii)': {
+    states: ['HI'], type: 'Regional',
+    requirements: ['CAQH Profile', 'HMSA Provider Application', 'W-9 Form', 'Hawaii License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume'],
+    submission: 'HMSA Provider Relations',
+    portalUrl: 'https://www.hmsa.com/providers',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'Largest health insurer in Hawaii. BCBS licensee. Direct enrollment process.',
+    specialNotes: ['Hawaii only', 'Largest HI insurer', 'CAQH required'],
+    color: '#00539F',
+  },
+  'AlohaCare (HI)': {
+    states: ['HI'], type: 'Medicaid',
+    requirements: ['AlohaCare Provider Application', 'W-9 Form', 'Hawaii License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Hawaii Medicaid enrollment required'],
+    submission: 'AlohaCare Provider Relations',
+    portalUrl: 'https://www.alohacare.org/providers',
+    timeline: '30–45 days',
+    revalidation: 'Every 3 years',
+    notes: 'Hawaii Medicaid managed care plan. QUEST Integration program.',
+    specialNotes: ['Hawaii Medicaid MCO', 'QUEST Integration program', 'State Medicaid enrollment required first'],
+    color: '#009A44',
+  },
+
+  // ── NEVADA ────────────────────────────────────────────────────────────────
+  'Nevada Medicaid (DHCFP)': {
+    states: ['NV'], type: 'Medicaid',
+    requirements: ['NV Medicaid Enrollment Application', 'W-9 Form', 'Nevada License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'NV Provider Agreement'],
+    submission: 'Nevada DHCFP enrollment portal',
+    portalUrl: 'https://dhcfp.nv.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Nevada Medicaid via DHCFP. Enrollment required before Nevada Medicaid MCO enrollment.',
+    specialNotes: ['DHCFP enrollment first', 'Background check required', 'Required before NV MCO enrollment'],
+    color: '#003399',
+  },
+
+  // ── UTAH ──────────────────────────────────────────────────────────────────
+  'SelectHealth (UT/ID/NV)': {
+    states: ['UT','ID','NV'], type: 'Regional',
+    requirements: ['CAQH Profile', 'SelectHealth Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume'],
+    submission: 'SelectHealth Provider Relations',
+    portalUrl: 'https://selecthealth.org/providers',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'Intermountain Healthcare affiliated plan. Dominant in Utah market.',
+    specialNotes: ['Intermountain affiliated', 'Dominant Utah plan', 'CAQH required'],
+    color: '#007DC3',
+  },
+  'Utah Medicaid (DHHS)': {
+    states: ['UT'], type: 'Medicaid',
+    requirements: ['UT Medicaid Enrollment Application', 'W-9 Form', 'Utah License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'UT Provider Agreement'],
+    submission: 'Utah DHHS Medicaid provider enrollment',
+    portalUrl: 'https://medicaid.utah.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Utah Medicaid via DHHS.',
+    specialNotes: ['DHHS enrollment', 'Background check required', 'PCN program for adults'],
+    color: '#B5121B',
+  },
+
+  // ── IDAHO ─────────────────────────────────────────────────────────────────
+  'Idaho Medicaid (DHW)': {
+    states: ['ID'], type: 'Medicaid',
+    requirements: ['ID Medicaid Enrollment Application', 'W-9 Form', 'Idaho License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'ID Provider Agreement'],
+    submission: 'Idaho DHW Medicaid provider enrollment portal',
+    portalUrl: 'https://www.idmedicaid.com',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Idaho Medicaid enrollment via DHW. Idaho has expanded Medicaid under ACA.',
+    specialNotes: ['DHW enrollment', 'Background check required', 'Medicaid expansion state'],
+    color: '#B5121B',
+  },
+
+  // ── MONTANA ───────────────────────────────────────────────────────────────
+  'Montana Medicaid (DPHHS)': {
+    states: ['MT'], type: 'Medicaid',
+    requirements: ['MT Medicaid Enrollment Application', 'W-9 Form', 'Montana License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'MT Provider Agreement'],
+    submission: 'Montana DPHHS provider enrollment',
+    portalUrl: 'https://dphhs.mt.gov/MontanaHealthcarePrograms/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Montana Medicaid via DPHHS. Mostly fee-for-service.',
+    specialNotes: ['DPHHS enrollment', 'Background check required', 'Mostly fee-for-service'],
+    color: '#6E3E0E',
+  },
+
+  // ── NEW MEXICO ────────────────────────────────────────────────────────────
+  'New Mexico Medicaid (HSD)': {
+    states: ['NM'], type: 'Medicaid',
+    requirements: ['NM Medicaid Enrollment Application', 'W-9 Form', 'New Mexico License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'NM Provider Agreement'],
+    submission: 'NM HSD Medicaid provider enrollment portal',
+    portalUrl: 'https://www.hsd.state.nm.us/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'New Mexico Medicaid via HSD. Centennial Care is NM managed care Medicaid.',
+    specialNotes: ['HSD enrollment first', 'Centennial Care MCO enrollment required', 'Background check required'],
+    color: '#00843D',
+  },
+
+  // ── ALASKA ────────────────────────────────────────────────────────────────
+  'Alaska Medicaid (DHSS)': {
+    states: ['AK'], type: 'Medicaid',
+    requirements: ['AK Medicaid Enrollment Application', 'W-9 Form', 'Alaska License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'AK Provider Agreement'],
+    submission: 'Alaska DHSS Medicaid provider enrollment',
+    portalUrl: 'https://health.alaska.gov/medicaid/pages/providers.aspx',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Alaska Medicaid is mostly fee-for-service with limited managed care.',
+    specialNotes: ['Mostly fee-for-service Medicaid', 'Direct state enrollment', 'Background check required'],
+    color: '#003865',
+  },
+
+  // ── KENTUCKY ──────────────────────────────────────────────────────────────
+  'Anthem BCBS Kentucky': {
+    states: ['KY'], type: 'Regional',
+    requirements: ['CAQH Profile', 'Anthem KY Provider Application', 'W-9 Form', 'Kentucky License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or Anthem KY provider portal',
+    portalUrl: 'https://www.anthem.com/provider',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Anthem/Elevance subsidiary in Kentucky. CAQH required.',
+    specialNotes: ['Anthem/Elevance in KY', 'CAQH required', 'Availity preferred'],
+    color: '#0079C1',
+  },
+  'Kentucky Medicaid (DMS)': {
+    states: ['KY'], type: 'Medicaid',
+    requirements: ['KY Medicaid Enrollment Application', 'W-9 Form', 'Kentucky License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'KY Provider Agreement'],
+    submission: 'Kentucky DMS KYMMIS provider enrollment',
+    portalUrl: 'https://chfs.ky.gov/agencies/dms/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Kentucky Medicaid via DMS. Managed care through CareSource KY, Humana Medicaid KY, and others.',
+    specialNotes: ['DMS enrollment first', 'Background check required', 'MCO enrollment required'],
+    color: '#003087',
+  },
+
+  // ── SOUTH CAROLINA ────────────────────────────────────────────────────────
+  'BlueCross BlueShield of SC': {
+    states: ['SC'], type: 'Regional',
+    requirements: ['CAQH Profile', 'BCBS SC Provider Application', 'W-9 Form', 'SC License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or BCBS SC provider portal',
+    portalUrl: 'https://www.southcarolinablues.com/providers',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Independent BCBS plan in South Carolina. CAQH required.',
+    specialNotes: ['SC only', 'CAQH required', 'Availity preferred'],
+    color: '#004990',
+  },
+  'SC Medicaid (SCDHHS)': {
+    states: ['SC'], type: 'Medicaid',
+    requirements: ['SC Medicaid Enrollment Application', 'W-9 Form', 'SC License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'SC Provider Agreement'],
+    submission: 'SCDHHS provider enrollment portal',
+    portalUrl: 'https://www.scdhhs.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'South Carolina Medicaid via SCDHHS.',
+    specialNotes: ['SCDHHS enrollment first', 'Background check required', 'Healthy Connections managed care'],
+    color: '#003087',
+  },
+
+  // ── MISSOURI ──────────────────────────────────────────────────────────────
+  'Anthem BCBS Missouri': {
+    states: ['MO'], type: 'Regional',
+    requirements: ['CAQH Profile', 'Anthem MO Provider Application', 'W-9 Form', 'Missouri License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1 & Type 2', 'CV/Resume'],
+    submission: 'Availity or Anthem MO provider portal',
+    portalUrl: 'https://www.anthem.com/provider',
+    timeline: '60–90 days',
+    revalidation: 'Every 3 years',
+    notes: 'Anthem/Elevance Health subsidiary in Missouri.',
+    specialNotes: ['Anthem/Elevance in MO', 'CAQH required', 'Availity preferred'],
+    color: '#0079C1',
+  },
+  'Missouri Medicaid (MO HealthNet)': {
+    states: ['MO'], type: 'Medicaid',
+    requirements: ['MO Medicaid Enrollment Application', 'W-9 Form', 'Missouri License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'MO Provider Agreement'],
+    submission: 'Missouri MHD MMAC provider enrollment portal',
+    portalUrl: 'https://mydss.mo.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Missouri Medicaid (MO HealthNet) via MHD. Managed care through Aetna Better Health MO, Home State Health, and others.',
+    specialNotes: ['MHD enrollment first', 'Background check required', 'MCO enrollment required'],
+    color: '#003087',
+  },
+
+  // ── REMAINING STATES ──────────────────────────────────────────────────────
+  'Iowa Medicaid (IME)': {
+    states: ['IA'], type: 'Medicaid',
+    requirements: ['IA Medicaid Enrollment Application', 'W-9 Form', 'Iowa License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'IA Provider Agreement'],
+    submission: 'Iowa Medicaid Enterprise enrollment portal',
+    portalUrl: 'https://www.iowamedicalmanagement.com',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Iowa Medicaid enrollment via IME. Managed care through Iowa Total Care (Centene), Amerigroup IA, and others.',
+    specialNotes: ['IME enrollment first', 'Background check required', 'MCO enrollment required'],
+    color: '#003366',
+  },
+  'Kansas Medicaid (KanCare)': {
+    states: ['KS'], type: 'Medicaid',
+    requirements: ['KS Medicaid Enrollment Application', 'W-9 Form', 'Kansas License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'KS Provider Agreement'],
+    submission: 'KanCare provider enrollment portal',
+    portalUrl: 'https://www.kancare.ks.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Kansas Medicaid is fully managed care through KanCare.',
+    specialNotes: ['Fully managed care Medicaid', 'MCO enrollment required', 'Background check required'],
+    color: '#003865',
+  },
+  'Nebraska Medicaid (DHHS)': {
+    states: ['NE'], type: 'Medicaid',
+    requirements: ['NE Medicaid Enrollment Application', 'W-9 Form', 'Nebraska License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'NE Provider Agreement'],
+    submission: 'Nebraska DHHS Medicaid provider enrollment',
+    portalUrl: 'https://dhhs.ne.gov/medicaid/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Nebraska Medicaid enrollment via DHHS. Heritage Health managed care for most beneficiaries.',
+    specialNotes: ['DHHS enrollment first', 'Heritage Health MCO', 'Background check required'],
+    color: '#D52B1E',
+  },
+  'Louisiana Medicaid (LDH)': {
+    states: ['LA'], type: 'Medicaid',
+    requirements: ['LA Medicaid Enrollment Application', 'W-9 Form', 'Louisiana License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'LA Provider Agreement'],
+    submission: 'Louisiana Medicaid Enrollment portal',
+    portalUrl: 'https://ldh.la.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Louisiana Medicaid via LDH. Managed care through Aetna Better Health LA, AmeriHealth Caritas LA, and others.',
+    specialNotes: ['LDH enrollment first', 'Background check required', 'MCO enrollment required'],
+    color: '#8B0000',
+  },
+  'Mississippi Medicaid (DOM)': {
+    states: ['MS'], type: 'Medicaid',
+    requirements: ['MS Medicaid Enrollment Application', 'W-9 Form', 'Mississippi License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'MS Provider Agreement'],
+    submission: 'Mississippi DOM provider enrollment',
+    portalUrl: 'https://medicaid.ms.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Mississippi Medicaid via DOM. Mississippi has not expanded Medicaid.',
+    specialNotes: ['DOM enrollment', 'Background check required', 'Has not expanded Medicaid'],
+    color: '#003087',
+  },
+  'Arkansas Medicaid (DHS)': {
+    states: ['AR'], type: 'Medicaid',
+    requirements: ['AR Medicaid Enrollment Application', 'W-9 Form', 'Arkansas License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'AR Provider Agreement'],
+    submission: 'Arkansas DHS Medicaid provider enrollment',
+    portalUrl: 'https://www.medicaid.state.ar.us/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Arkansas Medicaid via DHS. Medicaid expansion state.',
+    specialNotes: ['DHS enrollment', 'Background check required', 'Medicaid expansion state'],
+    color: '#B5121B',
+  },
+  'Alabama Medicaid (AMCO)': {
+    states: ['AL'], type: 'Medicaid',
+    requirements: ['AL Medicaid Enrollment Application', 'W-9 Form', 'Alabama License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'AL Provider Agreement'],
+    submission: 'Alabama Medicaid Agency provider enrollment',
+    portalUrl: 'https://www.medicaid.alabama.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Alabama Medicaid via AMCO. Alabama has not expanded Medicaid.',
+    specialNotes: ['AMCO enrollment', 'Background check required', 'Has not expanded Medicaid'],
+    color: '#B5121B',
+  },
+  'Oklahoma Medicaid (SoonerCare)': {
+    states: ['OK'], type: 'Medicaid',
+    requirements: ['SoonerCare Enrollment Application', 'W-9 Form', 'Oklahoma License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'OK Provider Agreement'],
+    submission: 'Oklahoma OHCA SoonerCare provider enrollment',
+    portalUrl: 'https://www.okhca.org/providers.aspx',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Oklahoma Medicaid (SoonerCare) via OHCA. Medicaid expansion state (2021).',
+    specialNotes: ['OHCA enrollment', 'Background check required', 'Medicaid expansion state (2021)'],
+    color: '#B5121B',
+  },
+  'WV Medicaid (BMS)': {
+    states: ['WV'], type: 'Medicaid',
+    requirements: ['WV Medicaid Enrollment Application', 'W-9 Form', 'WV License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'WV Provider Agreement'],
+    submission: 'West Virginia BMS provider enrollment portal',
+    portalUrl: 'https://dhhr.wv.gov/bms/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'West Virginia Medicaid via BMS. Managed care through WV Family Health, The Health Plan, and others.',
+    specialNotes: ['BMS enrollment first', 'Background check required', 'MCO enrollment required'],
+    color: '#003865',
+  },
+  'Maine Medicaid (MaineCare)': {
+    states: ['ME'], type: 'Medicaid',
+    requirements: ['MaineCare Enrollment Application', 'W-9 Form', 'Maine License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'ME Provider Agreement'],
+    submission: 'Maine DHHS MaineCare provider enrollment',
+    portalUrl: 'https://www.maine.gov/dhhs/oms/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Maine Medicaid enrollment via DHHS. Medicaid expansion state.',
+    specialNotes: ['DHHS enrollment', 'Background check required', 'Medicaid expansion state'],
+    color: '#003087',
+  },
+  'New Hampshire Medicaid (DHHS)': {
+    states: ['NH'], type: 'Medicaid',
+    requirements: ['NH Medicaid Enrollment Application', 'W-9 Form', 'NH License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'NH Provider Agreement'],
+    submission: 'New Hampshire DHHS Medicaid enrollment',
+    portalUrl: 'https://www.dhhs.nh.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'New Hampshire Medicaid via DHHS. Managed care through NH Medicaid Care Management MCOs.',
+    specialNotes: ['DHHS enrollment first', 'Background check required', 'MCO enrollment required'],
+    color: '#003087',
+  },
+  'Vermont Medicaid (Green Mountain Care)': {
+    states: ['VT'], type: 'Medicaid',
+    requirements: ['VT Medicaid Enrollment Application', 'W-9 Form', 'Vermont License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'VT Provider Agreement'],
+    submission: 'Vermont DVHA Medicaid provider enrollment',
+    portalUrl: 'https://dvha.vermont.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Vermont Medicaid (Green Mountain Care) via DVHA. Mostly fee-for-service with ACO model.',
+    specialNotes: ['DVHA enrollment', 'Background check required', 'ACO model'],
+    color: '#00843D',
+  },
+  'RI Medicaid (EOHHS)': {
+    states: ['RI'], type: 'Medicaid',
+    requirements: ['RI Medicaid Enrollment Application', 'W-9 Form', 'Rhode Island License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'RI Provider Agreement'],
+    submission: 'Rhode Island EOHHS provider enrollment portal',
+    portalUrl: 'https://www.eohhs.ri.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Rhode Island Medicaid via EOHHS.',
+    specialNotes: ['EOHHS enrollment', 'Background check required', 'MCO enrollment required'],
+    color: '#003087',
+  },
+  'Delaware Medicaid (DHSS)': {
+    states: ['DE'], type: 'Medicaid',
+    requirements: ['DE Medicaid Enrollment Application', 'W-9 Form', 'Delaware License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'DE Provider Agreement'],
+    submission: 'Delaware DHSS Medicaid provider enrollment',
+    portalUrl: 'https://www.dhss.delaware.gov/dhss/dmma/providers.html',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Delaware Medicaid via DHSS. Managed care through Highmark DE, Aetna Better Health DE, and Molina DE.',
+    specialNotes: ['DHSS enrollment first', 'Background check required', 'MCO enrollment required'],
+    color: '#003087',
+  },
+  'North Dakota Medicaid (DHS)': {
+    states: ['ND'], type: 'Medicaid',
+    requirements: ['ND Medicaid Enrollment Application', 'W-9 Form', 'ND License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'ND Provider Agreement'],
+    submission: 'North Dakota DHS Medicaid provider enrollment',
+    portalUrl: 'https://www.hhs.nd.gov/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'North Dakota Medicaid via DHS. Mostly fee-for-service Medicaid.',
+    specialNotes: ['DHS enrollment', 'Background check required', 'Mostly fee-for-service'],
+    color: '#003865',
+  },
+  'South Dakota Medicaid (DSS)': {
+    states: ['SD'], type: 'Medicaid',
+    requirements: ['SD Medicaid Enrollment Application', 'W-9 Form', 'SD License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'SD Provider Agreement'],
+    submission: 'South Dakota DSS Medicaid provider enrollment',
+    portalUrl: 'https://dss.sd.gov/medicaid/providers.aspx',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'South Dakota Medicaid via DSS. Medicaid expansion state (2022).',
+    specialNotes: ['DSS enrollment', 'Background check required', 'Medicaid expansion state (2022)'],
+    color: '#003865',
+  },
+  'Wyoming Medicaid (WYDOH)': {
+    states: ['WY'], type: 'Medicaid',
+    requirements: ['WY Medicaid Enrollment Application', 'W-9 Form', 'Wyoming License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'Background Check', 'WY Provider Agreement'],
+    submission: 'Wyoming WYDOH Medicaid provider enrollment',
+    portalUrl: 'https://health.wyo.gov/healthcarefin/medicaid/providers',
+    timeline: '30–60 days',
+    revalidation: 'Every 5 years',
+    notes: 'Wyoming Medicaid is fee-for-service. Wyoming has not expanded Medicaid.',
+    specialNotes: ['Fee-for-service Medicaid', 'Has not expanded Medicaid', 'Background check required'],
+    color: '#003865',
+  },
+  'BCBS of North Dakota (Sanford)': {
+    states: ['ND','SD','MN'], type: 'Regional',
+    requirements: ['CAQH Profile', 'BCBS ND Provider Application', 'W-9 Form', 'License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume'],
+    submission: 'Availity or BCBS ND provider portal',
+    portalUrl: 'https://www.bcbsnd.com/providers',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'Largest health insurer in North Dakota. Affiliated with Sanford Health.',
+    specialNotes: ['ND/SD/MN regional plan', 'Sanford Health affiliated', 'CAQH required'],
+    color: '#00539F',
+  },
+  'Premera Blue Cross Alaska': {
+    states: ['AK'], type: 'Regional',
+    requirements: ['CAQH Profile', 'Premera AK Provider Application', 'W-9 Form', 'Alaska License Copy', 'Malpractice Insurance Certificate', 'NPI Type 1', 'CV/Resume'],
+    submission: 'Premera Provider Portal',
+    portalUrl: 'https://www.premera.com/providers',
+    timeline: '45–75 days',
+    revalidation: 'Every 3 years',
+    notes: 'Premera Blue Cross serves both Washington and Alaska markets.',
+    specialNotes: ['AK/WA regional payer', 'CAQH required', 'Direct portal or Availity'],
+    color: '#0054A6',
+  },
 }
+
 const STAGE_COLOR = { 'Active':'b-green','Denied':'b-red','Not Started':'b-gray','Application Submitted':'b-blue','Awaiting CAQH':'b-amber','Pending Verification':'b-amber','Additional Info Requested':'b-red','Under Review':'b-blue','Approved – Awaiting Contract':'b-teal','Contracted – Pending Effective Date':'b-teal' }
 const SPEC_COLORS = { 'Mental Health':'#3563c9','Massage Therapy':'#1a8a7a','Naturopathic':'#6d3fb5','Chiropractic':'#c97d1e','Acupuncture':'#b8292e' }
 const PRIORITY_COLOR = { 'Urgent':'b-red','High':'b-amber','Medium':'b-blue','Low':'b-gray' }
@@ -2618,35 +3748,132 @@ function MissingDocuments({ db }) {
 // ─── PAYER REQUIREMENTS ─────────────────────────────────────────────────────────
 function PayerRequirements({ db }) {
   const [search, setSearch] = useState('')
+  const [fState, setFState] = useState('')
+  const [fType, setFType] = useState('')
   const [expanded, setExpanded] = useState({})
   const toggle = name => setExpanded(e => ({ ...e, [name]: !e[name] }))
 
+  const US_STATES = [
+    ['AL','Alabama'],['AK','Alaska'],['AZ','Arizona'],['AR','Arkansas'],['CA','California'],
+    ['CO','Colorado'],['CT','Connecticut'],['DE','Delaware'],['DC','DC'],['FL','Florida'],
+    ['GA','Georgia'],['HI','Hawaii'],['ID','Idaho'],['IL','Illinois'],['IN','Indiana'],
+    ['IA','Iowa'],['KS','Kansas'],['KY','Kentucky'],['LA','Louisiana'],['ME','Maine'],
+    ['MD','Maryland'],['MA','Massachusetts'],['MI','Michigan'],['MN','Minnesota'],['MS','Mississippi'],
+    ['MO','Missouri'],['MT','Montana'],['NE','Nebraska'],['NV','Nevada'],['NH','New Hampshire'],
+    ['NJ','New Jersey'],['NM','New Mexico'],['NY','New York'],['NC','North Carolina'],['ND','North Dakota'],
+    ['OH','Ohio'],['OK','Oklahoma'],['OR','Oregon'],['PA','Pennsylvania'],['RI','Rhode Island'],
+    ['SC','South Carolina'],['SD','South Dakota'],['TN','Tennessee'],['TX','Texas'],['UT','Utah'],
+    ['VT','Vermont'],['VA','Virginia'],['WA','Washington'],['WV','West Virginia'],['WI','Wisconsin'],['WY','Wyoming'],
+  ]
+
+  const TYPE_BADGE = {
+    'National': 'b-blue', 'Regional': 'b-teal', 'Medicaid': 'b-green',
+    'Medicare': 'b-purple', 'Military': 'b-gray', 'Marketplace': 'b-amber',
+  }
+
   const allPayers = Object.keys(PAYER_REQUIREMENTS)
-  const filtered = allPayers.filter(name => name.toLowerCase().includes(search.toLowerCase()))
+
+  const filtered = allPayers.filter(name => {
+    const req = PAYER_REQUIREMENTS[name]
+    const matchSearch = !search || name.toLowerCase().includes(search.toLowerCase()) || (req.notes||'').toLowerCase().includes(search.toLowerCase())
+    const matchState = !fState || req.states === 'ALL' || (Array.isArray(req.states) && req.states.includes(fState))
+    const matchType = !fType || req.type === fType
+    return matchSearch && matchState && matchType
+  })
+
+  const nationalCount = filtered.filter(n => PAYER_REQUIREMENTS[n].states === 'ALL').length
+  const stateCount = filtered.filter(n => PAYER_REQUIREMENTS[n].states !== 'ALL').length
 
   return (
     <div className="page">
-      <div className="toolbar" style={{ marginBottom:18 }}>
+      {/* Header info banner */}
+      <div style={{background:'var(--primary-l)',border:'1px solid var(--primary-ll)',borderRadius:'var(--r-lg)',padding:'12px 16px',marginBottom:16,fontSize:13,color:'var(--primary)',display:'flex',alignItems:'center',gap:10}}>
+        <span style={{fontSize:18}}>🗂️</span>
+        <div>
+          <strong>National Payer Library</strong> — {Object.keys(PAYER_REQUIREMENTS).length} payers across all 50 US states + DC.
+          Filter by state to see which payers operate in that market.
+        </div>
+        <span className="badge b-blue" style={{marginLeft:'auto',flexShrink:0}}>{filtered.length} shown</span>
+      </div>
+
+      <div className="toolbar" style={{ marginBottom:18, flexWrap:'wrap', gap:8 }}>
         <div className="search-box">
           <span className="si">🔍</span>
-          <input type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search payers…" />
+          <input type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search payers, notes…" style={{width:220}} />
         </div>
-        <span className="text-muted" style={{ marginLeft:8 }}>{filtered.length} payers</span>
+
+        {/* State filter */}
+        <select className="filter-select" value={fState} onChange={e=>setFState(e.target.value)} style={{minWidth:170}}>
+          <option value="">🌎 All States</option>
+          {US_STATES.map(([abbr, name]) => (
+            <option key={abbr} value={abbr}>{abbr} — {name}</option>
+          ))}
+        </select>
+
+        {/* Type filter */}
+        <select className="filter-select" value={fType} onChange={e=>setFType(e.target.value)}>
+          <option value="">All Types</option>
+          <option value="National">National</option>
+          <option value="Regional">Regional</option>
+          <option value="Medicaid">Medicaid</option>
+          <option value="Medicare">Medicare</option>
+          <option value="Military">Military</option>
+          <option value="Marketplace">Marketplace</option>
+        </select>
+
+        {(fState || fType || search) && (
+          <button className="btn btn-ghost btn-sm" onClick={()=>{setFState('');setFType('');setSearch('')}}>✕ Clear filters</button>
+        )}
+
+        <div style={{marginLeft:'auto',display:'flex',gap:10,fontSize:12,color:'var(--ink-4)',alignItems:'center'}}>
+          {fState && <span className="badge b-blue">{nationalCount} national + {stateCount} state-specific</span>}
+        </div>
       </div>
+
+      {filtered.length === 0 && (
+        <div className="empty-state">
+          <div className="ei">🔍</div>
+          <h4>No payers found</h4>
+          <p>Try adjusting your filters or clearing the state/type selection.</p>
+        </div>
+      )}
+
       <div className="payer-req-grid">
         {filtered.map(name => {
           const req = PAYER_REQUIREMENTS[name]
           const isExp = expanded[name]
+          const stateList = req.states === 'ALL' ? null : req.states
           return (
             <div key={name} className={`payer-req-card ${isExp ? 'expanded' : ''}`}>
               <div className="payer-req-header">
                 <div className="payer-req-dot" style={{ background: req.color }} />
                 <div className="payer-req-name">{name}</div>
-                <span className="badge b-blue" style={{ fontSize:'10px' }}>{req.timeline}</span>
+                <div style={{display:'flex',gap:4,flexWrap:'wrap',justifyContent:'flex-end'}}>
+                  <span className={`badge ${TYPE_BADGE[req.type]||'b-gray'}`} style={{ fontSize:'10px' }}>{req.type}</span>
+                  <span className="badge b-blue" style={{ fontSize:'10px' }}>{req.timeline}</span>
+                </div>
               </div>
               <div className="payer-req-body">
+                {/* States served */}
+                <div style={{marginBottom:8}}>
+                  {req.states === 'ALL'
+                    ? <span style={{fontSize:11,color:'var(--ink-3)',background:'var(--surface-2)',padding:'2px 8px',borderRadius:20,border:'1px solid var(--border)'}}>🌎 Nationwide</span>
+                    : <div style={{display:'flex',flexWrap:'wrap',gap:3}}>
+                        {stateList.slice(0,12).map(s => (
+                          <span key={s} style={{
+                            fontSize:10,fontWeight:600,padding:'1px 5px',borderRadius:4,
+                            background: fState===s ? 'var(--primary)' : 'var(--surface-2)',
+                            color: fState===s ? 'white' : 'var(--ink-3)',
+                            border:'1px solid var(--border)',cursor:'pointer'
+                          }} onClick={()=>setFState(s===fState?'':s)}>{s}</span>
+                        ))}
+                        {stateList.length > 12 && <span style={{fontSize:10,color:'var(--ink-4)',padding:'1px 4px'}}>+{stateList.length-12} more</span>}
+                      </div>
+                  }
+                </div>
+
                 <div className="payer-req-meta">
-                  <span className="payer-req-chip">🔄 Revalidation: {req.revalidation}</span>
+                  <span className="payer-req-chip">🔄 {req.revalidation}</span>
                   {req.portalUrl && <a href={req.portalUrl} target="_blank" rel="noreferrer" className="payer-req-chip" style={{ color:'var(--primary)', textDecoration:'none' }}>🔗 Portal ↗</a>}
                 </div>
                 {req.specialNotes.map((n, i) => (
