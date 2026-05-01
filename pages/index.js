@@ -2262,15 +2262,30 @@ export default function App() {
       // Build diff — also include new fields not in diffNpiVsProvider's default list
       const baseDiffs = diffNpiVsProvider(card, prov)
 
+      // Pull specific identifiers from the NPPES identifiers array
+      const npiIdentifiers = card.identifiers || []
+      const findId = (...keywords) => {
+        const match = npiIdentifiers.find(i =>
+          keywords.some(kw => (i.desc || '').toLowerCase().includes(kw.toLowerCase()))
+        )
+        return match?.identifier || ''
+      }
+      const nppesMedicaid = card.medicaid || findId('medicaid', 'dmap', 'ohp')
+      const nppesPtan     = findId('medicare', 'ptan', 'part b')
+      const nppesCaqh     = findId('caqh')
+
       // Extra fields to check that aren't in the base diff
       const EXTRA_FIELDS = [
-        { field: 'phone',   label: 'Phone',       npiVal: card.phone },
-        { field: 'license', label: 'License #',   npiVal: card.license },
-        { field: 'address', label: 'Address',     npiVal: card.address },
-        { field: 'city',    label: 'City',         npiVal: card.city },
-        { field: 'state',   label: 'State',        npiVal: card.state },
-        { field: 'zip',     label: 'ZIP',          npiVal: card.zip },
-        { field: 'medicaid',label: 'Medicaid ID',  npiVal: card.medicaid },
+        { field: 'phone',    label: 'Phone',          npiVal: card.phone },
+        { field: 'license',  label: 'License #',      npiVal: card.license },
+        { field: 'address',  label: 'Address',        npiVal: card.address },
+        { field: 'city',     label: 'City',           npiVal: card.city },
+        { field: 'state',    label: 'State',          npiVal: card.state },
+        { field: 'zip',      label: 'ZIP',            npiVal: card.zip },
+        { field: 'medicaid', label: 'Medicaid ID',    npiVal: nppesMedicaid },
+        { field: 'ptan',     label: 'Medicare PTAN',  npiVal: nppesPtan },
+        { field: 'caqh',     label: 'CAQH ID',        npiVal: nppesCaqh },
+        // taxonomyDesc is shown as read-only info — never overwrites spec category
       ]
 
       const extraDiffs = EXTRA_FIELDS
@@ -3994,9 +4009,22 @@ function NpiSyncModal({ data, onApply, onClose, saving }) {
         </div>
 
         <div className="modal-body">
-          <div style={{ background: 'var(--blue-l)', border: '1px solid var(--blue-b)', borderRadius: 'var(--r)', padding: '10px 14px', fontSize: 12.5, color: 'var(--blue)', marginBottom: 16 }}>
+          <div style={{ background: 'var(--blue-l)', border: '1px solid var(--blue-b)', borderRadius: 'var(--r)', padding: '10px 14px', fontSize: 12.5, color: 'var(--blue)', marginBottom: 12 }}>
             NPPES has newer data for <strong>{diffs.length} field{diffs.length !== 1 ? 's' : ''}</strong>. Check the ones you want to update, then click Apply.
           </div>
+
+          {/* Read-only NPPES taxonomy info — never overwrites your internal specialty category */}
+          {data.card?.taxonomyDesc && (
+            <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 'var(--r)', padding: '10px 14px', fontSize: 12.5, marginBottom: 14, display: 'flex', gap: 10, alignItems: 'flex-start' }}>
+              <span style={{ fontSize: 16 }}>ℹ️</span>
+              <div>
+                <div style={{ fontWeight: 600, color: 'var(--ink)', marginBottom: 2 }}>NPPES Taxonomy: {data.card.taxonomyDesc}</div>
+                <div style={{ color: 'var(--ink-4)', fontSize: 11.5 }}>
+                  Your internal Specialty Category (<strong>{data.prov.spec}</strong>) is never changed by sync — it's used for CredFlow categorization and billing grouping.
+                </div>
+              </div>
+            </div>
+          )}
 
           <div style={{ marginBottom: 8, display: 'flex', gap: 8 }}>
             <button className="btn btn-ghost btn-sm" onClick={() => setSelected(new Set(diffs.map(d => d.field)))}>Select all</button>
