@@ -1595,7 +1595,7 @@ tbody tr:hover{background:var(--primary-l);}
 .section-divider{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--primary);background:var(--primary-l);border-top:1px solid var(--primary-ll);border-bottom:1px solid var(--primary-ll);padding:8px 14px;grid-column:1/-1;margin-top:8px;}
 
 /* MODAL */
-.overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);backdrop-filter:blur(6px);z-index:500;align-items:center;justify-content:center;padding:24px;}
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);backdrop-filter:blur(6px);z-index:600;align-items:center;justify-content:center;padding:24px;}
 .overlay.open{display:flex;}
 .modal{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--shadow-xl);width:100%;max-width:620px;max-height:90vh;overflow-y:auto;animation:modalIn .2s ease;border:1px solid var(--border);}
 .modal-lg{max-width:800px;}
@@ -2881,7 +2881,8 @@ function Providers({ db, search, setSearch, fStatus, setFStatus, fSpec, setFSpec
     return (!search || txt.includes(search.toLowerCase())) && (!fStatus || (p.status||'').trim()===fStatus) && (!fSpec || (p.spec||'').trim().toLowerCase()===fSpec.toLowerCase())
   })
   const list = [...filtered].sort((a, b) => {
-    if (sortBy === 'name') return `${a.lname} ${a.fname}`.localeCompare(`${b.lname} ${b.fname}`)
+    if (sortBy === 'name')  return `${a.lname} ${a.fname}`.localeCompare(`${b.lname} ${b.fname}`)
+    if (sortBy === 'fname') return `${a.fname} ${a.lname}`.localeCompare(`${b.fname} ${b.lname}`)
     if (sortBy === 'spec') return (a.spec||'').localeCompare(b.spec||'')
     if (sortBy === 'status') return (a.status||'').localeCompare(b.status||'')
     if (sortBy === 'license') { const da=daysUntil(a.licenseExp), db2=daysUntil(b.licenseExp); return (da??99999)-(db2??99999) }
@@ -2895,7 +2896,8 @@ function Providers({ db, search, setSearch, fStatus, setFStatus, fSpec, setFSpec
       <select className="filter-select" value={fStatus} onChange={e=>setFStatus(e.target.value)}><option value="">All Statuses</option><option>Active</option><option>Pending</option><option>Inactive</option></select>
       <select className="filter-select" value={fSpec} onChange={e=>setFSpec(e.target.value)}><option value="">All Specialties</option><option>Mental Health</option><option>Massage Therapy</option><option>Naturopathic</option><option>Chiropractic</option><option>Acupuncture</option></select>
       <select className="filter-select" value={sortBy} onChange={e=>setSortBy(e.target.value)} style={{minWidth:140}}>
-        <option value="name">Sort: A–Z Name</option>
+        <option value="name">Sort: Last Name A–Z</option>
+        <option value="fname">Sort: First Name A–Z</option>
         <option value="spec">Sort: Specialty</option>
         <option value="status">Sort: Status</option>
         <option value="license">Sort: License Expiry</option>
