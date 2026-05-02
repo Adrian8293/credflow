@@ -1600,6 +1600,12 @@ tbody tr:hover{background:var(--primary-l);}
 .modal{background:var(--surface);border-radius:var(--r-xl);box-shadow:var(--shadow-xl);width:100%;max-width:620px;max-height:90vh;overflow-y:auto;animation:modalIn .2s ease;border:1px solid var(--border);}
 .modal-lg{max-width:800px;}
 @keyframes modalIn{from{opacity:0;transform:scale(.95);}to{opacity:1;transform:none;}}
+@keyframes drawerIn{from{transform:translateX(100%);}to{transform:translateX(0);}}
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(15,23,42,.5);backdrop-filter:blur(4px);z-index:500;}
+.drawer-overlay.open{display:block;}
+.drawer{position:fixed;top:0;right:0;height:100vh;width:680px;max-width:95vw;background:var(--surface);box-shadow:-8px 0 32px rgba(0,0,0,.18);z-index:501;display:flex;flex-direction:column;animation:drawerIn .22s cubic-bezier(.25,.46,.45,.94);}
+.drawer-header{display:flex;align-items:flex-start;justify-content:space-between;padding:20px 24px 16px;border-bottom:1px solid var(--border);flex-shrink:0;position:sticky;top:0;background:var(--surface);z-index:10;}
+.drawer-body{flex:1;overflow-y:auto;padding:20px 24px;}
 .modal-header{padding:22px 24px 18px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px;position:sticky;top:0;background:var(--surface);z-index:2;border-radius:var(--r-xl) var(--r-xl) 0 0;}
 .modal-header h3{font-family:'Poppins',sans-serif;font-size:17px;font-weight:600;flex:1;letter-spacing:-0.2px;color:var(--ink);}
 .mh-sub{font-size:12px;color:var(--ink-4);margin-top:3px;}
@@ -3699,11 +3705,25 @@ function Modal({ onClose, title, sub, children, footer, lg }) {
   </div>
 }
 
+function DrawerModal({ onClose, title, sub, children, footer }) {
+  return <>
+    <div className="drawer-overlay open" onClick={onClose} />
+    <div className="drawer">
+      <div className="drawer-header">
+        <div><h3>{title}</h3>{sub&&<div className="mh-sub">{sub}</div>}</div>
+        <button className="modal-close" onClick={onClose}>✕</button>
+      </div>
+      <div className="drawer-body">{children}</div>
+      {footer && <div className="modal-footer" style={{ padding: '16px 24px', borderTop: '1px solid var(--border)', flexShrink: 0 }}>{footer}</div>}
+    </div>
+  </>
+}
+
 function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSaveEnrollment, onClose, saving }) {
   const f = k => enrollForm[k] ?? ''
   const set = (k, v) => setEnrollForm(prev => ({ ...prev, [k]: v }))
   const stageIdx = STAGES.indexOf(f('stage'))
-  return <Modal title={editingId.enrollment?'Edit Enrollment':'New Payer Enrollment'} sub={editingId.enrollment?`${pNameShort(db.providers,f('provId'))} × ${payName(db.payers,f('payId'))}`:''}
+  return <DrawerModal title={editingId.enrollment?'Edit Enrollment':'New Payer Enrollment'} sub={editingId.enrollment?`${pNameShort(db.providers,f('provId'))} × ${payName(db.payers,f('payId'))}`:''}
     onClose={onClose}
     footer={<><button className="btn btn-ghost" onClick={onClose}>Cancel</button><button className="btn btn-primary" onClick={handleSaveEnrollment} disabled={saving}>{saving?'Saving…':'Save Enrollment'}</button></>}>
     <div className="mb-16">
@@ -3730,7 +3750,7 @@ function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSaveEnrol
       <div className="fg"><label>Contract Received</label><select value={f('contract')} onChange={e=>set('contract',e.target.value)}><option value="No">No</option><option value="Yes">Yes</option></select></div>
       <div className="fg full"><label>Notes / Audit Entry</label><textarea value={f('notes')} onChange={e=>set('notes',e.target.value)} placeholder="Add a note (logged to audit trail)…"></textarea></div>
     </div>
-  </Modal>
+  </DrawerModal>
 }
 
 // ─── PAYER CATALOG ─────────────────────────────────────────────────────────────
@@ -3845,8 +3865,7 @@ function PayerModal({ payerForm, setPayerForm, editingId, handleSavePayer, onClo
   const guidelines = selectedCatalog || (editingId.payer ? PAYER_CATALOG.find(p => p.name === payerForm.name) : null)
 
   return (
-    <Modal title={editingId.payer ? 'Edit Payer' : (step === 1 ? 'Add Payer — Choose Payer' : 'Add Payer — Details')} onClose={onClose}
-      lg={step === 1}
+    <DrawerModal title={editingId.payer ? 'Edit Payer' : (step === 1 ? 'Add Payer — Choose Payer' : 'Add Payer — Details')} onClose={onClose}
       footer={
         step === 1
           ? <button className="btn btn-ghost" onClick={onClose}>Cancel</button>
@@ -3950,7 +3969,7 @@ function PayerModal({ payerForm, setPayerForm, editingId, handleSavePayer, onClo
           </div>
         </>
       )}
-    </Modal>
+    </DrawerModal>
   )
 }
 
@@ -4093,16 +4112,17 @@ function NpiSyncModal({ data, onApply, onClose, saving }) {
 
 function ProvDetailModal({ prov, db, tab, setTab, onClose, editProvider, openEnrollModal, toast, syncFromNPPES }) {
   return (
-    <div className="overlay open" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
-      <div className="modal modal-lg" style={{ maxWidth: 860, maxHeight: '92vh', overflowY: 'auto' }}>
-        <div className="modal-header" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
+    <>
+      <div className="drawer-overlay open" onClick={onClose} />
+      <div className="drawer" style={{ width: 900 }}>
+        <div className="drawer-header">
           <div>
             <h3>Provider Command Center</h3>
             <div className="mh-sub">{prov.spec} · {prov.status}</div>
           </div>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
-        <div className="modal-body">
+        <div className="drawer-body">
           <ProviderCommandCenter
             prov={prov}
             db={db}
@@ -4113,11 +4133,8 @@ function ProvDetailModal({ prov, db, tab, setTab, onClose, editProvider, openEnr
             onSync={syncFromNPPES}
           />
         </div>
-        <div className="modal-footer">
-          <button className="btn btn-ghost" onClick={onClose}>Close</button>
-        </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -5000,9 +5017,10 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
       {nppesModal && (() => {
         const r = nppesModal
         return (
-          <div className="overlay open" onClick={e => { if (e.target === e.currentTarget) setNppesModal(null) }}>
-            <div className="modal modal-lg" style={{ maxWidth: 860, maxHeight: '92vh', overflowY: 'auto' }}>
-              <div className="modal-header" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
+          <>
+            <div className="drawer-overlay open" onClick={() => setNppesModal(null)} />
+            <div className="drawer">
+              <div className="drawer-header">
                 <div>
                   <h3>Full NPPES Record</h3>
                   <div className="mh-sub">
@@ -5011,7 +5029,7 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
                 </div>
                 <button className="modal-close" onClick={() => setNppesModal(null)}>✕</button>
               </div>
-              <div className="modal-body">
+              <div className="drawer-body">
                 <div className="grid-2" style={{ gap: 24 }}>
                   <div>
                     <div style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--primary)', marginBottom: 8 }}>Identity</div>
@@ -5584,13 +5602,13 @@ function EligibilityPage({ db, toast }) {
       </div>
 
       {modal && (
-        <div className="overlay open" onClick={e=>e.target===e.currentTarget&&setModal(false)}>
-          <div className="modal modal-lg">
-            <div className="modal-header">
+        <div className="drawer-overlay open" onClick={()=>setModal(false)} />
+        <div className="drawer">
+          <div className="drawer-header">
               <div><h3>{form.id?'Edit Eligibility Check':'New Eligibility Check'}</h3><div className="mh-sub">Verify patient insurance coverage before appointment</div></div>
               <button className="modal-close" onClick={()=>setModal(false)}>✕</button>
             </div>
-            <div className="modal-body">
+            <div className="drawer-body">
               <div className="form-grid">
                 <div className="fg full"><label>Patient Name *</label><input value={form.patient_name||''} onChange={e=>setForm(f=>({...f,patient_name:e.target.value}))} placeholder="Last, First" /></div>
                 <div className="fg"><label>Date of Birth</label><input type="date" value={form.dob||''} onChange={e=>setForm(f=>({...f,dob:e.target.value}))} /></div>
@@ -5642,7 +5660,6 @@ function EligibilityPage({ db, toast }) {
               </button>
             </div>
           </div>
-        </div>
       )}
     </div>
   )
@@ -5821,13 +5838,13 @@ function ClaimsPage({ db, toast }) {
       </>}
 
       {modal && (
-        <div className="overlay open" onClick={e=>e.target===e.currentTarget&&setModal(false)}>
-          <div className="modal modal-lg">
-            <div className="modal-header">
+        <div className="drawer-overlay open" onClick={()=>setModal(false)} />
+        <div className="drawer">
+          <div className="drawer-header">
               <div><h3>{form.id?'Edit Claim':'New Claim'}</h3><div className="mh-sub">Log a claim from SimplePractice or your clearinghouse</div></div>
               <button className="modal-close" onClick={()=>setModal(false)}>✕</button>
             </div>
-            <div className="modal-body">
+            <div className="drawer-body">
               <div className="form-grid">
                 <div className="fg"><label>Claim Number</label><input value={form.claim_num||''} onChange={e=>setForm(f=>({...f,claim_num:e.target.value}))} placeholder="Clearinghouse claim #" /></div>
                 <div className="fg"><label>Status</label>
@@ -6037,13 +6054,13 @@ function DenialLog({ db, toast }) {
       </div>
 
       {modal && (
-        <div className="overlay open" onClick={e=>e.target===e.currentTarget&&setModal(false)}>
-          <div className="modal modal-lg">
-            <div className="modal-header">
+        <div className="drawer-overlay open" onClick={()=>setModal(false)} />
+        <div className="drawer">
+          <div className="drawer-header">
               <div><h3>{form.id?'Edit Denial':'Log Denial'}</h3><div className="mh-sub">Track denial reason, appeal status, and deadline</div></div>
               <button className="modal-close" onClick={()=>setModal(false)}>✕</button>
             </div>
-            <div className="modal-body">
+            <div className="drawer-body">
               <div className="form-grid">
                 <div className="fg"><label>Linked Claim (optional)</label>
                   <select value={form.claim_id||''} onChange={e=>setForm(f=>({...f,claim_id:e.target.value}))}>
