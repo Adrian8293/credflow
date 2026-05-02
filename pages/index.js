@@ -5135,7 +5135,7 @@ function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, s
                 )}
               </div>
             </div>
-          </div>
+          </>
         )
       })()}
     </div>
@@ -5890,7 +5890,6 @@ function ClaimsPage({ db, toast }) {
               <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving?<><span className="spinner"/>Saving…</>:'Save Claim'}</button>
             </div>
           </div>
-        </div>
       )}
     </div>
   )
@@ -6105,7 +6104,6 @@ function DenialLog({ db, toast }) {
               <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving?<><span className="spinner"/>Saving…</>:'Save'}</button>
             </div>
           </div>
-        </div>
       )}
     </div>
   )
