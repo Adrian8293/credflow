@@ -16,6 +16,7 @@
  */
 
 import { useState, useCallback } from 'react'
+import { useRouter } from 'next/router'
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 
@@ -413,6 +414,7 @@ export function WorkflowProviderCard({ prov, db, onOpen, onEdit, onEnroll, onTas
   const urgent = (licD !== null && licD <= 30) || (malD !== null && malD <= 30) || (caqhD !== null && caqhD <= 0)
   const activeP = db.enrollments.filter(e => e.provId === prov.id && e.stage === 'Active').length
   const totalP = db.enrollments.filter(e => e.provId === prov.id).length
+  const router = useRouter()
 
   const SPEC_COLORS = {
     'Mental Health': '#3563c9', 'Massage Therapy': '#1a8a7a',
@@ -447,6 +449,14 @@ export function WorkflowProviderCard({ prov, db, onOpen, onEdit, onEnroll, onTas
       <div className="prov-actions" onClick={e => e.stopPropagation()}>
         <button className="btn btn-secondary btn-sm" onClick={() => onOpen(prov.id)}>View Profile</button>
         <button className="btn btn-ghost btn-sm" onClick={() => onEdit(prov.id)}>Edit</button>
+        <button
+          className="btn btn-ghost btn-sm"
+          title="Open OPCA Review — validate and prepare credentialing application"
+          onClick={() => router.push(`/review/${prov.id}`)}
+          style={{ color: '#4f7cff', fontWeight: 500 }}
+        >
+          📋 OPCA
+        </button>
         {onEnroll && (
           <button className="btn btn-ghost btn-sm" onClick={() => onEnroll(null, prov.id)}>+ Enroll</button>
         )}
