@@ -1,0 +1,10102 @@
+[
+  {
+    "field_id": "Last Name include suffix Jr Sr III.0",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      23.3455,
+      697.915,
+      234.102,
+      711.818
+    ]
+  },
+  {
+    "field_id": "First",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      235.2,
+      697.88,
+      357.48,
+      711.818
+    ]
+  },
+  {
+    "field_id": "Middle",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      358.8,
+      697.88,
+      472.2,
+      711.818
+    ]
+  },
+  {
+    "field_id": "Degrees",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      473.52,
+      697.88,
+      588.001,
+      711.429
+    ]
+  },
+  {
+    "field_id": "Other name used NO",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      561.909,
+      686.455,
+      572.382,
+      696.709
+    ]
+  },
+  {
+    "field_id": "Other name used YES",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      516.206,
+      686.419,
+      526.242,
+      696.673
+    ]
+  },
+  {
+    "field_id": "name and year used",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      139.979,
+      671.543,
+      588.001,
+      686.728
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.0",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      443.92,
+      646.98,
+      466.873,
+      659.22
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.0",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      469.735,
+      646.98,
+      492.6,
+      659.22
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.0",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      495.117,
+      646.98,
+      529.711,
+      659.22
+    ]
+  },
+  {
+    "field_id": "telephone.0.0",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      317.327,
+      646.873,
+      340.345,
+      659.113
+    ]
+  },
+  {
+    "field_id": "telephone1.0.0",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      343.108,
+      646.873,
+      366.046,
+      659.113
+    ]
+  },
+  {
+    "field_id": "telephone3.0.0",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      368.636,
+      646.873,
+      402.89,
+      659.113
+    ]
+  },
+  {
+    "field_id": "Home street address",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      23.3455,
+      622.44,
+      313.68,
+      660.72
+    ]
+  },
+  {
+    "field_id": "Email address",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      315.84,
+      622.44,
+      588.001,
+      636.971
+    ]
+  },
+  {
+    "field_id": "City",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      23.3455,
+      597.68,
+      219.6,
+      612.211
+    ]
+  },
+  {
+    "field_id": "State",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      221.16,
+      597.68,
+      401.16,
+      612.327
+    ]
+  },
+  {
+    "field_id": "ZIP",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      402.72,
+      597.68,
+      588.001,
+      612.327
+    ]
+  },
+  {
+    "field_id": "Birth date  Month",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      225.251,
+      573.873,
+      246.074,
+      586.113
+    ]
+  },
+  {
+    "field_id": "Birth date  DAY",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      252.378,
+      573.873,
+      271.382,
+      586.113
+    ]
+  },
+  {
+    "field_id": "Birth date  year",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      276.378,
+      573.873,
+      314.363,
+      586.113
+    ]
+  },
+  {
+    "field_id": "Country",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      23.3455,
+      572.92,
+      219.6,
+      587.124
+    ]
+  },
+  {
+    "field_id": "Birth place",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      402.72,
+      572.92,
+      588.001,
+      587.127
+    ]
+  },
+  {
+    "field_id": "undefined_2",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      525.078,
+      550.565,
+      535.005,
+      560.82
+    ]
+  },
+  {
+    "field_id": "x",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      561.27,
+      550.565,
+      571.525,
+      560.82
+    ]
+  },
+  {
+    "field_id": "undefined",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      434.166,
+      550.438,
+      444.311,
+      560.584
+    ]
+  },
+  {
+    "field_id": "Social Security number",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      221.16,
+      549.16,
+      401.16,
+      563.237
+    ]
+  },
+  {
+    "field_id": "Citizenship",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      23.3455,
+      548.833,
+      219.6,
+      563.364
+    ]
+  },
+  {
+    "field_id": "Immigrant Visa number if applicable",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      23.3455,
+      524.4,
+      189.12,
+      538.364
+    ]
+  },
+  {
+    "field_id": "Visa expiration date",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      196.004,
+      524.4,
+      354.72,
+      538.364
+    ]
+  },
+  {
+    "field_id": "Status",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      356.04,
+      524.4,
+      471.72,
+      538.364
+    ]
+  },
+  {
+    "field_id": "Type",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      473.04,
+      524.4,
+      588.001,
+      537.949
+    ]
+  },
+  {
+    "field_id": "Date Certified Year4",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      434.356,
+      500.486,
+      474.393,
+      512.726
+    ]
+  },
+  {
+    "field_id": "date certified1.11.11113",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      409.206,
+      500.388,
+      428.788,
+      512.628
+    ]
+  },
+  {
+    "field_id": "Educational Commission for Foreign Medical Graduates ECFMG number if applicable",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      23.3455,
+      499.64,
+      401.16,
+      514.171
+    ]
+  },
+  {
+    "field_id": "Provider race",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      23.88,
+      451.44,
+      211.2,
+      466.2
+    ]
+  },
+  {
+    "field_id": "Provider ethnicity",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      212.52,
+      451.44,
+      399.36,
+      466.2
+    ]
+  },
+  {
+    "field_id": "Provider primary language",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      399.811,
+      451.44,
+      586.771,
+      466.08
+    ]
+  },
+  {
+    "field_id": "Current disabilities",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      24.1192,
+      426.245,
+      587.879,
+      441.005
+    ]
+  },
+  {
+    "field_id": "Do you want to be designated as a primary care practitioner PCP",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      333.016,
+      211.897,
+      343.161,
+      221.716
+    ]
+  },
+  {
+    "field_id": "No_2",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      386.94,
+      211.679,
+      396.867,
+      221.716
+    ]
+  },
+  {
+    "field_id": "specialty",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      236.99,
+      211.342,
+      305.717,
+      224.55
+    ]
+  },
+  {
+    "field_id": "Additional clinical practice specialties",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      23.3455,
+      187.479,
+      588.001,
+      200.308
+    ]
+  },
+  {
+    "field_id": "Full Time",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      30.1818,
+      137.657,
+      41.0909,
+      148.566
+    ]
+  },
+  {
+    "field_id": "Administration",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      324.953,
+      136.966,
+      336.189,
+      148.53
+    ]
+  },
+  {
+    "field_id": "Part Time",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      30.2471,
+      123.257,
+      40.938,
+      133.948
+    ]
+  },
+  {
+    "field_id": "Teaching",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      325.178,
+      122.456,
+      335.978,
+      133.802
+    ]
+  },
+  {
+    "field_id": "Locum  Temporary",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      30.0727,
+      108.192,
+      41.3091,
+      119.21
+    ]
+  },
+  {
+    "field_id": "Research",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      325.062,
+      107.719,
+      336.189,
+      119.064
+    ]
+  },
+  {
+    "field_id": "Telemedicine",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      30.2471,
+      93.4652,
+      41.2653,
+      104.81
+    ]
+  },
+  {
+    "field_id": "Retired",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      325.069,
+      93.3192,
+      335.978,
+      104.446
+    ]
+  },
+  {
+    "field_id": "Other explain",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      29.9636,
+      79.0532,
+      41.2,
+      90.2902
+    ]
+  },
+  {
+    "field_id": "Other explain_2",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 3,
+    "rect": [
+      325.662,
+      78.0892,
+      336.353,
+      89.2162
+    ]
+  },
+  {
+    "field_id": "Explian other category",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      113.382,
+      76.5702,
+      295.236,
+      90.2502
+    ]
+  },
+  {
+    "field_id": "Explain other professional activities",
+    "type": "text",
+    "page": 3,
+    "rect": [
+      409.281,
+      76.3522,
+      588.001,
+      90.0322
+    ]
+  },
+  {
+    "field_id": "Does not apply",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 4,
+    "rect": [
+      548.999,
+      752.862,
+      561.326,
+      765.298
+    ]
+  },
+  {
+    "field_id": "Name and address of issuing boardRow1.0.0",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      23.3455,
+      666.408,
+      284.189,
+      687.063
+    ]
+  },
+  {
+    "field_id": "Board Certification Number - 1",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      285.236,
+      666.408,
+      364.8,
+      687.733
+    ]
+  },
+  {
+    "field_id": "Specialty1.11.0.0",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      364.892,
+      666.408,
+      455.667,
+      688.648
+    ]
+  },
+  {
+    "field_id": "date certified1.11.0",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      456.412,
+      666.408,
+      481.35,
+      688.728
+    ]
+  },
+  {
+    "field_id": "Date Certified Year",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      485.526,
+      666.408,
+      523.818,
+      688.408
+    ]
+  },
+  {
+    "field_id": "date exp. 1.11.111.4",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      524.553,
+      666.408,
+      547.636,
+      688.728
+    ]
+  },
+  {
+    "field_id": "Expiration Year 11.22",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      552.395,
+      666.408,
+      588.001,
+      688.408
+    ]
+  },
+  {
+    "field_id": "Name and address of issuing boardRow1.0.1",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      23.3455,
+      643.131,
+      284.229,
+      664.724
+    ]
+  },
+  {
+    "field_id": "Board Certification Number - 2",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      285.236,
+      643.131,
+      364.8,
+      665.29
+    ]
+  },
+  {
+    "field_id": "Specialty1.11.0.1",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      364.961,
+      643.131,
+      455.667,
+      665.977
+    ]
+  },
+  {
+    "field_id": "date certified1.11.1",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      456.412,
+      643.131,
+      481.35,
+      665.451
+    ]
+  },
+  {
+    "field_id": "Date Certified Year a2",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      485.236,
+      643.131,
+      524.254,
+      665.131
+    ]
+  },
+  {
+    "field_id": "date exp. 1.11.111.5",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      524.157,
+      643.131,
+      547.786,
+      665.451
+    ]
+  },
+  {
+    "field_id": "Expiration Year a11.33",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      552.435,
+      643.131,
+      588.38,
+      665.131
+    ]
+  },
+  {
+    "field_id": "Name and address of issuing boardRow1.0.2",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      23.3455,
+      619.501,
+      284.138,
+      641.305
+    ]
+  },
+  {
+    "field_id": "Board Certification Number - 3",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      285.091,
+      619.501,
+      364.655,
+      641.734
+    ]
+  },
+  {
+    "field_id": "Specialty1.11.0.2",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      366.303,
+      619.501,
+      455.667,
+      641.952
+    ]
+  },
+  {
+    "field_id": "date certified1.11.112",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      456.412,
+      619.501,
+      481.514,
+      641.821
+    ]
+  },
+  {
+    "field_id": "Date Certified Year3",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      485.671,
+      619.501,
+      523.818,
+      641.501
+    ]
+  },
+  {
+    "field_id": "date expiration1.11.1121212",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      524.553,
+      619.501,
+      547.964,
+      641.821
+    ]
+  },
+  {
+    "field_id": "Date expiration Year4",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      552.395,
+      619.501,
+      588.34,
+      641.501
+    ]
+  },
+  {
+    "field_id": "testing for certification below  Please attach additional sheets if necessary",
+    "type": "text",
+    "page": 4,
+    "rect": [
+      22.6182,
+      54.218,
+      587.549,
+      587.676
+    ]
+  },
+  {
+    "field_id": "Type_2",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      714.32,
+      164.88,
+      727.855
+    ]
+  },
+  {
+    "field_id": "Number",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      166.2,
+      714.32,
+      275.28,
+      727.476
+    ]
+  },
+  {
+    "field_id": "Month  Year of certification11",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      281.644,
+      714.03,
+      302.316,
+      727.855
+    ]
+  },
+  {
+    "field_id": "Month  of exp.11",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      446.135,
+      714.03,
+      467.026,
+      727.855
+    ]
+  },
+  {
+    "field_id": "Date Cert. Year11.4",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      307.286,
+      713.96,
+      347.322,
+      727.855
+    ]
+  },
+  {
+    "field_id": "Year 11.4",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      472.777,
+      713.96,
+      512.813,
+      727.855
+    ]
+  },
+  {
+    "field_id": "Date Year11.6",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      472.777,
+      690.438,
+      512.813,
+      703.987
+    ]
+  },
+  {
+    "field_id": "Type_3",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      690.28,
+      164.88,
+      703.636
+    ]
+  },
+  {
+    "field_id": "Number_2",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      166.2,
+      690.28,
+      275.28,
+      703.636
+    ]
+  },
+  {
+    "field_id": "Month  Year of certification12",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      281.644,
+      690.121,
+      302.098,
+      703.636
+    ]
+  },
+  {
+    "field_id": "Month  of exp. 113",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      446.135,
+      690.121,
+      467.026,
+      703.636
+    ]
+  },
+  {
+    "field_id": "Date Certified Year11.5",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      307.286,
+      689.92,
+      347.322,
+      703.636
+    ]
+  },
+  {
+    "field_id": "Date Cert.Year11.6",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      307.286,
+      667.201,
+      347.322,
+      680.727
+    ]
+  },
+  {
+    "field_id": "Date Year11.7",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      472.777,
+      667.201,
+      512.813,
+      680.727
+    ]
+  },
+  {
+    "field_id": "Month  Year of certificationA11",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      281.644,
+      666.884,
+      301.88,
+      680.727
+    ]
+  },
+  {
+    "field_id": "Month  of exp.114",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      446.135,
+      666.884,
+      466.807,
+      680.727
+    ]
+  },
+  {
+    "field_id": "Type_4",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      666.567,
+      164.88,
+      680.727
+    ]
+  },
+  {
+    "field_id": "Number_3",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      166.2,
+      666.567,
+      275.28,
+      680.64
+    ]
+  },
+  {
+    "field_id": "Date Certified Year11.6B",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      307.286,
+      643.274,
+      347.322,
+      656.836
+    ]
+  },
+  {
+    "field_id": "Date  Year11.7",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      473.777,
+      643.274,
+      513.813,
+      656.836
+    ]
+  },
+  {
+    "field_id": "Type_5",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      643.08,
+      164.88,
+      656.836
+    ]
+  },
+  {
+    "field_id": "Number_4",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      166.2,
+      643.08,
+      275.28,
+      656.945
+    ]
+  },
+  {
+    "field_id": "Month  Year of certificationA11B",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      281.644,
+      642.957,
+      302.098,
+      656.836
+    ]
+  },
+  {
+    "field_id": "Month of exp",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      446.135,
+      642.957,
+      466.589,
+      656.836
+    ]
+  },
+  {
+    "field_id": "Name of primary practiceaffiliation or clinic",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      578.396,
+      289.8,
+      591.709
+    ]
+  },
+  {
+    "field_id": "Department name if hospital based",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      291.732,
+      578.396,
+      587.04,
+      591.552
+    ]
+  },
+  {
+    "field_id": "Primary Clinical Practice street address",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      553.636,
+      366.79,
+      567.491
+    ]
+  },
+  {
+    "field_id": "NPI number",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      372.71,
+      553.636,
+      586.692,
+      567.774
+    ]
+  },
+  {
+    "field_id": "City_2",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      529.876,
+      144.36,
+      543.6
+    ]
+  },
+  {
+    "field_id": "County",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      146.611,
+      529.876,
+      289.68,
+      543.6
+    ]
+  },
+  {
+    "field_id": "State_2",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      291.851,
+      529.876,
+      421.8,
+      543.6
+    ]
+  },
+  {
+    "field_id": "ZIP_2",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      428.513,
+      529.876,
+      586.692,
+      543.687
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.0.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      27.3338,
+      506.269,
+      50.5053,
+      518.509
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.0.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      52.8577,
+      506.269,
+      75.7886,
+      518.509
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.0.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      79.0581,
+      506.269,
+      111.617,
+      518.509
+    ]
+  },
+  {
+    "field_id": "extension vi1.0.0.0.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      139.789,
+      506.269,
+      183.251,
+      518.509
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.1.0.0.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      193.704,
+      506.269,
+      216.548,
+      518.509
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.1.0.0.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      219.736,
+      506.269,
+      242.231,
+      518.509
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.1.0.0.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      245.283,
+      506.269,
+      279.441,
+      518.509
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.2.0.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      368.751,
+      506.269,
+      392.032,
+      518.509
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.2.0.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      394.656,
+      506.269,
+      417.805,
+      518.509
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.2.0.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      420.148,
+      506.269,
+      451.034,
+      518.509
+    ]
+  },
+  {
+    "field_id": "extension vi1.0.2.0.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      481.678,
+      506.269,
+      525.14,
+      518.509
+    ]
+  },
+  {
+    "field_id": "Text5.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      396.581,
+      482.556,
+      586.692,
+      495.953
+    ]
+  },
+  {
+    "field_id": "Mailing/Billing Address vi.0.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      482.531,
+      394.709,
+      496.528
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.1.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      193.359,
+      458.108,
+      216.639,
+      470.348
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.1.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      219.646,
+      458.108,
+      242.358,
+      470.348
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.1.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      244.974,
+      458.108,
+      280.223,
+      470.348
+    ]
+  },
+  {
+    "field_id": "extension vi1.0.2.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      305.567,
+      458.108,
+      349.029,
+      470.348
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.2.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      368.241,
+      458.108,
+      392.176,
+      471.753
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.2.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      394.656,
+      458.108,
+      417.868,
+      471.753
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.2.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      420.712,
+      458.108,
+      455.961,
+      471.753
+    ]
+  },
+  {
+    "field_id": "Office manager",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      457.916,
+      190.2,
+      470.963
+    ]
+  },
+  {
+    "field_id": "Office email address",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      368.553,
+      433.156,
+      587.44,
+      447.403
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      28.9884,
+      432.894,
+      49.978,
+      445.134
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      52.6395,
+      432.894,
+      76.0068,
+      445.134
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      78.3126,
+      432.894,
+      112.908,
+      445.134
+    ]
+  },
+  {
+    "field_id": "extension vi1.0.0.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      139.789,
+      432.894,
+      183.251,
+      445.134
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.1.0.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      192.395,
+      432.894,
+      217.202,
+      445.134
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.1.0.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      219.428,
+      432.894,
+      242.358,
+      445.134
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.1.0.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      244.974,
+      432.894,
+      280.659,
+      445.134
+    ]
+  },
+  {
+    "field_id": "credentialing contact and address vi.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      409.452,
+      586.692,
+      422.959
+    ]
+  },
+  {
+    "field_id": "Credentialing contacts email address",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      368.346,
+      384.614,
+      586.692,
+      399.734
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      28.9884,
+      384.554,
+      49.978,
+      396.794
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      52.8577,
+      384.554,
+      75.7886,
+      396.794
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      78.3127,
+      384.554,
+      112.907,
+      396.794
+    ]
+  },
+  {
+    "field_id": "extension vi1.0.0.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      138.789,
+      384.554,
+      182.251,
+      396.794
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.1.0.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      211.854,
+      384.554,
+      235.135,
+      396.794
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.1.0.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      237.251,
+      384.554,
+      260.618,
+      396.794
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.1.0.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      263.171,
+      384.554,
+      298.202,
+      396.794
+    ]
+  },
+  {
+    "field_id": "Federal tax ID number or social security number if used for business purposes",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      360.203,
+      587.324,
+      374.537
+    ]
+  },
+  {
+    "field_id": "Name affiliated with tax ID number",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      336.711,
+      587.159,
+      350.304
+    ]
+  },
+  {
+    "field_id": "Name of secondary practiceaffiliation or clinic",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      311.067,
+      289.8,
+      324.655
+    ]
+  },
+  {
+    "field_id": "Department name if hospital based_2",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      291.513,
+      311.067,
+      586.692,
+      324.551
+    ]
+  },
+  {
+    "field_id": "Secondary Clinical Practice street address",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      287.307,
+      365.844,
+      301.418
+    ]
+  },
+  {
+    "field_id": "NPI number_2",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      369.001,
+      287.307,
+      586.692,
+      301.445
+    ]
+  },
+  {
+    "field_id": "City_3",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      262.547,
+      144.36,
+      277.078
+    ]
+  },
+  {
+    "field_id": "County_2",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      145.92,
+      262.547,
+      289.68,
+      277.2
+    ]
+  },
+  {
+    "field_id": "State_3",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      291.24,
+      262.547,
+      421.8,
+      277.2
+    ]
+  },
+  {
+    "field_id": "ZIP_3",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      423.36,
+      262.547,
+      586.692,
+      277.2
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.2.0.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      369.768,
+      238.281,
+      392.394,
+      250.521
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.2.0.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      394.981,
+      238.281,
+      417.912,
+      250.521
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.2.0.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      420.135,
+      238.281,
+      455.384,
+      250.521
+    ]
+  },
+  {
+    "field_id": "extension vi1.0.2.0.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      482.044,
+      238.281,
+      525.506,
+      250.521
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.0.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      31.2793,
+      238.27,
+      49.978,
+      250.51
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.0.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      52.3994,
+      238.27,
+      75.9849,
+      250.51
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.0.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      78.749,
+      238.27,
+      112.689,
+      250.51
+    ]
+  },
+  {
+    "field_id": "extension vi1.0.0.0.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      140.789,
+      238.27,
+      184.251,
+      250.51
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.1.0.0.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      197.855,
+      238.27,
+      216.553,
+      250.51
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.1.0.0.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      219.542,
+      238.27,
+      242.254,
+      250.51
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.1.0.0.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      244.924,
+      238.27,
+      280.391,
+      250.51
+    ]
+  },
+  {
+    "field_id": "Mailing/Billing Address vi.0.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      215.252,
+      393.483,
+      229.436
+    ]
+  },
+  {
+    "field_id": "Text5.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      396.806,
+      214.562,
+      586.692,
+      228.743
+    ]
+  },
+  {
+    "field_id": "Office manager_2",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      190.88,
+      190.2,
+      203.225
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.0.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      193.882,
+      190.456,
+      216.835,
+      202.696
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.0.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      219.554,
+      190.456,
+      242.048,
+      202.696
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.0.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      245.211,
+      190.456,
+      279.805,
+      202.696
+    ]
+  },
+  {
+    "field_id": "extension vi1.0.0.0.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      305.963,
+      190.06,
+      349.425,
+      202.3
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.1.0.0.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      369.44,
+      190.06,
+      392.394,
+      202.3
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.1.0.0.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      397.163,
+      190.06,
+      416.603,
+      202.3
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.1.0.0.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      422.535,
+      190.06,
+      455.384,
+      202.3
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.0.1.1.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      27.8392,
+      167.308,
+      49.4834,
+      178.828
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.0.1.1.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      52.4904,
+      167.308,
+      75.6395,
+      178.828
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.0.1.1.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      78.5308,
+      167.308,
+      112.689,
+      178.828
+    ]
+  },
+  {
+    "field_id": "extension vi1.0.0.0.1.1.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      139.789,
+      167.308,
+      183.25,
+      178.828
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.1.0.0.1.1.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      193.555,
+      167.308,
+      216.181,
+      178.828
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.1.0.0.1.1.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      219.336,
+      167.308,
+      242.485,
+      178.828
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.1.0.0.1.1.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      244.774,
+      167.308,
+      279.805,
+      178.828
+    ]
+  },
+  {
+    "field_id": "Office email address_2",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      368.542,
+      166.367,
+      586.692,
+      180.069
+    ]
+  },
+  {
+    "field_id": "Credentialing Contact and Address:.0.1.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      140.183,
+      586.692,
+      154.458
+    ]
+  },
+  {
+    "field_id": "Credentialing contacts email address_2",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      368.812,
+      115.814,
+      587.44,
+      130.061
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      26.512,
+      115.579,
+      50.2289,
+      127.099
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      53.1449,
+      115.579,
+      75.8576,
+      127.099
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      78.4399,
+      115.579,
+      113.69,
+      127.099
+    ]
+  },
+  {
+    "field_id": "extension vi1.0.0.1.1.1.0",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      139.789,
+      115.579,
+      183.251,
+      127.099
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.1.0.1.1.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      211.2,
+      115.579,
+      234.262,
+      127.099
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.1.0.1.1.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      237.505,
+      115.579,
+      259.782,
+      127.099
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.1.0.1.1.1",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      263.851,
+      115.579,
+      298.009,
+      127.099
+    ]
+  },
+  {
+    "field_id": "Federal tax ID number or social security number if used for business purposes_2",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      91.0537,
+      586.692,
+      105.519
+    ]
+  },
+  {
+    "field_id": "Name affiliated with tax ID number_2",
+    "type": "text",
+    "page": 5,
+    "rect": [
+      24.8728,
+      66.5846,
+      587.06,
+      80.3955
+    ]
+  },
+  {
+    "field_id": "Specialty1.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      53.9817,
+      702.909,
+      328.018,
+      723.855
+    ]
+  },
+  {
+    "field_id": "Specialty1.1",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      329.763,
+      702.909,
+      591.055,
+      723.855
+    ]
+  },
+  {
+    "field_id": "Specialty2.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      53.9817,
+      680.655,
+      327.582,
+      701.6
+    ]
+  },
+  {
+    "field_id": "Specialty2.1",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      329.763,
+      680.655,
+      591.055,
+      701.6
+    ]
+  },
+  {
+    "field_id": "Specialty3.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      53.9817,
+      658.4,
+      327.582,
+      679.346
+    ]
+  },
+  {
+    "field_id": "Specialty3.1",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      329.763,
+      658.4,
+      591.055,
+      679.346
+    ]
+  },
+  {
+    "field_id": "Specialty4.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      53.9817,
+      636.146,
+      327.582,
+      657.091
+    ]
+  },
+  {
+    "field_id": "Specialty4.1",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      329.763,
+      636.146,
+      591.055,
+      657.091
+    ]
+  },
+  {
+    "field_id": "Specialty5.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      53.9817,
+      613.455,
+      327.582,
+      634.837
+    ]
+  },
+  {
+    "field_id": "Specialty5.1",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      329.763,
+      613.455,
+      591.055,
+      634.837
+    ]
+  },
+  {
+    "field_id": "Month of start",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      457.25,
+      552.932,
+      478.359,
+      565.463
+    ]
+  },
+  {
+    "field_id": "Year of start",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      484.038,
+      552.903,
+      524.074,
+      565.143
+    ]
+  },
+  {
+    "field_id": "Complete school name and street address.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      20.2909,
+      521.692,
+      291.49,
+      568.165
+    ]
+  },
+  {
+    "field_id": "Degree received",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      294.622,
+      521.68,
+      450.36,
+      568.229
+    ]
+  },
+  {
+    "field_id": "Does not apply_2",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 6,
+    "rect": [
+      548.026,
+      465.709,
+      558.138,
+      476.313
+    ]
+  },
+  {
+    "field_id": "Month of start1",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      457.877,
+      434.914,
+      477.84,
+      449.445
+    ]
+  },
+  {
+    "field_id": "Year of start1",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      483.274,
+      434.885,
+      523.31,
+      450.07
+    ]
+  },
+  {
+    "field_id": "Month of graduation1",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      457.623,
+      406.856,
+      478.114,
+      421.06
+    ]
+  },
+  {
+    "field_id": "Year of graduation1",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      484.038,
+      406.609,
+      524.074,
+      421.467
+    ]
+  },
+  {
+    "field_id": "Complete school name and street address_2",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      20.2909,
+      404.0,
+      291.48,
+      450.931
+    ]
+  },
+  {
+    "field_id": "Degree received_2",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      295.058,
+      404.0,
+      450.36,
+      450.931
+    ]
+  },
+  {
+    "field_id": "City_5",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      20.3564,
+      379.24,
+      291.84,
+      392.728
+    ]
+  },
+  {
+    "field_id": "State_5",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      295.036,
+      379.24,
+      382.32,
+      392.728
+    ]
+  },
+  {
+    "field_id": "Course of study or major_2",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      384.426,
+      379.24,
+      591.055,
+      392.728
+    ]
+  },
+  {
+    "field_id": "Complete school name and street address.1.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      20.2909,
+      302.983,
+      591.055,
+      334.139
+    ]
+  },
+  {
+    "field_id": "Contact email 1.1",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      384.806,
+      277.731,
+      591.055,
+      291.928
+    ]
+  },
+  {
+    "field_id": "City_6.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      20.2909,
+      277.419,
+      208.815,
+      291.928
+    ]
+  },
+  {
+    "field_id": "State_6.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      211.059,
+      277.419,
+      288.776,
+      291.928
+    ]
+  },
+  {
+    "field_id": "ZIP_4.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      291.52,
+      277.419,
+      381.418,
+      291.928
+    ]
+  },
+  {
+    "field_id": "Degree received_3.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      20.2909,
+      253.856,
+      288.745,
+      267.667
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      291.944,
+      253.823,
+      314.984,
+      267.709
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      318.45,
+      253.823,
+      341.381,
+      267.709
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      343.832,
+      253.823,
+      378.208,
+      267.709
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.1.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      449.454,
+      253.823,
+      472.407,
+      267.709
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.1.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      475.866,
+      253.823,
+      498.077,
+      267.709
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.1.0",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      501.284,
+      253.823,
+      535.224,
+      267.709
+    ]
+  },
+  {
+    "field_id": "From month",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      25.0848,
+      229.269,
+      44.9935,
+      243.164
+    ]
+  },
+  {
+    "field_id": "To month",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      213.742,
+      229.269,
+      234.196,
+      243.164
+    ]
+  },
+  {
+    "field_id": "month of completion",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      388.052,
+      229.269,
+      410.278,
+      243.164
+    ]
+  },
+  {
+    "field_id": "From Year",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      48.9445,
+      228.812,
+      88.9811,
+      243.164
+    ]
+  },
+  {
+    "field_id": "ToYear",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      237.929,
+      228.812,
+      277.966,
+      243.164
+    ]
+  },
+  {
+    "field_id": "Year of completion",
+    "type": "text",
+    "page": 6,
+    "rect": [
+      414.239,
+      228.812,
+      454.276,
+      243.164
+    ]
+  },
+  {
+    "field_id": "Complete program NO",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 6,
+    "rect": [
+      248.254,
+      213.056,
+      258.236,
+      223.038
+    ]
+  },
+  {
+    "field_id": "Complete program YES",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 6,
+    "rect": [
+      194.417,
+      212.565,
+      204.563,
+      223.038
+    ]
+  },
+  {
+    "field_id": "Complete program NO 1.0",
+    "type": "radio_group",
+    "page": 6,
+    "radio_options": [
+      {
+        "value": "/Yes",
+        "rect": [
+          247.628,
+          74.1026,
+          257.774,
+          84.1662
+        ]
+      }
+    ]
+  },
+  {
+    "field_id": "Complete program YES 1.0",
+    "type": "radio_group",
+    "page": 6,
+    "radio_options": [
+      {
+        "value": "/Yes",
+        "rect": [
+          193.965,
+          73.1852,
+          204.11,
+          83.576
+        ]
+      }
+    ]
+  },
+  {
+    "field_id": "Does not apply_4",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 7,
+    "rect": [
+      557.256,
+      754.37,
+      567.325,
+      764.647
+    ]
+  },
+  {
+    "field_id": "Complete school name and street address.11111",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      33.3901,
+      712.664,
+      604.154,
+      743.82
+    ]
+  },
+  {
+    "field_id": "City_6.111111",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      33.3901,
+      688.1,
+      221.98,
+      702.238
+    ]
+  },
+  {
+    "field_id": "State_6.11111",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      224.598,
+      688.1,
+      298.138,
+      702.238
+    ]
+  },
+  {
+    "field_id": "Contact email 1.21112121",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      394.474,
+      687.131,
+      600.55,
+      700.942
+    ]
+  },
+  {
+    "field_id": "ZIP_4.111111",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      300.707,
+      686.948,
+      390.98,
+      701.086
+    ]
+  },
+  {
+    "field_id": "Degree received_3.1121212121",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      33.3901,
+      663.537,
+      302.844,
+      677.348
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.0212121212",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      302.112,
+      662.745,
+      324.737,
+      676.556
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.02121212121",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      328.163,
+      662.745,
+      350.81,
+      676.556
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.0121212121",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      353.763,
+      662.745,
+      387.703,
+      675.901
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.1.1.02121212",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      458.949,
+      662.745,
+      482.993,
+      676.556
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.1.1.01212121",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      487.488,
+      662.745,
+      509.917,
+      676.556
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.1.1.0121211",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      517.779,
+      662.745,
+      552.155,
+      676.229
+    ]
+  },
+  {
+    "field_id": "From month212121",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      97.1441,
+      648.969,
+      120.053,
+      661.209
+    ]
+  },
+  {
+    "field_id": "To month356456",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      290.929,
+      648.969,
+      311.71,
+      661.209
+    ]
+  },
+  {
+    "field_id": "month of completion41325343",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      506.184,
+      648.969,
+      526.475,
+      661.209
+    ]
+  },
+  {
+    "field_id": "From Year2212121",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      126.713,
+      648.722,
+      166.75,
+      660.962
+    ]
+  },
+  {
+    "field_id": "ToYear3645645",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      317.497,
+      648.722,
+      357.534,
+      660.962
+    ]
+  },
+  {
+    "field_id": "Year of completion43543453",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      531.753,
+      648.722,
+      571.79,
+      660.962
+    ]
+  },
+  {
+    "field_id": "Complete program 45654645",
+    "type": "radio_group",
+    "page": 7,
+    "radio_options": [
+      {
+        "value": "/Yes",
+        "rect": [
+          194.224,
+          632.732,
+          204.369,
+          643.123
+        ]
+      },
+      {
+        "value": "/No",
+        "rect": [
+          247.974,
+          632.943,
+          258.12,
+          643.007
+        ]
+      }
+    ]
+  },
+  {
+    "field_id": "Does not apply_3",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 7,
+    "rect": [
+      558.039,
+      597.918,
+      567.858,
+      608.718
+    ]
+  },
+  {
+    "field_id": "Complete school name and street address.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      20.799,
+      556.121,
+      591.782,
+      583.786
+    ]
+  },
+  {
+    "field_id": "City_8.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      20.799,
+      531.321,
+      222.398,
+      545.459
+    ]
+  },
+  {
+    "field_id": "State_8.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      224.725,
+      531.321,
+      298.326,
+      545.459
+    ]
+  },
+  {
+    "field_id": "ZIP_6.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      301.235,
+      531.321,
+      392.725,
+      545.132
+    ]
+  },
+  {
+    "field_id": "Contact email 1.3",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      394.985,
+      531.292,
+      591.782,
+      545.43
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      300.634,
+      506.891,
+      324.067,
+      520.702
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      329.704,
+      506.891,
+      352.7,
+      520.702
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      360.522,
+      506.891,
+      394.898,
+      520.375
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      458.045,
+      506.891,
+      481.805,
+      520.047
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      485.26,
+      506.891,
+      507.348,
+      520.047
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      511.787,
+      506.891,
+      545.727,
+      520.047
+    ]
+  },
+  {
+    "field_id": "Type of internship  specialty.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      20.799,
+      506.757,
+      298.762,
+      520.568
+    ]
+  },
+  {
+    "field_id": "To month6",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      292.251,
+      489.87,
+      311.395,
+      504.728
+    ]
+  },
+  {
+    "field_id": "month of completion7",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      507.94,
+      489.87,
+      527.085,
+      504.728
+    ]
+  },
+  {
+    "field_id": "Year of completion7",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      531.818,
+      489.623,
+      571.855,
+      504.481
+    ]
+  },
+  {
+    "field_id": "From month5",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      100.415,
+      489.543,
+      119.56,
+      504.728
+    ]
+  },
+  {
+    "field_id": "From Year5",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      124.237,
+      489.296,
+      164.274,
+      504.481
+    ]
+  },
+  {
+    "field_id": "ToYear6",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      316.601,
+      489.295,
+      356.638,
+      504.481
+    ]
+  },
+  {
+    "field_id": "Complete program NO V1.02",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 7,
+    "rect": [
+      248.292,
+      476.753,
+      258.601,
+      486.734
+    ]
+  },
+  {
+    "field_id": "Complete program YES v1.02",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 7,
+    "rect": [
+      194.478,
+      476.261,
+      204.95,
+      486.735
+    ]
+  },
+  {
+    "field_id": "Complete school name and street address.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      20.5091,
+      434.836,
+      591.492,
+      461.794
+    ]
+  },
+  {
+    "field_id": "Contact email 1.4",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      394.47,
+      409.793,
+      591.492,
+      424.476
+    ]
+  },
+  {
+    "field_id": "City_8.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      20.5091,
+      409.749,
+      221.236,
+      425.131
+    ]
+  },
+  {
+    "field_id": "State_8.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      225.599,
+      409.749,
+      297.816,
+      424.476
+    ]
+  },
+  {
+    "field_id": "ZIP_6.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      301.438,
+      409.749,
+      391.023,
+      424.804
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      359.341,
+      386.34,
+      392.626,
+      398.58
+    ]
+  },
+  {
+    "field_id": "type of internship  specialty.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      20.5091,
+      386.095,
+      298.472,
+      399.753
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      300.799,
+      385.904,
+      325.105,
+      398.144
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      327.651,
+      385.904,
+      355.738,
+      398.144
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      457.755,
+      385.904,
+      481.842,
+      398.144
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      484.807,
+      385.904,
+      507.585,
+      398.144
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      510.621,
+      385.904,
+      544.037,
+      398.144
+    ]
+  },
+  {
+    "field_id": "From month8",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      101.07,
+      370.931,
+      119.888,
+      383.171
+    ]
+  },
+  {
+    "field_id": "From Year8",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      123.711,
+      370.931,
+      163.748,
+      383.171
+    ]
+  },
+  {
+    "field_id": "ToYear9",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      316.237,
+      370.931,
+      356.274,
+      383.171
+    ]
+  },
+  {
+    "field_id": "month of completion9.1",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      507.342,
+      370.931,
+      526.814,
+      383.171
+    ]
+  },
+  {
+    "field_id": "Year of completion9.1",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      531.655,
+      370.931,
+      571.693,
+      383.171
+    ]
+  },
+  {
+    "field_id": "Complete program YES v1.03",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 7,
+    "rect": [
+      194.35,
+      355.353,
+      204.496,
+      365.171
+    ]
+  },
+  {
+    "field_id": "Complete program NO V1.03",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 7,
+    "rect": [
+      248.078,
+      355.243,
+      258.224,
+      365.88
+    ]
+  },
+  {
+    "field_id": "Does not apply_5",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 7,
+    "rect": [
+      558.371,
+      314.691,
+      568.44,
+      324.804
+    ]
+  },
+  {
+    "field_id": "Complete school name and street address.1.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      20.1146,
+      267.165,
+      591.097,
+      293.545
+    ]
+  },
+  {
+    "field_id": "Contact email 1.5",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      394.074,
+      243.014,
+      591.318,
+      256.061
+    ]
+  },
+  {
+    "field_id": "City_8.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      20.1146,
+      242.819,
+      221.277,
+      255.91
+    ]
+  },
+  {
+    "field_id": "State_8.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      225.204,
+      242.819,
+      296.985,
+      255.91
+    ]
+  },
+  {
+    "field_id": "ZIP_6.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      301.043,
+      242.819,
+      391.065,
+      255.91
+    ]
+  },
+  {
+    "field_id": "Type of internship  specialty.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      20.1146,
+      218.255,
+      298.077,
+      230.823
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      300.805,
+      218.113,
+      324.565,
+      230.353
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      327.601,
+      218.113,
+      350.016,
+      230.353
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      352.782,
+      218.113,
+      386.286,
+      230.353
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      457.433,
+      218.113,
+      481.629,
+      230.353
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      484.557,
+      218.113,
+      506.898,
+      230.353
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      510.411,
+      218.113,
+      545.224,
+      230.353
+    ]
+  },
+  {
+    "field_id": "From month9.2",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      98.8205,
+      203.469,
+      118.947,
+      215.709
+    ]
+  },
+  {
+    "field_id": "To month954656",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      290.965,
+      203.469,
+      311.091,
+      215.709
+    ]
+  },
+  {
+    "field_id": "month of completion9B",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      506.8,
+      203.469,
+      525.945,
+      215.709
+    ]
+  },
+  {
+    "field_id": "From Year9.2",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      123.57,
+      203.222,
+      163.607,
+      215.462
+    ]
+  },
+  {
+    "field_id": "ToYear9A",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      315.861,
+      203.222,
+      355.898,
+      215.462
+    ]
+  },
+  {
+    "field_id": "Year of completion9B",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      531.66,
+      203.222,
+      571.697,
+      215.462
+    ]
+  },
+  {
+    "field_id": "Complete program NO V1.04",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 7,
+    "rect": [
+      247.511,
+      188.088,
+      257.329,
+      198.397
+    ]
+  },
+  {
+    "field_id": "Complete program YES V1.04",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 7,
+    "rect": [
+      194.083,
+      187.761,
+      204.392,
+      198.07
+    ]
+  },
+  {
+    "field_id": "Complete school name and street address.1.1.1.1.1.1.1",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      20.5091,
+      145.642,
+      591.492,
+      173.37
+    ]
+  },
+  {
+    "field_id": "City_8.1.1.1.1",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      20.5091,
+      120.308,
+      220.981,
+      134.773
+    ]
+  },
+  {
+    "field_id": "State_8.1.1.1.1",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      224.944,
+      120.308,
+      297.598,
+      134.446
+    ]
+  },
+  {
+    "field_id": "ZIP_6.1.1.1.1",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      302.093,
+      120.308,
+      390.805,
+      134.773
+    ]
+  },
+  {
+    "field_id": "Type of internship  specialty.1.1.1.1",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      20.5091,
+      96.268,
+      297.472,
+      110.406
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      300.818,
+      96.201,
+      325.341,
+      110.619
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      327.778,
+      96.201,
+      350.556,
+      110.619
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      353.014,
+      96.201,
+      387.172,
+      110.619
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.1.1.1.1.1.1.1",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      458.191,
+      96.201,
+      482.279,
+      110.619
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.1.1.1.1.1.1.1",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      484.152,
+      96.201,
+      507.585,
+      110.619
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.1.1.1.1.1.1.1",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      510.316,
+      96.201,
+      544.256,
+      110.619
+    ]
+  },
+  {
+    "field_id": "From month9.F",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      98.3787,
+      81.3323,
+      118.833,
+      93.572
+    ]
+  },
+  {
+    "field_id": "From Year9.F",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      123.529,
+      81.0853,
+      163.566,
+      93.325
+    ]
+  },
+  {
+    "field_id": "To month9G",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      291.706,
+      80.3323,
+      311.177,
+      92.572
+    ]
+  },
+  {
+    "field_id": "month of completion9H",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      506.595,
+      80.3323,
+      526.722,
+      92.572
+    ]
+  },
+  {
+    "field_id": "ToYear9G",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      315.874,
+      80.0853,
+      355.911,
+      92.325
+    ]
+  },
+  {
+    "field_id": "Year of completion9H",
+    "type": "text",
+    "page": 7,
+    "rect": [
+      531.419,
+      80.0853,
+      571.456,
+      92.325
+    ]
+  },
+  {
+    "field_id": "Complete program NO V1.06",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 7,
+    "rect": [
+      247.951,
+      67.1059,
+      258.423,
+      77.7423
+    ]
+  },
+  {
+    "field_id": "Complete program YES v1.06.11",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 7,
+    "rect": [
+      194.333,
+      66.724,
+      204.478,
+      77.3604
+    ]
+  },
+  {
+    "field_id": "Month of expiration",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      441.822,
+      713.975,
+      466.826,
+      726.215
+    ]
+  },
+  {
+    "field_id": "Day of expiration",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      471.404,
+      713.975,
+      491.663,
+      726.215
+    ]
+  },
+  {
+    "field_id": "Year of expiration",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      497.008,
+      713.975,
+      530.849,
+      726.215
+    ]
+  },
+  {
+    "field_id": "Type_6",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      212.8,
+      713.815,
+      438.437,
+      726.317
+    ]
+  },
+  {
+    "field_id": "Oregon license or registration number",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      21.3819,
+      713.2,
+      211.48,
+      726.029
+    ]
+  },
+  {
+    "field_id": "Drug Enforcement Administration DEA registration number if applicable",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      21.092,
+      687.476,
+      343.637,
+      701.615
+    ]
+  },
+  {
+    "field_id": "issueMonth",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      346.642,
+      687.07,
+      371.81,
+      699.31
+    ]
+  },
+  {
+    "field_id": "IssueDate",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      376.093,
+      687.07,
+      396.516,
+      699.31
+    ]
+  },
+  {
+    "field_id": "issuedYear",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      401.697,
+      687.07,
+      435.538,
+      699.31
+    ]
+  },
+  {
+    "field_id": "Month of issue2",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      442.608,
+      662.8,
+      467.449,
+      675.04
+    ]
+  },
+  {
+    "field_id": "Day of issue",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      471.404,
+      662.8,
+      492.317,
+      675.04
+    ]
+  },
+  {
+    "field_id": "Year of expiration2",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      497.008,
+      662.8,
+      530.849,
+      675.04
+    ]
+  },
+  {
+    "field_id": "Controlled substance registration CSR number if applicable",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      21.3819,
+      662.698,
+      395.745,
+      675.2
+    ]
+  },
+  {
+    "field_id": "Entity type 1 individual NPI number",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      21.3819,
+      637.92,
+      211.48,
+      651.076
+    ]
+  },
+  {
+    "field_id": "Medicare number",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      212.8,
+      637.92,
+      396.4,
+      650.749
+    ]
+  },
+  {
+    "field_id": "Oregon Medicaid provider number",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      396.345,
+      637.891,
+      591.181,
+      651.047
+    ]
+  },
+  {
+    "field_id": "Physician Assistant Supervising Physician Full Name",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      21.3819,
+      612.884,
+      590.619,
+      626.695
+    ]
+  },
+  {
+    "field_id": "Does not apply_6",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 8,
+    "rect": [
+      559.08,
+      564.305,
+      569.356,
+      574.483
+    ]
+  },
+  {
+    "field_id": "Type_7",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      402.065,
+      530.265,
+      591.055,
+      544.076
+    ]
+  },
+  {
+    "field_id": "State  Country",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      21.8183,
+      530.138,
+      210.916,
+      544.276
+    ]
+  },
+  {
+    "field_id": "Number_5",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      212.236,
+      530.138,
+      400.636,
+      543.949
+    ]
+  },
+  {
+    "field_id": "Year obtained",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      21.8183,
+      506.378,
+      210.796,
+      520.189
+    ]
+  },
+  {
+    "field_id": "Year relinquished",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      402.076,
+      506.378,
+      591.055,
+      519.534
+    ]
+  },
+  {
+    "field_id": "Month of expirationA",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      214.055,
+      505.972,
+      238.732,
+      520.176
+    ]
+  },
+  {
+    "field_id": "Day of expirationA",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      243.546,
+      505.972,
+      263.314,
+      520.503
+    ]
+  },
+  {
+    "field_id": "Year of expirationA",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      268.2,
+      505.972,
+      302.041,
+      520.503
+    ]
+  },
+  {
+    "field_id": "Please attach additional sheets if necessary_3.3.1",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      21.9928,
+      451.672,
+      591.184,
+      493.476
+    ]
+  },
+  {
+    "field_id": "State  Country_2",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      21.8182,
+      427.485,
+      211.963,
+      442.278
+    ]
+  },
+  {
+    "field_id": "Number_6",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      212.236,
+      427.485,
+      400.636,
+      441.623
+    ]
+  },
+  {
+    "field_id": "Type_8",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      401.432,
+      427.485,
+      591.055,
+      441.623
+    ]
+  },
+  {
+    "field_id": "Year of expirationB",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      268.872,
+      403.082,
+      302.713,
+      416.304
+    ]
+  },
+  {
+    "field_id": "Month of expirationB",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      214.055,
+      402.973,
+      237.422,
+      416.522
+    ]
+  },
+  {
+    "field_id": "Day of expirationB",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      243.546,
+      402.973,
+      262.986,
+      416.522
+    ]
+  },
+  {
+    "field_id": "Year obtained_2",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      21.8182,
+      402.725,
+      210.796,
+      417.845
+    ]
+  },
+  {
+    "field_id": "Year relinquished_2",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      402.076,
+      402.725,
+      591.055,
+      417.19
+    ]
+  },
+  {
+    "field_id": "Please attach additional sheets if necessary_3.3.0",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      21.9928,
+      349.223,
+      591.184,
+      391.386
+    ]
+  },
+  {
+    "field_id": "State  Country_4",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      21.5436,
+      219.312,
+      210.642,
+      232.796
+    ]
+  },
+  {
+    "field_id": "Number_8",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      211.962,
+      219.312,
+      400.362,
+      232.796
+    ]
+  },
+  {
+    "field_id": "Type_10",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      401.682,
+      219.312,
+      590.781,
+      233.45
+    ]
+  },
+  {
+    "field_id": "Year obtained_4",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      21.5436,
+      195.552,
+      210.522,
+      208.708
+    ]
+  },
+  {
+    "field_id": "Year relinquished_4",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      401.802,
+      195.552,
+      590.781,
+      208.708
+    ]
+  },
+  {
+    "field_id": "Year of expirationD",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      268.598,
+      195.517,
+      302.439,
+      208.739
+    ]
+  },
+  {
+    "field_id": "Month of expirationD",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      214.126,
+      195.408,
+      237.821,
+      209.284
+    ]
+  },
+  {
+    "field_id": "Day of expirationD",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      242.617,
+      195.408,
+      263.694,
+      209.284
+    ]
+  },
+  {
+    "field_id": "Please attach additional sheets if necessary_3.3.3",
+    "type": "text",
+    "page": 8,
+    "rect": [
+      21.6307,
+      142.547,
+      590.822,
+      184.71
+    ]
+  },
+  {
+    "field_id": "Does not apply_7",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 9,
+    "rect": [
+      559.936,
+      662.377,
+      570.114,
+      672.653
+    ]
+  },
+  {
+    "field_id": "Complete address.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      418.003,
+      647.429,
+      591.651,
+      593.546
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      306.226,
+      637.498,
+      328.785,
+      649.738
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      331.881,
+      637.498,
+      371.857,
+      649.738
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      189.83,
+      636.811,
+      213.735,
+      649.051
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      216.425,
+      636.811,
+      239.058,
+      649.051
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      241.918,
+      636.811,
+      276.403,
+      649.051
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      279.36,
+      636.811,
+      303.229,
+      649.051
+    ]
+  },
+  {
+    "field_id": "Facility name.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      21.4411,
+      636.516,
+      186.633,
+      649.214
+    ]
+  },
+  {
+    "field_id": "Month of appointment F",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      279.982,
+      615.187,
+      303.605,
+      627.427
+    ]
+  },
+  {
+    "field_id": "status xvi.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      21.1637,
+      615.169,
+      276.5,
+      627.736
+    ]
+  },
+  {
+    "field_id": "Day of appointment E",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      309.913,
+      614.861,
+      329.426,
+      627.101
+    ]
+  },
+  {
+    "field_id": "Year of appointmentE",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      334.714,
+      614.861,
+      373.936,
+      627.101
+    ]
+  },
+  {
+    "field_id": "Contact email 1.715651",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      20.9908,
+      592.6,
+      416.467,
+      605.538
+    ]
+  },
+  {
+    "field_id": "Admitting privileges NO V1.0",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 9,
+    "rect": [
+      293.092,
+      579.971,
+      303.156,
+      589.954
+    ]
+  },
+  {
+    "field_id": "Admitting privilages YES v1.0",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 9,
+    "rect": [
+      254.411,
+      579.78,
+      264.311,
+      590.008
+    ]
+  },
+  {
+    "field_id": "Professional liability carrier.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      434.005,
+      577.552,
+      590.648,
+      591.538
+    ]
+  },
+  {
+    "field_id": "telephone.via.2.1.3.1.0.1.1.1.1.1.1.1.1.1.0.1.1",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      279.468,
+      555.366,
+      303.23,
+      567.932
+    ]
+  },
+  {
+    "field_id": "telephone1.vib.2.1.3.1.0.1.1.1.1.1.1.1.1.1.0.1.1",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      305.893,
+      555.105,
+      328.743,
+      567.672
+    ]
+  },
+  {
+    "field_id": "telephone.vic.2.1.3.1.0.1.1.1.1.1.1.1.1.1.0.1.1",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      331.621,
+      555.105,
+      371.867,
+      567.672
+    ]
+  },
+  {
+    "field_id": "Facility name.1",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      20.9908,
+      554.856,
+      185.998,
+      566.901
+    ]
+  },
+  {
+    "field_id": "telephone.via.2.1.3.1.0.1.1.1.0.1.1.1.1.1.0.1.1",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      189.215,
+      554.856,
+      212.975,
+      567.424
+    ]
+  },
+  {
+    "field_id": "telephone1.vib.2.1.3.1.0.1.1.1.0.1.1.1.1.1.0.1.1",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      215.81,
+      554.856,
+      238.734,
+      567.424
+    ]
+  },
+  {
+    "field_id": "telephone.vic.2.1.3.1.0.1.1.1.0.1.1.1.1.1.0.1.1",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      241.411,
+      554.856,
+      276.748,
+      567.424
+    ]
+  },
+  {
+    "field_id": "Month of appointment G",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      280.078,
+      532.643,
+      304.429,
+      544.883
+    ]
+  },
+  {
+    "field_id": "Day of appointment G",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      309.984,
+      532.643,
+      329.643,
+      544.883
+    ]
+  },
+  {
+    "field_id": "Year of appointment G",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      334.785,
+      532.643,
+      374.007,
+      544.883
+    ]
+  },
+  {
+    "field_id": "status xvi.1",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      20.9908,
+      532.287,
+      276.502,
+      544.854
+    ]
+  },
+  {
+    "field_id": "Contact email 2.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      20.9908,
+      510.556,
+      416.558,
+      522.513
+    ]
+  },
+  {
+    "field_id": "Complete address.1",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      417.09,
+      510.453,
+      590.648,
+      564.336
+    ]
+  },
+  {
+    "field_id": "Admitting privileges NO V1.1",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 9,
+    "rect": [
+      292.899,
+      497.641,
+      303.044,
+      507.705
+    ]
+  },
+  {
+    "field_id": "Admitting privilages YES v1.1",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 9,
+    "rect": [
+      254.19,
+      497.231,
+      264.253,
+      507.295
+    ]
+  },
+  {
+    "field_id": "Professional liability carrier.1",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      434.754,
+      495.431,
+      590.648,
+      508.635
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      306.028,
+      473.529,
+      329.679,
+      485.769
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      331.974,
+      473.529,
+      371.732,
+      485.769
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      189.178,
+      473.384,
+      213.993,
+      485.624
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      216.318,
+      473.384,
+      239.388,
+      485.624
+    ]
+  },
+  {
+    "field_id": "Facility name.2",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      20.9908,
+      473.298,
+      176.699,
+      485.341
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      242.428,
+      473.029,
+      276.641,
+      485.269
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      279.832,
+      472.956,
+      303.81,
+      485.414
+    ]
+  },
+  {
+    "field_id": "Year of appointment H",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      333.61,
+      449.856,
+      372.541,
+      462.096
+    ]
+  },
+  {
+    "field_id": "Month of appointment H",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      279.777,
+      449.419,
+      304.308,
+      461.659
+    ]
+  },
+  {
+    "field_id": "Day of appointment H",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      310.591,
+      449.419,
+      330.104,
+      461.659
+    ]
+  },
+  {
+    "field_id": "status xvi.2",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      20.9908,
+      449.379,
+      275.939,
+      461.946
+    ]
+  },
+  {
+    "field_id": "Complete address.2",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      418.112,
+      426.64,
+      590.648,
+      486.109
+    ]
+  },
+  {
+    "field_id": "Contact email 2.1",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      20.9908,
+      426.396,
+      416.63,
+      439.007
+    ]
+  },
+  {
+    "field_id": "Admitting privileges NO V1.2",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 9,
+    "rect": [
+      292.97,
+      413.724,
+      303.115,
+      423.76
+    ]
+  },
+  {
+    "field_id": "Admitting privilages YES v1.2",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 9,
+    "rect": [
+      254.329,
+      413.586,
+      264.474,
+      423.622
+    ]
+  },
+  {
+    "field_id": "Professional liability carrier.2",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      434.803,
+      411.708,
+      590.648,
+      425.421
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      189.677,
+      388.944,
+      213.001,
+      401.182
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      279.077,
+      388.817,
+      302.837,
+      401.056
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      305.837,
+      388.817,
+      329.051,
+      401.056
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      331.565,
+      388.817,
+      371.614,
+      401.056
+    ]
+  },
+  {
+    "field_id": "Facility name.3.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      20.9908,
+      388.7,
+      186.571,
+      400.745
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      215.782,
+      388.466,
+      238.996,
+      400.707
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      241.601,
+      388.466,
+      276.122,
+      400.707
+    ]
+  },
+  {
+    "field_id": "Month of appointment I",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      279.315,
+      365.797,
+      304.756,
+      378.035
+    ]
+  },
+  {
+    "field_id": "Day of appointment I",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      309.933,
+      365.797,
+      329.92,
+      378.035
+    ]
+  },
+  {
+    "field_id": "Year of appointment I",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      334.588,
+      365.797,
+      368.429,
+      378.035
+    ]
+  },
+  {
+    "field_id": "status xvi.3.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      20.9908,
+      365.465,
+      276.236,
+      378.359
+    ]
+  },
+  {
+    "field_id": "Complete address.3.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      418.094,
+      343.698,
+      590.648,
+      401.632
+    ]
+  },
+  {
+    "field_id": "Contact email 2.2",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      20.9908,
+      343.339,
+      416.952,
+      355.95
+    ]
+  },
+  {
+    "field_id": "Admitting privileges NO V1.3",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 9,
+    "rect": [
+      292.952,
+      330.656,
+      303.097,
+      340.474
+    ]
+  },
+  {
+    "field_id": "Admitting privilages YES v1.3",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 9,
+    "rect": [
+      254.243,
+      330.246,
+      264.224,
+      340.392
+    ]
+  },
+  {
+    "field_id": "Professional liability carrier.3.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      433.721,
+      328.913,
+      590.648,
+      341.481
+    ]
+  },
+  {
+    "field_id": "Plan for continuity of care for patients who require admitting",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      21.1633,
+      202.627,
+      590.837,
+      305.373
+    ]
+  },
+  {
+    "field_id": "Does not apply_8",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 9,
+    "rect": [
+      559.862,
+      184.428,
+      570.913,
+      196.013
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      209.832,
+      159.833,
+      232.021,
+      171.352
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      234.846,
+      159.833,
+      257.403,
+      171.352
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      260.443,
+      159.833,
+      288.492,
+      171.352
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      294.887,
+      159.833,
+      317.295,
+      171.352
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      320.084,
+      159.833,
+      342.949,
+      171.352
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      345.866,
+      159.833,
+      379.588,
+      171.352
+    ]
+  },
+  {
+    "field_id": "Facility name.3.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      21.7096,
+      159.56,
+      205.218,
+      172.171
+    ]
+  },
+  {
+    "field_id": "Month of Submission",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      211.508,
+      136.643,
+      232.912,
+      148.882
+    ]
+  },
+  {
+    "field_id": "Day of submission",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      238.816,
+      136.643,
+      256.875,
+      148.882
+    ]
+  },
+  {
+    "field_id": "Year of submission",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      262.944,
+      136.643,
+      296.785,
+      148.882
+    ]
+  },
+  {
+    "field_id": "Complete address.3.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      400.174,
+      131.741,
+      591.383,
+      168.469
+    ]
+  },
+  {
+    "field_id": "status xvi.3.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      103.8,
+      131.487,
+      205.221,
+      146.934
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      320.412,
+      110.515,
+      342.841,
+      122.035
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      210.56,
+      110.188,
+      231.876,
+      121.708
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      234.919,
+      110.188,
+      257.477,
+      121.708
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      259.953,
+      110.188,
+      287.347,
+      121.708
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      295.651,
+      110.188,
+      317.405,
+      121.708
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      345.449,
+      110.188,
+      380.916,
+      121.708
+    ]
+  },
+  {
+    "field_id": "Facility name.3.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      21.7096,
+      109.757,
+      205.491,
+      121.495
+    ]
+  },
+  {
+    "field_id": "Month of SubmissionA",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      211.089,
+      86.3234,
+      233.148,
+      98.5634
+    ]
+  },
+  {
+    "field_id": "Day of submissionA",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      240.052,
+      86.3234,
+      257.82,
+      98.5634
+    ]
+  },
+  {
+    "field_id": "Year of submissionA",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      264.18,
+      86.3234,
+      298.021,
+      98.5634
+    ]
+  },
+  {
+    "field_id": "status xvi.3.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      103.8,
+      82.7284,
+      205.385,
+      96.5394
+    ]
+  },
+  {
+    "field_id": "Complete address.3.1.1.0",
+    "type": "text",
+    "page": 9,
+    "rect": [
+      400.174,
+      82.3464,
+      591.383,
+      118.801
+    ]
+  },
+  {
+    "field_id": "Does not apply_9",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 10,
+    "rect": [
+      567.399,
+      748.011,
+      579.759,
+      760.371
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      211.05,
+      722.624,
+      233.457,
+      734.144
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      236.5,
+      722.624,
+      259.494,
+      734.144
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      322.039,
+      722.569,
+      344.468,
+      734.089
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      295.969,
+      722.242,
+      319.25,
+      733.762
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      347.294,
+      722.242,
+      381.234,
+      733.762
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      262.188,
+      722.144,
+      292.801,
+      733.664
+    ]
+  },
+  {
+    "field_id": "Facility name.3.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      23.6459,
+      721.858,
+      207.059,
+      735.571
+    ]
+  },
+  {
+    "field_id": "Day",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      56.09,
+      699.061,
+      74.0397,
+      711.301
+    ]
+  },
+  {
+    "field_id": "Day To A",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      241.244,
+      699.061,
+      260.358,
+      711.301
+    ]
+  },
+  {
+    "field_id": "Year",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      80.8026,
+      699.021,
+      114.644,
+      711.261
+    ]
+  },
+  {
+    "field_id": "YearA To",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      265.862,
+      699.021,
+      299.702,
+      711.261
+    ]
+  },
+  {
+    "field_id": "From Month",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      30.039,
+      698.853,
+      50.0253,
+      711.093
+    ]
+  },
+  {
+    "field_id": "To Month A1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      215.334,
+      698.853,
+      234.775,
+      711.093
+    ]
+  },
+  {
+    "field_id": "Complete address.3.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      402.856,
+      698.474,
+      593.047,
+      736.292
+    ]
+  },
+  {
+    "field_id": "reasonforleaving c.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      209.864,
+      674.451,
+      593.047,
+      688.262
+    ]
+  },
+  {
+    "field_id": "Professional liability carrier.3.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      23.3186,
+      674.311,
+      207.097,
+      688.123
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      212.619,
+      651.646,
+      233.744,
+      663.166
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      236.452,
+      651.646,
+      259.337,
+      663.166
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      261.925,
+      651.646,
+      292.374,
+      663.166
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      296.529,
+      651.646,
+      318.936,
+      663.166
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      321.98,
+      651.646,
+      344.628,
+      663.166
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      347.672,
+      651.646,
+      381.83,
+      663.166
+    ]
+  },
+  {
+    "field_id": "Facility name.3.1.1.1.1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      23.6459,
+      651.316,
+      206.982,
+      664.309
+    ]
+  },
+  {
+    "field_id": "DayA",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      56.701,
+      627.644,
+      74.6507,
+      639.884
+    ]
+  },
+  {
+    "field_id": "YearA",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      80.4137,
+      627.604,
+      114.255,
+      639.845
+    ]
+  },
+  {
+    "field_id": "From MonthA",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      29.65,
+      627.436,
+      50.509,
+      639.676
+    ]
+  },
+  {
+    "field_id": "To MonthA",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      213.945,
+      627.436,
+      236.332,
+      639.676
+    ]
+  },
+  {
+    "field_id": "To DayA",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      242.692,
+      627.436,
+      260.351,
+      639.676
+    ]
+  },
+  {
+    "field_id": "To YearA",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      265.445,
+      627.436,
+      299.285,
+      639.677
+    ]
+  },
+  {
+    "field_id": "Complete address.3.1.1.1.1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      403.252,
+      626.993,
+      593.012,
+      665.103
+    ]
+  },
+  {
+    "field_id": "reasonforleaving c.1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      210.025,
+      603.998,
+      593.047,
+      617.238
+    ]
+  },
+  {
+    "field_id": "Professional liability carrier.3.1.1.1.1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      23.8095,
+      603.265,
+      206.841,
+      617.131
+    ]
+  },
+  {
+    "field_id": "Facility name.3.1.1.1.2",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      25.0714,
+      578.703,
+      184.988,
+      591.696
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      236.476,
+      578.702,
+      259.161,
+      590.222
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      211.044,
+      578.484,
+      233.451,
+      590.004
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      261.967,
+      578.484,
+      292.362,
+      590.004
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      296.263,
+      578.484,
+      319.053,
+      590.004
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      321.768,
+      578.484,
+      344.707,
+      590.004
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      347.478,
+      578.484,
+      381.962,
+      590.004
+    ]
+  },
+  {
+    "field_id": "From MonthA1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      29.7919,
+      555.546,
+      50.5417,
+      567.786
+    ]
+  },
+  {
+    "field_id": "DayA1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      55.8429,
+      555.25,
+      74.2289,
+      567.49
+    ]
+  },
+  {
+    "field_id": "To DayA1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      240.56,
+      555.25,
+      259.012,
+      567.49
+    ]
+  },
+  {
+    "field_id": "To MonthA1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      213.272,
+      555.219,
+      234.023,
+      567.459
+    ]
+  },
+  {
+    "field_id": "YearA1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      80.5555,
+      555.21,
+      114.396,
+      567.45
+    ]
+  },
+  {
+    "field_id": "To YearA1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      265.273,
+      555.21,
+      299.113,
+      567.45
+    ]
+  },
+  {
+    "field_id": "Complete address.3.1.1.1.2",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      402.401,
+      554.317,
+      592.999,
+      592.571
+    ]
+  },
+  {
+    "field_id": "reasonforleaving c.2",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      210.207,
+      531.218,
+      593.254,
+      543.883
+    ]
+  },
+  {
+    "field_id": "Professional liability carrier.3.1.1.1.2",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      25.0714,
+      531.065,
+      184.527,
+      543.895
+    ]
+  },
+  {
+    "field_id": "Name of current practice  employer.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      25.1989,
+      427.071,
+      311.687,
+      439.529
+    ]
+  },
+  {
+    "field_id": "Contacts name.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      314.234,
+      405.708,
+      593.127,
+      437.475
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      28.3985,
+      379.412,
+      50.8063,
+      391.652
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      53.6678,
+      379.412,
+      76.2938,
+      391.652
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.0.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      78.7373,
+      379.412,
+      113.372,
+      391.652
+    ]
+  },
+  {
+    "field_id": "ext3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      138.676,
+      379.412,
+      171.019,
+      391.652
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      181.817,
+      379.412,
+      203.842,
+      391.652
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      206.685,
+      379.412,
+      229.496,
+      391.652
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      232.109,
+      379.412,
+      266.936,
+      391.652
+    ]
+  },
+  {
+    "field_id": "Complete address_10.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      316.416,
+      354.11,
+      595.309,
+      392.839
+    ]
+  },
+  {
+    "field_id": "From MonthA3",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      33.5104,
+      353.128,
+      50.0056,
+      365.368
+    ]
+  },
+  {
+    "field_id": "To MonthA3",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      186.41,
+      353.128,
+      202.905,
+      365.368
+    ]
+  },
+  {
+    "field_id": "YearA3",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      57.3467,
+      352.792,
+      91.1873,
+      365.032
+    ]
+  },
+  {
+    "field_id": "To YearA3",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      209.901,
+      352.792,
+      243.741,
+      365.032
+    ]
+  },
+  {
+    "field_id": "Professional liability carrier_10.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      316.117,
+      330.124,
+      594.945,
+      342.602
+    ]
+  },
+  {
+    "field_id": "Contacts email address if available.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      25.1989,
+      329.67,
+      310.705,
+      341.704
+    ]
+  },
+  {
+    "field_id": "Contacts name.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      314.325,
+      317.07,
+      593.127,
+      285.303
+    ]
+  },
+  {
+    "field_id": "Name of current practice  employer.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      25.1989,
+      307.531,
+      311.396,
+      319.706
+    ]
+  },
+  {
+    "field_id": "position 1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      24.5457,
+      283.951,
+      311.455,
+      296.409
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      28.8167,
+      258.732,
+      51.0609,
+      270.972
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      53.6132,
+      258.587,
+      76.5665,
+      270.827
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.0.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      79.3373,
+      258.587,
+      113.481,
+      270.827
+    ]
+  },
+  {
+    "field_id": "ext3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      139.021,
+      258.587,
+      171.364,
+      270.827
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      181.599,
+      258.587,
+      203.842,
+      270.827
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      206.25,
+      258.587,
+      229.715,
+      270.827
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      232.382,
+      258.587,
+      267.045,
+      270.827
+    ]
+  },
+  {
+    "field_id": "Complete address_10.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      314.234,
+      233.953,
+      593.127,
+      272.683
+    ]
+  },
+  {
+    "field_id": "From MonthA4",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      34.1842,
+      233.471,
+      50.6794,
+      245.711
+    ]
+  },
+  {
+    "field_id": "To MonthA4",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      187.63,
+      233.471,
+      204.125,
+      245.711
+    ]
+  },
+  {
+    "field_id": "YearA4",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      58.8932,
+      233.135,
+      92.7338,
+      245.375
+    ]
+  },
+  {
+    "field_id": "To YearA4",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      212.011,
+      233.135,
+      245.851,
+      245.375
+    ]
+  },
+  {
+    "field_id": "Professional liability carrier_10.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      314.517,
+      208.094,
+      593.127,
+      221.577
+    ]
+  },
+  {
+    "field_id": "Contacts email address if available.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      26.4,
+      207.575,
+      312.888,
+      220.622
+    ]
+  },
+  {
+    "field_id": "Name of current practice  employer.1.1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      25.1989,
+      184.727,
+      311.687,
+      197.185
+    ]
+  },
+  {
+    "field_id": "Contacts name.1.1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      316.799,
+      163.327,
+      595.854,
+      195.094
+    ]
+  },
+  {
+    "field_id": "position 1.1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      24.5457,
+      161.224,
+      311.455,
+      173.682
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      29.253,
+      135.205,
+      50.9517,
+      146.725
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      53.286,
+      135.205,
+      76.4028,
+      146.725
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.0.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      79.01,
+      135.205,
+      113.154,
+      146.725
+    ]
+  },
+  {
+    "field_id": "ext3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      137.021,
+      135.205,
+      169.364,
+      146.725
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      181.599,
+      135.205,
+      203.842,
+      147.445
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      206.577,
+      135.205,
+      229.552,
+      147.445
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      232.382,
+      135.205,
+      267.045,
+      146.725
+    ]
+  },
+  {
+    "field_id": "Complete address_10.1.1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      314.016,
+      109.268,
+      592.909,
+      147.997
+    ]
+  },
+  {
+    "field_id": "From MonthA5",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      34.8387,
+      108.889,
+      51.3339,
+      121.129
+    ]
+  },
+  {
+    "field_id": "To MonthA5",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      188.375,
+      108.889,
+      204.87,
+      121.129
+    ]
+  },
+  {
+    "field_id": "YearA5",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      57.5296,
+      108.553,
+      91.3702,
+      120.793
+    ]
+  },
+  {
+    "field_id": "To YearA5",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      210.847,
+      108.553,
+      244.688,
+      120.793
+    ]
+  },
+  {
+    "field_id": "Contacts email address if available.1.1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      25.0909,
+      83.4753,
+      310.925,
+      96.5233
+    ]
+  },
+  {
+    "field_id": "Professional liability carrier_10.1.1",
+    "type": "text",
+    "page": 10,
+    "rect": [
+      314.191,
+      83.4753,
+      593.019,
+      96.5233
+    ]
+  },
+  {
+    "field_id": "Name of current practice  employer.1.2",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      25.0932,
+      740.617,
+      311.581,
+      752.792
+    ]
+  },
+  {
+    "field_id": "Contacts name.1.2",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      313.472,
+      718.932,
+      592.365,
+      750.699
+    ]
+  },
+  {
+    "field_id": "position 1.2",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      24.1821,
+      717.407,
+      311.092,
+      729.865
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      28.0547,
+      692.678,
+      50.7897,
+      704.918
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      53.924,
+      692.678,
+      76.3863,
+      704.918
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.0.1.1.1.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      79.2116,
+      692.678,
+      112.374,
+      704.918
+    ]
+  },
+  {
+    "field_id": "ext3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      138.132,
+      692.678,
+      170.475,
+      704.918
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      181.146,
+      692.678,
+      203.772,
+      704.918
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      206.324,
+      692.678,
+      229.249,
+      704.918
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      232.547,
+      692.678,
+      267.701,
+      704.918
+    ]
+  },
+  {
+    "field_id": "From MonthA6",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      34.9483,
+      664.586,
+      51.4435,
+      676.826
+    ]
+  },
+  {
+    "field_id": "To MonthA6",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      187.703,
+      664.586,
+      204.198,
+      676.826
+    ]
+  },
+  {
+    "field_id": "YearA6",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      58.3119,
+      664.25,
+      92.1525,
+      676.49
+    ]
+  },
+  {
+    "field_id": "To YearA6",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      211.557,
+      664.25,
+      245.398,
+      676.49
+    ]
+  },
+  {
+    "field_id": "Complete address_10.1.2",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      314.183,
+      662.652,
+      593.076,
+      705.309
+    ]
+  },
+  {
+    "field_id": "Professional liability carrier_10.1.2",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      314.191,
+      633.454,
+      593.238,
+      648.549
+    ]
+  },
+  {
+    "field_id": "Contacts email address if available.1.2",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      25.3096,
+      633.236,
+      311.562,
+      648.543
+    ]
+  },
+  {
+    "field_id": "Does not apply_11",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 11,
+    "rect": [
+      562.81,
+      597.706,
+      573.042,
+      607.492
+    ]
+  },
+  {
+    "field_id": "Activities andor namesRow1",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      26.3991,
+      562.336,
+      384.715,
+      576.017
+    ]
+  },
+  {
+    "field_id": "From MonthA9",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      411.207,
+      562.309,
+      427.702,
+      574.549
+    ]
+  },
+  {
+    "field_id": "To MonthA9",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      513.325,
+      562.309,
+      529.82,
+      574.549
+    ]
+  },
+  {
+    "field_id": "YearA9",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      433.043,
+      561.973,
+      466.884,
+      574.213
+    ]
+  },
+  {
+    "field_id": "To YearA9",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      536.161,
+      561.973,
+      570.001,
+      574.213
+    ]
+  },
+  {
+    "field_id": "From MonthA10",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      411.207,
+      547.125,
+      427.702,
+      559.364
+    ]
+  },
+  {
+    "field_id": "To MonthA10",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      513.325,
+      547.125,
+      529.82,
+      559.364
+    ]
+  },
+  {
+    "field_id": "YearA10",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      433.043,
+      546.789,
+      466.884,
+      559.028
+    ]
+  },
+  {
+    "field_id": "To YearA10",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      536.161,
+      546.789,
+      570.001,
+      559.028
+    ]
+  },
+  {
+    "field_id": "Activities andor namesRow2",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      26.3991,
+      546.737,
+      384.715,
+      560.417
+    ]
+  },
+  {
+    "field_id": "From MonthA11",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      411.207,
+      531.364,
+      427.702,
+      543.605
+    ]
+  },
+  {
+    "field_id": "To MonthA11",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      513.325,
+      531.364,
+      529.82,
+      543.605
+    ]
+  },
+  {
+    "field_id": "Activities andor namesRow3",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      24.4363,
+      531.207,
+      382.752,
+      544.887
+    ]
+  },
+  {
+    "field_id": "YearA11",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      433.043,
+      531.028,
+      466.884,
+      543.268
+    ]
+  },
+  {
+    "field_id": "To YearA11",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      536.161,
+      531.028,
+      570.001,
+      543.268
+    ]
+  },
+  {
+    "field_id": "From MonthA12",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      411.207,
+      515.647,
+      427.702,
+      527.887
+    ]
+  },
+  {
+    "field_id": "To MonthA12",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      513.325,
+      515.647,
+      529.82,
+      527.887
+    ]
+  },
+  {
+    "field_id": "YearA12",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      433.043,
+      515.311,
+      466.884,
+      527.551
+    ]
+  },
+  {
+    "field_id": "To YearA12",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      536.161,
+      515.311,
+      570.001,
+      527.551
+    ]
+  },
+  {
+    "field_id": "Activities andor namesRow4",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      24.4363,
+      515.282,
+      383.623,
+      528.961
+    ]
+  },
+  {
+    "field_id": "From MonthA13",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      411.207,
+      499.938,
+      427.702,
+      512.178
+    ]
+  },
+  {
+    "field_id": "To MonthA13",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      513.325,
+      499.938,
+      529.82,
+      512.178
+    ]
+  },
+  {
+    "field_id": "YearA13",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      433.043,
+      499.602,
+      466.884,
+      511.842
+    ]
+  },
+  {
+    "field_id": "To YearA13",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      536.161,
+      499.602,
+      570.001,
+      511.842
+    ]
+  },
+  {
+    "field_id": "Activities andor namesRow5",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      24.4363,
+      499.562,
+      383.623,
+      513.242
+    ]
+  },
+  {
+    "field_id": "From MonthA14",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      411.207,
+      484.229,
+      427.702,
+      496.469
+    ]
+  },
+  {
+    "field_id": "To MonthA14",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      513.325,
+      484.229,
+      529.82,
+      496.469
+    ]
+  },
+  {
+    "field_id": "YearA14",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      433.043,
+      483.893,
+      466.884,
+      496.133
+    ]
+  },
+  {
+    "field_id": "To YearA14",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      536.161,
+      483.893,
+      570.001,
+      496.133
+    ]
+  },
+  {
+    "field_id": "Activities andor namesRow6",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      24.4363,
+      483.842,
+      383.623,
+      497.522
+    ]
+  },
+  {
+    "field_id": "From MonthA15",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      411.207,
+      468.083,
+      427.702,
+      480.323
+    ]
+  },
+  {
+    "field_id": "To MonthA15",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      513.325,
+      468.083,
+      529.82,
+      480.323
+    ]
+  },
+  {
+    "field_id": "Activities andor namesRow7",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      24.4363,
+      468.002,
+      383.623,
+      481.682
+    ]
+  },
+  {
+    "field_id": "YearA15",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      433.043,
+      467.747,
+      466.884,
+      479.987
+    ]
+  },
+  {
+    "field_id": "To YearA15",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      536.161,
+      467.747,
+      570.001,
+      479.987
+    ]
+  },
+  {
+    "field_id": "From MonthA16",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      411.207,
+      452.949,
+      427.702,
+      465.189
+    ]
+  },
+  {
+    "field_id": "To MonthA16",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      513.325,
+      452.949,
+      529.82,
+      465.189
+    ]
+  },
+  {
+    "field_id": "Activities andor namesRow8",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      24.7082,
+      452.867,
+      383.895,
+      466.548
+    ]
+  },
+  {
+    "field_id": "YearA16",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      433.043,
+      452.613,
+      466.884,
+      464.853
+    ]
+  },
+  {
+    "field_id": "To YearA16",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      536.161,
+      452.613,
+      570.001,
+      464.853
+    ]
+  },
+  {
+    "field_id": "Activities andor namesRow9",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      24.7082,
+      437.683,
+      383.895,
+      451.363
+    ]
+  },
+  {
+    "field_id": "From MonthA17",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      411.207,
+      437.677,
+      427.702,
+      449.917
+    ]
+  },
+  {
+    "field_id": "To MonthA17",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      513.325,
+      437.677,
+      529.82,
+      449.917
+    ]
+  },
+  {
+    "field_id": "YearA17",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      433.043,
+      437.341,
+      466.884,
+      449.581
+    ]
+  },
+  {
+    "field_id": "To YearA17",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      536.161,
+      437.341,
+      570.001,
+      449.581
+    ]
+  },
+  {
+    "field_id": "From MonthA18",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      411.207,
+      422.823,
+      427.702,
+      435.063
+    ]
+  },
+  {
+    "field_id": "To MonthA18",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      513.325,
+      422.823,
+      529.82,
+      435.063
+    ]
+  },
+  {
+    "field_id": "YearA18",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      433.043,
+      422.487,
+      466.884,
+      434.727
+    ]
+  },
+  {
+    "field_id": "To YearA18",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      536.161,
+      422.487,
+      570.001,
+      434.727
+    ]
+  },
+  {
+    "field_id": "Activities andor namesRow11",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      24.7082,
+      406.557,
+      383.765,
+      420.237
+    ]
+  },
+  {
+    "field_id": "From MonthA19",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      411.207,
+      406.551,
+      427.702,
+      418.791
+    ]
+  },
+  {
+    "field_id": "To MonthA19",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      513.325,
+      406.551,
+      529.82,
+      418.791
+    ]
+  },
+  {
+    "field_id": "YearA19",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      433.043,
+      406.215,
+      466.884,
+      418.455
+    ]
+  },
+  {
+    "field_id": "To YearA19",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      536.161,
+      406.215,
+      570.001,
+      418.455
+    ]
+  },
+  {
+    "field_id": "Name of reference.0.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      25.3449,
+      311.337,
+      312.037,
+      323.773
+    ]
+  },
+  {
+    "field_id": "Specialty_5.0.0.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      25.3449,
+      289.082,
+      312.037,
+      301.518
+    ]
+  },
+  {
+    "field_id": "Credentials_5.0.0.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      25.3449,
+      265.827,
+      312.037,
+      278.919
+    ]
+  },
+  {
+    "field_id": "Professional relationship.0.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      25.3449,
+      242.572,
+      312.473,
+      255.445
+    ]
+  },
+  {
+    "field_id": "Complete address include department if applicable.0.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      314.819,
+      242.171,
+      591.746,
+      308.791
+    ]
+  },
+  {
+    "field_id": "Email address if available.0.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      314.601,
+      217.973,
+      591.693,
+      230.846
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      28.4723,
+      217.317,
+      50.7269,
+      229.1
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      53.3815,
+      217.317,
+      76.127,
+      229.1
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.0.1.1.1.1.1.1.0.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      78.9452,
+      217.317,
+      105.782,
+      229.1
+    ]
+  },
+  {
+    "field_id": "ext3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      139.545,
+      217.317,
+      171.618,
+      229.1
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      180.655,
+      217.317,
+      204.219,
+      229.1
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      206.855,
+      217.317,
+      229.437,
+      229.1
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.0",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      232.764,
+      217.317,
+      267.455,
+      229.1
+    ]
+  },
+  {
+    "field_id": "Name of reference.0.1",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      25.7085,
+      195.255,
+      311.964,
+      207.91
+    ]
+  },
+  {
+    "field_id": "Specialty_5.0.0.1",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      25.7085,
+      172.127,
+      311.964,
+      185.655
+    ]
+  },
+  {
+    "field_id": "Credentials_5.0.0.1",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      25.7085,
+      149.655,
+      312.401,
+      162.746
+    ]
+  },
+  {
+    "field_id": "Complete address include department if applicable.0.1",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      314.965,
+      126.746,
+      592.11,
+      192.418
+    ]
+  },
+  {
+    "field_id": "Professional relationship.0.1",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      25.7085,
+      126.182,
+      312.401,
+      139.928
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.1",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      28.2546,
+      99.855,
+      50.5092,
+      111.636
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.1",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      53.6548,
+      99.855,
+      76.073,
+      111.636
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.0.1.1.1.1.1.1.0.1",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      78.8912,
+      99.855,
+      105.892,
+      111.636
+    ]
+  },
+  {
+    "field_id": "ext3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.1",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      139.655,
+      99.855,
+      171.728,
+      111.636
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.1",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      181.42,
+      99.855,
+      204.492,
+      111.636
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.1",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      206.819,
+      99.855,
+      230.056,
+      111.636
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.1",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      232.547,
+      99.855,
+      267.565,
+      111.636
+    ]
+  },
+  {
+    "field_id": "Email address if available.0.1",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      314.711,
+      99.418,
+      591.803,
+      114.255
+    ]
+  },
+  {
+    "field_id": "Name of reference.0.2",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      26.1818,
+      76.619,
+      312.874,
+      89.055
+    ]
+  },
+  {
+    "field_id": "Specialty_5.0.0.2",
+    "type": "text",
+    "page": 11,
+    "rect": [
+      26.1818,
+      53.364,
+      312.656,
+      66.018
+    ]
+  },
+  {
+    "field_id": "Credentials_5.0.0.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      22.6541,
+      739.417,
+      309.129,
+      752.727
+    ]
+  },
+  {
+    "field_id": "Complete address include department if applicable.0.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      312.475,
+      717.072,
+      589.348,
+      763.872
+    ]
+  },
+  {
+    "field_id": "Professional relationship.0.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      22.6541,
+      717.036,
+      309.129,
+      729.69
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      27.6911,
+      691.091,
+      51.0911,
+      702.873
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      53.5821,
+      691.091,
+      76.6549,
+      702.873
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.0.1.1.1.1.1.1.0.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      78.9822,
+      691.091,
+      105.983,
+      702.873
+    ]
+  },
+  {
+    "field_id": "ext3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      139.746,
+      691.091,
+      171.819,
+      702.873
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      181.511,
+      691.091,
+      204.583,
+      702.873
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      207.074,
+      691.091,
+      229.983,
+      702.873
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      232.802,
+      691.091,
+      267.656,
+      702.873
+    ]
+  },
+  {
+    "field_id": "Email address if available.0.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      314.929,
+      688.291,
+      591.947,
+      705.527
+    ]
+  },
+  {
+    "field_id": "Does not apply_12",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 12,
+    "rect": [
+      569.4,
+      630.759,
+      581.64,
+      642.999
+    ]
+  },
+  {
+    "field_id": "Name_2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      26.9305,
+      594.498,
+      316.12,
+      606.673
+    ]
+  },
+  {
+    "field_id": "Month attended",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      325.19,
+      594.441,
+      343.626,
+      606.681
+    ]
+  },
+  {
+    "field_id": "Year attended",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      350.117,
+      594.441,
+      392.772,
+      606.681
+    ]
+  },
+  {
+    "field_id": "Hours",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      490.187,
+      594.2,
+      594.821,
+      605.72
+    ]
+  },
+  {
+    "field_id": "Name_3",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      26.9305,
+      571.537,
+      316.013,
+      584.802
+    ]
+  },
+  {
+    "field_id": "Hours_2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      490.187,
+      571.337,
+      595.46,
+      582.857
+    ]
+  },
+  {
+    "field_id": "Month attended1",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      325.19,
+      570.393,
+      344.063,
+      582.633
+    ]
+  },
+  {
+    "field_id": "Year attended1",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      350.117,
+      570.393,
+      392.772,
+      582.633
+    ]
+  },
+  {
+    "field_id": "Name_4",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      26.9305,
+      548.661,
+      315.867,
+      561.926
+    ]
+  },
+  {
+    "field_id": "Month attended2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      325.19,
+      548.558,
+      344.717,
+      560.798
+    ]
+  },
+  {
+    "field_id": "Year attended2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      350.117,
+      548.558,
+      392.772,
+      560.798
+    ]
+  },
+  {
+    "field_id": "Hours_3",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      490.187,
+      547.461,
+      594.587,
+      558.981
+    ]
+  },
+  {
+    "field_id": "Name_5",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      26.9305,
+      525.69,
+      315.805,
+      538.737
+    ]
+  },
+  {
+    "field_id": "Hours_4",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      490.187,
+      525.69,
+      594.549,
+      537.21
+    ]
+  },
+  {
+    "field_id": "Month attended3",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      325.19,
+      525.47,
+      344.499,
+      537.709
+    ]
+  },
+  {
+    "field_id": "Year attended3",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      350.117,
+      525.47,
+      392.772,
+      537.709
+    ]
+  },
+  {
+    "field_id": "Name_6",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      26.9305,
+      502.405,
+      315.577,
+      515.889
+    ]
+  },
+  {
+    "field_id": "Hours_5",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      490.187,
+      502.405,
+      594.587,
+      513.925
+    ]
+  },
+  {
+    "field_id": "Month attended4",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      325.19,
+      502.17,
+      343.409,
+      514.41
+    ]
+  },
+  {
+    "field_id": "Year attended4",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      350.117,
+      502.17,
+      392.772,
+      514.41
+    ]
+  },
+  {
+    "field_id": "Hours_6",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      490.187,
+      480.365,
+      594.587,
+      491.885
+    ]
+  },
+  {
+    "field_id": "Month attended5",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      325.19,
+      479.559,
+      343.408,
+      491.799
+    ]
+  },
+  {
+    "field_id": "Year attended5",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      350.117,
+      479.559,
+      392.772,
+      491.799
+    ]
+  },
+  {
+    "field_id": "Name_7",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      26.9305,
+      479.365,
+      315.714,
+      492.849
+    ]
+  },
+  {
+    "field_id": "Claimsmade.0",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 12,
+    "rect": [
+      505.367,
+      422.12,
+      515.676,
+      431.611
+    ]
+  },
+  {
+    "field_id": "Occurrence.0",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 12,
+    "rect": [
+      570.549,
+      421.702,
+      580.694,
+      431.848
+    ]
+  },
+  {
+    "field_id": "Current insurance carrier  provider of professional liability coverage.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      71.8373,
+      419.355,
+      299.346,
+      432.839
+    ]
+  },
+  {
+    "field_id": "Policy number.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      301.129,
+      419.355,
+      439.893,
+      433.057
+    ]
+  },
+  {
+    "field_id": "Name of local contact.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      26.6186,
+      394.959,
+      299.089,
+      408.443
+    ]
+  },
+  {
+    "field_id": "Mailing address.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      302.783,
+      371.537,
+      594.11,
+      408.713
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      29.7925,
+      371.199,
+      51.7525,
+      382.719
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      54.5165,
+      371.199,
+      77.4583,
+      382.719
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      79.7132,
+      371.199,
+      106.127,
+      382.719
+    ]
+  },
+  {
+    "field_id": "ext3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      147.165,
+      371.199,
+      184.199,
+      382.719
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      191.969,
+      371.199,
+      213.602,
+      382.719
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      216.489,
+      371.199,
+      239.103,
+      382.719
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      242.201,
+      371.199,
+      276.033,
+      382.719
+    ]
+  },
+  {
+    "field_id": "Per claim limit of liability.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      26.6186,
+      346.973,
+      186.546,
+      360.725
+    ]
+  },
+  {
+    "field_id": "Aggregate amount.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      189.855,
+      346.973,
+      299.819,
+      360.725
+    ]
+  },
+  {
+    "field_id": "Contacts email address if available_7.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      302.129,
+      346.973,
+      594.11,
+      360.457
+    ]
+  },
+  {
+    "field_id": "Month expiration",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      403.728,
+      324.447,
+      423.725,
+      337.778
+    ]
+  },
+  {
+    "field_id": "Day expiration",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      427.619,
+      324.447,
+      447.616,
+      337.341
+    ]
+  },
+  {
+    "field_id": "Year expiration",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      451.165,
+      324.447,
+      487.307,
+      337.56
+    ]
+  },
+  {
+    "field_id": "Month effective",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      30.8568,
+      323.447,
+      50.8534,
+      338.305
+    ]
+  },
+  {
+    "field_id": "Day effective",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      55.6203,
+      323.447,
+      75.617,
+      338.305
+    ]
+  },
+  {
+    "field_id": "Year effective",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      80.2021,
+      323.447,
+      116.344,
+      338.305
+    ]
+  },
+  {
+    "field_id": "Month retroactive",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      193.038,
+      323.447,
+      213.034,
+      338.305
+    ]
+  },
+  {
+    "field_id": "Day retroactive",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      217.435,
+      323.447,
+      237.431,
+      338.305
+    ]
+  },
+  {
+    "field_id": "Year retroactive",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      242.384,
+      323.447,
+      278.526,
+      338.305
+    ]
+  },
+  {
+    "field_id": "Does not apply_13.0",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 12,
+    "rect": [
+      559.53,
+      301.815,
+      569.566,
+      312.071
+    ]
+  },
+  {
+    "field_id": "Occurrence.1",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 12,
+    "rect": [
+      570.685,
+      264.434,
+      580.939,
+      274.47
+    ]
+  },
+  {
+    "field_id": "Claimsmade.1",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 12,
+    "rect": [
+      505.53,
+      264.298,
+      515.676,
+      274.443
+    ]
+  },
+  {
+    "field_id": "Current insurance carrier  provider of professional liability coverage.1",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      26.0731,
+      261.32,
+      299.274,
+      279.084
+    ]
+  },
+  {
+    "field_id": "Policy number.1",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      301.893,
+      261.32,
+      439.348,
+      279.167
+    ]
+  },
+  {
+    "field_id": "Name of local contact.1",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      26.0731,
+      237.411,
+      299.238,
+      251.549
+    ]
+  },
+  {
+    "field_id": "Mailing address.1",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      302.238,
+      213.502,
+      593.565,
+      251.368
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      29.4288,
+      213.368,
+      51.3888,
+      224.888
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      53.6801,
+      213.368,
+      76.4583,
+      224.888
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      79.5313,
+      213.368,
+      105.945,
+      224.888
+    ]
+  },
+  {
+    "field_id": "ext3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      146.056,
+      213.368,
+      178.399,
+      224.888
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      191.133,
+      213.368,
+      213.257,
+      224.452
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      216.016,
+      213.368,
+      238.631,
+      224.888
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      241.275,
+      213.368,
+      275.27,
+      224.888
+    ]
+  },
+  {
+    "field_id": "Per claim limit of liability.1",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      26.0731,
+      189.938,
+      186.001,
+      203.375
+    ]
+  },
+  {
+    "field_id": "Aggregate amount.1",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      189.31,
+      189.938,
+      299.274,
+      203.375
+    ]
+  },
+  {
+    "field_id": "Contacts email address if available_7.1",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      301.584,
+      189.938,
+      593.565,
+      203.422
+    ]
+  },
+  {
+    "field_id": "Year expiration2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      451.619,
+      166.432,
+      487.762,
+      179.375
+    ]
+  },
+  {
+    "field_id": "Month retroactive2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      192.311,
+      166.359,
+      212.307,
+      179.69
+    ]
+  },
+  {
+    "field_id": "Day retroactive2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      216.984,
+      166.359,
+      236.98,
+      179.472
+    ]
+  },
+  {
+    "field_id": "Year retroactive2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      241.529,
+      166.359,
+      277.671,
+      179.472
+    ]
+  },
+  {
+    "field_id": "Month expiration2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      402.62,
+      166.359,
+      422.616,
+      179.375
+    ]
+  },
+  {
+    "field_id": "Day expiration2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      427.074,
+      166.359,
+      447.071,
+      179.375
+    ]
+  },
+  {
+    "field_id": "Month effective2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      30.5476,
+      165.959,
+      50.5442,
+      179.726
+    ]
+  },
+  {
+    "field_id": "Day effective2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      55.2384,
+      165.959,
+      75.2351,
+      179.29
+    ]
+  },
+  {
+    "field_id": "Year effective2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      79.6202,
+      165.959,
+      115.763,
+      179.072
+    ]
+  },
+  {
+    "field_id": "Claimsmade.2",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 12,
+    "rect": [
+      505.735,
+      141.01,
+      515.771,
+      151.156
+    ]
+  },
+  {
+    "field_id": "Occurrence.2",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 12,
+    "rect": [
+      570.766,
+      140.71,
+      580.802,
+      151.182
+    ]
+  },
+  {
+    "field_id": "Current insurance carrier  provider of professional liability coverage.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      26.0732,
+      138.91,
+      298.965,
+      153.921
+    ]
+  },
+  {
+    "field_id": "Policy number.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      301.584,
+      138.91,
+      440.348,
+      153.875
+    ]
+  },
+  {
+    "field_id": "Name of local contact.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      26.0732,
+      115.237,
+      298.965,
+      128.285
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      29.6471,
+      91.4102,
+      51.2798,
+      102.931
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      54.0075,
+      91.4102,
+      76.622,
+      102.931
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      79.404,
+      91.4102,
+      106.8,
+      102.931
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      191.205,
+      91.4102,
+      213.165,
+      102.931
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      216.107,
+      91.4102,
+      239.049,
+      102.931
+    ]
+  },
+  {
+    "field_id": "ext3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      146.831,
+      91.0262,
+      179.708,
+      102.931
+    ]
+  },
+  {
+    "field_id": "Mailing address.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      302.238,
+      90.6732,
+      593.565,
+      129.125
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      241.639,
+      90.6282,
+      275.634,
+      102.148
+    ]
+  },
+  {
+    "field_id": "Per claim limit of liability.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      26.0732,
+      66.9832,
+      187.001,
+      80.6842
+    ]
+  },
+  {
+    "field_id": "Aggregate amount.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      189.437,
+      66.9832,
+      298.965,
+      80.8922
+    ]
+  },
+  {
+    "field_id": "Contacts email address if available_7.2",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      301.584,
+      66.9832,
+      593.565,
+      80.8922
+    ]
+  },
+  {
+    "field_id": "Month retroactive3",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      192.239,
+      43.3488,
+      212.235,
+      56.6798
+    ]
+  },
+  {
+    "field_id": "Day retroactive3",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      216.911,
+      43.3488,
+      237.292,
+      56.2438
+    ]
+  },
+  {
+    "field_id": "Year retroactive3",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      241.602,
+      43.3488,
+      277.744,
+      56.0248
+    ]
+  },
+  {
+    "field_id": "Month expiration3",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      402.547,
+      43.3488,
+      422.543,
+      56.2438
+    ]
+  },
+  {
+    "field_id": "Day expiration3",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      427.001,
+      43.3488,
+      446.998,
+      56.2438
+    ]
+  },
+  {
+    "field_id": "Year expiration3",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      451.401,
+      43.3488,
+      487.544,
+      56.2438
+    ]
+  },
+  {
+    "field_id": "Month effective3",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      30.4568,
+      42.9128,
+      50.4534,
+      56.4618
+    ]
+  },
+  {
+    "field_id": "Day effective3",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      55.2204,
+      42.9128,
+      75.2171,
+      56.4618
+    ]
+  },
+  {
+    "field_id": "Year effective3",
+    "type": "text",
+    "page": 12,
+    "rect": [
+      79.4567,
+      42.9128,
+      115.599,
+      56.0258
+    ]
+  },
+  {
+    "field_id": "Occurrence.3.0",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 13,
+    "rect": [
+      570.958,
+      737.288,
+      580.449,
+      747.27
+    ]
+  },
+  {
+    "field_id": "Claimsmade.3.0",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 13,
+    "rect": [
+      505.476,
+      737.06,
+      515.621,
+      747.206
+    ]
+  },
+  {
+    "field_id": "Current insurance carrier  provider of professional liability coverage.3.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      26.3459,
+      733.505,
+      299.547,
+      749.825
+    ]
+  },
+  {
+    "field_id": "Policy number.3.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      301.73,
+      733.505,
+      439.621,
+      749.825
+    ]
+  },
+  {
+    "field_id": "Name of local contact.3.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      26.8909,
+      708.86,
+      300.092,
+      722.562
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      31.4829,
+      685.785,
+      51.6429,
+      697.305
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      54.4979,
+      685.785,
+      77.4397,
+      697.305
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      80.2217,
+      685.785,
+      106.8,
+      697.305
+    ]
+  },
+  {
+    "field_id": "ext3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      145.358,
+      685.785,
+      187.726,
+      698.075
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      193.315,
+      685.785,
+      214.293,
+      697.305
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      216.653,
+      685.785,
+      239.431,
+      697.305
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      242.293,
+      685.785,
+      276.452,
+      697.305
+    ]
+  },
+  {
+    "field_id": "Mailing address.3.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      301.856,
+      684.951,
+      594.383,
+      721.726
+    ]
+  },
+  {
+    "field_id": "Aggregate amount.3.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      190.001,
+      661.387,
+      299.092,
+      674.735
+    ]
+  },
+  {
+    "field_id": "Contacts email address if available_7.3.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      302.402,
+      661.387,
+      594.383,
+      674.435
+    ]
+  },
+  {
+    "field_id": "Per claim limit of liability.3.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      26.3459,
+      661.122,
+      187.147,
+      674.17
+    ]
+  },
+  {
+    "field_id": "Month retroactive4",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      193.438,
+      626.603,
+      213.434,
+      639.874
+    ]
+  },
+  {
+    "field_id": "Day retroactive4",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      217.965,
+      626.603,
+      237.961,
+      639.874
+    ]
+  },
+  {
+    "field_id": "Year retroactive4",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      242.51,
+      626.603,
+      278.652,
+      639.874
+    ]
+  },
+  {
+    "field_id": "Month effective4",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      31.6564,
+      626.039,
+      51.653,
+      639.874
+    ]
+  },
+  {
+    "field_id": "Day effective4",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      56.0563,
+      626.039,
+      76.053,
+      639.874
+    ]
+  },
+  {
+    "field_id": "Year effective4",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      80.5836,
+      626.039,
+      116.725,
+      639.874
+    ]
+  },
+  {
+    "field_id": "Month expiration4",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      403.601,
+      626.039,
+      423.597,
+      639.371
+    ]
+  },
+  {
+    "field_id": "Day expiration4",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      428.127,
+      626.039,
+      448.124,
+      639.807
+    ]
+  },
+  {
+    "field_id": "Year expiration4",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      452.6,
+      626.039,
+      488.743,
+      639.371
+    ]
+  },
+  {
+    "field_id": "Claimsmade.3.1",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 13,
+    "rect": [
+      504.821,
+      600.98,
+      515.294,
+      611.234
+    ]
+  },
+  {
+    "field_id": "Occurrence.3.1",
+    "type": "checkbox",
+    "checked_value": "/On",
+    "unchecked_value": "/Off",
+    "page": 13,
+    "rect": [
+      570.433,
+      600.78,
+      580.688,
+      611.47
+    ]
+  },
+  {
+    "field_id": "Current insurance carrier  provider of professional liability coverage.3.1",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      25.9637,
+      599.69,
+      298.91,
+      614.061
+    ]
+  },
+  {
+    "field_id": "Policy number.3.1",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      302.22,
+      599.69,
+      439.457,
+      613.843
+    ]
+  },
+  {
+    "field_id": "Name of local contact.3.1",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      25.5273,
+      575.508,
+      298.692,
+      588.555
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      29.683,
+      551.794,
+      51.3158,
+      563.314
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      53.8615,
+      551.794,
+      77.1306,
+      563.314
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      79.6036,
+      551.794,
+      105.854,
+      563.314
+    ]
+  },
+  {
+    "field_id": "ext3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      145.31,
+      551.794,
+      186.963,
+      563.314
+    ]
+  },
+  {
+    "field_id": "telephone.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      191.587,
+      551.794,
+      213.22,
+      563.314
+    ]
+  },
+  {
+    "field_id": "telephone1.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      216.125,
+      551.794,
+      238.576,
+      563.314
+    ]
+  },
+  {
+    "field_id": "telephone3.0.1.1.0.1.1.1.1.0.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.1.0",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      241.62,
+      551.794,
+      276.434,
+      563.314
+    ]
+  },
+  {
+    "field_id": "Mailing address.3.1",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      302.347,
+      551.598,
+      589.965,
+      589.176
+    ]
+  },
+  {
+    "field_id": "Per claim limit of liability.3.1",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      25.5273,
+      528.38,
+      186.11,
+      541.428
+    ]
+  },
+  {
+    "field_id": "Aggregate amount.3.1",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      189.419,
+      528.162,
+      299.383,
+      541.406
+    ]
+  },
+  {
+    "field_id": "Contacts email address if available_7.3.1",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      301.693,
+      527.944,
+      590.348,
+      541.406
+    ]
+  },
+  {
+    "field_id": "Month retroactive5",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      193.369,
+      504.496,
+      213.365,
+      516.9
+    ]
+  },
+  {
+    "field_id": "Month effective5",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      31.4926,
+      503.966,
+      51.4893,
+      517.079
+    ]
+  },
+  {
+    "field_id": "Day effective5",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      55.1107,
+      503.966,
+      75.1075,
+      517.297
+    ]
+  },
+  {
+    "field_id": "Year effective5",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      79.7835,
+      503.966,
+      115.926,
+      517.079
+    ]
+  },
+  {
+    "field_id": "Day retroactive5",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      217.093,
+      503.966,
+      237.089,
+      517.079
+    ]
+  },
+  {
+    "field_id": "Year retroactive5",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      241.657,
+      503.966,
+      277.799,
+      517.297
+    ]
+  },
+  {
+    "field_id": "Month expiration5",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      403.602,
+      503.966,
+      423.598,
+      516.86
+    ]
+  },
+  {
+    "field_id": "Day expiration5",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      427.219,
+      503.966,
+      447.216,
+      516.86
+    ]
+  },
+  {
+    "field_id": "Year expiration5",
+    "type": "text",
+    "page": 13,
+    "rect": [
+      451.564,
+      503.966,
+      487.707,
+      516.424
+    ]
+  },
+  {
+    "field_id": "Check Box18",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      519.109,
+      669.003,
+      529.276,
+      678.952
+    ]
+  },
+  {
+    "field_id": "Check Box19",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      556.176,
+      669.003,
+      566.343,
+      678.952
+    ]
+  },
+  {
+    "field_id": "Check Box20",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      519.109,
+      633.329,
+      529.276,
+      643.278
+    ]
+  },
+  {
+    "field_id": "Check Box21",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      556.176,
+      633.329,
+      566.343,
+      643.278
+    ]
+  },
+  {
+    "field_id": "Check Box22",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      519.109,
+      595.227,
+      529.276,
+      605.176
+    ]
+  },
+  {
+    "field_id": "Check Box23",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      556.176,
+      595.227,
+      566.343,
+      605.176
+    ]
+  },
+  {
+    "field_id": "Check Box24",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      519.109,
+      550.336,
+      529.276,
+      560.285
+    ]
+  },
+  {
+    "field_id": "Check Box25",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      556.176,
+      550.018,
+      566.343,
+      559.967
+    ]
+  },
+  {
+    "field_id": "Check Box26",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      519.109,
+      514.764,
+      529.276,
+      524.713
+    ]
+  },
+  {
+    "field_id": "Check Box27",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      556.176,
+      514.764,
+      566.343,
+      524.713
+    ]
+  },
+  {
+    "field_id": "Check Box28",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      519.109,
+      478.362,
+      529.276,
+      488.311
+    ]
+  },
+  {
+    "field_id": "Check Box29",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      556.176,
+      478.362,
+      566.343,
+      488.311
+    ]
+  },
+  {
+    "field_id": "Check Box30",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      519.109,
+      451.639,
+      529.276,
+      461.588
+    ]
+  },
+  {
+    "field_id": "Check Box31",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      556.176,
+      451.639,
+      566.343,
+      461.588
+    ]
+  },
+  {
+    "field_id": "Check Box32",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      519.109,
+      434.052,
+      529.276,
+      444.001
+    ]
+  },
+  {
+    "field_id": "Check Box33",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      556.176,
+      434.052,
+      566.343,
+      444.001
+    ]
+  },
+  {
+    "field_id": "Check Box34",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      519.109,
+      415.654,
+      529.276,
+      425.603
+    ]
+  },
+  {
+    "field_id": "Check Box35",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      556.176,
+      415.654,
+      566.343,
+      425.603
+    ]
+  },
+  {
+    "field_id": "Check Box36",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      519.109,
+      395.452,
+      529.276,
+      405.401
+    ]
+  },
+  {
+    "field_id": "Check Box37",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      556.176,
+      395.452,
+      566.343,
+      405.401
+    ]
+  },
+  {
+    "field_id": "Check Box38",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      519.109,
+      377.767,
+      529.276,
+      387.716
+    ]
+  },
+  {
+    "field_id": "Check Box39",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      556.176,
+      377.767,
+      566.343,
+      387.716
+    ]
+  },
+  {
+    "field_id": "Check Box40",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      519.109,
+      352.763,
+      529.276,
+      362.712
+    ]
+  },
+  {
+    "field_id": "Check Box41",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      556.176,
+      352.763,
+      566.343,
+      362.712
+    ]
+  },
+  {
+    "field_id": "Check Box42",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      519.109,
+      319.178,
+      529.276,
+      329.127
+    ]
+  },
+  {
+    "field_id": "Check Box43",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      556.176,
+      319.178,
+      566.343,
+      329.127
+    ]
+  },
+  {
+    "field_id": "Check Box45",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      519.109,
+      285.819,
+      529.276,
+      295.768
+    ]
+  },
+  {
+    "field_id": "Check Box46",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      556.176,
+      285.819,
+      566.343,
+      295.768
+    ]
+  },
+  {
+    "field_id": "Check Box47",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 14,
+    "rect": [
+      539.113,
+      224.582,
+      549.28,
+      234.531
+    ]
+  },
+  {
+    "field_id": "Signature3",
+    "type": "unknown (/Sig)",
+    "page": 14,
+    "rect": [
+      85.0535,
+      54.7318,
+      423.999,
+      71.8948
+    ]
+  },
+  {
+    "field_id": "Date_11",
+    "type": "text",
+    "page": 14,
+    "rect": [
+      456.794,
+      54.7318,
+      590.277,
+      72.0118
+    ]
+  },
+  {
+    "field_id": "Printed name",
+    "type": "text",
+    "page": 15,
+    "rect": [
+      109.564,
+      200.753,
+      580.924,
+      215.851
+    ]
+  },
+  {
+    "field_id": "Date_12",
+    "type": "text",
+    "page": 15,
+    "rect": [
+      476.82,
+      181.553,
+      580.924,
+      198.833
+    ]
+  },
+  {
+    "field_id": "Signature4",
+    "type": "unknown (/Sig)",
+    "page": 15,
+    "rect": [
+      94.2543,
+      180.51,
+      441.927,
+      200.729
+    ]
+  },
+  {
+    "field_id": "Text10.0",
+    "type": "text",
+    "page": 15,
+    "rect": [
+      106.783,
+      124.888,
+      498.203,
+      141.907
+    ]
+  },
+  {
+    "field_id": "Text10.1",
+    "type": "text",
+    "page": 15,
+    "rect": [
+      106.783,
+      108.561,
+      498.203,
+      125.579
+    ]
+  },
+  {
+    "field_id": "Text10.2",
+    "type": "text",
+    "page": 15,
+    "rect": [
+      106.783,
+      93.2338,
+      498.203,
+      110.252
+    ]
+  },
+  {
+    "field_id": "pract. name",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      202.408,
+      553.319,
+      590.747,
+      571.319
+    ]
+  },
+  {
+    "field_id": "Date of incident",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      184.749,
+      532.689,
+      204.189,
+      547.547
+    ]
+  },
+  {
+    "field_id": "Day of incident",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      206.948,
+      532.689,
+      226.388,
+      547.547
+    ]
+  },
+  {
+    "field_id": "Year of incident",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      229.457,
+      532.689,
+      258.667,
+      547.547
+    ]
+  },
+  {
+    "field_id": "Your role and specific responsibilities in the incident",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      27.6182,
+      473.305,
+      590.64,
+      528.941
+    ]
+  },
+  {
+    "field_id": "Your role and specific responsibilities",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      27.6182,
+      401.305,
+      590.64,
+      454.323
+    ]
+  },
+  {
+    "field_id": "Subsequent events",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      27.6182,
+      329.305,
+      590.64,
+      382.323
+    ]
+  },
+  {
+    "field_id": "Date of suit/claim",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      240.324,
+      310.594,
+      259.448,
+      325.452
+    ]
+  },
+  {
+    "field_id": "Day suit was filed",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      261.651,
+      310.594,
+      281.091,
+      325.452
+    ]
+  },
+  {
+    "field_id": "Year suit/claim was filed",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      285.16,
+      310.594,
+      321.303,
+      325.452
+    ]
+  },
+  {
+    "field_id": "Check Box49",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 16,
+    "rect": [
+      332.707,
+      291.033,
+      344.456,
+      303.109
+    ]
+  },
+  {
+    "field_id": "Check Box50",
+    "type": "checkbox",
+    "checked_value": "/Yes",
+    "unchecked_value": "/Off",
+    "page": 16,
+    "rect": [
+      375.916,
+      290.59,
+      388.32,
+      303.484
+    ]
+  },
+  {
+    "field_id": "whichAgency",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      195.49,
+      267.31,
+      587.672,
+      285.819
+    ]
+  },
+  {
+    "field_id": "Your status in the legal action primary defendant codefendant other",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      27.6182,
+      204.027,
+      590.64,
+      247.882
+    ]
+  },
+  {
+    "field_id": "Text4",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      381.3,
+      183.11,
+      590.646,
+      201.11
+    ]
+  },
+  {
+    "field_id": "Text6",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      210.695,
+      161.855,
+      590.646,
+      179.855
+    ]
+  },
+  {
+    "field_id": "Month of settlement, judgment, or dismissal",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      295.839,
+      141.532,
+      315.279,
+      156.39
+    ]
+  },
+  {
+    "field_id": "Day settlement, judgment, or dismissal",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      318.038,
+      141.532,
+      337.478,
+      156.39
+    ]
+  },
+  {
+    "field_id": "Year settlement, judgment, or dismissal",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      341.547,
+      141.532,
+      377.69,
+      156.39
+    ]
+  },
+  {
+    "field_id": "Text8",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      460.038,
+      118.887,
+      591.056,
+      136.887
+    ]
+  },
+  {
+    "field_id": "Text9",
+    "type": "text",
+    "page": 16,
+    "rect": [
+      436.098,
+      69.2829,
+      591.32,
+      87.283
+    ]
+  },
+  {
+    "field_id": "Signature5",
+    "type": "unknown (/Sig)",
+    "page": 16,
+    "rect": [
+      84.3453,
+      69.1907,
+      397.109,
+      95.518
+    ]
+  }
+]
