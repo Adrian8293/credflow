@@ -1,16 +1,12 @@
 // pages/api/generate-opca.js
-// POST { providerId, initials, formVersion }
-// Returns filled OPCA PDF as binary download.
-//
-// Phase 1 (now): Returns provider validation status — no PDF yet.
-// Phase 2: Wire in form-generator.js once coordinates are calibrated
-//          against the real blank OPCA PDF stored in Supabase Storage.
+// POST { profileId, initials }
+// Fetches profile from opca_profiles, fills the real 2025 OPCA PDF, returns download.
 
 import { createClient } from '@supabase/supabase-js'
-import { providerFromDb } from '../../lib/mappers'
+import { fillOpcaPdf } from '../../lib/opca-pdf-filler'
 import { validateProviderForOPCA } from '../../lib/opca-validation-adapter'
 
-const supabaseAdmin = createClient(
+const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 )
@@ -20,75 +16,65 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { providerId, initials, formVersion = '2025' } = req.body
+  const { profileId, initials } = req.body
 
-  if (!providerId) {
-    return res.status(400).json({ error: 'providerId is required' })
+  if (!profileId) {
+    return res.status(400).json({ error: 'profileId is required' })
+  }
+
+  // Fetch the OPCA profile
+  const { data: profile, error: profileError } = await supabase
+    .from('opca_profiles')
+    .select('*')
+    .eq('id', profileId)
+    .single()
+
+  if (profileError || !profile) {
+    return res.status(404).json({ error: 'OPCA profile not found' })
+  }
+
+  // Fetch blank 2025 template from Supabase Storage
+  const { data: templateBlob, error: storageError } = await supabase
+    .storage
+    .from('opca-templates')
+    .download('OPCA_2025_blank.pdf')
+
+  if (storageError || !templateBlob) {
+    return res.status(500).json({
+      error: 'Blank OPCA template not found. Upload OPCA_2025_blank.pdf to the opca-templates bucket in Supabase Storage.',
+    })
+  }
+
+  const templateBuffer = Buffer.from(await templateBlob.arrayBuffer())
+
+  // Run validation gate
+  const validation = validateProviderForOPCA(profile, '2025')
+  if (!validation.canExport) {
+    return res.status(422).json({
+      error: 'Export blocked — missing required fields',
+      blockingIssues: validation.issues.filter(i => i.blocking),
+    })
   }
 
   try {
-    // Fetch provider
-    const { data, error } = await supabaseAdmin
-      .from('providers')
-      .select('*')
-      .eq('id', providerId)
-      .single()
+    const derivedInitials = initials ||
+      ((profile.first_name?.[0] || '') + (profile.last_name?.[0] || '')).toUpperCase()
 
-    if (error || !data) {
-      return res.status(404).json({ error: 'Provider not found' })
-    }
-
-    const provider = providerFromDb(data)
-
-    // Run validation gate
-    const validation = validateProviderForOPCA(provider, formVersion)
-    if (!validation.canExport) {
-      return res.status(422).json({
-        error: 'Export blocked',
-        blockingIssues: validation.issues.filter(i => i.blocking && i.severity === 'error'),
-      })
-    }
-
-    // ── Phase 2: PDF generation ──────────────────────────────────────────────
-    // When ready, uncomment and wire in:
-    //
-    // const { generateFilledOPCA } = await import('../../lib/form-generator')
-    //
-    // 1. Fetch blank template from Supabase Storage:
-    //    const { data: templateData } = await supabaseAdmin.storage
-    //      .from('opca-templates')
-    //      .download(`OPCA_${formVersion}_blank.pdf`)
-    //    const templateBuffer = await templateData.arrayBuffer()
-    //    const templateBase64 = Buffer.from(templateBuffer).toString('base64')
-    //
-    // 2. Generate filled PDF:
-    //    const result = await generateFilledOPCA({
-    //      templateBase64,
-    //      provider,
-    //      formVersion,
-    //      initials: initials || (provider.fname[0] + provider.lname[0]),
-    //    })
-    //
-    // 3. Return as download:
-    //    res.setHeader('Content-Type', 'application/pdf')
-    //    res.setHeader('Content-Disposition', `attachment; filename="OPCA_${formVersion}_${provider.lname}.pdf"`)
-    //    return res.send(Buffer.from(result.pdfBytes))
-    // ────────────────────────────────────────────────────────────────────────
-
-    // Phase 1: return validation result only
-    return res.status(200).json({
-      status: 'validation_passed',
-      provider: `${provider.fname} ${provider.lname}`,
-      formVersion,
-      message: 'Provider passed validation. PDF generation will be wired in Phase 2 after coordinate calibration.',
-      validationSummary: {
-        errors: validation.issues.filter(i => i.severity === 'error').length,
-        warnings: validation.issues.filter(i => i.severity === 'warning').length,
-      },
+    const pdfBuffer = await fillOpcaPdf({
+      templateBuffer,
+      profile,
+      initials: derivedInitials,
     })
 
+    const filename = `OPCA_2025_${profile.last_name || 'Provider'}_${new Date().toISOString().slice(0, 10)}.pdf`
+
+    res.setHeader('Content-Type', 'application/pdf')
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)
+    res.setHeader('Content-Length', pdfBuffer.length)
+    return res.send(pdfBuffer)
+
   } catch (err) {
-    console.error('[generate-opca]', err)
-    return res.status(500).json({ error: 'Server error: ' + err.message })
+    console.error('[generate-opca] PDF fill error:', err)
+    return res.status(500).json({ error: 'PDF generation failed: ' + err.message })
   }
 }
