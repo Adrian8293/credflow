@@ -5602,6 +5602,7 @@ function EligibilityPage({ db, toast }) {
       </div>
 
       {modal && (
+        <>
         <div className="drawer-overlay open" onClick={()=>setModal(false)} />
         <div className="drawer">
           <div className="drawer-header">
@@ -5660,6 +5661,8 @@ function EligibilityPage({ db, toast }) {
               </button>
             </div>
           </div>
+          </>
+
       )}
     </div>
   )
@@ -5838,6 +5841,7 @@ function ClaimsPage({ db, toast }) {
       </>}
 
       {modal && (
+        <>
         <div className="drawer-overlay open" onClick={()=>setModal(false)} />
         <div className="drawer">
           <div className="drawer-header">
@@ -5890,6 +5894,8 @@ function ClaimsPage({ db, toast }) {
               <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving?<><span className="spinner"/>Saving…</>:'Save Claim'}</button>
             </div>
           </div>
+          </>
+
       )}
     </div>
   )
@@ -6053,6 +6059,7 @@ function DenialLog({ db, toast }) {
       </div>
 
       {modal && (
+        <>
         <div className="drawer-overlay open" onClick={()=>setModal(false)} />
         <div className="drawer">
           <div className="drawer-header">
@@ -6104,6 +6111,8 @@ function DenialLog({ db, toast }) {
               <button className="btn btn-primary" onClick={handleSave} disabled={saving}>{saving?<><span className="spinner"/>Saving…</>:'Save'}</button>
             </div>
           </div>
+          </>
+
       )}
     </div>
   )
