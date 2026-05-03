@@ -3,24 +3,22 @@
 //                       and creates a new 2025 version, flagging gaps.
 // Returns: { newProfileId, summary }
 
-import { createClient } from '@supabase/supabase-js'
+import { requireAuth, supabaseAdmin } from '../../lib/supabase-server'
 import { migrateToOpca2025, buildMigrationSummary } from '../../lib/opca-migrator'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-)
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
+  const user = await requireAuth(req, res)
+  if (!user) return
+
   const { profileId } = req.body
   if (!profileId) return res.status(400).json({ error: 'profileId is required' })
 
   // Fetch source profile
-  const { data: source, error } = await supabase
+  const { data: source, error } = await supabaseAdmin
     .from('opca_profiles')
     .select('*')
     .eq('id', profileId)
@@ -39,7 +37,7 @@ export default async function handler(req, res) {
   const summary = buildMigrationSummary(source, result)
 
   // Save migrated profile
-  const { data: saved, error: saveError } = await supabase
+  const { data: saved, error: saveError } = await supabaseAdmin
     .from('opca_profiles')
     .insert([result.migratedProfile])
     .select()
