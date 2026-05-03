@@ -174,7 +174,7 @@ export default async function handler(req, res) {
   let extractedData
   try {
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5',
       max_tokens: 8192,
       system: EXTRACTION_SYSTEM_PROMPT,
       messages: [
