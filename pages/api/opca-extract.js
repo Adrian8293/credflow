@@ -7,17 +7,12 @@
 
 import { IncomingForm } from 'formidable'
 import fs from 'fs'
-import { createClient } from '@supabase/supabase-js'
+import { requireAuth, supabaseAdmin } from '../../lib/supabase-server'
 import Anthropic from '@anthropic-ai/sdk'
 
 export const config = {
   api: { bodyParser: false },
 }
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-)
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -143,6 +138,11 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
+
+  // Auth check — must happen before form parsing since bodyParser is disabled.
+  // requireAuth reads the session from cookies, not the body.
+  const user = await requireAuth(req, res)
+  if (!user) return
 
   // Parse multipart form
   const form = new IncomingForm({ maxFileSize: 20 * 1024 * 1024 })
@@ -329,7 +329,7 @@ export default async function handler(req, res) {
   }
 
   // Save to Supabase
-  const { data: saved, error: saveError } = await supabase
+  const { data: saved, error: saveError } = await supabaseAdmin
     .from('opca_profiles')
     .insert([profileRow])
     .select()
@@ -341,7 +341,7 @@ export default async function handler(req, res) {
   }
 
   // Sync key fields back to providers table
-  await supabase.from('providers').update({
+  await supabaseAdmin.from('providers').update({
     npi:        li.individual_npi || undefined,
     dea:        li.dea_number || undefined,
     dea_exp:    li.dea_exp ? new Date(li.dea_exp) : undefined,
