@@ -2500,7 +2500,7 @@ export default function App() {
         {modal === 'payer' && <PayerModal payerForm={payerForm} setPayerForm={setPayerForm} editingId={editingId} handleSavePayer={handleSavePayer} onClose={()=>{setModal(null);setPayerForm({});setEditingId(e=>({...e,payer:null}))}} saving={saving} />}
         {modal === 'doc' && <DocModal db={db} docForm={docForm} setDocForm={setDocForm} editingId={editingId} handleSaveDocument={handleSaveDocument} onClose={()=>{setModal(null);setDocForm({});setEditingId(e=>({...e,doc:null}))}} saving={saving} />}
         {modal === 'task' && <TaskModal db={db} taskForm={taskForm} setTaskForm={setTaskForm} editingId={editingId} handleSaveTask={handleSaveTask} onClose={()=>{setModal(null);setTaskForm({});setEditingId(e=>({...e,task:null}))}} saving={saving} />}
-        {modal === 'provDetail' && provDetail && <ProvDetailModal prov={provDetail} db={db} tab={provDetailTab} setTab={setProvDetailTab} onClose={()=>setModal(null)} editProvider={editProvider} openEnrollModal={openEnrollModal} toast={toast} syncFromNPPES={syncFromNPPES} />}
+        {modal === 'provDetail' && provDetail && <ProvDetailModal prov={provDetail} db={db} onClose={()=>setModal(null)} editProvider={editProvider} openEnrollModal={openEnrollModal} toast={toast} syncFromNPPES={syncFromNPPES} />}
         {npiSyncModal && <NpiSyncModal data={npiSyncModal} onApply={applyNpiSync} onClose={()=>setNpiSyncModal(null)} saving={saving} />}
 
         {/* ─── TOASTS ─── */}
@@ -4113,53 +4113,77 @@ function NpiSyncModal({ data, onApply, onClose, saving }) {
   )
 }
 function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollModal, toast, syncFromNPPES }) {
-  // MUST be inside the component!
-  const [tab, setTab] = useState('profile');
+  const [tab, setTab] = useState('profile')
 
   return (
     <>
       <div className="drawer-overlay open" onClick={onClose} />
-      <div className="drawer" style={{ width: 900 }}>
-        <div className="drawer-header">
+      <div className="drawer" style={{ width: 920 }}>
+
+        {/* ── Fixed header: title + close ── */}
+        <div className="drawer-header" style={{ paddingBottom: 0, borderBottom: 'none' }}>
           <div>
-            <h3>Provider Command Center</h3>
+            <h3 style={{ fontFamily: "'Poppins', sans-serif", fontSize: 17, fontWeight: 600 }}>
+              {prov.fname} {prov.lname}{prov.cred ? `, ${prov.cred}` : ''}
+            </h3>
             <div className="mh-sub">{prov.spec} · {prov.status}</div>
           </div>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
-        <div className="drawer-body">
-          <div>
-            <div className="tabs" style={{ marginBottom: 0 }}>
-              <div className={`tab ${tab === 'profile' ? 'active' : ''}`} onClick={() => setTab('profile')}>
-                Profile
-              </div>
-              <div className={`tab ${tab === 'opca' ? 'active' : ''}`} onClick={() => setTab('opca')}>
-                📄 OPCA Form
-              </div>
+
+        {/* ── Sticky tab bar (below header, above scrolling body) ── */}
+        <div style={{
+          display: 'flex',
+          borderBottom: '2px solid var(--border)',
+          background: 'var(--surface)',
+          flexShrink: 0,
+          padding: '0 24px',
+        }}>
+          {[
+            { id: 'profile', label: '👤 Profile' },
+            { id: 'opca',    label: '📄 OPCA Form' },
+          ].map(t => (
+            <div
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              style={{
+                padding: '11px 18px',
+                cursor: 'pointer',
+                fontSize: 13,
+                fontWeight: tab === t.id ? 600 : 400,
+                color: tab === t.id ? 'var(--primary)' : 'var(--ink-4)',
+                borderBottom: tab === t.id ? '3px solid var(--primary)' : '3px solid transparent',
+                marginBottom: -2,
+                transition: 'all 0.14s ease',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {t.label}
             </div>
-
-            {tab === 'profile' && (
-              <ProviderCommandCenter 
-                prov={prov} 
-                db={db} 
-                onClose={onClose} 
-                onEdit={editProvider}       // <-- Fixed mismatch
-                openEnrollModal={openEnrollModal} 
-                toast={toast} 
-                onSync={syncFromNPPES}      // <-- Fixed mismatch
-              />
-            )}
-
-            {tab === 'opca' && (
-              <div style={{ padding: '20px 0' }}>
-                <OpcaUploadPanel
-                  provider={{ id: prov.id, fname: prov.fname, lname: prov.lname }}
-                  onComplete={() => toast('OPCA profile saved!', 'success')}
-                />
-              </div>
-            )}
-          </div>
+          ))}
         </div>
+
+        {/* ── Scrollable body ── */}
+        <div className="drawer-body">
+          {tab === 'profile' && (
+            <ProviderCommandCenter
+              prov={prov}
+              db={db}
+              onClose={onClose}
+              onEdit={editProvider}
+              openEnrollModal={openEnrollModal}
+              toast={toast}
+              onSync={syncFromNPPES}
+            />
+          )}
+          {tab === 'opca' && (
+            <OpcaUploadPanel
+              provider={{ id: prov.id, fname: prov.fname, lname: prov.lname }}
+              onComplete={() => toast('OPCA profile saved!', 'success')}
+            />
+          )}
+        </div>
+
       </div>
     </>
   )
