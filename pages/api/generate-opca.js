@@ -2,18 +2,16 @@
 // POST { profileId, initials }
 // Fetches profile from opca_profiles, fills the real 2025 OPCA PDF, returns download.
 
-import { createClient } from '@supabase/supabase-js'
+import { requireAuth, supabaseAdmin } from '../../lib/supabase-server'
 import { fillOpcaPdf } from '../../lib/opca-pdf-filler'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-)
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
+
+  const user = await requireAuth(req, res)
+  if (!user) return
 
   const { profileId, initials } = req.body
 
@@ -22,7 +20,7 @@ export default async function handler(req, res) {
   }
 
   // Fetch the OPCA profile
-  const { data: profile, error: profileError } = await supabase
+  const { data: profile, error: profileError } = await supabaseAdmin
     .from('opca_profiles')
     .select('*')
     .eq('id', profileId)
@@ -33,7 +31,7 @@ export default async function handler(req, res) {
   }
 
   // Fetch blank 2025 template from Supabase Storage
-  const { data: templateBlob, error: storageError } = await supabase
+  const { data: templateBlob, error: storageError } = await supabaseAdmin
     .storage
     .from('opca-templates')
     .download('OPCA_2025_blank.pdf')
