@@ -61,7 +61,7 @@ async function taskExists(dedupKey) {
   const { data } = await supabase
     .from('tasks')
     .select('id')
-    .eq('notes', dedupKey)          // we store the dedup key in `notes`
+    .eq('dedup_key', dedupKey)
     .in('status', ['Open', 'In Progress'])
     .limit(1)
   return (data?.length ?? 0) > 0
@@ -77,7 +77,7 @@ async function createTask({ task, due, priority, cat, provId, payId, dedupKey })
     cat,
     prov_id: provId ?? null,
     pay_id:  payId  ?? null,
-    notes:   dedupKey,           // stored so we can dedup on next run
+    dedup_key: dedupKey,
   }])
   return true
 }
