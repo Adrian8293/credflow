@@ -1907,12 +1907,12 @@ export default function App() {
 
   // ─── AUTH ────────────────────────────────────────────────────────────────────
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      setAuthLoading(false)
-    })
+    // onAuthStateChange fires immediately with INITIAL_SESSION — single source
+    // of truth. Avoids the race where getSession() briefly resolves null while
+    // the cookie-based session is being read, which caused the login loop.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
+      setAuthLoading(false)
     })
     return () => subscription.unsubscribe()
   }, [])
@@ -1967,11 +1967,13 @@ export default function App() {
   }
 
   // ─── AUTH GUARD ───────────────────────────────────────────────────────────────
-  if (authLoading) return <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Poppins,sans-serif', color:'#5a6e5a' }}>Loading…</div>
-  if (!user) {
-    if (typeof window !== 'undefined') window.location.href = '/login'
-    return null
-  }
+  // Redirect in useEffect only — synchronous redirect during render races with
+  // session rehydration and causes an infinite login loop.
+  useEffect(() => {
+    if (!authLoading && !user) window.location.href = '/login'
+  }, [authLoading, user])
+
+  if (authLoading || !user) return <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Poppins,sans-serif', color:'#5a6e5a' }}>Loading…</div>
 
   // ─── COMPUTED ALERTS ──────────────────────────────────────────────────────────
   const alertDays = db.settings.alertDays || 90
