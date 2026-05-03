@@ -4,7 +4,6 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { fillOpcaPdf } from '../../lib/opca-pdf-filler'
-import { validateProviderForOPCA } from '../../lib/opca-validation-adapter'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -46,15 +45,6 @@ export default async function handler(req, res) {
   }
 
   const templateBuffer = Buffer.from(await templateBlob.arrayBuffer())
-
-  // Run validation gate
-  const validation = validateProviderForOPCA(profile, '2025')
-  if (!validation.canExport) {
-    return res.status(422).json({
-      error: 'Export blocked — missing required fields',
-      blockingIssues: validation.issues.filter(i => i.blocking),
-    })
-  }
 
   try {
     const derivedInitials = initials ||
