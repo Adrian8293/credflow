@@ -1,6 +1,7 @@
 import { daysUntil, fmtDate, pName } from '../../lib/helpers.js'
 import { Badge } from '../../components/ui/Badge.jsx'
 import { REQUIRED_DOCS } from '../../constants/payerRequirements.js'
+import { useState } from 'react'
 
 function MissingDocuments({ db }) {
   const [filterSeverity, setFilterSeverity] = useState('')
