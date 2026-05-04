@@ -42,8 +42,7 @@ Return ONLY valid JSON with this exact structure:
     "birth_date": null,
     "birth_place": null,
     "citizenship": null,
-    "ssn": null,
-    "gender": null,
+    "gender": null,  // SSN intentionally excluded — never extracted or stored (C-3)
     "ecfmg_number": null,
     "reald_race": null,
     "reald_ethnicity": null,
@@ -241,7 +240,7 @@ export default async function handler(req, res) {
     birth_date:     pi.birth_date,
     birth_place:    pi.birth_place,
     citizenship:    pi.citizenship,
-    ssn:            pi.ssn,
+    // ssn intentionally omitted — never stored in DB (C-3)
     gender:         pi.gender,
     ecfmg_number:   pi.ecfmg_number,
     reald_race:     pi.reald_race,
