@@ -1,4 +1,4 @@
-function Settings({ settingsForm, setSettingsForm, handleSaveSettings, exportJSON }) {
+export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, exportJSON }) {
   const f = k => settingsForm[k] ?? ''
   const set = (k, v) => setSettingsForm(prev => ({ ...prev, [k]: v }))
   return <div className="page">

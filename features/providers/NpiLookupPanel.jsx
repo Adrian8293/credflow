@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function NpiLookupPanel({ npiInput, setNpiInput, npiResult, setNpiResult, npiLoading, lookupNPI, setProvForm }) {
+export function NpiLookupPanel({ npiInput, setNpiInput, npiResult, setNpiResult, npiLoading, lookupNPI, setProvForm }) {
   const [mode, setMode] = useState('number') // 'number' | 'name'
   const [fname, setFname] = useState('')
   const [lname, setLname] = useState('')

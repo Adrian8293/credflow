@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Badge } from '../../components/ui/Badge.jsx'
 import { initials } from '../../lib/helpers.js'
 
-function PsychologyToday({ db, setPage, editProvider }) {
+export function PsychologyToday({ db, setPage, editProvider }) {
   const [activeTab, setActiveTab] = useState('overview')
 
   const mentalHealthProvs = db.providers.filter(p => p.spec === 'Mental Health' && p.status === 'Active')

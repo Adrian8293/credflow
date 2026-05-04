@@ -2,7 +2,7 @@ import { NpiLookupPanel } from './NpiLookupPanel.jsx'
 import { SPEC_COLORS } from '../../constants/stages.js'
 import { useState } from 'react'
 
-function AddProvider({ db, provForm, setProvForm, editingId, setEditingId, npiInput, setNpiInput, npiResult, setNpiResult, npiLoading, lookupNPI, handleSaveProvider, handleDeleteProvider, handlePhotoUpload, handleDeletePhoto, photoUploading, setPage, saving }) {
+export function AddProvider({ db, provForm, setProvForm, editingId, setEditingId, npiInput, setNpiInput, npiResult, setNpiResult, npiLoading, lookupNPI, handleSaveProvider, handleDeleteProvider, handlePhotoUpload, handleDeletePhoto, photoUploading, setPage, saving }) {
   const f = (k) => provForm[k] || ''
   const set = (k, v) => setProvForm(prev => ({ ...prev, [k]: v }))
   const inp = (k, placeholder, type='text', opts={}) => <input type={type} value={f(k)} onChange={e=>set(k,e.target.value)} placeholder={placeholder} {...opts} />

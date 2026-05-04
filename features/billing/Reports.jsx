@@ -1,6 +1,6 @@
 import { daysUntil } from '../../lib/helpers.js'
 
-function Reports({ db, exportJSON }) {
+export function Reports({ db, exportJSON }) {
   const stages = {}; db.enrollments.forEach(e => { stages[e.stage]=(stages[e.stage]||0)+1 })
   const total = db.providers.length||1
   const compliant = db.providers.filter(p => { const l=daysUntil(p.licenseExp); const m=daysUntil(p.malExp); const c=daysUntil(p.caqhDue); return (l===null||l>0)&&(m===null||m>0)&&(c===null||c>0) }).length

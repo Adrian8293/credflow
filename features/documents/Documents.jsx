@@ -2,7 +2,7 @@ import { useSorted } from '../../hooks/useSorted.js'
 import { daysUntil, fmtDate, pName } from '../../lib/helpers.js'
 import { Badge, ExpiryBadge } from '../../components/ui/Badge.jsx'
 
-function Documents({ db, search, setSearch, fType, setFType, fStatus, setFStatus, openDocModal, handleDeleteDocument }) {
+export function Documents({ db, search, setSearch, fType, setFType, fStatus, setFStatus, openDocModal, handleDeleteDocument }) {
   const rawDocs = db.documents.filter(d => {
     const txt = `${pName(db.providers,d.provId)} ${d.type} ${d.issuer} ${d.number}`.toLowerCase()
     if (!txt.includes(search.toLowerCase())) return false

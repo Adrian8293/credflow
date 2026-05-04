@@ -1,7 +1,7 @@
 import { fmtTS } from '../../lib/helpers.js'
 import { Badge } from '../../components/ui/Badge.jsx'
 
-function Audit({ db, search, setSearch, fType, setFType, handleClearAudit }) {
+export function Audit({ db, search, setSearch, fType, setFType, handleClearAudit }) {
   const typeColor = { Provider:'b-purple', Enrollment:'b-blue', Document:'b-teal', Task:'b-green', Payer:'b-gold', Settings:'b-gray' }
   const list = db.auditLog.filter(a => `${a.type} ${a.action} ${a.detail}`.toLowerCase().includes(search.toLowerCase()) && (!fType||a.type===fType))
   return <div className="page">

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Modal } from '../../components/ui/Modal.jsx'
 import { PAYER_CATALOG } from '../../constants/payerRequirements.js'
 
-function PayerModal({ payerForm, setPayerForm, editingId, handleSavePayer, onClose, saving }) {
+export function PayerModal({ payerForm, setPayerForm, editingId, handleSavePayer, onClose, saving }) {
   const [step, setStep] = useState(editingId.payer ? 2 : 1)
   const [pickerSearch, setPickerSearch] = useState('')
   const [selectedCatalog, setSelectedCatalog] = useState(null)

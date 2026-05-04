@@ -1,6 +1,6 @@
 import { Modal } from '../../components/ui/Modal.jsx'
 
-function DocModal({ db, docForm, setDocForm, editingId, handleSaveDocument, onClose, saving }) {
+export function DocModal({ db, docForm, setDocForm, editingId, handleSaveDocument, onClose, saving }) {
   const f = k => docForm[k] ?? ''
   const set = (k, v) => setDocForm(prev => ({ ...prev, [k]: v }))
   return <Modal title={editingId.doc?'Edit Document':'Add Document / Credential'} onClose={onClose}

@@ -3,7 +3,7 @@ import { Badge } from '../../components/ui/Badge.jsx'
 import { REQUIRED_DOCS } from '../../constants/payerRequirements.js'
 import { useState } from 'react'
 
-function MissingDocuments({ db }) {
+export function MissingDocuments({ db }) {
   const [filterSeverity, setFilterSeverity] = useState('')
   const [filterProv, setFilterProv] = useState('')
 

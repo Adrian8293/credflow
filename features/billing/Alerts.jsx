@@ -1,7 +1,7 @@
 import { daysUntil, fmtDate, pName } from '../../lib/helpers.js'
 import { Badge } from '../../components/ui/Badge.jsx'
 
-function Alerts({ db }) {
+export function Alerts({ db }) {
   const alertDays = db.settings.alertDays || 90
   const caqhDays = db.settings.caqhDays || 30
   const items = []

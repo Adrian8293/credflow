@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, setNpiResult }) {
+export function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiInput, setNpiResult }) {
   const [activeTab, setActiveTab] = useState('nppes')
 
   // NPPES search state

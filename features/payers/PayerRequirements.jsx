@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Badge } from '../../components/ui/Badge.jsx'
 import { PAYER_REQUIREMENTS } from '../../constants/stages.js'
 
-function PayerRequirements({ db }) {
+export function PayerRequirements({ db }) {
   const [search, setSearch] = useState('')
   const [fState, setFState] = useState('')
   const [fType, setFType] = useState('')

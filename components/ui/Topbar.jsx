@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
-function Topbar({ page, setPage, openEnrollModal, openPayerModal, openDocModal, openTaskModal, exportJSON, saving, onOpenSearch, alertCount, user, signOut }) {
+export function Topbar({ page, setPage, openEnrollModal, openPayerModal, openDocModal, openTaskModal, exportJSON, saving, onOpenSearch, alertCount, user, signOut }) {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [searchVal, setSearchVal] = useState('')
   const userMenuRef = useRef(null)

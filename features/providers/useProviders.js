@@ -4,7 +4,7 @@ import {
   uploadProviderPhoto, deleteProviderPhoto
 } from '../../lib/db.js'
 
-function useProviders({ db, setDb, toast, setModal, setEditingId, setProvForm, setNpiSyncModal }) {
+export function useProviders({ db, setDb, toast, setModal, setEditingId, setProvForm, setNpiSyncModal }) {
 
   async function handlePhotoUpload(providerId, file) {
     const url = await uploadProviderPhoto(providerId, file)

@@ -1,7 +1,7 @@
 import { useSorted } from '../../hooks/useSorted.js'
 import { Badge, StageBadge } from '../../components/ui/Badge.jsx'
 
-function Enrollments({ db, search, setSearch, fStage, setFStage, fProv, setFProv, openEnrollModal, handleDeleteEnrollment }) {
+export function Enrollments({ db, search, setSearch, fStage, setFStage, fProv, setFProv, openEnrollModal, handleDeleteEnrollment }) {
   const filtered = db.enrollments.filter(e => {
     const txt = `${pName(db.providers,e.provId)} ${payName(db.payers,e.payId)} ${e.stage} ${e.notes}`.toLowerCase()
     return (!search||txt.includes(search.toLowerCase())) && (!fStage||e.stage===fStage) && (!fProv||e.provId===fProv)

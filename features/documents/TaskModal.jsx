@@ -1,6 +1,6 @@
 import { Modal } from '../../components/ui/Modal.jsx'
 
-function TaskModal({ db, taskForm, setTaskForm, editingId, handleSaveTask, onClose, saving }) {
+export function TaskModal({ db, taskForm, setTaskForm, editingId, handleSaveTask, onClose, saving }) {
   const f = k => taskForm[k] ?? ''
   const set = (k, v) => setTaskForm(prev => ({ ...prev, [k]: v }))
   return <Modal title={editingId.task?'Edit Task':'New Task'} onClose={onClose}

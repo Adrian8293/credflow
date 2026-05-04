@@ -4,7 +4,7 @@ import { Badge, StageBadge } from '../../components/ui/Badge.jsx'
 import { PAYER_REQUIREMENTS } from '../../constants/stages.js'
 import { PAYER_CATALOG } from '../../constants/payerRequirements.js'
 
-function PayerHub({ db, initialTab, openEnrollModal, openPayerModal, search, setSearch, fStage, setFStage, fProv, setFProv, handleDeleteEnrollment, paySearch, setPaySearch, payFType, setPayFType, handleDeletePayer }) {
+export function PayerHub({ db, initialTab, openEnrollModal, openPayerModal, search, setSearch, fStage, setFStage, fProv, setFProv, handleDeleteEnrollment, paySearch, setPaySearch, payFType, setPayFType, handleDeletePayer }) {
   const [tab, setTab] = useState(initialTab || 'directory')
 
   const TABS = [

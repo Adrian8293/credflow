@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { Badge, ExpiryBadge } from './ui/Badge.jsx'
 
-function GlobalSearch({ db, onClose, setPage, openProvDetail, openEnrollModal }) {
+export function GlobalSearch({ db, onClose, setPage, openProvDetail, openEnrollModal }) {
   const [query, setQuery] = useState('')
   const [focused, setFocused] = useState(0)
   const inputRef = useRef(null)

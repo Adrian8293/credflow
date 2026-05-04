@@ -1,7 +1,7 @@
 import { useSorted } from '../../hooks/useSorted.js'
 import { Badge } from '../../components/ui/Badge.jsx'
 
-function Payers({ db, search, setSearch, fType, setFType, openPayerModal, handleDeletePayer }) {
+export function Payers({ db, search, setSearch, fType, setFType, openPayerModal, handleDeletePayer }) {
   const rawPayers = db.payers.filter(p => `${p.name} ${p.payerId} ${p.type}`.toLowerCase().includes(search.toLowerCase()) && (!fType||p.type===fType))
   const {sorted:list, thProps} = useSorted(rawPayers, 'name')
   return <div className="page">

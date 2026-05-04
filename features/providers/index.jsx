@@ -3,7 +3,7 @@ import { Badge, ExpiryBadge } from '../../components/ui/Badge.jsx'
 import { SPEC_COLORS } from '../../constants/stages.js'
 import { useState } from 'react'
 
-function Providers({ db, search, setSearch, fStatus, setFStatus, fSpec, setFSpec, openProvDetail, editProvider, setPage, setProvForm, setEditingId, setNpiInput, setNpiResult, syncFromNPPES }) {
+export function Providers({ db, search, setSearch, fStatus, setFStatus, fSpec, setFSpec, openProvDetail, editProvider, setPage, setProvForm, setEditingId, setNpiInput, setNpiResult, syncFromNPPES }) {
   const [sortBy, setSortBy] = useState('name')
   const filtered = db.providers.filter(p => {
     const txt = `${p.fname} ${p.lname} ${p.cred} ${p.npi} ${p.focus} ${p.spec} ${p.email||''} ${p.phone||''} ${p.license||''} ${p.medicaid||''} ${p.caqh||''} ${p.dea||''} ${p.supervisor||''} ${p.notes||''}`.toLowerCase()

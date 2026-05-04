@@ -1,7 +1,7 @@
 import { daysUntil, fmtDate, pName, pNameShort, payName } from '../../lib/helpers.js'
 import { StageBadge, Badge } from '../../components/ui/Badge.jsx'
 
-function Dashboard({ db, setPage, openEnrollModal }) {
+export function Dashboard({ db, setPage, openEnrollModal }) {
   const alertDays = db.settings.alertDays || 90
   const activeProvs = db.providers.filter(p => p.status==='Active').length
   const activeEnr = db.enrollments.filter(e => e.stage==='Active').length

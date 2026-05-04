@@ -4,7 +4,7 @@ import { Badge } from '../../components/ui/Badge.jsx'
 import { Modal } from '../../components/ui/Modal.jsx'
 import { AGING_BUCKETS, getAgingBucket } from '../../constants/rcm.js'
 
-function ClaimsPage({ db, toast }) {
+export function ClaimsPage({ db, toast }) {
   const { providers, payers, claims: initClaims = [] } = db
   const [claims, setClaims] = useState(initClaims)
   const [modal, setModal] = useState(false)

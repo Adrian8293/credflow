@@ -2,7 +2,7 @@ import { useSorted } from '../../hooks/useSorted.js'
 import { daysUntil, fmtDate, pName, payName } from '../../lib/helpers.js'
 import { Badge } from '../../components/ui/Badge.jsx'
 
-function Workflows({ db, search, setSearch, fPriority, setFPriority, fStatus, setFStatus, openTaskModal, handleMarkDone, handleDeleteTask }) {
+export function Workflows({ db, search, setSearch, fPriority, setFPriority, fStatus, setFStatus, openTaskModal, handleMarkDone, handleDeleteTask }) {
   const rawTasks = db.tasks.filter(t => {
     const txt = `${t.task} ${pName(db.providers,t.provId)} ${payName(db.payers,t.payId)} ${t.cat}`.toLowerCase()
     return txt.includes(search.toLowerCase()) && (!fPriority||t.priority===fPriority) && (!fStatus||t.status===fStatus)

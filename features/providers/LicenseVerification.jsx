@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function LicenseVerification() {
+export function LicenseVerification() {
   const VERIF_SOURCES = [
     { icon: '🎓', title: 'OBLPCT — LPCs & MFTs', desc: 'Verify LPC, LPCA, LMFT, LMFTA licenses.', bg: '#f0fdf4', color: '#16a34a', cta: 'Verify LPC / LMFT →', href: 'https://oblpct.us.thentiacloud.net/webs/oblpct/register/#', note: 'Oregon official registry' },
     { icon: '🧩', title: 'BLSW — LCSWs', desc: 'Verify LCSW, CSWA, LSW licenses.', bg: '#f0fdf4', color: '#0891b2', cta: 'Verify LCSW →', href: 'https://blsw.us.thentiacloud.net/webs/blsw/register/#/', note: 'Oregon official registry' },

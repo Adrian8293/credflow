@@ -1,4 +1,4 @@
-function Modal({ onClose, title, sub, children, footer, lg }) {
+export function Modal({ onClose, title, sub, children, footer, lg }) {
   return <div className="overlay open" onClick={e=>{if(e.target===e.currentTarget)onClose()}}>
     <div className={`modal ${lg?'modal-lg':''}`}>
       <div className="modal-header">
@@ -11,7 +11,7 @@ function Modal({ onClose, title, sub, children, footer, lg }) {
   </div>
 }
 
-function DrawerModal({ onClose, title, sub, children, footer }) {
+export function DrawerModal({ onClose, title, sub, children, footer }) {
   return <>
     <div className="drawer-overlay open" onClick={onClose} />
     <div className="drawer">

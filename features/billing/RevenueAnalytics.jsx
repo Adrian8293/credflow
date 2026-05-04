@@ -1,7 +1,7 @@
 import { daysUntil, pName, payName } from '../../lib/helpers.js'
 import { useState } from 'react'
 
-function RevenueAnalytics({ db }) {
+export function RevenueAnalytics({ db }) {
   const { providers, payers, claims = [], payments = [] } = db
   const [period, setPeriod] = useState('month') // month | quarter | year | all
 

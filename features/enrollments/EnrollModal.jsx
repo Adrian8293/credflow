@@ -1,7 +1,7 @@
 import { Modal } from '../../components/ui/Modal.jsx'
 import { STAGES } from '../../constants/stages.js'
 
-function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSaveEnrollment, onClose, saving }) {
+export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSaveEnrollment, onClose, saving }) {
   const f = k => enrollForm[k] ?? ''
   const set = (k, v) => setEnrollForm(prev => ({ ...prev, [k]: v }))
   const stageIdx = STAGES.indexOf(f('stage'))

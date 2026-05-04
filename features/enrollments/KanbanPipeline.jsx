@@ -2,7 +2,7 @@ import { StageBadge } from '../../components/ui/Badge.jsx'
 import { STAGES, KANBAN_COLUMNS } from '../../constants/stages.js'
 import { useState } from 'react'
 
-function KanbanPipeline({ db, openEnrollModal }) {
+export function KanbanPipeline({ db, openEnrollModal }) {
   const [filterProv, setFilterProv] = useState('')
   const filtered = db.enrollments.filter(e => !filterProv || e.provId === filterProv)
   return (
