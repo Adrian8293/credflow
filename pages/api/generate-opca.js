@@ -13,7 +13,11 @@ export default async function handler(req, res) {
   const user = await requireAuth(req, res)
   if (!user) return
 
-  const { profileId, initials } = req.body
+  // ssn is accepted here but NEVER written to the database.
+  // It flows directly into the PDF fill function and is discarded after.
+  // The caller (frontend) must prompt the provider for their SSN at download
+  // time — it is not stored anywhere in the system (C-3).
+  const { profileId, initials, ssn } = req.body
 
   if (!profileId) {
     return res.status(400).json({ error: 'profileId is required' })
@@ -48,9 +52,12 @@ export default async function handler(req, res) {
     const derivedInitials = initials ||
       ((profile.first_name?.[0] || '') + (profile.last_name?.[0] || '')).toUpperCase()
 
+    // Merge ssn into profile in-memory only — never persisted
+    const profileWithSsn = ssn ? { ...profile, ssn } : profile
+
     const pdfBuffer = await fillOpcaPdf({
       templateBuffer,
-      profile,
+      profile: profileWithSsn,
       initials: derivedInitials,
     })
 
