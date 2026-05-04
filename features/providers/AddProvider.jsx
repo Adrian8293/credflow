@@ -1,5 +1,6 @@
 import { NpiLookupPanel } from './NpiLookupPanel.jsx'
 import { SPEC_COLORS } from '../../constants/stages.js'
+import { useState } from 'react'
 
 function AddProvider({ db, provForm, setProvForm, editingId, setEditingId, npiInput, setNpiInput, npiResult, setNpiResult, npiLoading, lookupNPI, handleSaveProvider, handleDeleteProvider, handlePhotoUpload, handleDeletePhoto, photoUploading, setPage, saving }) {
   const f = (k) => provForm[k] || ''
