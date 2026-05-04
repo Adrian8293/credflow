@@ -1,4 +1,5 @@
 import { Badge } from './Badge.jsx'
+import { useState } from 'react'
 
 function Sidebar({ page, setPage, alertCount, pendingEnroll, expDocs, user, signOut }) {
   // Track which groups are open. Default: all open
