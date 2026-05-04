@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 function NpiSyncModal({ data, onApply, onClose, saving }) {
   const { prov, diffs, card } = data
   const [selected, setSelected] = useState(() => new Set(diffs.map(d => d.field)))
