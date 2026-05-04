@@ -1,5 +1,6 @@
 import { Badge, ExpiryBadge, StageBadge } from '../../components/ui/Badge.jsx'
 import { Modal } from '../../components/ui/Modal.jsx'
+import { useState } from 'react'
 
 function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollModal, toast, syncFromNPPES }) {
   const [tab, setTab] = useState('profile')
