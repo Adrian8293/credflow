@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Badge } from '../../components/ui/Badge.jsx'
+import { initials } from '../../lib/helpers.js'
 
 function PsychologyToday({ db, setPage, editProvider }) {
   const [activeTab, setActiveTab] = useState('overview')
