@@ -1,7 +1,7 @@
 /**
  * WorkflowOverhaul.jsx — CredFlow Workflow-Driven UI Components
  *
- * Implements the "what do I do next?" philosophy from CredentialIQ_WorkflowOverhaul.jsx:
+ * Implements the "what do I do next?" philosophy from CredFlow_WorkflowOverhaul.jsx:
  *  - NextActionBanner: surfaces the single most urgent task at the top of Dashboard
  *  - ReadinessRing: circular score indicator for Provider Command Center header
  *  - ProviderReadinessBar: inline readiness bar on every provider list card

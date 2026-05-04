@@ -1,5 +1,5 @@
 /**
- * middleware.js — Auth edge guard for CredentialIQ
+ * middleware.js — Auth edge guard for CredFlow
  *
  * Runs at the edge (Vercel Edge Runtime) on every request before it hits
  * any page or API route. Redirects unauthenticated visitors to /login.

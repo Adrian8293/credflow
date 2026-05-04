@@ -22,7 +22,7 @@ export default function ResetPassword() {
   return (
     <>
       <Head>
-        <title>CredentialIQ — Reset Password</title>
+        <title>CredFlow — Reset Password</title>
         <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </Head>
       <div style={{ minHeight:'100vh', background:'#f8fbf8', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:"'Geist', sans-serif", padding:'24px' }}>
