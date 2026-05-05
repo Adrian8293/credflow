@@ -1,5 +1,6 @@
 import { daysUntil, pName, payName } from '../../lib/helpers.js'
 import { useState } from 'react'
+import { fmtMoney } from "../../constants/rcm.js"
 
 export function RevenueAnalytics({ db }) {
   const { providers, payers, claims = [], payments = [] } = db

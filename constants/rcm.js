@@ -33,4 +33,4 @@ function fmtMoney(n) {
 }
 
 
-export { DENIAL_CODES, AGING_BUCKETS, getAgingBucket }
+export { DENIAL_CODES, AGING_BUCKETS, getAgingBucket, fmtMoney }
