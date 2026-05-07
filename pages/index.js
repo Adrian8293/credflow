@@ -38,6 +38,10 @@ import { Modal, DrawerModal } from '../components/ui/Modal.jsx'
 import { Badge, ExpiryBadge, StageBadge } from '../components/ui/Badge.jsx'
 import { Sidebar } from '../components/ui/Sidebar.jsx'
 import { Topbar } from '../components/ui/Topbar.jsx'
+import { ProvidersPage } from '../features/providers/ProvidersPage.jsx'
+import { DocumentsPage } from '../features/documents/DocumentsPage.jsx'
+import { MarketingPage } from '../features/marketing/MarketingPage.jsx'
+import { ApplicationsPage } from '../features/enrollments/ApplicationsPage.jsx'
 import { GlobalSearch } from '../components/GlobalSearch.jsx'
 import { STAGES, KANBAN_COLUMNS, PAYER_REQUIREMENTS, STAGE_COLOR, SPEC_COLORS, PRIORITY_COLOR, STATUS_COLOR, BADGE_CLASS } from '../constants/stages.js'
 import { DENIAL_CODES, AGING_BUCKETS, getAgingBucket } from '../constants/rcm.js'
@@ -656,7 +660,7 @@ export default function App() {
       </Head>
       <div className="app-root">
         {/* ─── SIDEBAR ─── */}
-        <Sidebar page={page} setPage={setPage} alertCount={alertCount} pendingEnroll={pendingEnroll} expDocs={expDocs} user={user} signOut={signOut} />
+        <Sidebar page={page} setPage={setPage} alertCount={alertCount} expDocs={expDocs} user={user} signOut={signOut} />
 
         {/* ─── MAIN ─── */}
         <div className="main">
@@ -669,28 +673,68 @@ export default function App() {
             </div>
           ) : (
             <div className="pages">
-              {page === 'dashboard' && <WorkflowDashboard db={db} setPage={setPage} openEnrollModal={openEnrollModal} openProvDetail={openProvDetail} />}
-              {page === 'alerts' && <Alerts db={db} />}
-              {page === 'providers' && <Providers db={db} search={provSearch} setSearch={setProvSearch} fStatus={provFStatus} setFStatus={setProvFStatus} fSpec={provFSpec} setFSpec={setProvFSpec} openProvDetail={openProvDetail} editProvider={editProvider} setPage={setPage} setProvForm={setProvForm} setEditingId={setEditingId} setNpiInput={setNpiInput} setNpiResult={setNpiResult} syncFromNPPES={syncFromNPPES} />}
-              {page === 'provider-lookup' && <ProviderLookup db={db} setPage={setPage} setProvForm={setProvForm} setEditingId={setEditingId} setNpiInput={setNpiInput} setNpiResult={setNpiResult} />}
-              {page === 'license-verification' && <LicenseVerification />}
+              {/* ── 11 CORE PAGES ── */}
+              {page === 'dashboard'    && <WorkflowDashboard db={db} setPage={setPage} openEnrollModal={openEnrollModal} openProvDetail={openProvDetail} />}
+
+              {page === 'providers'    && <ProvidersPage
+                db={db}
+                provSearch={provSearch} setProvSearch={setProvSearch}
+                provFStatus={provFStatus} setProvFStatus={setProvFStatus}
+                provFSpec={provFSpec} setProvFSpec={setProvFSpec}
+                openProvDetail={openProvDetail} editProvider={editProvider}
+                setPage={setPage} setProvForm={setProvForm} setEditingId={setEditingId}
+                setNpiInput={setNpiInput} setNpiResult={setNpiResult}
+                syncFromNPPES={syncFromNPPES}
+                provForm={provForm} editingId={editingId}
+                npiInput={npiInput} npiResult={npiResult} npiLoading={npiLoading}
+                lookupNPI={lookupNPI} handleSaveProvider={handleSaveProvider}
+                handleDeleteProvider={handleDeleteProvider}
+                handlePhotoUpload={handlePhotoUpload} handleDeletePhoto={handleDeletePhoto}
+                photoUploading={photoUploading} saving={saving}
+              />}
+
+              {page === 'applications' && <ApplicationsPage
+                db={db} openEnrollModal={openEnrollModal}
+                search={enrSearch} setSearch={setEnrSearch}
+                fStage={enrFStage} setFStage={setEnrFStage}
+                fProv={enrFProv} setFProv={setEnrFProv}
+                handleDeleteEnrollment={handleDeleteEnrollment}
+              />}
+
+              {page === 'payers'       && <PayerHub
+                db={db} initialTab="directory"
+                openEnrollModal={openEnrollModal} openPayerModal={openPayerModal}
+                search={enrSearch} setSearch={setEnrSearch}
+                fStage={enrFStage} setFStage={setEnrFStage}
+                fProv={enrFProv} setFProv={setEnrFProv}
+                handleDeleteEnrollment={handleDeleteEnrollment}
+                paySearch={paySearch} setPaySearch={setPaySearch}
+                payFType={payFType} setPayFType={setPayFType}
+                handleDeletePayer={handleDeletePayer}
+              />}
+
+              {page === 'documents'    && <DocumentsPage
+                db={db}
+                docSearch={docSearch} setDocSearch={setDocSearch}
+                docFType={docFType} setDocFType={setDocFType}
+                docFStatus={docFStatus} setDocFStatus={setDocFStatus}
+                openDocModal={openDocModal} handleDeleteDocument={handleDeleteDocument}
+              />}
+
+              {page === 'tasks'        && <WorkflowTasks db={db} openTaskModal={openTaskModal} handleMarkDone={handleMarkDone} handleDeleteTask={handleDeleteTask} />}
+
+              {page === 'alerts'       && <Alerts db={db} />}
+
+              {page === 'marketing'    && <MarketingPage db={db} setPage={setPage} editProvider={editProvider} />}
+
+              {page === 'reports'      && <Reports db={db} exportJSON={exportJSON} />}
+
+              {page === 'audit'        && <Audit db={db} search={auditSearch} setSearch={setAuditSearch} fType={auditFType} setFType={setAuditFType} handleClearAudit={handleClearAudit} />}
+
+              {page === 'settings'     && <Settings settingsForm={settingsForm} setSettingsForm={setSettingsForm} handleSaveSettings={handleSaveSettings} exportJSON={exportJSON} />}
+
+              {/* ── Legacy page aliases — keep working if navigated to directly ── */}
               {page === 'add-provider' && <AddProvider db={db} provForm={provForm} setProvForm={setProvForm} editingId={editingId} setEditingId={setEditingId} npiInput={npiInput} setNpiInput={setNpiInput} npiResult={npiResult} setNpiResult={setNpiResult} npiLoading={npiLoading} lookupNPI={lookupNPI} handleSaveProvider={handleSaveProvider} handleDeleteProvider={handleDeleteProvider} handlePhotoUpload={handlePhotoUpload} handleDeletePhoto={handleDeletePhoto} photoUploading={photoUploading} setPage={setPage} saving={saving} />}
-              {page === 'pipeline' && <PayerHub db={db} initialTab="pipeline" openEnrollModal={openEnrollModal} openPayerModal={openPayerModal} search={enrSearch} setSearch={setEnrSearch} fStage={enrFStage} setFStage={setEnrFStage} fProv={enrFProv} setFProv={setEnrFProv} handleDeleteEnrollment={handleDeleteEnrollment} paySearch={paySearch} setPaySearch={setPaySearch} payFType={payFType} setPayFType={setPayFType} handleDeletePayer={handleDeletePayer} />}
-              {page === 'enrollments' && <PayerHub db={db} initialTab="enrollments" openEnrollModal={openEnrollModal} openPayerModal={openPayerModal} search={enrSearch} setSearch={setEnrSearch} fStage={enrFStage} setFStage={setEnrFStage} fProv={enrFProv} setFProv={setEnrFProv} handleDeleteEnrollment={handleDeleteEnrollment} paySearch={paySearch} setPaySearch={setPaySearch} payFType={payFType} setPayFType={setPayFType} handleDeletePayer={handleDeletePayer} />}
-              {page === 'payers' && <PayerHub db={db} initialTab="directory" openEnrollModal={openEnrollModal} openPayerModal={openPayerModal} search={enrSearch} setSearch={setEnrSearch} fStage={enrFStage} setFStage={setEnrFStage} fProv={enrFProv} setFProv={setEnrFProv} handleDeleteEnrollment={handleDeleteEnrollment} paySearch={paySearch} setPaySearch={setPaySearch} payFType={payFType} setPayFType={setPayFType} handleDeletePayer={handleDeletePayer} />}
-              {page === 'payer-requirements' && <PayerHub db={db} initialTab="library" openEnrollModal={openEnrollModal} openPayerModal={openPayerModal} search={enrSearch} setSearch={setEnrSearch} fStage={enrFStage} setFStage={setEnrFStage} fProv={enrFProv} setFProv={setEnrFProv} handleDeleteEnrollment={handleDeleteEnrollment} paySearch={paySearch} setPaySearch={setPaySearch} payFType={payFType} setPayFType={setPayFType} handleDeletePayer={handleDeletePayer} />}
-              {page === 'payer-hub' && <PayerHub db={db} initialTab="directory" openEnrollModal={openEnrollModal} openPayerModal={openPayerModal} search={enrSearch} setSearch={setEnrSearch} fStage={enrFStage} setFStage={setEnrFStage} fProv={enrFProv} setFProv={setEnrFProv} handleDeleteEnrollment={handleDeleteEnrollment} paySearch={paySearch} setPaySearch={setPaySearch} payFType={payFType} setPayFType={setPayFType} handleDeletePayer={handleDeletePayer} />}
-              {page === 'missing-docs' && <MissingDocuments db={db} />}
-              {page === 'documents' && <WorkflowDocuments db={db} openDocModal={openDocModal} handleDeleteDocument={handleDeleteDocument} />}
-              {page === 'workflows' && <WorkflowTasks db={db} openTaskModal={openTaskModal} handleMarkDone={handleMarkDone} handleDeleteTask={handleDeleteTask} />}
-              {page === 'reports' && <Reports db={db} exportJSON={exportJSON} />}
-              {page === 'audit' && <Audit db={db} search={auditSearch} setSearch={setAuditSearch} fType={auditFType} setFType={setAuditFType} handleClearAudit={handleClearAudit} />}
-              {page === 'psychology-today' && <PsychologyToday db={db} setPage={setPage} editProvider={editProvider} />}
-              {page === 'eligibility' && <EligibilityPage db={db} toast={toast} />}
-              {page === 'claims' && <ClaimsPage db={db} toast={toast} />}
-              {page === 'denials' && <DenialLog db={db} toast={toast} />}
-              {page === 'revenue' && <RevenueAnalytics db={db} />}
-              {page === 'settings' && <Settings settingsForm={settingsForm} setSettingsForm={setSettingsForm} handleSaveSettings={handleSaveSettings} exportJSON={exportJSON} />}
             </div>
           )}
         </div>
