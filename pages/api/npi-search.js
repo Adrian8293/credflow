@@ -1,4 +1,5 @@
 import { requireAuth } from '../../lib/supabase-server'
+import { enforceRateLimit } from '../../lib/api-middleware'
 
 function formatPhone(raw = '') {
   const digits = (raw || '').replace(/\D/g, '')
@@ -7,6 +8,8 @@ function formatPhone(raw = '') {
 }
 
 export default async function handler(req, res) {
+  if (!enforceRateLimit(req, res, { max: 30, windowMs: 60_000, keyPrefix: 'npi-search:' })) return
+
   // Auth guard — prevent open proxy abuse
   const user = await requireAuth(req, res)
   if (!user) return

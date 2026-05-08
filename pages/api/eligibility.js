@@ -1,8 +1,10 @@
 // pages/api/eligibility.js
 import { requireAuth } from '../../lib/supabase-server'
+import { enforceRateLimit } from '../../lib/api-middleware'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
+  if (!enforceRateLimit(req, res, { max: 20, windowMs: 60_000, keyPrefix: 'eligibility:' })) return
 
   const user = await requireAuth(req, res)
   if (!user) return

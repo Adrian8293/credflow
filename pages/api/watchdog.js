@@ -24,6 +24,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { enforceRateLimit } from '../../lib/api-middleware'
 
 // Use service-role key so we bypass RLS (this is a server-only route)
 const supabase = createClient(
@@ -222,6 +223,7 @@ export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
+  if (!enforceRateLimit(req, res, { max: 12, windowMs: 60_000, keyPrefix: 'watchdog:' })) return
 
   // Security: CRON_SECRET is REQUIRED — fail closed, not open.
   // Without this env var, the endpoint is disabled entirely.

@@ -44,5 +44,3 @@ export function Payers({ db, search, setSearch, fType, setFType, openPayerModal,
 }
 
 // ─── DOCUMENTS ─────────────────────────────────────────────────────────────────
-
-export { Payers }

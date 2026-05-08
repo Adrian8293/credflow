@@ -1,5 +1,6 @@
 // pages/api/import-sp.js
 import { requireAuth, supabaseAdmin } from '../../lib/supabase-server'
+import { enforceRateLimit } from '../../lib/api-middleware'
 
 // SimplePractice CSV column → your schema field mapping
 const SP_CLAIM_MAP = {
@@ -21,6 +22,7 @@ const SP_CLAIM_MAP = {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
+  if (!enforceRateLimit(req, res, { max: 8, windowMs: 60_000, keyPrefix: 'import-sp:' })) return
 
   const user = await requireAuth(req, res)
   if (!user) return

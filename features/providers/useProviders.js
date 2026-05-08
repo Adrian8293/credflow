@@ -14,9 +14,8 @@ export function useProviders({ db, setDb, toast, setModal, setEditingId, setProv
     }))
   }
 
-  async function handleSaveProvider() {
+  async function handleSaveProvider({ provForm, editingId }) {
     try {
-      const { provForm, editingId } = arguments[0] || {}
       const fname = provForm.fname?.trim().toLowerCase()
       const lname = provForm.lname?.trim().toLowerCase()
       const npi   = provForm.npi?.trim()
@@ -78,5 +77,3 @@ export function useProviders({ db, setDb, toast, setModal, setEditingId, setProv
 
   return { handlePhotoUpload, handleSaveProvider, handleDeleteProvider, handleNpiLookup, handleNpiSync }
 }
-
-export { useProviders }

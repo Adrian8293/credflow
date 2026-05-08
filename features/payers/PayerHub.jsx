@@ -54,5 +54,3 @@ export function PayerHub({ db, initialTab, openEnrollModal, openPayerModal, sear
 }
 
 // Extracted sub-tab components (so PayerHub can render them without the outer <div className="page">)
-
-export { PayerHub }

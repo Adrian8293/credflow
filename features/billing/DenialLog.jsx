@@ -4,7 +4,7 @@ import { Badge } from '../../components/ui/Badge.jsx'
 import { Modal } from '../../components/ui/Modal.jsx'
 import { DENIAL_CODES } from '../../constants/rcm.js'
 
-export function DenialLog({ db, toast }) {
+export function DenialLog({ db, toast, requestConfirm }) {
   const { providers, payers, denials: initDenials = [], claims = [] } = db
   const [denials, setDenials] = useState(initDenials)
   const [modal, setModal] = useState(false)
@@ -42,7 +42,12 @@ export function DenialLog({ db, toast }) {
   }
 
   async function handleDelete(id) {
-    if (!confirm('Delete this denial?')) return
+    if (requestConfirm && !(await requestConfirm({
+      title: 'Delete Denial',
+      body: 'This permanently removes the denial tracking record and any appeal notes stored with it.',
+      confirmText: 'Delete denial',
+      danger: true,
+    }))) return
     try { await deleteDenial(id); setDenials(d=>d.filter(x=>x.id!==id)); toast('Deleted.','warn') }
     catch(e) { toast(e.message,'error') }
   }
@@ -221,5 +226,3 @@ export function DenialLog({ db, toast }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // REVENUE ANALYTICS PAGE
 // ═══════════════════════════════════════════════════════════════════════════════
-
-export { DenialLog }

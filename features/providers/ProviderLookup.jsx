@@ -433,5 +433,3 @@ export function ProviderLookup({ db, setPage, setProvForm, setEditingId, setNpiI
 
 
 // ─── LICENSE VERIFICATION PAGE ───────────────────────────────────────────────
-
-export { ProviderLookup }

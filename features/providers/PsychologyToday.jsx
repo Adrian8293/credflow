@@ -272,5 +272,3 @@ export function PsychologyToday({ db, setPage, editProvider }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // ELIGIBILITY PAGE
 // ═══════════════════════════════════════════════════════════════════════════════
-
-export { PsychologyToday }

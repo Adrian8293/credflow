@@ -271,5 +271,3 @@ export function GlobalSearch({ db, onClose, setPage, openProvDetail, openEnrollM
 
 
 // ─── PROVIDER LOOKUP PAGE ─────────────────────────────────────────────────────
-
-export { GlobalSearch }

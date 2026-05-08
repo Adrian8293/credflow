@@ -18,6 +18,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { requireAuth } from '../../lib/supabase-server'
 import { createSessionClient } from '../../lib/supabase-server'
+import { enforceRateLimit } from '../../lib/api-middleware'
 
 const client = new Anthropic()
 
@@ -25,6 +26,8 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
+
+  if (!enforceRateLimit(req, res, { max: 10, windowMs: 60_000, keyPrefix: 'ai:' })) return
 
   // ── Auth guard (was missing — critical security fix) ────────────────────────
   const user = await requireAuth(req, res)

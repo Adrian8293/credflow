@@ -21,5 +21,3 @@ export function TaskModal({ db, taskForm, setTaskForm, editingId, handleSaveTask
 // ─── NPI SYNC MODAL ───────────────────────────────────────────────────────────
 // Shows a field-by-field diff between NPPES and CredFlow.
 // User can check/uncheck individual fields before applying.
-
-export { TaskModal }

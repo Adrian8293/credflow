@@ -16,5 +16,3 @@ export function DocModal({ db, docForm, setDocForm, editingId, handleSaveDocumen
     </div>
   </Modal>
 }
-
-export { DocModal }

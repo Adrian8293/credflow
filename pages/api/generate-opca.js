@@ -4,11 +4,13 @@
 
 import { requireAuth, supabaseAdmin } from '../../lib/supabase-server'
 import { fillOpcaPdf } from '../../lib/opca-pdf-filler'
+import { enforceRateLimit } from '../../lib/api-middleware'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
+  if (!enforceRateLimit(req, res, { max: 12, windowMs: 60_000, keyPrefix: 'generate-opca:' })) return
 
   const user = await requireAuth(req, res)
   if (!user) return

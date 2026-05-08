@@ -88,5 +88,3 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
 
 
 // ─── KANBAN PIPELINE ───────────────────────────────────────────────────────────
-
-export { ProvDetailModal }

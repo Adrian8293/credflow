@@ -24,5 +24,3 @@ export function DrawerModal({ onClose, title, sub, children, footer }) {
     </div>
   </>
 }
-
-export { Modal, DrawerModal }

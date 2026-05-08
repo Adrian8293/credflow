@@ -85,6 +85,7 @@ import {
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 const d = n => { const x=new Date(); x.setDate(x.getDate()+n); return x.toISOString().split('T')[0] }
 const p = n => { const x=new Date(); x.setDate(x.getDate()-n); return x.toISOString().split('T')[0] }
+const CAN_LOAD_SAMPLE_DATA = process.env.NODE_ENV !== 'production'
 
 const SAMPLE_PROVIDERS = [
   { fname:'Sarah', lname:'Chen', cred:'LCSW', spec:'Mental Health', status:'Active', email:'', phone:'(503)555-0101', focus:'Trauma, PTSD, EMDR, Anxiety', npi:'1234567890', caqh:'12345678', caqhAttest:p(120), caqhDue:d(45), medicaid:'OR1000001', ptan:'', license:'C12345', licenseExp:d(280), malCarrier:'HPSO', malPolicy:'HP-001', malExp:d(180), dea:'', deaExp:'', recred:d(310), supervisor:'', supExp:'', notes:'Bilingual Spanish/English.' },
@@ -136,12 +137,25 @@ export default function App() {
   // ── NEW: AI Follow-up modal state ─────────────────────────────────────────
   const [aiModalOpen, setAiModalOpen] = useState(false)
   const [aiModalEnrollment, setAiModalEnrollment] = useState(null)
+  const [confirmDialog, setConfirmDialog] = useState(null)
+  const confirmResolver = useRef(null)
 
   // Helper: open AI follow-up modal from any page
   function openAiFollowup(enrollment) {
     setAiModalEnrollment(enrollment)
     setAiModalOpen(true)
   }
+
+  const requestConfirm = useCallback((config) => new Promise(resolve => {
+    confirmResolver.current = resolve
+    setConfirmDialog(config)
+  }), [])
+
+  const settleConfirm = useCallback((result) => {
+    confirmResolver.current?.(result)
+    confirmResolver.current = null
+    setConfirmDialog(null)
+  }, [])
 
   // ─── GLOBAL SEARCH SHORTCUT
   useEffect(() => {
@@ -215,7 +229,12 @@ export default function App() {
   }
 
   async function handleDeletePhoto(providerId) {
-    if (!confirm('Remove this photo?')) return
+    if (!(await requestConfirm({
+      title: 'Remove Photo',
+      body: 'This removes the stored provider photo and clears the avatar from the provider record.',
+      confirmText: 'Remove photo',
+      danger: true,
+    }))) return
     try {
       await deleteProviderPhoto(providerId)
       setProvForm(f => ({ ...f, avatarUrl: '' }))
@@ -269,7 +288,12 @@ export default function App() {
   }
 
   async function handleDeleteProvider(id) {
-    if (!confirm('Delete this provider and all linked data?')) return
+    if (!(await requestConfirm({
+      title: 'Delete Provider',
+      body: 'This permanently deletes the provider. Linked enrollments and documents may be removed by database cascade rules, and related task history can lose its provider reference.',
+      confirmText: 'Delete provider',
+      danger: true,
+    }))) return
     setSaving(true)
     try {
       await deleteProvider(id)
@@ -308,7 +332,12 @@ export default function App() {
   }
 
   async function handleDeleteEnrollment(id) {
-    if (!confirm('Delete this enrollment?')) return
+    if (!(await requestConfirm({
+      title: 'Delete Enrollment',
+      body: 'This permanently removes the enrollment workflow record and any realtime collaborators will see it disappear.',
+      confirmText: 'Delete enrollment',
+      danger: true,
+    }))) return
     try {
       await deleteEnrollment(id)
       setDb(prev => ({ ...prev, enrollments: prev.enrollments.filter(x => x.id !== id) }))
@@ -360,7 +389,12 @@ export default function App() {
   }
 
   async function handleDeletePayer(id) {
-    if (!confirm('Delete this payer?')) return
+    if (!(await requestConfirm({
+      title: 'Delete Payer',
+      body: 'This permanently removes the payer. Existing enrollments and tasks may keep empty payer references depending on database rules.',
+      confirmText: 'Delete payer',
+      danger: true,
+    }))) return
     try {
       await deletePayer(id)
       setDb(prev => ({ ...prev, payers: prev.payers.filter(x => x.id !== id) }))
@@ -388,7 +422,12 @@ export default function App() {
   }
 
   async function handleDeleteDocument(id) {
-    if (!confirm('Delete this document?')) return
+    if (!(await requestConfirm({
+      title: 'Delete Document',
+      body: 'This permanently removes the credential document and any expiration tracking tied to it.',
+      confirmText: 'Delete document',
+      danger: true,
+    }))) return
     try {
       await deleteDocument(id)
       setDb(prev => ({ ...prev, documents: prev.documents.filter(x => x.id !== id) }))
@@ -423,7 +462,12 @@ export default function App() {
   }
 
   async function handleDeleteTask(id) {
-    if (!confirm('Delete this task?')) return
+    if (!(await requestConfirm({
+      title: 'Delete Task',
+      body: 'This permanently removes the task from the workflow queue.',
+      confirmText: 'Delete task',
+      danger: true,
+    }))) return
     try {
       await deleteTask(id)
       setDb(prev => ({ ...prev, tasks: prev.tasks.filter(x => x.id !== id) }))
@@ -442,7 +486,12 @@ export default function App() {
 
   // ─── CLEAR AUDIT ──────────────────────────────────────────────────────────────
   async function handleClearAudit() {
-    if (!confirm('Clear the audit log?')) return
+    if (!(await requestConfirm({
+      title: 'Archive Audit Log',
+      body: 'Audit records are append-only for compliance. This records an archive request; authenticated users cannot delete the audit trail.',
+      confirmText: 'Record request',
+      danger: false,
+    }))) return
     try {
       await clearAuditLogDB()
       setDb(prev => ({ ...prev, auditLog: [] }))
@@ -578,7 +627,16 @@ export default function App() {
 
   // ─── LOAD SAMPLE DATA ─────────────────────────────────────────────────────────
   async function loadSampleData() {
-    if (!confirm('Load sample data? This will add sample providers and payers.')) return
+    if (!CAN_LOAD_SAMPLE_DATA) {
+      toast('Sample data is disabled in production.', 'error')
+      return
+    }
+    if (!(await requestConfirm({
+      title: 'Load Sample Data',
+      body: 'This adds demo providers and payers to the current database. Use it only in local or staging environments.',
+      confirmText: 'Load sample data',
+      danger: false,
+    }))) return
     setSaving(true)
     try {
       for (const prov of SAMPLE_PROVIDERS) {
@@ -852,9 +910,9 @@ export default function App() {
               )}
 
               {/* ── BILLING SECTION (these were built but unreachable — now wired) ── */}
-              {page === 'claims'      && <ClaimsPage db={db} toast={toast} />}
-              {page === 'eligibility' && <EligibilityPage db={db} toast={toast} />}
-              {page === 'denials'     && <DenialLog db={db} toast={toast} onDraftAppeal={openAiFollowup} />}
+              {page === 'claims'      && <ClaimsPage db={db} toast={toast} requestConfirm={requestConfirm} />}
+              {page === 'eligibility' && <EligibilityPage db={db} toast={toast} requestConfirm={requestConfirm} />}
+              {page === 'denials'     && <DenialLog db={db} toast={toast} onDraftAppeal={openAiFollowup} requestConfirm={requestConfirm} />}
               {page === 'revenue'     && <RevenueAnalytics db={db} />}
 
               {/* ── ADMIN SECTION ── */}
@@ -951,6 +1009,27 @@ export default function App() {
         )}
 
         {/* ─── TOASTS ─── */}
+        {confirmDialog && (
+          <Modal
+            title={confirmDialog.title}
+            sub={confirmDialog.danger ? 'Permanent action' : 'Confirmation'}
+            onClose={() => settleConfirm(false)}
+            footer={
+              <>
+                <button className="btn btn-secondary" onClick={() => settleConfirm(false)}>Cancel</button>
+                <button
+                  className={`btn ${confirmDialog.danger ? 'btn-danger' : 'btn-primary'}`}
+                  onClick={() => settleConfirm(true)}
+                >
+                  {confirmDialog.confirmText || 'Confirm'}
+                </button>
+              </>
+            }
+          >
+            <p style={{ margin: 0, lineHeight: 1.6 }}>{confirmDialog.body}</p>
+          </Modal>
+        )}
+
         <div className="toast-wrap">
           {toasts.map(t => (
             <div key={t.id} className={`toast t-${t.type}`}>

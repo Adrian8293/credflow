@@ -60,5 +60,3 @@ export function Documents({ db, search, setSearch, fType, setFType, fStatus, set
 }
 
 // ─── WORKFLOWS ─────────────────────────────────────────────────────────────────
-
-export { Documents }

@@ -4,7 +4,7 @@ import { Badge } from '../../components/ui/Badge.jsx'
 import { Modal } from '../../components/ui/Modal.jsx'
 import { fmtMoney } from "../../constants/rcm.js"
 
-export function EligibilityPage({ db, toast }) {
+export function EligibilityPage({ db, toast, requestConfirm }) {
   const { providers, payers, eligibilityChecks: initChecks = [] } = db
   const [checks, setChecks] = useState(initChecks)
   const [modal, setModal] = useState(false)
@@ -20,13 +20,23 @@ export function EligibilityPage({ db, toast }) {
   function openEdit(c) { setForm({...c}); setModal(true) }
 
   async function handleVerify() {
-    if (!form.member_id || !form.payer_id) { toast('Member ID and payer required to verify.','error'); return }
+    const provider = providers.find(p => p.id === form.prov_id)
+    if (!form.member_id || !form.payer_id || !form.dob || !provider?.npi) {
+      toast('Member ID, DOB, payer, and a provider NPI are required to verify.','error')
+      return
+    }
     setVerifying(true)
     try {
       const res = await fetch('/api/eligibility', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ memberId: form.member_id, payerId: form.payer_id, dob: form.dob, provId: form.prov_id })
+        body: JSON.stringify({
+          memberId: form.member_id,
+          payerId: form.payer_id,
+          dob: form.dob,
+          npi: provider.npi,
+          dos: form.appt_date,
+        })
       })
       const data = await res.json()
       if (data.error) { toast(data.error,'error'); setVerifying(false); return }
@@ -51,7 +61,12 @@ export function EligibilityPage({ db, toast }) {
   }
 
   async function handleDelete(id) {
-    if (!confirm('Delete this eligibility check?')) return
+    if (requestConfirm && !(await requestConfirm({
+      title: 'Delete Eligibility Check',
+      body: 'This permanently removes the eligibility check and its stored payer response snapshot.',
+      confirmText: 'Delete check',
+      danger: true,
+    }))) return
     try { await deleteEligibilityCheck(id); setChecks(c => c.filter(x => x.id!==id)); toast('Deleted.','warn') }
     catch(e) { toast(e.message,'error') }
   }
@@ -206,5 +221,3 @@ export function EligibilityPage({ db, toast }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // CLAIMS TRACKER PAGE
 // ═══════════════════════════════════════════════════════════════════════════════
-
-export { EligibilityPage }

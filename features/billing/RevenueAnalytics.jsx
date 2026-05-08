@@ -190,5 +190,3 @@ export function RevenueAnalytics({ db }) {
     </div>
   )
 }
-
-export { RevenueAnalytics }

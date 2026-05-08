@@ -12,6 +12,3 @@ export function ExpiryBadge({ date }) {
   return <Badge cls="b-green">{days}d left</Badge>
 }
 export function StageBadge({ stage }) { return <Badge cls={STAGE_COLOR[stage]||'b-gray'}>{stage}</Badge> }
-
-
-export { Badge, ExpiryBadge, StageBadge }

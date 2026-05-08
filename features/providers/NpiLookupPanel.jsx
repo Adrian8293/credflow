@@ -179,5 +179,3 @@ export function NpiLookupPanel({ npiInput, setNpiInput, npiResult, setNpiResult,
     </div>
   )
 }
-
-export { NpiLookupPanel }

@@ -43,5 +43,3 @@ export function LicenseVerification() {
 
 
 // ─── PSYCHOLOGY TODAY PAGE ─────────────────────────────────────────────────────
-
-export { LicenseVerification }

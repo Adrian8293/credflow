@@ -35,5 +35,3 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
     </div>
   </DrawerModal>
 }
-
-export { EnrollModal }

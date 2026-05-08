@@ -56,5 +56,3 @@ export function Providers({ db, search, setSearch, fStatus, setFStatus, fSpec, s
 //   Mode A — lookup by 10-digit NPI number (instant auto-fill)
 //   Mode B — search by name (inline, no redirect needed)
 // Either way, selecting a result pre-fills the provider form.
-
-export { Providers }

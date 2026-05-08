@@ -97,5 +97,3 @@ export function NpiSyncModal({ data, onApply, onClose, saving }) {
     </div>
   )
 }
-
-export { NpiSyncModal }

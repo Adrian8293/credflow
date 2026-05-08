@@ -1,6 +1,9 @@
 import { requireAuth } from '../../lib/supabase-server'
+import { enforceRateLimit } from '../../lib/api-middleware'
 
 export default async function handler(req, res) {
+  if (!enforceRateLimit(req, res, { max: 30, windowMs: 60_000, keyPrefix: 'npi:' })) return
+
   // Auth guard — prevent open proxy abuse
   const user = await requireAuth(req, res)
   if (!user) return

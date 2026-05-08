@@ -55,5 +55,3 @@ export function Workflows({ db, search, setSearch, fPriority, setFPriority, fSta
 }
 
 // ─── REPORTS ───────────────────────────────────────────────────────────────────
-
-export { Workflows }

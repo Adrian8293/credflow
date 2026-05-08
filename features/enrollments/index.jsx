@@ -58,5 +58,3 @@ export function Enrollments({ db, search, setSearch, fStage, setFStage, fProv, s
 
 // ─── PAYER HUB ─────────────────────────────────────────────────────────────────
 // Unified 4-tab hub: Directory | Enrollments | Pipeline | Library
-
-export { Enrollments }

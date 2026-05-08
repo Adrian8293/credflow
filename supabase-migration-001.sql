@@ -2,6 +2,8 @@
 -- Run in Supabase SQL Editor
 -- Adds: missing columns, missing tables, RLS, indexes, audit immutability
 
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- 1. ADD MISSING COLUMNS TO EXISTING TABLES
 -- ═══════════════════════════════════════════════════════════════════════════════
@@ -297,6 +299,21 @@ ALTER TABLE claim_denials ENABLE ROW LEVEL SECURITY;
 ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE opca_profiles ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies first so this migration can be safely re-run.
+DROP POLICY IF EXISTS "auth_full_access" ON providers;
+DROP POLICY IF EXISTS "auth_full_access" ON payers;
+DROP POLICY IF EXISTS "auth_full_access" ON enrollments;
+DROP POLICY IF EXISTS "auth_full_access" ON documents;
+DROP POLICY IF EXISTS "auth_full_access" ON tasks;
+DROP POLICY IF EXISTS "auth_full_access" ON settings;
+DROP POLICY IF EXISTS "auth_full_access" ON claims;
+DROP POLICY IF EXISTS "auth_full_access" ON eligibility_checks;
+DROP POLICY IF EXISTS "auth_full_access" ON claim_denials;
+DROP POLICY IF EXISTS "auth_full_access" ON payments;
+DROP POLICY IF EXISTS "auth_full_access" ON opca_profiles;
+DROP POLICY IF EXISTS "audit_read" ON audit_log;
+DROP POLICY IF EXISTS "audit_insert" ON audit_log;
+
 -- Phase 1 policy: authenticated users get full access
 -- This is safe for single-org deployment. Phase 5 adds org-based isolation.
 CREATE POLICY "auth_full_access" ON providers FOR ALL TO authenticated USING (true) WITH CHECK (true);
@@ -326,7 +343,19 @@ DO $$
 DECLARE
   t text;
 BEGIN
-  FOREACH t IN ARRAY ARRAY['providers','payers','enrollments','documents','tasks']
+  FOREACH t IN ARRAY ARRAY[
+    'providers',
+    'payers',
+    'enrollments',
+    'documents',
+    'tasks',
+    'claims',
+    'eligibility_checks',
+    'claim_denials',
+    'payments',
+    'opca_profiles',
+    'audit_log'
+  ]
   LOOP
     IF NOT EXISTS (
       SELECT 1 FROM pg_publication_tables

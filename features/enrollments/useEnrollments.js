@@ -36,5 +36,3 @@ export function useEnrollments({ db, setDb, toast, setModal, setEditingId, setEn
 
   return { handleSaveEnrollment, handleDeleteEnrollment }
 }
-
-export { useEnrollments }

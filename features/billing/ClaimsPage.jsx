@@ -4,7 +4,7 @@ import { Badge } from '../../components/ui/Badge.jsx'
 import { Modal } from '../../components/ui/Modal.jsx'
 import { AGING_BUCKETS, getAgingBucket, fmtMoney } from "../../constants/rcm.js"
 
-export function ClaimsPage({ db, toast }) {
+export function ClaimsPage({ db, toast, requestConfirm }) {
   const { providers, payers, claims: initClaims = [] } = db
   const [claims, setClaims] = useState(initClaims)
   const [modal, setModal] = useState(false)
@@ -39,7 +39,12 @@ export function ClaimsPage({ db, toast }) {
   }
 
   async function handleDelete(id) {
-    if (!confirm('Delete this claim?')) return
+    if (requestConfirm && !(await requestConfirm({
+      title: 'Delete Claim',
+      body: 'This permanently removes the claim and may cascade to linked denial records.',
+      confirmText: 'Delete claim',
+      danger: true,
+    }))) return
     try { await deleteClaim(id); setClaims(c=>c.filter(x=>x.id!==id)); toast('Deleted.','warn') }
     catch(e) { toast(e.message,'error') }
   }
@@ -237,5 +242,3 @@ export function ClaimsPage({ db, toast }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // DENIAL LOG PAGE
 // ═══════════════════════════════════════════════════════════════════════════════
-
-export { ClaimsPage }

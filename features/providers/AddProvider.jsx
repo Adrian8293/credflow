@@ -135,5 +135,3 @@ export function AddProvider({ db, provForm, setProvForm, editingId, setEditingId
 }
 
 // ─── ENROLLMENTS ───────────────────────────────────────────────────────────────
-
-export { AddProvider }

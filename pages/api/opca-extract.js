@@ -9,6 +9,7 @@ import { IncomingForm } from 'formidable'
 import fs from 'fs'
 import { requireAuth, supabaseAdmin } from '../../lib/supabase-server'
 import Anthropic from '@anthropic-ai/sdk'
+import { enforceRateLimit } from '../../lib/api-middleware'
 
 export const config = {
   api: { bodyParser: false },
@@ -19,6 +20,31 @@ const anthropic = new Anthropic({
 })
 
 // ─── System prompt for extraction ──────────────────────────────────────────────
+const MAX_PDF_BYTES = 20 * 1024 * 1024
+const PDF_MIME_TYPES = new Set(['application/pdf', 'application/x-pdf'])
+
+function buildProviderSyncSuggestions(provider, licensure, malpractice) {
+  const candidates = {
+    npi: licensure.individual_npi,
+    dea: licensure.dea_number,
+    dea_exp: licensure.dea_exp,
+    license: licensure.oregon_license_number,
+    license_exp: licensure.oregon_license_exp,
+    mal_carrier: malpractice.current?.carrier,
+    mal_policy: malpractice.current?.policy_number,
+    mal_exp: malpractice.current?.expiration_date,
+  }
+
+  return Object.entries(candidates)
+    .filter(([, extracted]) => extracted)
+    .map(([field, extracted]) => ({
+      field,
+      current: provider?.[field] ?? null,
+      extracted,
+      differs: provider?.[field] ? String(provider[field]) !== String(extracted) : true,
+    }))
+}
+
 const EXTRACTION_SYSTEM_PROMPT = `You are a medical credentialing specialist. You will receive a filled Oregon Practitioner Credentialing Application (OPCA) PDF.
 
 Extract ALL data from the form and return a single JSON object. For empty/blank fields return null. For Yes/No questions return "YES" or "NO".
@@ -137,6 +163,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
+  if (!enforceRateLimit(req, res, { max: 6, windowMs: 60_000, keyPrefix: 'opca-extract:' })) return
 
   // Auth check — must happen before form parsing since bodyParser is disabled.
   // requireAuth reads the session from cookies, not the body.
@@ -144,7 +171,10 @@ export default async function handler(req, res) {
   if (!user) return
 
   // Parse multipart form
-  const form = new IncomingForm({ maxFileSize: 20 * 1024 * 1024 })
+  const form = new IncomingForm({
+    maxFileSize: MAX_PDF_BYTES,
+    filter: part => part.name !== 'file' || PDF_MIME_TYPES.has(part.mimetype || ''),
+  })
   let fields, files
   try {
     ;[fields, files] = await new Promise((resolve, reject) => {
@@ -159,11 +189,21 @@ export default async function handler(req, res) {
 
   if (!providerId) return res.status(400).json({ error: 'providerId is required' })
   if (!pdfFile) return res.status(400).json({ error: 'No PDF file uploaded' })
+  if (!PDF_MIME_TYPES.has(pdfFile.mimetype || '')) {
+    return res.status(400).json({ error: 'Only PDF uploads are supported.' })
+  }
+  if (pdfFile.size > MAX_PDF_BYTES) {
+    return res.status(413).json({ error: 'PDF must be 20MB or smaller.' })
+  }
 
   // Read PDF as base64
   let pdfBase64
+  let pdfBuffer
   try {
-    const pdfBuffer = fs.readFileSync(pdfFile.filepath)
+    pdfBuffer = fs.readFileSync(pdfFile.filepath)
+    if (pdfBuffer.subarray(0, 4).toString() !== '%PDF') {
+      return res.status(400).json({ error: 'Uploaded file is not a valid PDF.' })
+    }
     pdfBase64 = pdfBuffer.toString('base64')
   } catch (err) {
     return res.status(500).json({ error: 'Failed to read uploaded file: ' + err.message })
@@ -205,6 +245,7 @@ export default async function handler(req, res) {
     // Strip any markdown fences
     const clean = rawText.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
     extractedData = JSON.parse(clean)
+    if (extractedData.practice_info) extractedData.practice_info.federal_tax_id = null
   } catch (err) {
     console.error('[opca-extract] Claude extraction failed:', err)
     return res.status(500).json({ error: 'Extraction failed: ' + err.message })
@@ -271,7 +312,7 @@ export default async function handler(req, res) {
     office_manager:           pr.office_manager,
     office_manager_phone:     pr.office_manager_phone,
     credentialing_contact:    pr.credentialing_contact,
-    federal_tax_id:           pr.federal_tax_id,
+    federal_tax_id:           null,
     tax_id_name:              pr.tax_id_name,
     secondary_practices:      JSON.stringify(pr.secondary_practices || []),
 
@@ -339,17 +380,11 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Failed to save profile: ' + saveError.message })
   }
 
-  // Sync key fields back to providers table
-  await supabaseAdmin.from('providers').update({
-    npi:        li.individual_npi || undefined,
-    dea:        li.dea_number || undefined,
-    dea_exp:    li.dea_exp ? new Date(li.dea_exp) : undefined,
-    license:    li.oregon_license_number || undefined,
-    license_exp: li.oregon_license_exp ? new Date(li.oregon_license_exp) : undefined,
-    mal_carrier: ml.current?.carrier || undefined,
-    mal_policy:  ml.current?.policy_number || undefined,
-    mal_exp:     ml.current?.expiration_date ? new Date(ml.current.expiration_date) : undefined,
-  }).eq('id', providerId)
+  const { data: provider } = await supabaseAdmin
+    .from('providers')
+    .select('npi, dea, dea_exp, license, license_exp, mal_carrier, mal_policy, mal_exp')
+    .eq('id', providerId)
+    .single()
 
   return res.status(200).json({
     success: true,
@@ -357,6 +392,8 @@ export default async function handler(req, res) {
     formVersion: saved.form_version,
     provider: `${pi.first_name || ''} ${pi.last_name || ''}`.trim(),
     fieldsExtracted: Object.keys(extractedData).length,
-    message: 'OPCA data extracted and saved as source of truth.',
+    providerSyncSuggestions: buildProviderSyncSuggestions(provider, li, ml),
+    sensitiveFieldsRedacted: ['federal_tax_id'],
+    message: 'OPCA data extracted and saved for review. Provider fields were not overwritten.',
   })
 }

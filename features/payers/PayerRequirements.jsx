@@ -164,5 +164,3 @@ export function PayerRequirements({ db }) {
 }
 
 // ─── GLOBAL SEARCH ─────────────────────────────────────────────────────────────
-
-export { PayerRequirements }

@@ -42,5 +42,3 @@ export function PayersTab({ db, search, setSearch, fType, setFType, openPayerMod
     </div>
   </>
 }
-
-export { PayersTab }

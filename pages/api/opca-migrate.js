@@ -5,11 +5,13 @@
 
 import { requireAuth, supabaseAdmin } from '../../lib/supabase-server'
 import { migrateToOpca2025, buildMigrationSummary } from '../../lib/opca-migrator'
+import { enforceRateLimit } from '../../lib/api-middleware'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
+  if (!enforceRateLimit(req, res, { max: 20, windowMs: 60_000, keyPrefix: 'opca-migrate:' })) return
 
   const user = await requireAuth(req, res)
   if (!user) return

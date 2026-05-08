@@ -145,5 +145,3 @@ export function PayerModal({ payerForm, setPayerForm, editingId, handleSavePayer
     </DrawerModal>
   )
 }
-
-export { PayerModal }

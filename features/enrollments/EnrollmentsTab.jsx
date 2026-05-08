@@ -58,5 +58,3 @@ export function EnrollmentsTab({ db, search, setSearch, fStage, setFStage, fProv
 }
 
 // ─── PAYERS ────────────────────────────────────────────────────────────────────
-
-export { EnrollmentsTab }
