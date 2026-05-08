@@ -82,7 +82,7 @@ export function Topbar({ page, setPage, openDocModal, openTaskModal, exportJSON,
             <div className="topbar-user-avatar">{emailInitial}</div>
             <div style={{ display:'flex', flexDirection:'column', lineHeight:1.25 }}>
               <span className="topbar-user-name">{displayName}</span>
-              <span className="topbar-user-role">Credentialing Specialist</span>
+              <span className="topbar-user-role">Admin</span>
             </div>
             <svg className="topbar-caret" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="6 9 12 15 18 9"/>
