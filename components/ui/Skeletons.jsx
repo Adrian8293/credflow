@@ -1,3 +1,10 @@
+/**
+ * components/ui/Skeletons.jsx — Shimmer loading placeholders
+ *
+ * Replaces blank loading screens with contextual skeleton UI
+ * for perceived performance improvement.
+ */
+
 export function ProviderTableSkeleton({ rows = 5 }) {
   return (
     <div>
@@ -17,7 +24,7 @@ export function ProviderTableSkeleton({ rows = 5 }) {
     </div>
   )
 }
- 
+
 export function KpiGridSkeleton() {
   return (
     <div className="kpi-grid" style={{ marginBottom: 20 }}>
@@ -27,7 +34,7 @@ export function KpiGridSkeleton() {
     </div>
   )
 }
- 
+
 export function CardBodySkeleton({ lines = 4 }) {
   return (
     <div style={{ padding: '12px 16px' }}>
@@ -37,10 +44,28 @@ export function CardBodySkeleton({ lines = 4 }) {
     </div>
   )
 }
- 
--- Usage in ProvidersPage:
---   {isLoading ? <ProviderTableSkeleton rows={5} /> : <ProviderTable ... />}
- 
--- Usage in Dashboard:
---   {isLoading ? <KpiGridSkeleton /> : <KpiGrid ... />}
- 
+
+export function DashboardSkeleton() {
+  return (
+    <div className="page">
+      <KpiGridSkeleton />
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+        <div className="skeleton skeleton-card" style={{ height: 200 }} />
+        <div className="skeleton skeleton-card" style={{ height: 200 }} />
+      </div>
+    </div>
+  )
+}
+
+export function TableSkeleton({ rows = 8 }) {
+  return (
+    <div className="tbl-wrap">
+      <div style={{ padding: '10px 16px', background: 'var(--elevated)' }}>
+        <div className="skeleton skeleton-text" style={{ width: '30%', height: 12 }} />
+      </div>
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="skeleton skeleton-row" />
+      ))}
+    </div>
+  )
+}

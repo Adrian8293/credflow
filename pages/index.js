@@ -275,7 +275,7 @@ export default function App() {
       await deleteProvider(id)
       setDb(prev => ({
         ...prev,
-        providers: prev.enrollments.filter(x => x.id !== id),
+        providers: prev.providers.filter(x => x.id !== id),
         enrollments: prev.enrollments.filter(e => e.provId !== id),
         documents: prev.documents.filter(d => d.provId !== id),
         tasks: prev.tasks.filter(t => t.provId !== id),
@@ -739,9 +739,18 @@ export default function App() {
           />
 
           {loading ? (
-            <div className="loading-screen">
-              <div className="spinner-lg"></div>
-              <div style={{ marginTop:16, color:'#5a6e5a' }}>Loading your data…</div>
+            <div className="pages">
+              <div className="page">
+                <div className="kpi-grid" style={{ marginBottom: 20 }}>
+                  {[1,2,3,4,5,6].map(i => (
+                    <div key={i} className="skeleton skeleton-card" style={{ height: 100 }} />
+                  ))}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                  <div className="skeleton skeleton-card" style={{ height: 200 }} />
+                  <div className="skeleton skeleton-card" style={{ height: 200 }} />
+                </div>
+              </div>
             </div>
           ) : (
             <div className="pages">

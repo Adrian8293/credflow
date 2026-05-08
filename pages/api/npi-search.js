@@ -1,3 +1,5 @@
+import { requireAuth } from '../../lib/supabase-server'
+
 function formatPhone(raw = '') {
   const digits = (raw || '').replace(/\D/g, '')
   if (digits.length === 10) return `(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`
@@ -5,6 +7,11 @@ function formatPhone(raw = '') {
 }
 
 export default async function handler(req, res) {
+  // Auth guard — prevent open proxy abuse
+  const user = await requireAuth(req, res)
+  if (!user) return
+
+
   const { number, first_name, last_name, organization_name, state, taxonomy, city, zip, npi_type = 'NPI-1', limit = 25 } = req.query
 
   if (!number && !first_name && !last_name && !organization_name) {

@@ -974,3 +974,136 @@ input::placeholder, textarea::placeholder { color: var(--text-4); }
 /* ─── READINESS RING ──────────────────────────────────────────────────────── */
 .readiness-ring-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; }
 .readiness-pct { position: absolute; font-size: 15px; font-weight: 800; color: var(--text-1); font-family: var(--fn); }
+
+/* ─── PAGINATION ─────────────────────────────────────────────────────────── */
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-top: 1px solid var(--border-l);
+  background: var(--elevated);
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+}
+.pagination-info {
+  font-size: 12px;
+  color: var(--text-4);
+  font-weight: 500;
+}
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.pagination-btn {
+  min-width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--t);
+}
+.pagination-btn:hover:not(:disabled) {
+  background: var(--pr-l);
+  border-color: rgba(30,86,240,.25);
+  color: var(--pr);
+}
+.pagination-btn.active {
+  background: var(--pr);
+  border-color: var(--pr);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(30,86,240,.25);
+}
+.pagination-btn:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+.pagination-ellipsis {
+  width: 30px;
+  text-align: center;
+  color: var(--text-4);
+  font-size: 12px;
+}
+
+/* ─── SKELETON LOADING ───────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--elevated) 25%, #E8EDF2 37%, var(--elevated) 63%);
+  background-size: 200px 100%;
+  animation: shimmer 1.4s infinite ease-out;
+  border-radius: var(--r);
+}
+.skeleton-text { height: 14px; width: 70%; margin-bottom: 8px; }
+.skeleton-text-sm { height: 11px; width: 50%; }
+.skeleton-card {
+  height: 88px;
+  border-radius: var(--r-lg);
+  margin-bottom: 10px;
+}
+.skeleton-row {
+  height: 44px;
+  border-radius: var(--r);
+  margin-bottom: 4px;
+}
+
+/* ─── EMPTY STATE ────────────────────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+.empty-state-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--pr-l);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  color: var(--pr);
+}
+.empty-state-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-1);
+  margin-bottom: 6px;
+}
+.empty-state-desc {
+  font-size: 13px;
+  color: var(--text-4);
+  max-width: 320px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+/* ─── KEYBOARD SHORTCUT HINTS ────────────────────────────────────────────── */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  background: var(--elevated);
+  border: 1px solid var(--border-mid);
+  border-radius: 4px;
+  font-family: var(--fn-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-4);
+  line-height: 1;
+}

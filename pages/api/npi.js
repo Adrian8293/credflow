@@ -1,4 +1,10 @@
+import { requireAuth } from '../../lib/supabase-server'
+
 export default async function handler(req, res) {
+  // Auth guard — prevent open proxy abuse
+  const user = await requireAuth(req, res)
+  if (!user) return
+
   const { number } = req.query;
 
   if (!number) {
@@ -7,7 +13,7 @@ export default async function handler(req, res) {
 
   try {
     const response = await fetch(
-      `https://npiregistry.cms.hhs.gov/api/?number=${number}&version=2.1`
+      `https://npiregistry.cms.hhs.gov/api/?number=${encodeURIComponent(number)}&version=2.1`
     );
 
     const data = await response.json();

@@ -61,7 +61,11 @@ export default async function handler(req, res) {
       initials: derivedInitials,
     })
 
-    const filename = `OPCA_2025_${profile.last_name || 'Provider'}_${new Date().toISOString().slice(0, 10)}.pdf`
+    // Sanitize filename — profile data comes from AI extraction and is untrusted
+    const safeName = (profile.last_name || 'Provider')
+      .replace(/[^a-zA-Z0-9_-]/g, '_')
+      .slice(0, 50)
+    const filename = `OPCA_2025_${safeName}_${new Date().toISOString().slice(0, 10)}.pdf`
 
     res.setHeader('Content-Type', 'application/pdf')
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`)

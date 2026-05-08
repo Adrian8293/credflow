@@ -16,6 +16,8 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk'
+import { requireAuth } from '../../lib/supabase-server'
+import { createSessionClient } from '../../lib/supabase-server'
 
 const client = new Anthropic()
 
@@ -23,6 +25,10 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
+
+  // ── Auth guard (was missing — critical security fix) ────────────────────────
+  const user = await requireAuth(req, res)
+  if (!user) return // 401 already sent
 
   const {
     providerName,
@@ -87,6 +93,19 @@ The email must:
     if (!email) {
       return res.status(500).json({ error: 'No response from AI' })
     }
+
+    // ── Audit log the AI usage ────────────────────────────────────────────────
+    try {
+      const supabase = createSessionClient(req, res)
+      await supabase.from('audit_log').insert([{
+        type: 'AI',
+        action: 'Follow-up Email Generated',
+        detail: `${providerName} → ${payerName} (${tone})`,
+        entity: 'ai-followup',
+        performed_by: user.id,
+        user_email: user.email,
+      }])
+    } catch (_) { /* audit failure should not block response */ }
 
     return res.status(200).json({ email })
   } catch (err) {

@@ -6,9 +6,15 @@ function useAuth() {
   const [authLoading, setAuthLoading] = useState(true)
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
+    // Use getUser() for server-verified auth instead of getSession()
+    // getSession() only reads the local JWT without validating it.
+    // getUser() makes a round-trip to Supabase to verify the token is
+    // still valid, not revoked, and not expired.
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user ?? null)
+      setAuthLoading(false)
+    }).catch(() => {
+      setUser(null)
       setAuthLoading(false)
     })
 

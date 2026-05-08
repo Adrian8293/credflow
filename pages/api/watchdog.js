@@ -219,14 +219,21 @@ async function checkEnrollmentFollowups(alerts) {
 
 // ─── Route handler ────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
-  // Security: require a secret to prevent unauthorized triggers
-  const secret = req.headers['x-cron-secret'] ?? req.query.secret
-  if (process.env.CRON_SECRET && secret !== process.env.CRON_SECRET) {
-    return res.status(401).json({ error: 'Unauthorized' })
-  }
-
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
+  }
+
+  // Security: CRON_SECRET is REQUIRED — fail closed, not open.
+  // Without this env var, the endpoint is disabled entirely.
+  const cronSecret = process.env.CRON_SECRET
+  if (!cronSecret) {
+    console.error('[watchdog] CRON_SECRET not configured — endpoint disabled')
+    return res.status(500).json({ error: 'Watchdog not configured. Set CRON_SECRET env var.' })
+  }
+
+  const secret = req.headers['x-cron-secret'] ?? req.query.secret
+  if (!secret || secret !== cronSecret) {
+    return res.status(401).json({ error: 'Unauthorized' })
   }
 
   // Fetch alert_days setting from DB (fall back to default)
