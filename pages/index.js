@@ -32,7 +32,6 @@ import { ProviderLookup } from '../features/providers/ProviderLookup.jsx'
 import { Enrollments } from '../features/enrollments/index.jsx'
 import { EnrollmentsTab } from '../features/enrollments/EnrollmentsTab.jsx'
 import { EnrollModal } from '../features/enrollments/EnrollModal.jsx'
-import { KanbanPipeline } from '../features/enrollments/KanbanPipeline.jsx'
 import { useSorted } from '../hooks/useSorted.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useToast } from '../hooks/useToast.js'
@@ -670,6 +669,23 @@ export default function App() {
     setModal(null)
   }
 
+  // Clear an expiration field on a provider so the alert no longer fires.
+  // Used by the Alerts "Mark Done" action.
+  async function handleAlertMarkDone(providerId, field) {
+    const prov = db.providers.find(p => p.id === providerId)
+    if (!prov || !field) return
+    try {
+      const saved = await upsertProvider({ ...prov, [field]: null })
+      setDb(prev => ({
+        ...prev,
+        providers: prev.providers.map(p => p.id === saved.id ? saved : p),
+      }))
+      toast('Alert dismissed.', 'success')
+    } catch (err) {
+      toast(err.message, 'error')
+    }
+  }
+
   // ─── RENDER ───────────────────────────────────────────────────────────────────
   const provDetail = provDetailId ? db.providers.find(x => x.id === provDetailId) : null
 
@@ -777,7 +793,6 @@ export default function App() {
                   fProv={enrFProv} setFProv={setEnrFProv}
                   handleDeleteEnrollment={handleDeleteEnrollment}
                   onDraftEmail={openAiFollowup}
-                  onStageChange={handleStageChange}
                 />
               )}
 
@@ -818,7 +833,14 @@ export default function App() {
               )}
 
               {/* ── ALERTS ── */}
-              {page === 'alerts' && <Alerts db={db} />}
+              {page === 'alerts' && (
+                <Alerts
+                  db={db}
+                  onOpenProvider={editProvider}
+                  onDraftEmail={openAiFollowup}
+                  onMarkDone={handleAlertMarkDone}
+                />
+              )}
 
               {/* ── BILLING SECTION (these were built but unreachable — now wired) ── */}
               {page === 'claims'      && <ClaimsPage db={db} toast={toast} />}

@@ -65,6 +65,16 @@
   --ink-4:  #9CA3AF;
   --ink-5:  #D1D5DB;
 
+  /* Surface aliases — used by provider/payer/eligibility components */
+  --surface:    #F8FAFC;
+  --surface-2:  #F1F5F9;
+  --border-2:   rgba(0,0,0,.09);
+  --line:       rgba(0,0,0,.07);
+
+  /* Sidebar legacy aliases */
+  --navy-border: rgba(255,255,255,.07);
+  --navy-hover:  rgba(255,255,255,.06);
+
   /* Semantic colors */
   --success:    #10B981;
   --warning:    #F59E0B;
@@ -77,7 +87,7 @@
   --purple:     #7C3AED;  --purple-l: rgba(124,58,237,.10);   --purple-b: rgba(124,58,237,.22);
   --cyan:       #0891B2;  --cyan-l:   rgba(8,145,178,.10);    --cyan-b:   rgba(8,145,178,.22);
   --teal:       #10B981;  --teal-l:   rgba(16,185,129,.10);   --teal-b:   rgba(16,185,129,.22);   --teal-dark:#047857;
-  --blue:       #1E56F0;  --blue-dark:#1544CC;
+  --blue:       #1E56F0;  --blue-dark:#1544CC;  --blue-l: rgba(30,86,240,.08);  --blue-b: rgba(30,86,240,.22);
   --gold:       #F59E0B;  --gold-l:   rgba(245,158,11,.10);   --gold-b:   rgba(245,158,11,.22);
   --rose:       #EF4444;  --rose-l:   rgba(239,68,68,.10);    --rose-b:   rgba(239,68,68,.22);
 
@@ -162,29 +172,26 @@ svg { display: block; flex-shrink: 0; }
 
 /* Logo */
 .sb-logo {
-  padding: 16px 14px 14px;
+  padding: 14px 14px 12px;
   border-bottom: 1px solid var(--sb-border);
   flex-shrink: 0;
 }
 .sb-logo-mark { display: flex; align-items: center; gap: 10px; }
 .sb-logo-icon {
-  width: 32px; height: 32px;
-  background: rgba(30,86,240,.18);
-  border: 1px solid rgba(30,86,240,.35);
-  border-radius: 8px;
+  width: 28px; height: 28px;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
 .sb-logo h1 {
   font-family: var(--fn);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -.02em;
   color: #fff;
 }
-.sb-logo h1 .brand-prime       { font-weight: 800; color: #ffffff; }
-.sb-logo h1 .brand-credential  { font-weight: 600; color: #60A5FA; }
+.sb-logo h1 .brand-prime       { font-weight: 700; color: #ffffff; }
+.sb-logo h1 .brand-credential  { font-weight: 500; color: #60A5FA; }
 .sb-logo-sub {
   font-size: 9px;
   font-weight: 600;
@@ -194,14 +201,12 @@ svg { display: block; flex-shrink: 0; }
   margin-top: 2px;
 }
 
-/* Nav */
+/* Nav (flat, non-scrollable) */
 .sb-nav {
-  padding: 10px 8px 0;
+  padding: 8px 8px 0;
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
 }
-.sb-nav::-webkit-scrollbar { width: 0; }
 
 /* Group labels */
 .sb-group { margin-bottom: 2px; }
@@ -224,7 +229,7 @@ svg { display: block; flex-shrink: 0; }
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 7px 10px;
+  padding: 6px 10px;
   border-radius: var(--r);
   cursor: pointer;
   color: var(--sb-text);
@@ -850,6 +855,11 @@ input::placeholder, textarea::placeholder { color: var(--text-4); }
 .al-body { flex: 1; }
 .al-title { font-weight: 600; color: var(--text-1); font-size: 13px; margin-bottom: 2px; }
 .al-sub   { color: var(--text-4); font-size: 12px; }
+.al-nextstep { font-size: 12px; color: var(--text-2); margin-top: 6px; line-height: 1.45; }
+.al-nextstep b { color: var(--text-1); font-weight: 600; margin-right: 4px; }
+.al-actions { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.al-actions .btn { font-size: 11px; padding: 4px 10px; background: var(--card); color: var(--text-2); border-color: var(--border-mid); }
+.al-actions .btn:hover { background: var(--elevated); color: var(--text-1); border-color: var(--pr); }
 
 /* ─── KANBAN ─────────────────────────────────────────────────────────────── */
 .kanban-board { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px; }

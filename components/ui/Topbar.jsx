@@ -20,10 +20,15 @@ export function Topbar({ page, setPage, openDocModal, openTaskModal, exportJSON,
     documents:    'Documents',
     tasks:        'Tasks',
     alerts:       'Alerts',
+    claims:       'Claims',
+    eligibility:  'Eligibility',
+    denials:      'Denial Log',
+    revenue:      'Revenue Analytics',
     marketing:    'Marketing',
     reports:      'Reports',
     audit:        'Audit Trail',
     settings:     'Settings',
+    'add-provider': 'Add Provider',
   }
 
   const ctaLabel = page === 'documents' ? '+ Add Document'

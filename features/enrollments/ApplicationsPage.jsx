@@ -1,14 +1,7 @@
-// ApplicationsPage — wraps EnrollmentsTab (list) + KanbanPipeline (kanban)
-// onStageChange is passed from index.js so KanbanPipeline can persist drag-drops
+// ApplicationsPage — list view only.
+// Pipeline kanban moved exclusively to the Providers tab.
 
-import { useState } from 'react'
 import { EnrollmentsTab } from './EnrollmentsTab.jsx'
-import { KanbanPipeline } from './KanbanPipeline.jsx'
-
-const TABS = [
-  { id: 'list',     label: 'All Applications' },
-  { id: 'pipeline', label: 'Pipeline Kanban' },
-]
 
 export function ApplicationsPage({
   db,
@@ -17,11 +10,8 @@ export function ApplicationsPage({
   fStage, setFStage,
   fProv, setFProv,
   handleDeleteEnrollment,
-  onStageChange,   // ← passed from index.js
-  onDraftEmail,    // ← passed from index.js (AI follow-up)
+  onDraftEmail,
 }) {
-  const [tab, setTab] = useState('list')
-
   const total     = db.enrollments.length
   const active    = db.enrollments.filter(e => e.stage === 'Active').length
   const pending   = db.enrollments.filter(e => ['Application Submitted','Awaiting CAQH','Pending Verification','Under Review'].includes(e.stage)).length
@@ -53,42 +43,21 @@ export function ApplicationsPage({
         </div>
       </div>
 
-      <div className="tabs">
-        {TABS.map(t => (
-          <div
-            key={t.id}
-            className={`tab${tab === t.id ? ' active' : ''}`}
-            onClick={() => setTab(t.id)}
-          >
-            {t.label}
-          </div>
-        ))}
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', paddingBottom: 4 }}>
-          <button className="btn btn-primary btn-sm" onClick={() => openEnrollModal()}>
-            + New Enrollment
-          </button>
-        </div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+        <button className="btn btn-primary btn-sm" onClick={() => openEnrollModal()}>
+          + New Enrollment
+        </button>
       </div>
 
-      {tab === 'list' && (
-        <EnrollmentsTab
-          db={db}
-          search={search} setSearch={setSearch}
-          fStage={fStage} setFStage={setFStage}
-          fProv={fProv} setFProv={setFProv}
-          openEnrollModal={openEnrollModal}
-          handleDeleteEnrollment={handleDeleteEnrollment}
-          onDraftEmail={onDraftEmail}
-        />
-      )}
-
-      {tab === 'pipeline' && (
-        <KanbanPipeline
-          db={db}
-          openEnrollModal={openEnrollModal}
-          onStageChange={onStageChange}
-        />
-      )}
+      <EnrollmentsTab
+        db={db}
+        search={search} setSearch={setSearch}
+        fStage={fStage} setFStage={setFStage}
+        fProv={fProv} setFProv={setFProv}
+        openEnrollModal={openEnrollModal}
+        handleDeleteEnrollment={handleDeleteEnrollment}
+        onDraftEmail={onDraftEmail}
+      />
     </div>
   )
 }

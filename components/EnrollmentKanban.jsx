@@ -1,21 +1,22 @@
 /**
  * EnrollmentKanban.jsx — CredFlow Payer Enrollment Board
+ * Light theme, one column per stage, horizontal scroll.
  * Optimistic drag-drop: cards move instantly, Supabase syncs in background.
  */
 
 import { useState, useEffect } from 'react'
 
 const PIPELINE = [
-  { id: 'not_started',  label: 'Not Started',                    color: '#475569' },
-  { id: 'submitted',    label: 'Application Submitted',           color: '#3b82f6' },
-  { id: 'caqh',         label: 'Awaiting CAQH',                  color: '#8b5cf6' },
-  { id: 'pending',      label: 'Pending Verification',            color: '#f59e0b' },
-  { id: 'info',         label: 'Additional Info Requested',       color: '#ef4444' },
-  { id: 'review',       label: 'Under Review',                    color: '#06b6d4' },
-  { id: 'approved',     label: 'Approved – Awaiting Contract',    color: '#10b981' },
-  { id: 'contracted',   label: 'Contracted – Pending Effective',  color: '#22c55e' },
-  { id: 'active',       label: 'Active',                          color: '#4ade80' },
-  { id: 'denied',       label: 'Denied',                          color: '#9ca3af' },
+  { id: 'not_started',  label: 'Not Started',                    color: '#64748B' },
+  { id: 'submitted',    label: 'Application Submitted',           color: '#1E56F0' },
+  { id: 'caqh',         label: 'Awaiting CAQH',                  color: '#8B5CF6' },
+  { id: 'pending',      label: 'Pending Verification',            color: '#F59E0B' },
+  { id: 'info',         label: 'Additional Info Requested',       color: '#EF4444' },
+  { id: 'review',       label: 'Under Review',                    color: '#0EA5FF' },
+  { id: 'approved',     label: 'Approved – Awaiting Contract',    color: '#10B981' },
+  { id: 'contracted',   label: 'Contracted – Pending Effective',  color: '#22C55E' },
+  { id: 'active',       label: 'Active',                          color: '#16A34A' },
+  { id: 'denied',       label: 'Denied',                          color: '#94A3B8' },
 ]
 
 const STAGE_TO_ID = {
@@ -35,13 +36,6 @@ const ID_TO_STAGE = Object.fromEntries(
   Object.entries(STAGE_TO_ID).map(([k, v]) => [v, k])
 )
 
-const KANBAN_COLS = [
-  { id: 'pipeline',      label: 'In Pipeline',           stageIds: ['not_started','submitted','caqh','pending','info','review'], accent: '#3b82f6' },
-  { id: 'approved',      label: 'Approved / Contracted', stageIds: ['approved','contracted'],  accent: '#10b981' },
-  { id: 'participating', label: 'Participating',          stageIds: ['active'],                 accent: '#4ade80' },
-  { id: 'denied',        label: 'Denied / Inactive',      stageIds: ['denied'],                 accent: '#6b7280' },
-]
-
 function daysUntil(dateStr) {
   if (!dateStr) return null
   return Math.ceil((new Date(dateStr) - new Date()) / 86400000)
@@ -53,13 +47,13 @@ function FollowupBadge({ followup }) {
   const urgent = days <= 3
   return (
     <span style={{
-      fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4,
-      background: urgent ? '#ef444420' : '#f59e0b20',
-      color: urgent ? '#ef4444' : '#f59e0b',
-      border: `1px solid ${urgent ? '#ef444440' : '#f59e0b40'}`,
+      fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 4,
+      background: urgent ? '#FEE2E2' : '#FEF3C7',
+      color: urgent ? '#DC2626' : '#B45309',
+      border: `1px solid ${urgent ? '#FCA5A5' : '#FCD34D'}`,
       whiteSpace: 'nowrap',
     }}>
-      {days < 0 ? `${Math.abs(days)}d overdue` : days === 0 ? 'Due today' : `Follow-up in ${days}d`}
+      {days < 0 ? `${Math.abs(days)}d overdue` : days === 0 ? 'Due today' : `${days}d`}
     </span>
   )
 }
@@ -72,102 +66,86 @@ function EnrollmentCard({ enrollment, provider, payer, onOpen, onDragStart, isDr
       onDragStart={(e) => onDragStart(e, enrollment.id)}
       onClick={() => onOpen(enrollment)}
       style={{
-        background: '#0f172a',
-        border: '1px solid #1e293b',
+        background: '#FFFFFF',
+        border: '1px solid #E2E8F0',
         borderLeft: `3px solid ${stage.color}`,
         borderRadius: 8,
-        padding: '10px 12px',
+        padding: '8px 10px',
         cursor: 'grab',
-        opacity: isDragging ? 0.35 : 1,
+        opacity: isDragging ? 0.4 : 1,
         transition: 'opacity 0.1s, box-shadow 0.15s, transform 0.1s',
         userSelect: 'none',
+        boxShadow: '0 1px 2px rgba(13,27,61,.04)',
       }}
       onMouseEnter={e => {
-        e.currentTarget.style.boxShadow = `0 0 0 1px ${stage.color}40, 0 4px 12px #00000040`
+        e.currentTarget.style.boxShadow = `0 0 0 1px ${stage.color}55, 0 4px 10px rgba(13,27,61,.08)`
         e.currentTarget.style.transform = 'translateY(-1px)'
       }}
       onMouseLeave={e => {
-        e.currentTarget.style.boxShadow = 'none'
+        e.currentTarget.style.boxShadow = '0 1px 2px rgba(13,27,61,.04)'
         e.currentTarget.style.transform = 'none'
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
-        <div>
-          <div style={{ fontWeight: 600, fontSize: 13, color: '#f1f5f9', lineHeight: 1.3 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4, gap: 6 }}>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div style={{ fontWeight: 600, fontSize: 12, color: '#0D1B3D', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {provider ? `${provider.lname}, ${provider.fname}` : 'Unknown Provider'}
           </div>
-          {provider?.cred && <div style={{ fontSize: 10, color: '#64748b', marginTop: 1 }}>{provider.cred}</div>}
+          {provider?.cred && <div style={{ fontSize: 9, color: '#94A3B8', marginTop: 1 }}>{provider.cred}</div>}
         </div>
         <FollowupBadge followup={enrollment.followup} />
       </div>
-      <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 8 }}>{payer?.name || '—'}</div>
-      <div style={{
-        display: 'inline-flex', alignItems: 'center',
-        background: `${stage.color}18`, border: `1px solid ${stage.color}35`,
-        borderRadius: 4, padding: '2px 7px',
-        fontSize: 10, fontWeight: 600, color: stage.color,
-        letterSpacing: '0.02em', textTransform: 'uppercase',
-      }}>
-        {enrollment.stage}
-      </div>
-      <div style={{ display: 'flex', gap: 10, marginTop: 8, fontSize: 10, color: '#475569' }}>
-        {enrollment.submitted && <span>Submitted {enrollment.submitted}</span>}
-        {enrollment.effective && <span>· Eff. {enrollment.effective}</span>}
-        {enrollment.eft !== 'Not Set Up' && <span style={{ color: '#22c55e' }}>· EFT ✓</span>}
+      <div style={{ fontSize: 10, color: '#64748B', marginBottom: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{payer?.name || '—'}</div>
+      <div style={{ display: 'flex', gap: 8, fontSize: 9, color: '#94A3B8', flexWrap: 'wrap' }}>
+        {enrollment.submitted && <span>Sub: {enrollment.submitted}</span>}
+        {enrollment.effective && <span>· Eff: {enrollment.effective}</span>}
+        {enrollment.eft && enrollment.eft !== 'Not Set Up' && <span style={{ color: '#10B981', fontWeight: 600 }}>· EFT ✓</span>}
       </div>
     </div>
   )
 }
 
-function KanbanColumn({ col, cards, providers, payers, onOpen, onDrop, onDragOver, onDragLeave, onDragStart, isDragOver, dragId }) {
+function KanbanColumn({ stage, cards, providers, payers, onOpen, onDrop, onDragOver, onDragLeave, onDragStart, isDragOver, dragId }) {
   return (
     <div
       style={{
-        minWidth: 280, maxWidth: 320, flex: '1 1 280px',
-        background: isDragOver ? '#111827' : '#080d14',
-        border: `1px solid ${isDragOver ? col.accent : '#1e293b'}`,
+        minWidth: 220, maxWidth: 240, flex: '0 0 220px',
+        background: isDragOver ? '#EBF1FF' : '#F8FAFC',
+        border: `1px solid ${isDragOver ? stage.color : '#E2E8F0'}`,
         borderRadius: 10,
         transition: 'border-color 0.12s, background 0.12s',
         display: 'flex', flexDirection: 'column',
+        scrollSnapAlign: 'start',
       }}
       onDragOver={onDragOver}
       onDragLeave={onDragLeave}
       onDrop={onDrop}
     >
       <div style={{
-        padding: '12px 14px',
-        borderBottom: `1px solid ${isDragOver ? col.accent + '40' : '#1e293b'}`,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '10px 12px',
+        borderBottom: `1px solid ${isDragOver ? stage.color + '55' : '#E2E8F0'}`,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6,
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: col.accent, boxShadow: `0 0 6px ${col.accent}80` }} />
-          <span style={{ fontWeight: 600, fontSize: 12, color: '#cbd5e1', letterSpacing: '0.03em', textTransform: 'uppercase' }}>
-            {col.label}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0, flex: 1 }}>
+          <div style={{ width: 7, height: 7, borderRadius: '50%', background: stage.color, flexShrink: 0 }} />
+          <span style={{ fontWeight: 700, fontSize: 10.5, color: '#0D1B3D', letterSpacing: '0.03em', textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {stage.label}
           </span>
         </div>
-        <span style={{ fontSize: 11, fontWeight: 700, color: col.accent, background: `${col.accent}18`, borderRadius: 10, padding: '1px 8px', border: `1px solid ${col.accent}30` }}>
+        <span style={{ fontSize: 10, fontWeight: 700, color: stage.color, background: `${stage.color}1A`, borderRadius: 10, padding: '1px 7px', border: `1px solid ${stage.color}33`, flexShrink: 0 }}>
           {cards.length}
         </span>
       </div>
 
-      {col.stageIds.length > 1 && (
-        <div style={{ padding: '6px 14px', borderBottom: '1px solid #0d1422', display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-          {col.stageIds.map(sid => {
-            const stage = PIPELINE.find(p => p.id === sid)
-            return <span key={sid} style={{ fontSize: 9, fontWeight: 600, color: stage?.color || '#475569', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{stage?.label}</span>
-          })}
-        </div>
-      )}
-
-      <div style={{ flex: 1, padding: 10, display: 'flex', flexDirection: 'column', gap: 8, minHeight: 120, overflowY: 'auto', maxHeight: 'calc(100vh - 280px)' }}>
+      <div style={{ flex: 1, padding: 8, display: 'flex', flexDirection: 'column', gap: 6, minHeight: 100, overflowY: 'auto', maxHeight: 'calc(100vh - 320px)' }}>
         {cards.length === 0 ? (
           <div style={{
             flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: isDragOver ? col.accent : '#1e293b', fontSize: 11,
-            border: `1px dashed ${isDragOver ? col.accent : '#1e293b'}`,
-            borderRadius: 6, padding: 16, transition: 'all 0.12s',
+            color: isDragOver ? stage.color : '#CBD5E1', fontSize: 10,
+            border: `1px dashed ${isDragOver ? stage.color : '#E2E8F0'}`,
+            borderRadius: 6, padding: 14, transition: 'all 0.12s',
           }}>
-            {isDragOver ? 'Release to move here' : 'Drop enrollments here'}
+            {isDragOver ? 'Release to move here' : 'Drop here'}
           </div>
         ) : cards.map(enr => (
           <EnrollmentCard
@@ -186,7 +164,7 @@ function KanbanColumn({ col, cards, providers, payers, onOpen, onDrop, onDragOve
 }
 
 function FilterBar({ providers, payers, filter, setFilter }) {
-  const sel = { background: '#0f172a', border: '1px solid #1e293b', borderRadius: 6, padding: '6px 10px', color: '#e2e8f0', fontSize: 12, outline: 'none', cursor: 'pointer' }
+  const sel = { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 6, padding: '6px 10px', color: '#0D1B3D', fontSize: 12, outline: 'none', cursor: 'pointer' }
   const active = filter.search || filter.provId || filter.payId || filter.followupOnly
   return (
     <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -199,13 +177,13 @@ function FilterBar({ providers, payers, filter, setFilter }) {
         <option value="">All Payers</option>
         {payers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
       </select>
-      <label style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748b', fontSize: 12, cursor: 'pointer' }}>
-        <input type="checkbox" checked={filter.followupOnly} onChange={e => setFilter(f => ({ ...f, followupOnly: e.target.checked }))} style={{ accentColor: '#ef4444' }} />
+      <label style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748B', fontSize: 12, cursor: 'pointer' }}>
+        <input type="checkbox" checked={filter.followupOnly} onChange={e => setFilter(f => ({ ...f, followupOnly: e.target.checked }))} style={{ accentColor: '#1E56F0' }} />
         Follow-up due
       </label>
       {active && (
         <button onClick={() => setFilter({ search: '', provId: '', payId: '', followupOnly: false })}
-          style={{ background: 'transparent', border: '1px solid #1e293b', borderRadius: 6, color: '#64748b', fontSize: 11, padding: '5px 10px', cursor: 'pointer' }}>
+          style={{ background: 'transparent', border: '1px solid #E2E8F0', borderRadius: 6, color: '#64748B', fontSize: 11, padding: '5px 10px', cursor: 'pointer' }}>
           Clear
         </button>
       )}
@@ -215,7 +193,6 @@ function FilterBar({ providers, payers, filter, setFilter }) {
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 export default function EnrollmentKanban({ enrollments = [], providers = [], payers = [], onStageChange, onOpen }) {
-  // Optimistic local copy — cards move instantly, then parent DB state catches up
   const [local, setLocal] = useState(enrollments)
   useEffect(() => { setLocal(enrollments) }, [enrollments])
 
@@ -226,7 +203,7 @@ export default function EnrollmentKanban({ enrollments = [], providers = [], pay
   function handleDragStart(e, id) {
     setDragId(id)
     e.dataTransfer.effectAllowed = 'move'
-    e.dataTransfer.setData('text/plain', id) // required for Firefox
+    e.dataTransfer.setData('text/plain', id)
   }
 
   function handleDragOver(e, colId) {
@@ -244,17 +221,13 @@ export default function EnrollmentKanban({ enrollments = [], providers = [], pay
     const id = dragId || e.dataTransfer.getData('text/plain')
     if (!id) { setDragOverCol(null); return }
 
-    const col = KANBAN_COLS.find(c => c.id === colId)
-    if (!col) { setDragId(null); setDragOverCol(null); return }
+    const newStage = ID_TO_STAGE[colId]
+    if (!newStage) { setDragId(null); setDragOverCol(null); return }
 
-    const newStage = ID_TO_STAGE[col.stageIds[0]]
-
-    // 1. Move card instantly in local state (optimistic)
     setLocal(prev => prev.map(enr => enr.id === id ? { ...enr, stage: newStage } : enr))
     setDragId(null)
     setDragOverCol(null)
 
-    // 2. Persist to DB in background — parent handles upsert + toast
     onStageChange?.(id, newStage)
   }
 
@@ -285,44 +258,47 @@ export default function EnrollmentKanban({ enrollments = [], providers = [], pay
   }
 
   return (
-    <div style={{ fontFamily: "'Geist', system-ui, sans-serif", color: '#e2e8f0' }} onDragEnd={handleDragEnd}>
+    <div style={{ fontFamily: "var(--fn, 'Inter', system-ui, sans-serif)", color: '#0D1B3D' }} onDragEnd={handleDragEnd}>
 
       {/* Stats */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
         {[
-          { label: 'Total',            value: stats.total,    color: '#3b82f6' },
-          { label: 'Active',           value: stats.active,   color: '#4ade80' },
-          { label: 'In Pipeline',      value: stats.pending,  color: '#f59e0b' },
-          { label: 'Urgent Follow-up', value: stats.followup, color: '#ef4444' },
-          { label: 'Denied',           value: stats.denied,   color: '#6b7280' },
+          { label: 'Total',            value: stats.total,    color: '#1E56F0' },
+          { label: 'Active',           value: stats.active,   color: '#16A34A' },
+          { label: 'In Pipeline',      value: stats.pending,  color: '#F59E0B' },
+          { label: 'Urgent Follow-up', value: stats.followup, color: '#EF4444' },
+          { label: 'Denied',           value: stats.denied,   color: '#94A3B8' },
         ].map(s => (
-          <div key={s.label} style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: 8, padding: '8px 14px', display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <span style={{ fontSize: 20, fontWeight: 700, color: s.color }}>{s.value}</span>
-            <span style={{ fontSize: 10, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{s.label}</span>
+          <div key={s.label} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8, padding: '8px 14px', display: 'flex', flexDirection: 'column', gap: 2, boxShadow: '0 1px 2px rgba(13,27,61,.03)' }}>
+            <span style={{ fontSize: 18, fontWeight: 700, color: s.color }}>{s.value}</span>
+            <span style={{ fontSize: 9.5, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>{s.label}</span>
           </div>
         ))}
       </div>
 
       {/* Filters */}
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ marginBottom: 14 }}>
         <FilterBar providers={providers} payers={payers} filter={filter} setFilter={setFilter} />
       </div>
 
-      {/* Board */}
-      <div style={{ display: 'flex', gap: 12, overflowX: 'auto', paddingBottom: 16, alignItems: 'flex-start' }}>
-        {KANBAN_COLS.map(col => (
+      {/* Board — horizontal scroll, one column per stage */}
+      <div style={{
+        display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 12, alignItems: 'flex-start',
+        scrollSnapType: 'x proximity',
+      }}>
+        {PIPELINE.map(stage => (
           <KanbanColumn
-            key={col.id}
-            col={col}
-            cards={filtered.filter(e => col.stageIds.includes(STAGE_TO_ID[e.stage]))}
+            key={stage.id}
+            stage={stage}
+            cards={filtered.filter(e => STAGE_TO_ID[e.stage] === stage.id)}
             providers={providers}
             payers={payers}
             onOpen={onOpen}
             onDragStart={handleDragStart}
-            onDragOver={(e) => handleDragOver(e, col.id)}
+            onDragOver={(e) => handleDragOver(e, stage.id)}
             onDragLeave={handleDragLeave}
-            onDrop={(e) => handleDrop(e, col.id)}
-            isDragOver={dragOverCol === col.id}
+            onDrop={(e) => handleDrop(e, stage.id)}
+            isDragOver={dragOverCol === stage.id}
             dragId={dragId}
           />
         ))}

@@ -13,12 +13,14 @@
 import { useState } from 'react'
 
 // ─── BRAND MARK ──────────────────────────────────────────────────────────────
-function PcMark({ size = 16 }) {
+function PcMark({ size = 22 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48" fill="none">
-      <path d="M24 4L42 14V34L24 44L6 34V14L24 4Z" fill="rgba(37,99,235,.15)" stroke="#2563EB" strokeWidth="2"/>
-      <text x="24" y="30" textAnchor="middle" fontFamily="Plus Jakarta Sans,sans-serif" fontWeight="800" fontSize="18" fill="#fff">P</text>
-      <path d="M18 32l4.5 4.5 9-9" stroke="#60A5FA" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+      <rect x="2" y="2" width="40" height="40" rx="11" fill="#0D1B3D"/>
+      <text x="14" y="33" fontFamily="Inter, system-ui, sans-serif" fontWeight="800" fontSize="26" fill="#FFFFFF">P</text>
+      <circle cx="37" cy="37" r="8.5" fill="#1E56F0" stroke="#FFFFFF" strokeWidth="2"/>
+      <rect x="35.6" y="32.6" width="2.8" height="8.8" rx="1" fill="#FFFFFF"/>
+      <rect x="32.6" y="35.6" width="8.8" height="2.8" rx="1" fill="#FFFFFF"/>
     </svg>
   )
 }
@@ -45,48 +47,19 @@ const I = {
   expand:      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>,
 }
 
-// ─── NAV GROUPS ──────────────────────────────────────────────────────────────
-const NAV_GROUPS = [
-  {
-    label: 'Operations',
-    items: [
-      { pg: 'dashboard',    label: 'Dashboard' },
-      { pg: 'alerts',       label: 'Alerts',      badgeKey: 'alerts' },
-      { pg: 'tasks',        label: 'Tasks' },
-    ],
-  },
-  {
-    label: 'Providers',
-    items: [
-      { pg: 'providers',    label: 'Providers' },
-      { pg: 'documents',    label: 'Documents',   badgeKey: 'expDocs', badgeCls: 'amber' },
-    ],
-  },
-  {
-    label: 'Credentialing',
-    items: [
-      { pg: 'applications', label: 'Applications' },
-      { pg: 'payers',       label: 'Payers' },
-    ],
-  },
-  {
-    label: 'Billing',
-    items: [
-      { pg: 'claims',       label: 'Claims' },
-      { pg: 'eligibility',  label: 'Eligibility' },
-      { pg: 'denials',      label: 'Denials' },
-      { pg: 'revenue',      label: 'Revenue' },
-    ],
-  },
-  {
-    label: 'Admin',
-    items: [
-      { pg: 'marketing',    label: 'Marketing' },
-      { pg: 'reports',      label: 'Reports' },
-      { pg: 'audit',        label: 'Audit Trail' },
-      { pg: 'settings',     label: 'Settings' },
-    ],
-  },
+// ─── NAV ITEMS (flat, no categories) ─────────────────────────────────────────
+const NAV_ITEMS = [
+  { pg: 'dashboard',    label: 'Dashboard' },
+  { pg: 'providers',    label: 'Providers' },
+  { pg: 'applications', label: 'Applications' },
+  { pg: 'payers',       label: 'Payers' },
+  { pg: 'documents',    label: 'Documents',   badgeKey: 'expDocs', badgeCls: 'amber' },
+  { pg: 'tasks',        label: 'Tasks' },
+  { pg: 'alerts',       label: 'Alerts',      badgeKey: 'alerts' },
+  { pg: 'claims',       label: 'Claims' },
+  { pg: 'reports',      label: 'Reports' },
+  { pg: 'audit',        label: 'Audit Trail' },
+  { pg: 'settings',     label: 'Settings' },
 ]
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
@@ -114,36 +87,28 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut }) {
         </div>
       </div>
 
-      {/* Nav Groups */}
+      {/* Nav (flat list, non-scrollable) */}
       <div className="sb-nav">
-        {NAV_GROUPS.map(group => (
-          <div key={group.label} className="sb-group">
-            {!collapsed && (
-              <div className="sb-group-label">{group.label}</div>
-            )}
-            {group.items.map(({ pg, label, badgeKey, badgeCls }) => {
-              const count = badgeKey ? (badges[badgeKey] || 0) : 0
-              return (
-                <div
-                  key={pg}
-                  className={`sb-item${page === pg ? ' active' : ''}`}
-                  onClick={() => setPage(pg)}
-                  title={collapsed ? label : undefined}
-                >
-                  {I[pg] || I.dashboard}
-                  {!collapsed && <span style={{ marginLeft: 6 }}>{label}</span>}
-                  {count > 0 && !collapsed && (
-                    <span className={`sb-badge${badgeCls ? ' ' + badgeCls : ''}`}>{count}</span>
-                  )}
-                  {count > 0 && collapsed && (
-                    <span className="sb-badge-dot" />
-                  )}
-                </div>
-              )
-            })}
-            {!collapsed && <div className="sb-group-divider" />}
-          </div>
-        ))}
+        {NAV_ITEMS.map(({ pg, label, badgeKey, badgeCls }) => {
+          const count = badgeKey ? (badges[badgeKey] || 0) : 0
+          return (
+            <div
+              key={pg}
+              className={`sb-item${page === pg ? ' active' : ''}`}
+              onClick={() => setPage(pg)}
+              title={collapsed ? label : undefined}
+            >
+              {I[pg] || I.dashboard}
+              {!collapsed && <span style={{ marginLeft: 6 }}>{label}</span>}
+              {count > 0 && !collapsed && (
+                <span className={`sb-badge${badgeCls ? ' ' + badgeCls : ''}`}>{count}</span>
+              )}
+              {count > 0 && collapsed && (
+                <span className="sb-badge-dot" />
+              )}
+            </div>
+          )
+        })}
       </div>
 
       {/* Footer: user + collapse toggle */}
