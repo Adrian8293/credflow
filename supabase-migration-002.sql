@@ -86,8 +86,27 @@ AS $$
   LIMIT 1;
 $$;
 
--- Step 3: Backfill org_id on existing rows.
--- Run these after inserting a row into organization_members for your user:
+-- Step 3a: Add org_id column to every table that doesn't have it yet.
+-- providers already has it from migration-001. All others need it now.
+-- ADD COLUMN IF NOT EXISTS makes this safe to re-run.
+
+ALTER TABLE enrollments        ADD COLUMN IF NOT EXISTS org_id uuid;
+ALTER TABLE documents          ADD COLUMN IF NOT EXISTS org_id uuid;
+ALTER TABLE payers             ADD COLUMN IF NOT EXISTS org_id uuid;
+ALTER TABLE tasks              ADD COLUMN IF NOT EXISTS org_id uuid;
+ALTER TABLE claims             ADD COLUMN IF NOT EXISTS org_id uuid;
+ALTER TABLE eligibility_checks ADD COLUMN IF NOT EXISTS org_id uuid;
+ALTER TABLE claim_denials      ADD COLUMN IF NOT EXISTS org_id uuid;
+ALTER TABLE payments           ADD COLUMN IF NOT EXISTS org_id uuid;
+ALTER TABLE audit_log          ADD COLUMN IF NOT EXISTS org_id uuid;
+
+-- Step 3b: Backfill org_id on existing rows.
+-- First create your org membership (replace with your real Supabase Auth user UUID):
+--
+--   INSERT INTO organization_members (org_id, user_id, role)
+--   VALUES (gen_random_uuid(), 'YOUR-SUPABASE-USER-UUID-HERE', 'owner');
+--
+-- Then run the backfill block:
 --
 --   DO $$
 --   DECLARE v_org_id uuid := (SELECT org_id FROM organization_members LIMIT 1);
