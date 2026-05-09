@@ -190,9 +190,12 @@ export default function App() {
   // ─── REALTIME ────────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!user) return
+    // Pass user.id as the org seed — subscribeToAll will use it as an org filter
+    // once org_id columns are populated via supabase-migration-002.sql.
+    // Until then it falls back to the unfiltered channel gracefully.
     const unsub = subscribeToAll((stateKey, mappedRow, eventType, oldId) => {
       setDb(prev => mergeRealtimeChange(prev, stateKey, mappedRow, eventType, oldId))
-    })
+    }, user.id)
     return unsub
   }, [user])
 
@@ -290,19 +293,19 @@ export default function App() {
   async function handleDeleteProvider(id) {
     if (!(await requestConfirm({
       title: 'Delete Provider',
-      body: 'This permanently deletes the provider. Linked enrollments and documents may be removed by database cascade rules, and related task history can lose its provider reference.',
+      body: 'This soft-deletes the provider. Their enrollment and document history will be preserved for audit purposes and can be restored by an administrator.',
       confirmText: 'Delete provider',
       danger: true,
     }))) return
     setSaving(true)
     try {
       await deleteProvider(id)
+      // Remove provider from local UI state only — enrollments, documents, and tasks
+      // are soft-deleted separately if needed. Their prov_id references remain intact
+      // in the DB for audit trail continuity.
       setDb(prev => ({
         ...prev,
         providers: prev.providers.filter(x => x.id !== id),
-        enrollments: prev.enrollments.filter(e => e.provId !== id),
-        documents: prev.documents.filter(d => d.provId !== id),
-        tasks: prev.tasks.filter(t => t.provId !== id),
       }))
       toast('Provider deleted.', 'warn')
       setEditingId(e => ({ ...e, provider: null }))
@@ -334,7 +337,7 @@ export default function App() {
   async function handleDeleteEnrollment(id) {
     if (!(await requestConfirm({
       title: 'Delete Enrollment',
-      body: 'This permanently removes the enrollment workflow record and any realtime collaborators will see it disappear.',
+      body: 'This soft-deletes the enrollment record. It will no longer appear in the pipeline but is preserved for audit purposes.',
       confirmText: 'Delete enrollment',
       danger: true,
     }))) return
@@ -391,7 +394,7 @@ export default function App() {
   async function handleDeletePayer(id) {
     if (!(await requestConfirm({
       title: 'Delete Payer',
-      body: 'This permanently removes the payer. Existing enrollments and tasks may keep empty payer references depending on database rules.',
+      body: 'This soft-deletes the payer. Existing enrollments retain their payer reference and audit history is preserved.',
       confirmText: 'Delete payer',
       danger: true,
     }))) return
@@ -424,7 +427,7 @@ export default function App() {
   async function handleDeleteDocument(id) {
     if (!(await requestConfirm({
       title: 'Delete Document',
-      body: 'This permanently removes the credential document and any expiration tracking tied to it.',
+      body: 'This soft-deletes the credential document. Expiration tracking will stop but the record is preserved for audit purposes.',
       confirmText: 'Delete document',
       danger: true,
     }))) return
@@ -464,7 +467,7 @@ export default function App() {
   async function handleDeleteTask(id) {
     if (!(await requestConfirm({
       title: 'Delete Task',
-      body: 'This permanently removes the task from the workflow queue.',
+      body: 'This soft-deletes the task. It will be removed from the queue but preserved in audit history.',
       confirmText: 'Delete task',
       danger: true,
     }))) return
