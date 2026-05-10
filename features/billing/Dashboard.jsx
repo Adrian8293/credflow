@@ -5,7 +5,7 @@
  */
 
 import { useState } from 'react'
-import { daysUntil, fmtDate, pName, pNameShort, payName } from '../../lib/helpers.js'
+import { daysUntil, fmtDate, fmtFull, pName, pNameShort, payName } from '../../lib/helpers.js'
 import { StageBadge } from '../../components/ui/Badge.jsx'
 
 const Icon = {
@@ -331,7 +331,6 @@ function UpcomingExpirations({ db, setPage }) {
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail }) {
   const alertDays = db.settings.alertDays || 90
-  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
   const meta = {}
 
   const activeProvs   = db.providers.filter(p => p.status === 'Active').length
@@ -365,7 +364,7 @@ export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail }) {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 20 }}>
         <div>
           <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-.03em', marginBottom: 3 }}>Dashboard</h2>
-          <p style={{ fontSize: 13, color: 'var(--text-4)' }}>Welcome back! Here's what's happening with your credentialing. <span style={{ color: 'var(--text-4)' }}>{today}</span></p>
+          <p style={{ fontSize: 13, color: 'var(--text-4)' }}>Welcome back! Here's what's happening with your credentialing. {fmtFull()}</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="btn btn-secondary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: 6 }}>

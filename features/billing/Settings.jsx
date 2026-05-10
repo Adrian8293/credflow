@@ -51,7 +51,7 @@ function Toggle({ checked, onChange, label }) {
   )
 }
 
-const TABS = ['General', 'Users & Roles', 'Integrations', 'Notifications', 'Templates', 'Security']
+const TABS = ['General', 'Organization', 'Users & Roles', 'Integrations', 'Notifications', 'Templates', 'Security']
 
 export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, exportJSON }) {
   const [activeTab, setActiveTab] = useState('General')
@@ -138,6 +138,10 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
             </div>
           </div>
         </div>
+      )}
+
+      {activeTab === 'Organization' && (
+        <Group2Settings settingsForm={settingsForm} setSettingsForm={setSettingsForm} handleSaveSettings={handleSaveSettings} />
       )}
 
       {activeTab === 'Users & Roles' && (
@@ -287,3 +291,62 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
 }
 
 export default Settings
+
+// ─── GROUP 2 / ORGANIZATION ──────────────────────────────────────────────────
+// This is injected as a new settings section for Group NPI / Organization billing
+export function Group2Settings({ settingsForm, setSettingsForm, handleSaveSettings }) {
+  const f   = k => settingsForm?.[k] ?? ''
+  const set = (k, v) => setSettingsForm(prev => ({ ...prev, [k]: v }))
+  return (
+    <div className="card">
+      <div className="card-header">
+        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+          <span style={{ width:22, height:22, borderRadius:6, background:'var(--pr)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:11, fontWeight:700 }}>G2</span>
+          <h3>Group / Organization (Type 2 NPI)</h3>
+        </div>
+        <span className="ch-meta">Group billing entity settings</span>
+      </div>
+      <div className="card-body">
+        <div className="form-grid">
+          <div className="fg full">
+            <label>Organization / Group Name</label>
+            <input type="text" value={f('groupName')} onChange={e=>set('groupName',e.target.value)} placeholder="PrimeCredential Health Partners LLC" />
+          </div>
+          <div className="fg">
+            <label>Group NPI (Type 2)</label>
+            <input type="text" value={f('groupNpi')} onChange={e=>set('groupNpi',e.target.value)} placeholder="1234567890" maxLength={10} />
+          </div>
+          <div className="fg">
+            <label>Group Tax ID / EIN</label>
+            <input type="text" value={f('groupEin')} onChange={e=>set('groupEin',e.target.value)} placeholder="12-3456789" />
+          </div>
+          <div className="fg">
+            <label>CAQH Group ID</label>
+            <input type="text" value={f('groupCaqh')} onChange={e=>set('groupCaqh',e.target.value)} placeholder="Group CAQH ID" />
+          </div>
+          <div className="fg">
+            <label>Group Medicaid ID</label>
+            <input type="text" value={f('groupMedicaid')} onChange={e=>set('groupMedicaid',e.target.value)} placeholder="State Medicaid group ID" />
+          </div>
+          <div className="fg full">
+            <label>Group Address</label>
+            <input type="text" value={f('groupAddress')} onChange={e=>set('groupAddress',e.target.value)} placeholder="123 Main St, Suite 100, Portland, OR 97201" />
+          </div>
+          <div className="fg">
+            <label>Billing Contact Name</label>
+            <input type="text" value={f('groupBillingContact')} onChange={e=>set('groupBillingContact',e.target.value)} placeholder="Billing Manager" />
+          </div>
+          <div className="fg">
+            <label>Billing Contact Email</label>
+            <input type="email" value={f('groupBillingEmail')} onChange={e=>set('groupBillingEmail',e.target.value)} placeholder="billing@example.com" />
+          </div>
+          <div className="fg full">
+            <label>Group Notes</label>
+            <textarea value={f('groupNotes')} onChange={e=>set('groupNotes',e.target.value)} placeholder="Group NPI credentialing notes, payer-specific group enrollment details…" rows={3} style={{ resize:'vertical', fontFamily:'inherit' }} />
+          </div>
+        </div>
+        <button className="btn btn-primary mt-12" onClick={handleSaveSettings}>Save Group Settings</button>
+      </div>
+    </div>
+  )
+}

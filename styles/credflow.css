@@ -1831,3 +1831,59 @@ tr:hover .row-actions { opacity: 1; }
 /* Badge teal */
 .b-teal { background: rgba(13,148,136,.10); color: #0F766E; border: 1px solid rgba(13,148,136,.22); }
 .b-gold { background: rgba(217,119,6,.10); color: #92400E; border: 1px solid rgba(217,119,6,.22); }
+
+/* ─── DRAWER ANIMATION ───────────────────────────────────────────────────── */
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { transform: translateY(16px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* Drawer scrollable content nice scrollbar */
+.drawer-body::-webkit-scrollbar { width: 5px; }
+.drawer-body::-webkit-scrollbar-track { background: transparent; }
+.drawer-body::-webkit-scrollbar-thumb { background: var(--border-m); border-radius: 3px; }
+
+/* ─── RECOMMENDED IMPROVEMENTS: Skeleton loading states ─────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--elevated) 25%, var(--border-l) 50%, var(--elevated) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--r);
+}
+.skeleton-card {
+  border-radius: var(--r-lg);
+  background: linear-gradient(90deg, var(--elevated) 25%, rgba(0,0,0,.04) 50%, var(--elevated) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ─── IMPROVEMENT: Hover reveal on table rows ────────────────────────────── */
+.tbl-row-actions { opacity: 0; transition: opacity var(--t); }
+tr:hover .tbl-row-actions { opacity: 1; }
+
+/* ─── IMPROVEMENT: Focus ring for accessibility ──────────────────────────── */
+button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid var(--pr);
+  outline-offset: 2px;
+}
+
+/* ─── IMPROVEMENT: Scrollbar styling globally ─────────────────────────────── */
+* { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-m); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-4); }

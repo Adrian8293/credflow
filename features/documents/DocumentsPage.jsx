@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Documents } from './Documents.jsx'
 import { MissingDocuments } from './MissingDocuments.jsx'
-import { daysUntil, fmtDate, pName } from '../../lib/helpers.js'
+import { daysUntil, fmtDate, fmtFull, pName } from '../../lib/helpers.js'
 import { Badge, ExpiryBadge } from '../../components/ui/Badge.jsx'
 import OpcaUploadPanel from '../../components/OpcaUploadPanel.jsx'
 
@@ -221,6 +221,13 @@ export function DocumentsPage({ db, docSearch, setDocSearch, docFType, setDocFTy
 
   return (
     <div className="page">
+      <div style={{ display:'flex', alignItems:'flex-start', justifyContent:'space-between', marginBottom:20 }}>
+        <div>
+          <h2 style={{ fontSize:20, fontWeight:800, color:'var(--text-1)', letterSpacing:'-.04em', margin:0, marginBottom:4 }}>Documents</h2>
+          <p style={{ fontSize:12.5, color:'var(--text-4)', margin:0 }}>Store and manage all provider documents. {fmtFull()}</p>
+        </div>
+        <button className="btn btn-primary btn-sm" onClick={() => openDocModal()}>↑ Upload Document</button>
+      </div>
       <div className="tabs">
         {TABS.map(t => (
           <div key={t.id} className={`tab${tab === t.id ? ' active' : ''}`} onClick={() => setTab(t.id)}>

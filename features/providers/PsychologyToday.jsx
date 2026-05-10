@@ -82,7 +82,7 @@ export function PsychologyToday({ db, setPage, editProvider }) {
                   <div key={p.id} className="pt-card">
                     <div className="pt-card-avatar">
                       {p.avatarUrl
-                        ? <img src={p.avatarUrl} alt={p.fname} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                        ? <img src={p.avatarUrl} alt={p.fname} style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:8}} />
                         : initials(p)
                       }
                     </div>
@@ -119,7 +119,7 @@ export function PsychologyToday({ db, setPage, editProvider }) {
                     <div key={p.id} className="pt-card pt-missing">
                       <div className="pt-card-avatar" style={{background:'var(--amber-l)',color:'var(--amber)'}}>
                         {p.avatarUrl
-                          ? <img src={p.avatarUrl} alt={p.fname} style={{width:'100%',height:'100%',objectFit:'cover'}} />
+                          ? <img src={p.avatarUrl} alt={p.fname} style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:8}} />
                           : initials(p)
                         }
                       </div>
@@ -187,7 +187,7 @@ export function PsychologyToday({ db, setPage, editProvider }) {
                     <td>
                       <div style={{display:'flex',alignItems:'center',gap:10}}>
                         <div style={{width:32,height:32,borderRadius:8,background:SPEC_COLORS[p.spec]||'#4f7ef8',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,color:'white',fontFamily:'Poppins,sans-serif',flexShrink:0,overflow:'hidden'}}>
-                          {p.avatarUrl ? <img src={p.avatarUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} /> : initials(p)}
+                          {p.avatarUrl ? <img src={p.avatarUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:8}} /> : initials(p)}
                         </div>
                         <div>
                           <div style={{fontWeight:600,fontSize:13}}>{p.fname} {p.lname}</div>
