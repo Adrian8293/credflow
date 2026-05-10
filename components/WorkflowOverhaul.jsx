@@ -408,67 +408,176 @@ export function WorkflowDashboard({ db, setPage, openEnrollModal }) {
 
 export function WorkflowProviderCard({ prov, db, onOpen, onEdit, onEnroll, onTask, onSync }) {
   const score = providerReadiness(prov)
-  const licD = daysUntilWF(prov.licenseExp)
-  const malD = daysUntilWF(prov.malExp)
+  const licD  = daysUntilWF(prov.licenseExp)
+  const malD  = daysUntilWF(prov.malExp)
   const caqhD = daysUntilWF(prov.caqhDue)
+  const deaD  = daysUntilWF(prov.deaExp)
   const urgent = (licD !== null && licD <= 30) || (malD !== null && malD <= 30) || (caqhD !== null && caqhD <= 0)
+  const expired = (licD !== null && licD < 0) || (malD !== null && malD < 0)
   const activeP = db.enrollments.filter(e => e.provId === prov.id && e.stage === 'Active').length
-  const totalP = db.enrollments.filter(e => e.provId === prov.id).length
+  const totalP  = db.enrollments.filter(e => e.provId === prov.id).length
+  const [menuOpen, setMenuOpen] = useState(false)
   const router = useRouter()
 
   const SPEC_COLORS = {
     'Mental Health': '#3563c9', 'Massage Therapy': '#1a8a7a',
-    'Naturopathic': '#6d3fb5', 'Chiropractic': '#c97d1e', 'Acupuncture': '#b8292e'
+    'Naturopathic': '#6d3fb5', 'Chiropractic': '#c97d1e', 'Acupuncture': '#b8292e',
+    'Licensed Psychologist': '#0891b2',
   }
+  const specColor = SPEC_COLORS[prov.spec] || '#4f7ef8'
 
-  function initials(p) { return ((p.fname || '')[0] || '') + ((p.lname || '')[0] || '') }
+  function initials(p) { return ((p.fname||'')[0]||'') + ((p.lname||'')[0]||'') }
+
+  const scoreColor = score >= 80 ? '#10b981' : score >= 60 ? '#f59e0b' : '#ef4444'
+
+  // Build compact credential pills
+  const credPills = []
+  if (licD !== null) credPills.push({ label: 'LIC', days: licD })
+  if (malD !== null) credPills.push({ label: 'MAL', days: malD })
+  if (caqhD !== null) credPills.push({ label: 'CAQH', days: caqhD })
+  if (deaD !== null) credPills.push({ label: 'DEA', days: deaD })
 
   return (
-    <div className="prov-card" onClick={() => onOpen(prov.id)}>
-      <div className="prov-avatar" style={{ background: SPEC_COLORS[prov.spec] || '#4f7ef8' }}>
+    <div style={{
+      background: 'var(--card)',
+      border: `1.5px solid ${expired ? 'rgba(239,68,68,.3)' : urgent ? 'rgba(245,158,11,.3)' : 'var(--border)'}`,
+      borderRadius: 'var(--r-lg)',
+      padding: '14px 16px',
+      display: 'flex',
+      alignItems: 'flex-start',
+      gap: 14,
+      transition: 'all .15s',
+      cursor: 'pointer',
+      position: 'relative',
+    }}
+    onMouseEnter={e => { e.currentTarget.style.boxShadow = 'var(--shadow)'; e.currentTarget.style.borderColor = 'rgba(30,86,240,.25)' }}
+    onMouseLeave={e => { e.currentTarget.style.boxShadow = ''; e.currentTarget.style.borderColor = expired ? 'rgba(239,68,68,.3)' : urgent ? 'rgba(245,158,11,.3)' : 'var(--border)' }}
+    onClick={() => onOpen(prov.id)}
+    >
+      {/* Avatar */}
+      <div style={{
+        width: 46, height: 46, borderRadius: 12, flexShrink: 0,
+        background: specColor, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: 15, fontWeight: 800, color: '#fff', overflow: 'hidden',
+        boxShadow: `0 0 0 3px ${specColor}22`,
+      }}>
         {prov.avatarUrl
-          ? <img src={prov.avatarUrl} alt={prov.fname} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 12 }}
-            onError={e => { e.target.style.display = 'none' }} />
+          ? <img src={prov.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.target.style.display = 'none' }} />
           : initials(prov)
         }
       </div>
-      <div>
-        <div className="prov-name">{prov.fname} {prov.lname}</div>
-        <div className="prov-title">{prov.cred}{prov.focus ? ' · ' + prov.focus : ''}</div>
-        <div className="prov-chips">
-          <span className={`badge ${prov.status === 'Active' ? 'b-green' : prov.status === 'Pending' ? 'b-amber' : 'b-gray'} badge-dot`}>
-            {prov.status}
+
+      {/* Main info */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-1)' }}>
+            {prov.fname} {prov.lname}{prov.cred ? `, ${prov.cred}` : ''}
           </span>
-          <span className="badge b-gray">{prov.spec}</span>
-          {prov.npi && <span className="info-chip">NPI: {prov.npi}</span>}
-          {activeP > 0 && <span className="badge b-teal">{activeP}/{totalP} panels</span>}
-          {urgent && <span className="badge b-red">⚠ Action needed</span>}
+          <span className={`badge ${prov.status === 'Active' ? 'b-green' : prov.status === 'Pending' ? 'b-amber' : 'b-gray'}`}>
+            {prov.status || 'Unknown'}
+          </span>
+          {expired && <span className="badge b-red">⚠ Expired credential</span>}
+          {!expired && urgent && <span className="badge b-amber">⚠ Expiring soon</span>}
         </div>
-        <ProviderReadinessBar prov={prov} />
-      </div>
-      <div className="prov-actions" onClick={e => e.stopPropagation()}>
-        <button className="btn btn-secondary btn-sm" onClick={() => onOpen(prov.id)}>View Profile</button>
-        <button className="btn btn-ghost btn-sm" onClick={() => onEdit(prov.id)}>Edit</button>
-        <button
-          className="btn btn-ghost btn-sm"
-          title="Open OPCA Review — validate and prepare credentialing application"
-          onClick={() => router.push(`/review/${prov.id}`)}
-          style={{ color: '#4f7cff', fontWeight: 500 }}
-        >
-          📋 OPCA
-        </button>
-        {onEnroll && (
-          <button className="btn btn-ghost btn-sm" onClick={() => onEnroll(null, prov.id)}>+ Enroll</button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 8 }}>
+          <span style={{ fontSize: 12, color: 'var(--text-3)', display: 'flex', alignItems: 'center', gap: 5 }}>
+            <span style={{ width: 8, height: 8, borderRadius: 2, background: specColor, display: 'inline-block' }} />
+            {prov.spec || 'General'}
+          </span>
+          {prov.npi && (
+            <span style={{ fontSize: 11.5, color: 'var(--text-4)', fontFamily: 'var(--fn-mono)' }}>NPI {prov.npi}</span>
+          )}
+          {activeP > 0 && (
+            <span style={{ fontSize: 11.5, color: 'var(--success)', fontWeight: 600 }}>
+              {activeP} active panel{activeP !== 1 ? 's' : ''}
+            </span>
+          )}
+          {prov.focus && (
+            <span style={{ fontSize: 11.5, color: 'var(--text-4)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 220 }}>
+              {prov.focus}
+            </span>
+          )}
+        </div>
+
+        {/* Credential expiry pills */}
+        {credPills.length > 0 && (
+          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap' }}>
+            {credPills.map(({ label, days }) => {
+              const col = days < 0 ? '#EF4444' : days <= 30 ? '#F59E0B' : days <= 90 ? '#6B7280' : 'var(--text-4)'
+              const bg  = days < 0 ? 'rgba(239,68,68,.08)' : days <= 30 ? 'rgba(245,158,11,.08)' : 'transparent'
+              return (
+                <span key={label} style={{
+                  fontSize: 10.5, fontWeight: 600, color: col, background: bg,
+                  border: `1px solid ${col}33`, borderRadius: 5,
+                  padding: '2px 7px', fontFamily: 'var(--fn-mono)',
+                }}>
+                  {label} {days < 0 ? `${Math.abs(days)}d ago` : `${days}d`}
+                </span>
+              )
+            })}
+          </div>
         )}
-        {onSync && prov.npi && (
-          <button
-            className="btn btn-ghost btn-sm"
-            title="Sync latest data from NPPES NPI Registry"
-            onClick={() => onSync(prov.id)}
-            style={{ color: 'var(--primary)', fontWeight: 500 }}
-          >
-            ↻ Sync NPPES
+
+        {/* Readiness bar */}
+        <div style={{ marginTop: 9, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ flex: 1, height: 4, background: 'var(--border)', borderRadius: 2, overflow: 'hidden', maxWidth: 200 }}>
+            <div style={{ height: '100%', width: `${score}%`, background: scoreColor, borderRadius: 2, transition: 'width .4s' }} />
+          </div>
+          <span style={{ fontSize: 10.5, fontWeight: 700, color: scoreColor, minWidth: 32 }}>{score}%</span>
+          <span style={{ fontSize: 10, color: 'var(--text-4)' }}>readiness</span>
+        </div>
+      </div>
+
+      {/* Actions — always visible, right side */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, flexShrink: 0, alignItems: 'flex-end' }}
+        onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', gap: 5 }}>
+          <button className="btn btn-primary btn-sm" onClick={() => onOpen(prov.id)}
+            style={{ fontSize: 11.5, padding: '5px 12px' }}>
+            View Profile
           </button>
+          <button className="btn btn-secondary btn-sm" onClick={() => onEdit(prov.id)}
+            style={{ fontSize: 11.5, padding: '5px 10px' }}>
+            Edit
+          </button>
+          {/* Dropdown menu for more actions */}
+          <div style={{ position: 'relative' }}>
+            <button className="btn btn-secondary btn-sm"
+              style={{ fontSize: 11.5, padding: '5px 9px' }}
+              onClick={() => setMenuOpen(o => !o)}
+              title="More actions">
+              ···
+            </button>
+            {menuOpen && (
+              <div style={{
+                position: 'absolute', top: '100%', right: 0, marginTop: 4,
+                background: 'var(--card)', border: '1.5px solid var(--border)',
+                borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-lg)',
+                zIndex: 50, minWidth: 160, overflow: 'hidden',
+              }}>
+                <button className="dropdown-item" onClick={() => { router.push(`/review/${prov.id}`); setMenuOpen(false) }}>
+                  📋 OPCA Review
+                </button>
+                {onEnroll && (
+                  <button className="dropdown-item" onClick={() => { onEnroll(null, prov.id); setMenuOpen(false) }}>
+                    + Enroll with Payer
+                  </button>
+                )}
+                {onSync && prov.npi && (
+                  <button className="dropdown-item" onClick={() => { onSync(prov.id); setMenuOpen(false) }}>
+                    ↻ Sync NPPES
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+        {/* Panel count badge */}
+        {totalP > 0 && (
+          <span style={{ fontSize: 10.5, color: 'var(--text-4)', textAlign: 'right' }}>
+            {activeP}/{totalP} payer panels
+          </span>
         )}
       </div>
     </div>

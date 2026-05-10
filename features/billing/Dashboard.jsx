@@ -42,7 +42,7 @@ function KpiCard({ label, value, sub, accent = 'kpi-blue', icon, trend, trendUp,
       </div>
       <div className="kpi-sub">{sub}</div>
       {insight && (
-        <div style={{ marginTop: 8, padding: '5px 8px', background: 'var(--pr-ll)', border: '1px solid var(--border)', borderRadius: 'var(--r)', fontSize: 10.5, color: 'var(--text-3)', display: 'flex', gap: 5, alignItems: 'flex-start', lineHeight: 1.5 }}>
+        <div style={{ marginTop: 8, padding: '5px 8px', background: 'var(--elevated)', border: '1px solid var(--border)', borderRadius: 'var(--r)', fontSize: 10.5, color: 'var(--text-3)', display: 'flex', gap: 5, alignItems: 'flex-start', lineHeight: 1.5 }}>
           <span style={{ color: 'var(--pr)', flexShrink: 0, marginTop: 1 }}>{Icon.spark}</span>
           {insight}
         </div>
@@ -230,7 +230,7 @@ function QuickActions({ setPage, openEnrollModal }) {
     { label: 'Add Provider', icon: Icon.users, color: 'var(--success)', action: () => setPage('add-provider') },
     { label: 'Upload Document', icon: Icon.doc, color: 'var(--warning)', action: () => setPage('documents') },
     { label: 'View Alerts', icon: Icon.alert, color: 'var(--danger)', action: () => setPage('alerts') },
-    { label: 'Run Reports', icon: Icon.download, color: 'var(--purple)', action: () => setPage('reports') },
+    { label: 'Run Reports', icon: Icon.download, color: '#7C3AED', action: () => setPage('reports') },
   ]
   return (
     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 18 }}>
@@ -255,7 +255,7 @@ function SpecialtyBreakdown({ db }) {
   const specs = {}
   db.providers.filter(p => p.status === 'Active').forEach(p => { specs[p.spec] = (specs[p.spec] || 0) + 1 })
   const total = Object.values(specs).reduce((a, b) => a + b, 0) || 1
-  const COLORS = ['var(--pr)', 'var(--success)', 'var(--warning)', 'var(--purple)', 'var(--cyan)', 'var(--danger)']
+  const COLORS = ['var(--pr)', 'var(--success)', 'var(--warning)', '#7C3AED', '#0891B2', 'var(--danger)']
   return (
     <div>
       {Object.entries(specs).sort((a, b) => b[1] - a[1]).map(([s, n], i) => (

@@ -28,10 +28,10 @@ const TABS = ['All Alerts', 'Critical', 'Warnings', 'Information']
 
 const AlertIcon = ({ type }) => {
   const map = {
-    expired:  { bg: 'var(--red-l)',   color: 'var(--danger)',  icon: '!' },
-    critical: { bg: 'var(--red-l)',   color: 'var(--danger)',  icon: '!' },
-    warning:  { bg: 'var(--amber-l)', color: 'var(--warning)', icon: '~' },
-    info:     { bg: 'var(--blue-l)',  color: 'var(--pr)',       icon: 'i' },
+    expired:  { bg: 'rgba(239,68,68,.08)',   color: 'var(--danger)',  icon: '!' },
+    critical: { bg: 'rgba(239,68,68,.08)',   color: 'var(--danger)',  icon: '!' },
+    warning:  { bg: 'rgba(245,158,11,.08)', color: 'var(--warning)', icon: '~' },
+    info:     { bg: 'rgba(30,86,240,.08)',  color: 'var(--pr)',       icon: 'i' },
   }
   const s = map[type] || map.info
   return (
@@ -143,10 +143,10 @@ export function Alerts({ db, onOpenProvider, onDraftEmail, onMarkDone }) {
       {items.length > 0 && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
           {[
-            { label: 'Expired', count: expired.length, color: 'var(--danger)', bg: 'var(--red-l)' },
-            { label: 'Critical (≤30d)', count: critical.length, color: 'var(--danger)', bg: 'var(--red-l)' },
-            { label: 'Warnings (31–60d)', count: warning.length, color: 'var(--warning)', bg: 'var(--amber-l)' },
-            { label: 'Notices (61–90d)', count: info.length, color: 'var(--pr)', bg: 'var(--blue-l)' },
+            { label: 'Expired', count: expired.length, color: 'var(--danger)', bg: 'rgba(239,68,68,.08)' },
+            { label: 'Critical (≤30d)', count: critical.length, color: 'var(--danger)', bg: 'rgba(239,68,68,.08)' },
+            { label: 'Warnings (31–60d)', count: warning.length, color: 'var(--warning)', bg: 'rgba(245,158,11,.08)' },
+            { label: 'Notices (61–90d)', count: info.length, color: 'var(--pr)', bg: 'rgba(30,86,240,.08)' },
           ].map((kpi, i) => (
             <div key={i} style={{ background: 'var(--card)', border: '1.5px solid var(--border)', borderRadius: 'var(--r-lg)', padding: '14px 16px', textAlign: 'center' }}>
               <div style={{ fontSize: 28, fontWeight: 800, color: kpi.color, marginBottom: 4 }}>{kpi.count}</div>

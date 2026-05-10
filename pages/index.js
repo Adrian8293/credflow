@@ -209,6 +209,7 @@ export default function App() {
             exportJSON={exportJSON} saving={providers.saving}
             onOpenSearch={() => setGlobalSearchOpen(true)}
             alertCount={alertCount} user={user} signOut={signOut}
+            db={db} openProvDetail={openProvDetail}
           />
 
           {loading ? (

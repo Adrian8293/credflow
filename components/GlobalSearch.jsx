@@ -1,273 +1,250 @@
+/**
+ * GlobalSearch.jsx — PrimeCredential
+ * Inline topbar search: expands in place, results drop below. No modal/overlay.
+ */
+
 import { useRef, useState, useEffect } from 'react'
-import { Badge, ExpiryBadge } from './ui/Badge.jsx'
+import { Badge } from './ui/Badge.jsx'
+import { daysUntil } from '../lib/helpers.js'
+
+function pName(provs, id) {
+  const p = provs?.find(x => x.id === id)
+  return p ? `${p.fname} ${p.lname}${p.cred ? `, ${p.cred}` : ''}` : ''
+}
+function payName(payers, id) {
+  return payers?.find(x => x.id === id)?.name || ''
+}
+
+const SEARCH_ICON = (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+  </svg>
+)
+const CLOSE_ICON = (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+)
+
+function ResultRow({ icon, primary, secondary, badge, badgeCls, onClick, focused }) {
+  return (
+    <div onClick={onClick} className={`gs-row${focused ? ' gs-focused' : ''}`}>
+      <div className="gs-row-icon">{icon}</div>
+      <div className="gs-row-text">
+        <div className="gs-row-primary">{primary}</div>
+        {secondary && <div className="gs-row-secondary">{secondary}</div>}
+      </div>
+      {badge && <span className={`badge ${badgeCls || 'b-gray'}`}>{badge}</span>}
+      <div className="gs-row-enter">↵</div>
+    </div>
+  )
+}
+
+const ICONS = {
+  provider:   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1E56F0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+  enrollment: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>,
+  payer:      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>,
+  document:   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>,
+  task:       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0891B2" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>,
+}
+
+const STAGE_CLS = s => {
+  const l = (s || '').toLowerCase()
+  if (l.includes('active') || l.includes('approved')) return 'b-green'
+  if (l.includes('return') || l.includes('denied'))  return 'b-red'
+  if (l.includes('pending') || l.includes('waiting')) return 'b-amber'
+  return 'b-blue'
+}
 
 export function GlobalSearch({ db, onClose, setPage, openProvDetail, openEnrollModal }) {
   const [query, setQuery] = useState('')
   const [focused, setFocused] = useState(0)
   const inputRef = useRef(null)
+  const wrapRef  = useRef(null)
 
   useEffect(() => { inputRef.current?.focus() }, [])
+  useEffect(() => {
+    function onKey(e) {
+      if (e.key === 'Escape') { e.stopPropagation(); onClose() }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  // Click outside closes
+  useEffect(() => {
+    function onClick(e) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) onClose()
+    }
+    setTimeout(() => document.addEventListener('mousedown', onClick), 0)
+    return () => document.removeEventListener('mousedown', onClick)
+  }, [onClose])
 
   const q = query.trim().toLowerCase()
 
-  const provResults = q.length < 1 ? [] : db.providers.filter(p => {
-    const txt = [p.fname, p.lname, p.cred, p.spec, p.npi, p.license, p.medicaid,
-      p.caqh, p.dea, p.email, p.phone, p.focus, p.supervisor, p.notes].join(' ').toLowerCase()
-    return txt.includes(q)
-  }).slice(0, 5)
+  const provs = q.length < 1 ? [] : (db.providers || []).filter(p =>
+    `${p.fname} ${p.lname} ${p.cred} ${p.spec} ${p.npi} ${p.license} ${p.caqh} ${p.dea} ${p.email} ${p.phone}`.toLowerCase().includes(q)
+  ).slice(0, 4)
 
-  const enrResults = q.length < 1 ? [] : db.enrollments.filter(e => {
-    const pn = pName(db.providers, e.provId).toLowerCase()
-    const pay = payName(db.payers, e.payId).toLowerCase()
-    return pn.includes(q) || pay.includes(q) || e.stage.toLowerCase().includes(q)
-  }).slice(0, 4)
+  const enrs = q.length < 1 ? [] : (db.enrollments || []).filter(e =>
+    `${pName(db.providers, e.provId)} ${payName(db.payers, e.payId)} ${e.stage}`.toLowerCase().includes(q)
+  ).slice(0, 3)
 
-  const payResults = q.length < 1 ? [] : db.payers.filter(p =>
+  const pays = q.length < 1 ? [] : (db.payers || []).filter(p =>
     `${p.name} ${p.payerId} ${p.type}`.toLowerCase().includes(q)
   ).slice(0, 3)
 
-  const docResults = q.length < 1 ? [] : db.documents.filter(d => {
-    const pn = pName(db.providers, d.provId).toLowerCase()
-    return pn.includes(q) || (d.type||'').toLowerCase().includes(q) ||
-      (d.issuer||'').toLowerCase().includes(q) || (d.number||'').toLowerCase().includes(q)
-  }).slice(0, 3)
+  const docs = q.length < 1 ? [] : (db.documents || []).filter(d =>
+    `${pName(db.providers, d.provId)} ${d.type} ${d.issuer} ${d.number}`.toLowerCase().includes(q)
+  ).slice(0, 2)
 
-  const taskResults = q.length < 1 ? [] : db.tasks.filter(t =>
-    (t.task||'').toLowerCase().includes(q) || (t.cat||'').toLowerCase().includes(q)
-  ).slice(0, 3)
+  const tasks = q.length < 1 ? [] : (db.tasks || []).filter(t =>
+    `${t.task} ${t.cat}`.toLowerCase().includes(q)
+  ).slice(0, 2)
 
-  // Build flat list for keyboard nav
   const allItems = [
-    ...provResults.map(r => ({ type:'provider', data:r })),
-    ...enrResults.map(r => ({ type:'enrollment', data:r })),
-    ...payResults.map(r => ({ type:'payer', data:r })),
-    ...docResults.map(r => ({ type:'doc', data:r })),
-    ...taskResults.map(r => ({ type:'task', data:r })),
+    ...provs.map(r  => ({ type: 'provider',   data: r })),
+    ...enrs.map(r   => ({ type: 'enrollment', data: r })),
+    ...pays.map(r   => ({ type: 'payer',      data: r })),
+    ...docs.map(r   => ({ type: 'document',   data: r })),
+    ...tasks.map(r  => ({ type: 'task',       data: r })),
   ]
   const total = allItems.length
 
-  useEffect(() => { setFocused(0) }, [query])
+  useEffect(() => setFocused(0), [query])
 
   function handleKey(e) {
-    if (e.key === 'ArrowDown') { e.preventDefault(); setFocused(f => Math.min(f+1, total-1)) }
-    if (e.key === 'ArrowUp')   { e.preventDefault(); setFocused(f => Math.max(f-1, 0)) }
-    if (e.key === 'Enter' && total > 0) { handleSelect(allItems[focused]) }
+    if (e.key === 'ArrowDown') { e.preventDefault(); setFocused(f => Math.min(f + 1, total - 1)) }
+    if (e.key === 'ArrowUp')   { e.preventDefault(); setFocused(f => Math.max(f - 1, 0)) }
+    if (e.key === 'Enter' && total > 0) select(allItems[focused])
   }
 
-  function handleSelect(item) {
-    if (item.type === 'provider') { setPage('providers'); openProvDetail(item.data.id) }
-    else if (item.type === 'enrollment') { setPage('enrollments'); openEnrollModal(item.data.id) }
-    else if (item.type === 'payer') { setPage('payer-hub') }
-    else if (item.type === 'doc') { setPage('documents') }
-    else if (item.type === 'task') { setPage('workflows') }
-    onClose()
+  function select(item) {
+    if (item.type === 'provider')   { setPage('providers'); openProvDetail?.(item.data.id); onClose() }
+    if (item.type === 'enrollment') { setPage('applications'); openEnrollModal?.(item.data.id); onClose() }
+    if (item.type === 'payer')      { setPage('payers'); onClose() }
+    if (item.type === 'document')   { setPage('documents'); onClose() }
+    if (item.type === 'task')       { setPage('tasks'); onClose() }
   }
 
-  const isEmpty = q.length > 0 && total === 0
-  const isBlank = q.length === 0
-
-  let itemIdx = 0
-  function Section({ label, items, icon, color, renderItem }) {
-    if (!items.length) return null
-    return (
-      <div className="gsearch-section">
-        <div className="gsearch-section-label">{label}</div>
-        {items.map((item, i) => {
-          const idx = itemIdx++
-          return (
-            <div key={i} className={`gsearch-item ${focused===idx?'focused':''}`}
-              onMouseEnter={() => setFocused(idx)}
-              onClick={() => handleSelect({ type: item._type, data: item })}>
-              <div className="gsearch-item-icon" style={{background:color+'22',color}}>{icon}</div>
-              <div className="gsearch-item-main">{renderItem(item)}</div>
-            </div>
-          )
-        })}
-      </div>
-    )
-  }
+  const hasResults = total > 0
 
   return (
-    <div className="gsearch-overlay" onClick={e => { if(e.target===e.currentTarget) onClose() }}>
-      <div className="gsearch-box">
-        <div className="gsearch-input-wrap">
-          <span className="gsearch-icon">🔍</span>
-          <input
-            ref={inputRef}
-            className="gsearch-input"
-            placeholder="Search providers, payers, enrollments, documents…"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            onKeyDown={handleKey}
-          />
-          <span className="gsearch-kbd">ESC</span>
-        </div>
+    <div ref={wrapRef} className="gs-wrap">
+      {/* Input */}
+      <div className="gs-input-row">
+        <span className="gs-search-icon">{SEARCH_ICON}</span>
+        <input
+          ref={inputRef}
+          className="gs-input"
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          onKeyDown={handleKey}
+          placeholder="Search providers, applications, payers…"
+          autoComplete="off"
+        />
+        {query && (
+          <button className="gs-clear" onClick={() => setQuery('')}>{CLOSE_ICON}</button>
+        )}
+        <kbd className="gs-kbd">Esc</kbd>
+      </div>
 
-        <div className="gsearch-results">
-          {isBlank && (
-            <div className="gsearch-empty">
-              <div style={{fontSize:28,marginBottom:8}}>🔍</div>
-              <div style={{fontWeight:600,color:'var(--ink-3)',marginBottom:4}}>Search everything</div>
-              <div>Providers · Payers · Enrollments · Documents · Tasks</div>
-            </div>
-          )}
-          {isEmpty && (
-            <div className="gsearch-empty">
-              <div style={{fontSize:28,marginBottom:8}}>😔</div>
-              <div style={{fontWeight:600,color:'var(--ink-3)',marginBottom:4}}>No results for "{query}"</div>
-              <div>Try a name, NPI, license number, payer, or specialty</div>
-            </div>
+      {/* Dropdown results */}
+      {query && (
+        <div className="gs-dropdown">
+          {!hasResults && (
+            <div className="gs-empty">No results for "<strong>{query}</strong>"</div>
           )}
 
-          {provResults.map(p => { p._type='provider'; return null })}
-          {enrResults.map(e => { e._type='enrollment'; return null })}
-          {payResults.map(p => { p._type='payer'; return null })}
-          {docResults.map(d => { d._type='doc'; return null })}
-          {taskResults.map(t => { t._type='task'; return null })}
-
-          {(() => { itemIdx = 0; return null })()}
-
-          {provResults.length > 0 && (
-            <div className="gsearch-section">
-              <div className="gsearch-section-label">Providers</div>
-              {provResults.map((p, i) => {
-                const idx = itemIdx++
-                const hasDays = daysUntil(p.licenseExp)
-                const urgent = hasDays !== null && hasDays <= 30
+          {provs.length > 0 && (
+            <div className="gs-section">
+              <div className="gs-section-label">Providers</div>
+              {provs.map((p, i) => {
+                const idx = allItems.findIndex(x => x.type === 'provider' && x.data.id === p.id)
                 return (
-                  <div key={p.id} className={`gsearch-item ${focused===idx?'focused':''}`}
-                    onMouseEnter={() => setFocused(idx)}
-                    onClick={() => handleSelect({type:'provider',data:p})}>
-                    <div className="gsearch-item-icon" style={{background:(SPEC_COLORS[p.spec]||'#4f7ef8')+'25',color:SPEC_COLORS[p.spec]||'#4f7ef8',fontFamily:'Poppins,sans-serif',fontSize:15,fontWeight:600}}>
-                      {initials(p)}
-                    </div>
-                    <div className="gsearch-item-main">
-                      <div className="gsearch-item-title">{p.fname} {p.lname}{p.cred?', '+p.cred:''}</div>
-                      <div className="gsearch-item-sub">
-                        {p.spec}{p.npi?' · NPI '+p.npi:''}{p.license?' · '+p.license:''}
-                        {p.email?' · '+p.email:''}
-                      </div>
-                    </div>
-                    <div className="gsearch-item-tag" style={{display:'flex',flexDirection:'column',gap:4,alignItems:'flex-end'}}>
-                      <span className={`badge badge-dot ${p.status==='Active'?'b-green':p.status==='Pending'?'b-amber':'b-gray'}`}>{p.status}</span>
-                      {urgent && <span className="badge b-red" style={{fontSize:10}}>⚠ Expiring</span>}
-                    </div>
-                  </div>
+                  <ResultRow key={p.id} icon={ICONS.provider}
+                    primary={`${p.fname} ${p.lname}${p.cred ? `, ${p.cred}` : ''}`}
+                    secondary={[p.spec, p.npi ? `NPI ${p.npi}` : null].filter(Boolean).join(' · ')}
+                    badge={p.status} badgeCls={p.status === 'Active' ? 'b-green' : p.status === 'Inactive' ? 'b-gray' : 'b-amber'}
+                    focused={focused === idx} onClick={() => select({ type: 'provider', data: p })} />
                 )
               })}
             </div>
           )}
 
-          {enrResults.length > 0 && (
-            <div className="gsearch-section">
-              <div className="gsearch-section-label">Enrollments</div>
-              {enrResults.map((e, i) => {
-                const idx = itemIdx++
+          {enrs.length > 0 && (
+            <div className="gs-section">
+              <div className="gs-section-label">Applications</div>
+              {enrs.map((e, i) => {
+                const idx = allItems.findIndex(x => x.type === 'enrollment' && x.data.id === e.id)
                 return (
-                  <div key={e.id} className={`gsearch-item ${focused===idx?'focused':''}`}
-                    onMouseEnter={() => setFocused(idx)}
-                    onClick={() => handleSelect({type:'enrollment',data:e})}>
-                    <div className="gsearch-item-icon" style={{background:'#eff6ff',color:'#2563eb'}}>🏥</div>
-                    <div className="gsearch-item-main">
-                      <div className="gsearch-item-title">{pNameShort(db.providers, e.provId)}</div>
-                      <div className="gsearch-item-sub">{payName(db.payers, e.payId)}</div>
-                    </div>
-                    <div className="gsearch-item-tag">
-                      <span className={`badge ${STAGE_COLOR[e.stage]||'b-gray'}`} style={{fontSize:10}}>{e.stage}</span>
-                    </div>
-                  </div>
+                  <ResultRow key={e.id} icon={ICONS.enrollment}
+                    primary={`${pName(db.providers, e.provId)} → ${payName(db.payers, e.payId)}`}
+                    secondary={e.stage}
+                    badge={e.stage} badgeCls={STAGE_CLS(e.stage)}
+                    focused={focused === idx} onClick={() => select({ type: 'enrollment', data: e })} />
                 )
               })}
             </div>
           )}
 
-          {payResults.length > 0 && (
-            <div className="gsearch-section">
-              <div className="gsearch-section-label">Payers</div>
-              {payResults.map((p, i) => {
-                const idx = itemIdx++
+          {pays.length > 0 && (
+            <div className="gs-section">
+              <div className="gs-section-label">Payers</div>
+              {pays.map(p => {
+                const idx = allItems.findIndex(x => x.type === 'payer' && x.data.id === p.id)
                 return (
-                  <div key={p.id} className={`gsearch-item ${focused===idx?'focused':''}`}
-                    onMouseEnter={() => setFocused(idx)}
-                    onClick={() => handleSelect({type:'payer',data:p})}>
-                    <div className="gsearch-item-icon" style={{background:'#fefce8',color:'#ca8a04'}}>🗂</div>
-                    <div className="gsearch-item-main">
-                      <div className="gsearch-item-title">{p.name}</div>
-                      <div className="gsearch-item-sub">{p.type}{p.payerId?' · ID: '+p.payerId:''}{p.timeline?' · '+p.timeline:''}</div>
-                    </div>
-                    <div className="gsearch-item-tag">
-                      <span className="badge b-blue" style={{fontSize:10}}>{p.type}</span>
-                    </div>
-                  </div>
+                  <ResultRow key={p.id} icon={ICONS.payer}
+                    primary={p.name} secondary={[p.payerId, p.type].filter(Boolean).join(' · ')}
+                    focused={focused === idx} onClick={() => select({ type: 'payer', data: p })} />
                 )
               })}
             </div>
           )}
 
-          {docResults.length > 0 && (
-            <div className="gsearch-section">
-              <div className="gsearch-section-label">Documents</div>
-              {docResults.map((d, i) => {
-                const idx = itemIdx++
+          {docs.length > 0 && (
+            <div className="gs-section">
+              <div className="gs-section-label">Documents</div>
+              {docs.map(d => {
+                const idx = allItems.findIndex(x => x.type === 'document' && x.data.id === d.id)
                 const days = daysUntil(d.exp)
                 return (
-                  <div key={d.id} className={`gsearch-item ${focused===idx?'focused':''}`}
-                    onMouseEnter={() => setFocused(idx)}
-                    onClick={() => handleSelect({type:'doc',data:d})}>
-                    <div className="gsearch-item-icon" style={{background:'#ecfeff',color:'#0891b2'}}>📎</div>
-                    <div className="gsearch-item-main">
-                      <div className="gsearch-item-title">{d.type} — {pNameShort(db.providers, d.provId)}</div>
-                      <div className="gsearch-item-sub">{d.issuer||''}{d.number?' · '+d.number:''}</div>
-                    </div>
-                    <div className="gsearch-item-tag">
-                      <span className={`badge ${days===null?'b-gray':days<0?'b-red':days<=30?'b-red':days<=90?'b-amber':'b-green'}`} style={{fontSize:10}}>
-                        {days===null?'No exp':days<0?`Expired`:days<=90?`${days}d left`:'Active'}
-                      </span>
-                    </div>
-                  </div>
+                  <ResultRow key={d.id} icon={ICONS.document}
+                    primary={`${d.type || 'Document'} — ${pName(db.providers, d.provId)}`}
+                    secondary={days !== null ? (days < 0 ? `Expired ${Math.abs(days)}d ago` : `Expires in ${days}d`) : null}
+                    badge={days !== null && days < 0 ? 'Expired' : days !== null && days < 30 ? 'Expiring' : null}
+                    badgeCls={days !== null && days < 0 ? 'b-red' : 'b-amber'}
+                    focused={focused === idx} onClick={() => select({ type: 'document', data: d })} />
                 )
               })}
             </div>
           )}
 
-          {taskResults.length > 0 && (
-            <div className="gsearch-section">
-              <div className="gsearch-section-label">Tasks</div>
-              {taskResults.map((t, i) => {
-                const idx = itemIdx++
-                const dd = daysUntil(t.due)
+          {tasks.length > 0 && (
+            <div className="gs-section">
+              <div className="gs-section-label">Tasks</div>
+              {tasks.map(t => {
+                const idx = allItems.findIndex(x => x.type === 'task' && x.data.id === t.id)
                 return (
-                  <div key={t.id} className={`gsearch-item ${focused===idx?'focused':''}`}
-                    onMouseEnter={() => setFocused(idx)}
-                    onClick={() => handleSelect({type:'task',data:t})}>
-                    <div className="gsearch-item-icon" style={{background:'#f5f3ff',color:'#7c3aed'}}>⚡</div>
-                    <div className="gsearch-item-main">
-                      <div className="gsearch-item-title">{t.task}</div>
-                      <div className="gsearch-item-sub">{t.cat}{t.due?' · Due '+fmtDate(t.due):''}</div>
-                    </div>
-                    <div className="gsearch-item-tag" style={{display:'flex',gap:4}}>
-                      <span className={`badge ${PRIORITY_COLOR[t.priority]||'b-gray'}`} style={{fontSize:10}}>{t.priority}</span>
-                      <span className={`badge ${STATUS_COLOR[t.status]||'b-gray'}`} style={{fontSize:10}}>{t.status}</span>
-                    </div>
-                  </div>
+                  <ResultRow key={t.id} icon={ICONS.task}
+                    primary={t.task || 'Task'} secondary={t.cat}
+                    badge={t.status} badgeCls={t.status === 'Done' ? 'b-green' : 'b-blue'}
+                    focused={focused === idx} onClick={() => select({ type: 'task', data: t })} />
                 )
               })}
             </div>
           )}
-        </div>
 
-        <div className="gsearch-footer">
-          <div className="gsearch-hint"><span className="gsearch-kbd">↑↓</span> navigate</div>
-          <div className="gsearch-hint"><span className="gsearch-kbd">↵</span> open</div>
-          <div className="gsearch-hint"><span className="gsearch-kbd">ESC</span> close</div>
-          <div style={{marginLeft:'auto',fontSize:11,color:'var(--ink-4)'}}>
-            {total > 0 ? `${total} result${total!==1?'s':''}` : ''}
+          {/* Keyboard hint */}
+          <div className="gs-footer">
+            <span><kbd>↑↓</kbd> navigate</span>
+            <span><kbd>↵</kbd> select</span>
+            <span><kbd>Esc</kbd> close</span>
           </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }
 
-
-// ─── PROVIDER LOOKUP PAGE ─────────────────────────────────────────────────────
+export default GlobalSearch

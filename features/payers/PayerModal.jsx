@@ -60,7 +60,7 @@ export function PayerModal({ payerForm, setPayerForm, editingId, handleSavePayer
           )}
           <div style={{ marginBottom:12 }}>
             <div className="search-box" style={{ marginBottom:12 }}>
-              <span className="si">🔍</span>
+              <span className="si"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
               <input type="text" value={pickerSearch} onChange={e => setPickerSearch(e.target.value)}
                 placeholder="Search payers…" style={{ width:'100%' }} autoFocus />
             </div>

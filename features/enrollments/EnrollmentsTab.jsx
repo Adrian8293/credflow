@@ -11,7 +11,7 @@ export function EnrollmentsTab({ db, search, setSearch, fStage, setFStage, fProv
   const {sorted:list, thProps} = useSorted(filtered, 'stage')
   return <>
     <div className="toolbar">
-      <div className="search-box"><span className="si">🔍</span><input type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search enrollments…" /></div>
+      <div className="search-box"><span className="si"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><input type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search enrollments…" /></div>
       <select className="filter-select" value={fStage} onChange={e=>setFStage(e.target.value)}>
         <option value="">All Stages</option>
         {STAGES.map(s=><option key={s}>{s}</option>)}

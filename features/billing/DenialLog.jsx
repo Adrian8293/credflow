@@ -106,7 +106,7 @@ export function DenialLog({ db, toast, requestConfirm }) {
       )}
 
       <div className="toolbar">
-        <div className="search-box"><span className="si">🔍</span><input placeholder="Search code, patient, description…" value={search} onChange={e=>setSearch(e.target.value)} /></div>
+        <div className="search-box"><span className="si"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span><input placeholder="Search code, patient, description…" value={search} onChange={e=>setSearch(e.target.value)} /></div>
         <select className="filter-select" value={fCat} onChange={e=>setFCat(e.target.value)}>
           <option value="">All Categories</option>
           {['Authorization','Coding','Eligibility','Timely Filing','Coordination','Information','Patient Resp','Prior Payer'].map(c=><option key={c}>{c}</option>)}
