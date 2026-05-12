@@ -12,7 +12,7 @@ const TABS = [
   { id: 'missing',  label: 'Missing Documents' },
   { id: 'expiring', label: 'Expiring Soon' },
   { id: 'opca',     label: 'OPCA Intake' },
-  { id: 'verified', label: 'Verified' },
+  { id: 'verified', label: 'Current / OK' },
 ]
 
 function ExpiringSoon({ db, openDocModal }) {
@@ -183,7 +183,7 @@ function VerifiedDocs({ db }) {
   // Docs that are active (not expired)
   const docs = db.documents.filter(d => {
     const days = daysUntil(d.exp)
-    return days === null || days > 90
+    return days !== null && days > 90  // null = no expiry date set, not verified
   })
   return (
     <div className="tbl-wrap">
@@ -197,14 +197,14 @@ function VerifiedDocs({ db }) {
         </tr></thead>
         <tbody>
           {!docs.length ? (
-            <tr><td colSpan={5}><div className="empty-state"><div className="ei">📎</div><h4>No verified documents</h4></div></td></tr>
+            <tr><td colSpan={5}><div className="empty-state"><div className="ei">✓</div><h4>All documents are current and on file</h4></div></td></tr>
           ) : docs.map(d => (
             <tr key={d.id}>
               <td style={{ fontWeight: 500 }}>{pName(db.providers, d.provId)}</td>
               <td style={{ fontWeight: 600, color: 'var(--text-1)' }}>{d.type}</td>
               <td>{d.issuer || '—'}</td>
               <td style={{ fontFamily: 'var(--fn-mono)', fontSize: 11.5 }}>{fmtDate(d.exp)}</td>
-              <td><span className="badge b-green">✓ Verified</span></td>
+              <td><span className="badge b-green">✓ Current</span></td>
             </tr>
           ))}
         </tbody>

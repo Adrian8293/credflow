@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import Head from 'next/head'
-import { daysUntil } from '../lib/helpers.js'
+import { daysUntil, providerAlertCount } from '../lib/helpers.js'
 import { useAuth } from '../hooks/useAuth.js'
 import { useToast } from '../hooks/useToast.js'
 import { useAppData } from '../hooks/useAppData.js'
@@ -118,8 +118,9 @@ export default function App() {
         return
       }
 
-      // N: new enrollment (when not in G+combo)
+      // N: new enrollment — only on pages where it's contextually relevant
       if (e.key === 'n' || e.key === 'N') {
+        if (!['applications', 'payers', 'dashboard'].includes(page)) return
         e.preventDefault()
         openEnrollModal()
       }
@@ -145,8 +146,9 @@ export default function App() {
   }
 
   const alertDays   = db.settings.alertDays || 90
+  // MED-015: use shared providerAlertCount — now includes supExp (was missing from badge)
   const alertCount  = db.providers.reduce((n, prov) => {
-    ;['licenseExp','malExp','deaExp','caqhDue','recred'].forEach(f => { const days=daysUntil(prov[f]); if(days!==null && days<=alertDays) n++ })
+    return n + providerAlertCount(prov, { alertDays, caqhDays })
     return n
   }, 0)
   const expDocs     = db.documents.filter(d => { const days=daysUntil(d.exp); return days!==null && days<=90 }).length

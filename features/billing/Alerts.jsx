@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react'
-import { daysUntil, fmtDate } from '../../lib/helpers.js'
+import { fmtDate, getProviderAlerts } from '../../lib/helpers.js'
 
 const NEXT_STEPS = {
   'License':                'Contact provider for renewal documentation; verify with state board.',
@@ -47,18 +47,10 @@ export function Alerts({ db, onOpenProvider, onDraftEmail, onMarkDone }) {
   const caqhDays = db.settings.caqhDays || 30
   const items = []
 
+  // MED-015: use shared getProviderAlerts so badge + alerts + missing docs all agree
   db.providers.forEach(p => {
-    [
-      { f: 'licenseExp', l: 'License',                th: alertDays },
-      { f: 'malExp',     l: 'Malpractice Insurance',  th: alertDays },
-      { f: 'deaExp',     l: 'DEA Certificate',        th: alertDays },
-      { f: 'caqhDue',    l: 'CAQH Attestation',       th: caqhDays  },
-      { f: 'recred',     l: 'Recredentialing',        th: alertDays },
-      { f: 'supExp',     l: 'Supervision Agreement',  th: alertDays },
-    ].forEach(c => {
-      if (!p[c.f]) return
-      const d = daysUntil(p[c.f])
-      if (d !== null && d <= c.th) items.push({ p, label: c.label, days: d, date: p[c.f] })
+    getProviderAlerts(p, { alertDays, caqhDays }).forEach(a => {
+      items.push({ p: a.p, label: a.label, days: a.days, date: a.p[a.field], field: a.field })
     })
   })
   items.sort((a, b) => a.days - b.days)

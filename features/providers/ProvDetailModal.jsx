@@ -15,7 +15,7 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
         {/* ── Fixed header: title + close ── */}
         <div className="drawer-header" style={{ paddingBottom: 0, borderBottom: 'none' }}>
           <div>
-            <h3 style={{ fontFamily: "'Poppins', sans-serif", fontSize: 17, fontWeight: 600 }}>
+            <h3 style={{ fontFamily: 'var(--fn)', fontSize: 17, fontWeight: 600 }}>
               {prov.fname} {prov.lname}{prov.cred ? `, ${prov.cred}` : ''}
             </h3>
             <div className="mh-sub">{prov.spec} · {prov.status}</div>

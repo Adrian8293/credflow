@@ -24,7 +24,10 @@ export function Topbar({ page, setPage, openDocModal, openTaskModal, openEnrollM
     claims: 'Claims', eligibility: 'Eligibility', denials: 'Denial Log',
     revenue: 'Revenue Analytics', marketing: 'Marketing', reports: 'Reports',
     audit: 'Audit Trail', settings: 'Settings', 'add-provider': 'Add Provider',
+    'pt-profile': 'Psychology Today Profile',
   }
+  // MED-012: fallback for any page key not in the map
+  const pageTitle = titles[page] || page.replace(/-/g, ' ').replace(/\w/g, c => c.toUpperCase())
 
   const meta        = user?.user_metadata || {}
   const displayName = (meta.first_name && meta.last_name)
@@ -44,6 +47,11 @@ export function Topbar({ page, setPage, openDocModal, openTaskModal, openEnrollM
             <span>Search providers, apps…</span>
             <kbd>⌘K</kbd>
           </button>
+        </div>
+
+        {/* Centre: page title */}
+        <div className="topbar-title" style={{ flex: '0 0 auto', fontSize: 14, fontWeight: 500, color: 'var(--text-2)', whiteSpace: 'nowrap', padding: '0 16px' }}>
+          {pageTitle}
         </div>
 
         {/* Right: actions */}

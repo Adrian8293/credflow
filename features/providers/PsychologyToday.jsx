@@ -187,7 +187,7 @@ export function PsychologyToday({ db, setPage, editProvider }) {
                   <tr key={p.id}>
                     <td>
                       <div style={{display:'flex',alignItems:'center',gap:10}}>
-                        <div style={{width:32,height:32,borderRadius:8,background:SPEC_COLORS[p.spec]||'#4f7ef8',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,color:'white',fontFamily:'Poppins,sans-serif',flexShrink:0,overflow:'hidden'}}>
+                        <div style={{width:32,height:32,borderRadius:8,background:SPEC_COLORS[p.spec]||'#4f7ef8',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,color:'white',fontFamily: 'var(--fn)',flexShrink:0,overflow:'hidden'}}>
                           {p.avatarUrl ? <img src={p.avatarUrl} alt="" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:8}} /> : initials(p)}
                         </div>
                         <div>
@@ -227,7 +227,7 @@ export function PsychologyToday({ db, setPage, editProvider }) {
       {activeTab === 'tips' && (
         <div>
           <div style={{background:'var(--navy)',borderRadius:'var(--r-lg)',padding:'20px 22px',marginBottom:20,color:'white'}}>
-            <div style={{fontFamily:'Poppins,sans-serif',fontSize:20,marginBottom:6}}>Psychology Today Profile Optimization</div>
+            <div style={{fontFamily: 'var(--fn)',fontSize:20,marginBottom:6}}>Psychology Today Profile Optimization</div>
             <div style={{fontSize:13,opacity:.75,lineHeight:1.6}}>
               PT is the largest therapist directory in the US with 1.5M+ monthly visitors. A well-optimized profile is one of the highest-ROI marketing investments for a mental health practice. These tips are based on PT guidance and industry best practices.
             </div>

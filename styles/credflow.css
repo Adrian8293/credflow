@@ -201,12 +201,17 @@ svg { display: block; flex-shrink: 0; }
   margin-top: 2px;
 }
 
-/* Nav (flat, non-scrollable) */
+/* Nav — scrollable so lower items are reachable on short screens (768px laptops) */
 .sb-nav {
   padding: 8px 8px 0;
   flex: 1;
-  overflow: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.12) transparent;
 }
+.sb-nav::-webkit-scrollbar { width: 4px; }
+.sb-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 4px; }
+.sb-nav::-webkit-scrollbar-track { background: transparent; }
 
 /* Group labels */
 .sb-group { margin-bottom: 2px; }

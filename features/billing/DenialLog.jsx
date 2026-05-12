@@ -103,7 +103,7 @@ export function DenialLog({ db, toast, requestConfirm }) {
               {Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat, count]) => (
                 <div key={cat} style={{display:'flex',alignItems:'center',gap:8,padding:'8px 14px',background:'var(--surface-2)',border:'1px solid var(--border)',borderRadius:'var(--r-lg)'}}>
                   <span className={`badge ${catColor[cat]||'b-gray'}`} style={{fontSize:10}}>{cat}</span>
-                  <span style={{fontFamily:'Poppins,sans-serif',fontSize:20,color:'var(--ink)'}}>{count}</span>
+                  <span style={{fontFamily: 'var(--fn)',fontSize:20,color:'var(--ink)'}}>{count}</span>
                 </div>
               ))}
             </div>

@@ -32,9 +32,10 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
     const catalog = PAYER_CATALOG.find(c => c.name.toLowerCase() === (payer.name || '').toLowerCase())
     if (catalog?.guidelines?.length) {
       setPayerHints(catalog.guidelines)
-      setShowHints(true)
+      setShowHints(true)   // MED-009: always reset on payer change so hints re-appear
     } else {
       setPayerHints([])
+      setShowHints(true)   // reset so next payer with hints will show them
     }
   }, [selectedPayerId, db.payers])
 

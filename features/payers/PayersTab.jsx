@@ -6,6 +6,7 @@
 
 import { useState } from 'react'
 import { useSorted } from '../../hooks/useSorted.js'
+import { PAYER_CATALOG } from '../../constants/payerRequirements.js'
 
 const SearchIcon = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 const LinkIcon   = () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -32,8 +33,11 @@ function payerInitials(name) {
 }
 
 function payerColor(name) {
+  // POL-012: use brand color from PAYER_CATALOG if available, fall back to hash
+  const catalog = PAYER_CATALOG.find(c => c.name.toLowerCase() === (name || '').toLowerCase())
+  if (catalog?.color) return catalog.color
   let h = 0
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff
+  for (let i = 0; i < (name||'').length; i++) h = (h * 31 + name.charCodeAt(i)) & 0xffffffff
   return PAYER_COLORS[Math.abs(h) % PAYER_COLORS.length]
 }
 

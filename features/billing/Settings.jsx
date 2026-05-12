@@ -55,12 +55,10 @@ const TABS = ['General', 'Organization', 'Users & Roles', 'Integrations', 'Notif
 
 export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, exportJSON }) {
   const [activeTab, setActiveTab] = useState('General')
-  const [notifs, setNotifs] = useState({
-    emailExpiry: true, taskReminders: true, docExpiry: true, enableAuditLog: true, twoFactor: false,
-  })
-
-  const f = k => settingsForm[k] ?? ''
+  const f   = k => settingsForm[k] ?? ''
   const set = (k, v) => setSettingsForm(prev => ({ ...prev, [k]: v }))
+  // Notification toggles read/write directly from settingsForm so they persist on save
+  const nb  = k => settingsForm[k] !== false  // default true unless explicitly set false
 
   return (
     <div className="page">
@@ -128,11 +126,11 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
                 </div>
               </div>
               <div style={{ marginTop: 16 }}>
-                <Toggle label="Document / credential expiration emails" checked={notifs.emailExpiry} onChange={v => setNotifs(n=>({...n,emailExpiry:v}))} />
-                <Toggle label="Task due-date reminders" checked={notifs.taskReminders} onChange={v => setNotifs(n=>({...n,taskReminders:v}))} />
-                <Toggle label="Document upload confirmations" checked={notifs.docExpiry} onChange={v => setNotifs(n=>({...n,docExpiry:v}))} />
-                <Toggle label="Enable audit log" checked={notifs.enableAuditLog} onChange={v => setNotifs(n=>({...n,enableAuditLog:v}))} />
-                <Toggle label="Two-factor authentication" checked={notifs.twoFactor} onChange={v => setNotifs(n=>({...n,twoFactor:v}))} />
+                <Toggle label="Document / credential expiration emails" checked={nb('emailExpiry')} onChange={v => set('emailExpiry', v)} />
+                <Toggle label="Task due-date reminders" checked={nb('taskReminders')} onChange={v => set('taskReminders', v)} />
+                <Toggle label="Document upload confirmations" checked={nb('docExpiry')} onChange={v => set('docExpiry', v)} />
+                <Toggle label="Enable audit log" checked={nb('enableAuditLog')} onChange={v => set('enableAuditLog', v)} />
+                <Toggle label="Two-factor authentication" checked={f('twoFactor') === true} onChange={v => set('twoFactor', v)} />
               </div>
               <button className="btn btn-primary mt-12" onClick={handleSaveSettings}>Save Changes</button>
             </div>
@@ -212,13 +210,13 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
           </div>
           <div className="card-body">
             <div style={{ display: 'grid', gap: 0 }}>
-              <Toggle label="License / Malpractice expiration emails" checked={true} onChange={() => {}} />
-              <Toggle label="CAQH attestation due reminders" checked={true} onChange={() => {}} />
-              <Toggle label="Application status change alerts" checked={true} onChange={() => {}} />
-              <Toggle label="Task overdue notifications" checked={true} onChange={() => {}} />
-              <Toggle label="Document upload confirmations" checked={false} onChange={() => {}} />
-              <Toggle label="Weekly credentialing digest" checked={true} onChange={() => {}} />
-              <Toggle label="New provider onboarding checklist" checked={true} onChange={() => {}} />
+              <Toggle label="License / Malpractice expiration emails" checked={nb('emailExpiry')} onChange={v => set('emailExpiry', v)} />
+              <Toggle label="CAQH attestation due reminders" checked={nb('caqhReminders')} onChange={v => set('caqhReminders', v)} />
+              <Toggle label="Application status change alerts" checked={nb('appStatusAlerts')} onChange={v => set('appStatusAlerts', v)} />
+              <Toggle label="Task overdue notifications" checked={nb('taskReminders')} onChange={v => set('taskReminders', v)} />
+              <Toggle label="Document upload confirmations" checked={nb('docExpiry')} onChange={v => set('docExpiry', v)} />
+              <Toggle label="Weekly credentialing digest" checked={nb('weeklyDigest')} onChange={v => set('weeklyDigest', v)} />
+              <Toggle label="New provider onboarding checklist" checked={nb('onboardingChecklist')} onChange={v => set('onboardingChecklist', v)} />
             </div>
             <button className="btn btn-primary mt-12" onClick={handleSaveSettings}>Save Preferences</button>
           </div>
@@ -261,10 +259,10 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
               <SectionHeader icon={Icon.lock} title="Security Settings" subtitle="Protect your PrimeCredential workspace." />
             </div>
             <div className="card-body">
-              <Toggle label="Two-factor authentication (2FA)" checked={notifs.twoFactor} onChange={v => setNotifs(n=>({...n,twoFactor:v}))} />
-              <Toggle label="Enable audit log" checked={true} onChange={() => {}} />
-              <Toggle label="Session timeout (30 min)" checked={true} onChange={() => {}} />
-              <Toggle label="IP allowlist enforcement" checked={false} onChange={() => {}} />
+              <Toggle label="Two-factor authentication (2FA)" checked={f('twoFactor') === true} onChange={v => set('twoFactor', v)} />
+              <Toggle label="Enable audit log" checked={nb('enableAuditLog')} onChange={v => set('enableAuditLog', v)} />
+              <Toggle label="Session timeout (30 min)" checked={nb('sessionTimeout')} onChange={v => set('sessionTimeout', v)} />
+              <Toggle label="IP allowlist enforcement" checked={f('ipAllowlist') === true} onChange={v => set('ipAllowlist', v)} />
               <button className="btn btn-primary mt-12">Save Security Settings</button>
             </div>
           </div>

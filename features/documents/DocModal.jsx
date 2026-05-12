@@ -95,6 +95,9 @@ export function DocModal({ db, docForm, setDocForm, editingId, handleSaveDocumen
   // then closes the modal. The parent wrapper intentionally does NOT close the
   // modal so this function owns the full sequence.
   async function handleSaveWithUpload() {
+    // MED-004: mark required fields as touched before attempting save so
+    // inline validation errors show when the user hits Save on an empty form
+    setDocForm(prev => ({ ...prev, _touched: { provId: true, exp: true } }))
     const saved = await handleSaveDocument()
     if (saved && stagedFile) {
       setUploading(true)
