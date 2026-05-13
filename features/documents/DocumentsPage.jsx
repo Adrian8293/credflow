@@ -24,7 +24,7 @@ function ExpiringSoon({ db, openDocModal }) {
   return (
     <div>
       {docs.length === 0 ? (
-        <div className="empty-state"><div className="ei">✅</div><h4>No documents expiring soon</h4><p>All credentials are valid beyond 90 days.</p></div>
+        <div className="empty-state"><div className="ei"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><h4>No documents expiring soon</h4><p>All credentials are valid beyond 90 days.</p></div>
       ) : (
         <>
           <div style={{ background: 'rgba(245,158,11,.07)', border: '1px solid rgba(245,158,11,.3)', borderRadius: 'var(--r)', padding: '10px 14px', marginBottom: 12, fontSize: 12, color: 'var(--amber-d)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 7 }}>
@@ -197,7 +197,7 @@ function VerifiedDocs({ db }) {
         </tr></thead>
         <tbody>
           {!docs.length ? (
-            <tr><td colSpan={5}><div className="empty-state"><div className="ei">✓</div><h4>All documents are current and on file</h4></div></td></tr>
+            <tr><td colSpan={5}><div className="empty-state"><div className="ei"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><h4>All documents are current and on file</h4></div></td></tr>
           ) : docs.map(d => (
             <tr key={d.id}>
               <td style={{ fontWeight: 500 }}>{pName(db.providers, d.provId)}</td>
@@ -213,6 +213,29 @@ function VerifiedDocs({ db }) {
   )
 }
 
+
+function exportDocumentsCSV(documents, providers) {
+  const headers = ['Provider', 'Document Type', 'Expiration Date', 'Days Until Expiry', 'File Name', 'Notes']
+  const rows = documents.map(d => {
+    const prov = providers.find(p => p.id === d.provId) || {}
+    const daysLeft = d.exp ? Math.round((new Date(d.exp + 'T00:00:00') - new Date()) / 86400000) : ''
+    return [
+      ((prov.fname || '') + ' ' + (prov.lname || '')).trim(),
+      d.type || '',
+      d.exp || '',
+      String(daysLeft),
+      d.fileName || '',
+      (d.notes || '').replace(/,/g, ';'),
+    ]
+  })
+  const csv = [headers, ...rows].map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n')
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a'); a.href = url
+  a.download = 'documents_' + new Date().toISOString().split('T')[0] + '.csv'
+  a.click(); URL.revokeObjectURL(url)
+}
+
 export function DocumentsPage({ db, docSearch, setDocSearch, docFType, setDocFType, docFStatus, setDocFStatus, openDocModal, handleDeleteDocument }) {
   const [tab, setTab] = useState('all')
 
@@ -226,7 +249,7 @@ export function DocumentsPage({ db, docSearch, setDocSearch, docFType, setDocFTy
           <h2 style={{ fontSize:20, fontWeight:800, color:'var(--text-1)', letterSpacing:'-.04em', margin:0, marginBottom:4 }}>Documents</h2>
           <p style={{ fontSize:12.5, color:'var(--text-4)', margin:0 }}>Store and manage all provider documents.</p>
         </div>
-        <button className="btn btn-primary btn-sm" onClick={() => openDocModal()}>↑ Upload Document</button>
+        <div style={{display:"flex",gap:8}}><button className="btn btn-secondary btn-sm" onClick={() => exportDocumentsCSV(db.documents, db.providers)} title="Export all documents to CSV">↓ Export CSV</button><button className="btn btn-primary btn-sm" onClick={() => openDocModal()}>↑ Upload Document</button></div>
       </div>
       <div className="tabs">
         {TABS.map(t => (

@@ -185,16 +185,15 @@ function PipelineDonut({ enrollments }) {
               onMouseEnter={() => setHovered(s.stage)} onMouseLeave={() => setHovered(null)}
             />
           ))}
-          <text x="48" y="52" textAnchor="middle" fontSize="18" fontWeight="800" fill="var(--text-1)">
+          {/* POL-009: count only inside SVG — label moved outside at readable size */}
+          <text x="48" y="55" textAnchor="middle" fontSize="18" fontWeight="800" fill="var(--text-1)">
             {hovered ? slices.find(s => s.stage === hovered)?.count : total}
           </text>
-          {hovered && (
-            <text x="48" y="63" textAnchor="middle" fontSize="6.5" fill="var(--text-3)">
-              {hovered.length > 12 ? hovered.slice(0,12)+'…' : hovered}
-            </text>
-          )}
-          {!hovered && <text x="48" y="63" textAnchor="middle" fontSize="6.5" fill="var(--text-3)">Total</text>}
         </svg>
+        {/* Stage label rendered as HTML below the SVG — accessible, styleable, not truncated */}
+        <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--text-3)', marginTop: 2, minHeight: 16, maxWidth: 96, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {hovered || 'Total'}
+        </div>
       </div>
       <div style={{ flex: 1, minWidth: 160 }}>
         {slices.map(s => (

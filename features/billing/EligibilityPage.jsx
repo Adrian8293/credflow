@@ -144,7 +144,7 @@ export function EligibilityPage({ db, toast, requestConfirm }) {
                 <td style={{fontSize:12}}>
                   {c.deductible != null ? <span>{fmtMoney(c.deductible_met||0)} / {fmtMoney(c.deductible)} met</span> : '—'}
                 </td>
-                <td style={{fontSize:11,color:'var(--ink-4)'}}>{c.checked_at ? new Date(c.checked_at).toLocaleDateString() : '—'}</td>
+                <td style={{fontSize:11,color:'var(--ink-4)'}}>{c.checked_at ? fmtDate(c.checked_at?.split('T')[0]) : '—'}</td>
                 <td>
                   <div style={{display:'flex',gap:5}}>
                     <button className="btn btn-secondary btn-sm" onClick={()=>openEdit(c)}>Edit</button>

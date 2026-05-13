@@ -7,6 +7,7 @@
 
 import { useState } from 'react'
 import { fmtDate, daysUntil } from '../../lib/helpers.js'
+import { providerReadiness } from '../../components/WorkflowOverhaul.jsx'
 import { useSorted } from '../../hooks/useSorted.js'
 
 const SearchIcon = <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -125,6 +126,7 @@ export function Providers({ db, search, setSearch, fStatus, setFStatus, fSpec, s
               <th {...thProps('medicaid', 'Medicaid ID')} />
               <th {...thProps('spec', 'Specialty')} />
               <th {...thProps('status', 'Status')} />
+              <th style={{ fontWeight: 700, whiteSpace: 'nowrap', minWidth: 90 }}>Readiness</th>
               <th {...thProps('licenseExp', 'Last Updated')} />
               <th style={{ width: 60, textAlign: 'center' }}>Actions</th>
             </tr>
@@ -144,10 +146,12 @@ export function Providers({ db, search, setSearch, fStatus, setFStatus, fSpec, s
                 </div>
               </td></tr>
             ) : list.map(p => {
-              const isOpen = menuOpen === p.id
-              const specCol = SPEC_COLORS[p.spec] || '#4f7ef8'
-              const panels  = db.enrollments.filter(e => e.provId === p.id && e.stage === 'Active').length
-              const ini     = ((p.fname||'')[0]||'') + ((p.lname||'')[0]||'')
+              const isOpen    = menuOpen === p.id
+              const specCol   = SPEC_COLORS[p.spec] || '#4f7ef8'
+              const panels    = db.enrollments.filter(e => e.provId === p.id && e.stage === 'Active').length
+              const ini       = ((p.fname||'')[0]||'') + ((p.lname||'')[0]||'')
+              const readiness = providerReadiness(p)
+              const rdColor   = readiness >= 80 ? 'var(--success)' : readiness >= 60 ? 'var(--warning)' : 'var(--danger)'
 
               return (
                 <tr key={p.id}>
@@ -199,6 +203,14 @@ export function Providers({ db, search, setSearch, fStatus, setFStatus, fSpec, s
                     </span>
                   </td>
                   <td><StatusBadge status={p.status} /></td>
+                  <td style={{ minWidth: 90 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <div style={{ flex: 1, height: 4, borderRadius: 4, background: 'var(--border)', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: readiness + '%', background: rdColor, borderRadius: 4, transition: 'width .3s' }} />
+                      </div>
+                      <span style={{ fontSize: 11, fontWeight: 700, color: rdColor, minWidth: 28, textAlign: 'right' }}>{readiness}%</span>
+                    </div>
+                  </td>
                   <td style={{ fontSize: 12, color: 'var(--text-4)', whiteSpace: 'nowrap' }}>
                     {fmtDate(p.licenseExp) !== '—' ? fmtDate(p.licenseExp) : '—'}
                   </td>

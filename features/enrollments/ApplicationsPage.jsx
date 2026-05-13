@@ -40,6 +40,31 @@ function nextStage(current) {
   return STAGES[idx + 1]
 }
 
+
+function exportEnrollmentsCSV(filtered, providers, payers) {
+  const headers = ['Provider', 'Credential', 'Payer', 'Stage', 'Submitted', 'Effective Date', 'Follow-up', 'Notes']
+  const rows = filtered.map(e => {
+    const prov = providers.find(p => p.id === e.provId) || {}
+    const payer = payers.find(p => p.id === e.payId) || {}
+    return [
+      (prov.fname + ' ' + (prov.lname || '')).trim(),
+      prov.cred || '',
+      payer.name || '',
+      e.stage || '',
+      e.submitted || '',
+      e.effectiveDate || '',
+      e.followUp || '',
+      (e.notes || '').replace(/,/g, ';'),
+    ]
+  })
+  const csv = [headers, ...rows].map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n')
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a'); a.href = url
+  a.download = 'applications_' + new Date().toISOString().split('T')[0] + '.csv'
+  a.click(); URL.revokeObjectURL(url)
+}
+
 export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStage, setFStage, fProv, setFProv, handleDeleteEnrollment, onDraftEmail, handleStageChange, loading }) {
   const [subtab, setSubtab]       = useState('All Applications')
   const [menuOpen, setMenuOpen]   = useState(null)
@@ -129,10 +154,13 @@ export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStag
             <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-1)', letterSpacing: '-.04em', margin: 0, marginBottom: 4 }}>Applications</h2>
             <p style={{ fontSize: 12.5, color: 'var(--text-4)', margin: 0 }}>Track and manage all credentialing applications.</p>
           </div>
-          <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, height: 36, fontSize: 13 }} onClick={() => openEnrollModal()}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            New Application
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-secondary" style={{ height: 36, fontSize: 13 }} onClick={() => exportEnrollmentsCSV(filtered, db.providers, db.payers)} title="Export current view to CSV">↓ Export CSV</button>
+            <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, height: 36, fontSize: 13 }} onClick={() => openEnrollModal()}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              New Application
+            </button>
+          </div>
         </div>
       </div>
 

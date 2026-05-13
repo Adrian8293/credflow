@@ -10,7 +10,7 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
   return (
     <>
       <div className="drawer-overlay open" onClick={onClose} />
-      <div className="drawer" style={{ width: 920 }}>
+      <div className="drawer-xl">
 
         {/* ── Fixed header: title + close ── */}
         <div className="drawer-header" style={{ paddingBottom: 0, borderBottom: 'none' }}>

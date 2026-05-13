@@ -24,6 +24,24 @@ const TYPE_ICON = {
   Settings:   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M20.49 12H22M2 12h1.51M19.07 19.07l-1.41-1.41M5.34 5.34L3.93 3.93M12 20.49V22M12 2v1.51"/></svg>,
 }
 
+
+function exportAuditCSV(list) {
+  const headers = ['Timestamp', 'Type', 'Action', 'Detail', 'Entity ID']
+  const rows = list.map(a => [
+    a.ts ? new Date(a.ts).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '',
+    a.type || '',
+    a.action || '',
+    (a.detail || '').replace(/,/g, ';'),
+    a.entityId || '',
+  ])
+  const csv = [headers, ...rows].map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n')
+  const blob = new Blob([csv], { type: 'text/csv' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a'); a.href = url
+  a.download = 'audit_log_' + new Date().toISOString().split('T')[0] + '.csv'
+  a.click(); URL.revokeObjectURL(url)
+}
+
 export function Audit({ db, search, setSearch, fType, setFType, handleClearAudit }) {
   const list = db.auditLog.filter(a =>
     `${a.type} ${a.action} ${a.detail}`.toLowerCase().includes(search.toLowerCase()) &&
@@ -45,7 +63,8 @@ export function Audit({ db, search, setSearch, fType, setFType, handleClearAudit
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             Tamper-proof
           </div>
-          <button className="btn btn-secondary btn-sm" onClick={handleClearAudit}>Archive Log</button>
+          <button className="btn btn-secondary btn-sm" onClick={() => exportAuditCSV(list)} title="Download filtered audit entries as CSV">↓ Export CSV</button>
+          <button className="btn btn-danger btn-sm" onClick={handleClearAudit} title="Permanently clear all audit entries — export first!">Clear Log</button>
         </div>
       </div>
 
