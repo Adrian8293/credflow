@@ -13,6 +13,7 @@
 import { useRef, useState } from 'react'
 import { Modal } from '../../components/ui/Modal.jsx'
 import { uploadDocumentFile, deleteDocumentFile } from '../../lib/db.js'
+import { NO_EXPIRY_TYPES } from '../../hooks/useDocumentActions.js'
 
 const ALLOWED_EXTENSIONS = ['pdf','jpg','jpeg','png','webp','doc','docx','tiff']
 const MAX_MB = 10
@@ -97,7 +98,8 @@ export function DocModal({ db, docForm, setDocForm, editingId, handleSaveDocumen
   async function handleSaveWithUpload() {
     // MED-004: mark required fields as touched before attempting save so
     // inline validation errors show when the user hits Save on an empty form
-    setDocForm(prev => ({ ...prev, _touched: { provId: true, exp: true } }))
+    const isExempt = NO_EXPIRY_TYPES.has(docForm.type)
+    setDocForm(prev => ({ ...prev, _touched: { provId: true, exp: !isExempt } }))
     const saved = await handleSaveDocument()
     if (saved && stagedFile) {
       setUploading(true)
@@ -143,7 +145,12 @@ export function DocModal({ db, docForm, setDocForm, editingId, handleSaveDocumen
         </div>
         <div className="fg">
           <label>Document Type *</label>
-          <select value={f('type')} onChange={e => set('type', e.target.value)}>
+          <select value={f('type')} onChange={e => {
+            const newType = e.target.value
+            set('type', newType)
+            // Clear expiration when switching to a no-expiry document type
+            if (NO_EXPIRY_TYPES.has(newType)) set('exp', '')
+          }}>
             <option>License</option>
             <option>Malpractice</option>
             <option>DEA</option>
@@ -159,7 +166,20 @@ export function DocModal({ db, docForm, setDocForm, editingId, handleSaveDocumen
         <div className="fg"><label>Issuer / Carrier</label><input type="text" value={f('issuer')} onChange={e => set('issuer', e.target.value)} placeholder="OBRC, HPSO…" /></div>
         <div className="fg"><label>License / Policy Number</label><input type="text" value={f('number')} onChange={e => set('number', e.target.value)} /></div>
         <div className="fg"><label>Issue Date</label><input type="date" value={f('issue')} onChange={e => set('issue', e.target.value)} /></div>
-        <div className="fg"><label>Expiration Date *</label><input type="date" value={f('exp')} onChange={e => set('exp', e.target.value)} /></div>
+        {!NO_EXPIRY_TYPES.has(f('type')) && (
+          <div className="fg">
+            <label>Expiration Date *</label>
+            <input type="date" value={f('exp')} onChange={e => set('exp', e.target.value)} />
+          </div>
+        )}
+        {NO_EXPIRY_TYPES.has(f('type')) && (
+          <div className="fg">
+            <label style={{ color: 'var(--text-4)' }}>Expiration Date</label>
+            <div style={{ padding: '8px 10px', background: 'var(--elevated)', border: '1px solid var(--border)', borderRadius: 'var(--r)', fontSize: 12, color: 'var(--text-4)' }}>
+              Not applicable — {f('type')} documents do not expire
+            </div>
+          </div>
+        )}
         <div className="fg full"><label>Notes</label><textarea value={f('notes')} onChange={e => set('notes', e.target.value)} style={{ minHeight: 56 }} /></div>
 
         {/* ── File Attachment ───────────────────────────────────────────────── */}

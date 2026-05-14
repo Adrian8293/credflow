@@ -5,6 +5,7 @@ import { Documents } from './Documents.jsx'
 import { MissingDocuments } from './MissingDocuments.jsx'
 import { daysUntil, fmtDate, fmtFull, pName } from '../../lib/helpers.js'
 import { Badge, ExpiryBadge } from '../../components/ui/Badge.jsx'
+import { NO_EXPIRY_TYPES } from '../../hooks/useDocumentActions.js'
 import OpcaUploadPanel from '../../components/OpcaUploadPanel.jsx'
 
 const TABS = [
@@ -15,10 +16,10 @@ const TABS = [
   { id: 'verified', label: 'Current / OK' },
 ]
 
-function ExpiringSoon({ db, openDocModal }) {
+function ExpiringSoon({ db, openDocModal, alertDays = 90 }) {
   const docs = db.documents
     .map(d => ({ ...d, days: daysUntil(d.exp) }))
-    .filter(d => d.days !== null && d.days <= 90)
+    .filter(d => d.days !== null && d.days <= alertDays)
     .sort((a, b) => a.days - b.days)
 
   return (
@@ -28,7 +29,7 @@ function ExpiringSoon({ db, openDocModal }) {
       ) : (
         <>
           <div style={{ background: 'rgba(245,158,11,.07)', border: '1px solid rgba(245,158,11,.3)', borderRadius: 'var(--r)', padding: '10px 14px', marginBottom: 12, fontSize: 12, color: 'var(--amber-d)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 7 }}>
-            ⚠ {docs.length} document{docs.length > 1 ? 's' : ''} expiring within 90 days — take action now.
+            ⚠ {docs.length} document{docs.length > 1 ? 's' : ''} expiring within {alertDays} days — take action now.
           </div>
           <div className="tbl-wrap">
             <table>
@@ -182,8 +183,9 @@ function OpcaIntake({ db }) {
 function VerifiedDocs({ db }) {
   // Docs that are active (not expired)
   const docs = db.documents.filter(d => {
+    if (NO_EXPIRY_TYPES.has(d.type)) return true  // exempt types are always current
     const days = daysUntil(d.exp)
-    return days !== null && days > 90  // null = no expiry date set, not verified
+    return days !== null && days > 90
   })
   return (
     <div className="tbl-wrap">
@@ -239,8 +241,10 @@ function exportDocumentsCSV(documents, providers) {
 export function DocumentsPage({ db, docSearch, setDocSearch, docFType, setDocFType, docFStatus, setDocFStatus, openDocModal, handleDeleteDocument }) {
   const [tab, setTab] = useState('all')
 
-  const expCount = db.documents.filter(d => { const days = daysUntil(d.exp); return days !== null && days <= 90 }).length
-  const missCount = db.providers.filter(p => p.status === 'Active').length // rough proxy
+  const alertDays = db.settings?.alertDays || 90
+  const expCount = db.documents.filter(d => { const days = daysUntil(d.exp); return days !== null && days <= alertDays }).length
+  // missCount: providers missing required credential fields (NPI, license, malpractice)
+  const missCount = db.providers.filter(p => p.status === 'Active' && (!p.npi || !p.licenseExp || !p.malExp)).length
 
   return (
     <div className="page">
@@ -269,7 +273,7 @@ export function DocumentsPage({ db, docSearch, setDocSearch, docFType, setDocFTy
 
       {tab === 'all'      && <Documents db={db} search={docSearch} setSearch={setDocSearch} fType={docFType} setFType={setDocFType} fStatus={docFStatus} setFStatus={setDocFStatus} openDocModal={openDocModal} handleDeleteDocument={handleDeleteDocument} />}
       {tab === 'missing'  && <MissingDocuments db={db} />}
-      {tab === 'expiring' && <ExpiringSoon db={db} openDocModal={openDocModal} />}
+      {tab === 'expiring' && <ExpiringSoon db={db} openDocModal={openDocModal} alertDays={alertDays} />}
       {tab === 'opca'     && <OpcaIntake db={db} />}
       {tab === 'verified' && <VerifiedDocs db={db} />}
     </div>

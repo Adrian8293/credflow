@@ -4,7 +4,10 @@
  * provider avatars, and visual status system.
  */
 
+import { useState } from 'react'
 import { useSorted } from '../../hooks/useSorted.js'
+import { NO_EXPIRY_TYPES } from '../../hooks/useDocumentActions.js'
+import { DocViewerModal } from './DocViewerModal.jsx'
 import { daysUntil, fmtDate, pName, pNameShort } from '../../lib/helpers.js'
 
 const SearchIcon  = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -86,16 +89,21 @@ function DocTypePill({ type }) {
 const DOC_TYPES = ['License','Malpractice','DEA','CAQH Attestation','Recredentialing','Supervision Agreement','NPI Letter','W-9','CV / Resume','Other']
 
 export function Documents({ db, search, setSearch, fType, setFType, fStatus, setFStatus, openDocModal, handleDeleteDocument }) {
+  const [viewingDoc, setViewingDoc] = useState(null)
   const rawDocs = db.documents.filter(d => {
     const txt = `${pName(db.providers,d.provId)} ${d.type} ${d.issuer||''} ${d.number||''}`.toLowerCase()
     if (!txt.includes((search||'').toLowerCase())) return false
     if (fType && d.type !== fType) return false
     if (fStatus) {
       const days = daysUntil(d.exp)
-      if (fStatus === 'expired'  && (days === null || days >= 0))    return false
-      if (fStatus === 'critical' && (days === null || days < 0 || days > 30))  return false
-      if (fStatus === 'warning'  && (days === null || days < 0 || days > 90))  return false
-      if (fStatus === 'ok'       && (days === null || days <= 90))   return false
+      const isExempt = NO_EXPIRY_TYPES.has(d.type)
+      if (fStatus === 'no-expiry' && !isExempt)                                     return false
+      if (fStatus === 'expired'   && (days === null || days >= 0))                   return false
+      if (fStatus === 'critical'  && (days === null || days < 0 || days > 30))       return false
+      if (fStatus === 'warning'   && (days === null || days < 0 || days > 90))       return false
+      // 'ok' = has expiry > 90d OR is an exempt type (W-9, CV, NPI Letter)
+      if (fStatus === 'ok'        && !isExempt && (days === null || days <= 90))     return false
+      if (fStatus === 'ok'        && !isExempt && days === null && !isExempt)         return false
     }
     return true
   })
@@ -150,6 +158,7 @@ export function Documents({ db, search, setSearch, fType, setFType, fStatus, set
           <option value="critical">Critical (≤30d)</option>
           <option value="warning">Warning (≤90d)</option>
           <option value="ok">OK (&gt;90d)</option>
+          <option value="no-expiry">No Expiry Date</option>
         </select>
 
         {(search || fType || fStatus) && (
@@ -221,11 +230,13 @@ export function Documents({ db, search, setSearch, fType, setFType, fStatus, set
                     </td>
                     <td style={{ textAlign: 'center' }} onClick={e => e.stopPropagation()}>
                       {d.fileUrl ? (
-                        <a href={d.fileUrl} target="_blank" rel="noreferrer"
+                        <button
+                          onClick={() => setViewingDoc(d)}
                           title={d.fileName || 'View file'}
-                          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 6, background: 'rgba(16,185,129,.1)', border: '1.5px solid rgba(16,185,129,.3)', color: 'var(--success)', textDecoration: 'none' }}>
+                          style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, borderRadius: 6, background: 'rgba(16,185,129,.1)', border: '1.5px solid rgba(16,185,129,.3)', color: 'var(--success)', cursor: 'pointer' }}
+                        >
                           <LinkIcon />
-                        </a>
+                        </button>
                       ) : (
                         <span style={{ fontSize: 11, color: 'var(--text-4)' }}>—</span>
                       )}
@@ -245,6 +256,16 @@ export function Documents({ db, search, setSearch, fType, setFType, fStatus, set
             {list.length} of {db.documents.length} documents
           </div>
         </div>
+      )}
+
+      {/* Document viewer modal — opened from the file icon in the table */}
+      {viewingDoc && (
+        <DocViewerModal
+          doc={viewingDoc}
+          db={db}
+          onClose={() => setViewingDoc(null)}
+          onEdit={(id) => { setViewingDoc(null); openDocModal(id) }}
+        />
       )}
     </div>
   )

@@ -2,14 +2,24 @@ import { useState } from 'react'
 import { upsertDocument, deleteDocument } from '../lib/db'
 import { pNameShort } from '../lib/helpers'
 
+// Document types that do not have an expiration date.
+// W-9s, CVs, and NPI Letters are point-in-time documents — they don't expire.
+// Exported so DocModal, Documents, and DocumentsPage all use the same list.
+export const NO_EXPIRY_TYPES = new Set(['W-9', 'CV / Resume', 'NPI Letter'])
+
 export function useDocumentActions({ db, setDb, toast, requestConfirm }) {
   const [docForm, setDocForm]       = useState({})
   const [editingDocId, setEditingDocId] = useState(null)
   const [saving, setSaving]         = useState(false)
 
   async function handleSaveDocument() {
-    if (!docForm.provId || !docForm.exp) {
-      toast('Provider and expiration date required.', 'error'); return null
+    const exemptFromExpiry = NO_EXPIRY_TYPES.has(docForm.type)
+    if (!docForm.provId || (!docForm.exp && !exemptFromExpiry)) {
+      toast(
+        !docForm.provId ? 'Provider is required.' : 'Expiration date is required for this document type.',
+        'error'
+      )
+      return null
     }
     setSaving(true)
     let saved = null
