@@ -73,31 +73,43 @@ function ExpiryChip({ doc }) {
 }
 
 export function DocViewerModal({ doc, db, onClose, onEdit }) {
-  const [iframeLoaded, setIframeLoaded] = useState(false)
-  const [iframeError, setIframeError]   = useState(false)
-  const [freshUrl, setFreshUrl]         = useState(null)
-  const [urlLoading, setUrlLoading]     = useState(false)
+  const [freshUrl, setFreshUrl]   = useState(null)
+  const [urlLoading, setUrlLoading] = useState(true)
+  const [urlError, setUrlError]   = useState(false)
 
-  // Fetch a fresh signed URL from the server when the modal opens.
-  // Stored signed URLs can expire or have path issues — the API route
-  // regenerates them using the service role key.
-  // Use useEffect equivalent via useState + immediate call pattern
   useEffect(() => {
-    if (!doc?.id || !doc?.fileUrl) return
+    if (!doc?.id || !doc?.fileUrl) { setUrlLoading(false); return }
     setUrlLoading(true)
+    setUrlError(false)
     fetch(`/api/get-document-url?documentId=${doc.id}`)
       .then(r => r.json())
-      .then(data => { if (data.signedUrl) setFreshUrl(data.signedUrl) })
-      .catch(() => {}) // fall back to stored URL silently
+      .then(data => {
+        if (data.signedUrl) {
+          setFreshUrl(data.signedUrl)
+          // Auto-open in a resizable popup window
+          const w = Math.min(1100, window.screen.availWidth - 40)
+          const h = Math.min(860, window.screen.availHeight - 40)
+          const left = Math.round((window.screen.availWidth - w) / 2)
+          const top  = Math.round((window.screen.availHeight - h) / 2)
+          window.open(
+            data.signedUrl,
+            `doc_${doc.id}`,
+            `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes,toolbar=no,menubar=no`
+          )
+          onClose()
+        } else {
+          setUrlError(true)
+        }
+      })
+      .catch(() => setUrlError(true))
       .finally(() => setUrlLoading(false))
   }, [doc?.id])
 
   if (!doc) return null
 
-  const viewMode   = getViewMode(doc.fileName)
-  const fileUrl    = freshUrl || doc.fileUrl
-  const hasFile    = !!doc.fileUrl
-  const provName   = pName(db.providers, doc.provId)
+  const fileUrl  = freshUrl || doc.fileUrl
+  const hasFile  = !!doc.fileUrl
+  const provName = pName(db.providers, doc.provId)
 
   return (
     <Modal
