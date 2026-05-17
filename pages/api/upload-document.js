@@ -4,18 +4,20 @@
  * Server-side file upload handler. Uses the Supabase service role key so
  * it bypasses RLS entirely — no JWT or session issues possible.
  *
- * The service role key never reaches the browser. It only exists in
- * Vercel's server environment (process.env.SUPABASE_SERVICE_ROLE_KEY).
- *
- * Flow:
- *  1. Client sends a multipart/form-data POST with the file + metadata
- *  2. This route uploads to Supabase Storage using the service role key
- *  3. Creates a signed URL (10 year TTL) for the file
- *  4. Updates the document row with file_url + file_name
- *  5. Returns { fileUrl, fileName } to the client
+ * CHANGES vs original:
+ *  S-02: Stores the storage PATH in the DB instead of a 10-year signed URL.
+ *        Signed URLs are generated on-demand with a 1-hour TTL via get-document-url.js.
+ *  S-06: Validates actual file magic bytes server-side using the file-type library.
+ *        Client-supplied Content-Type is untrusted and can be spoofed.
+ *  A-05: Replaced the fragile custom multipart parser with formidable (already installed).
+ *        The custom parser corrupted binary files containing the boundary string and
+ *        failed on Unicode filenames and Windows CRLF edge cases.
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { IncomingForm } from 'formidable'
+import { fileTypeFromBuffer } from 'file-type'
+import fs from 'fs'
 
 // Service role client — server-side only, never expose to browser
 function getServiceClient() {
@@ -38,46 +40,28 @@ export const config = {
   },
 }
 
-// Parse multipart form data without an external library
-async function parseMultipart(req) {
+// S-06: Allowed MIME types validated via magic bytes (not client-supplied Content-Type)
+const ALLOWED_MIME_TYPES = new Set([
+  'application/pdf',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/tiff',
+])
+
+// A-05: Use formidable (already in package.json) instead of the custom multipart parser.
+// The custom parser corrupted binary files containing the boundary string, failed on
+// filenames with accented/Unicode characters, and broke on Windows CRLF edge cases.
+function parseForm(req) {
   return new Promise((resolve, reject) => {
-    const chunks = []
-    req.on('data', chunk => chunks.push(chunk))
-    req.on('end', () => {
-      const buffer = Buffer.concat(chunks)
-      const contentType = req.headers['content-type'] || ''
-      const boundaryMatch = contentType.match(/boundary=(.+)$/)
-      if (!boundaryMatch) return reject(new Error('No boundary found in content-type'))
-
-      const boundary = boundaryMatch[1]
-      const parts = buffer.toString('binary').split(`--${boundary}`)
-      const fields = {}
-      let fileBuffer = null
-      let fileName = ''
-      let mimeType = 'application/octet-stream'
-
-      for (const part of parts) {
-        if (part === '--\r\n' || part.trim() === '--') continue
-        const [rawHeaders, ...bodyParts] = part.split('\r\n\r\n')
-        if (!rawHeaders) continue
-        const body = bodyParts.join('\r\n\r\n').replace(/\r\n$/, '')
-
-        const nameMatch = rawHeaders.match(/name="([^"]+)"/)
-        const fileMatch = rawHeaders.match(/filename="([^"]+)"/)
-        const typeMatch = rawHeaders.match(/Content-Type:\s*([^\r\n]+)/i)
-
-        if (fileMatch) {
-          fileName = fileMatch[1]
-          mimeType = typeMatch ? typeMatch[1].trim() : 'application/octet-stream'
-          fileBuffer = Buffer.from(body, 'binary')
-        } else if (nameMatch) {
-          fields[nameMatch[1]] = body.trim()
-        }
-      }
-
-      resolve({ fields, fileBuffer, fileName, mimeType })
+    const form = new IncomingForm({
+      maxFileSize: 10 * 1024 * 1024, // 10 MB
+      keepExtensions: true,
     })
-    req.on('error', reject)
+    form.parse(req, (err, fields, files) => {
+      if (err) return reject(err)
+      resolve({ fields, files })
+    })
   })
 }
 
@@ -87,31 +71,48 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { fields, fileBuffer, fileName, mimeType } = await parseMultipart(req)
+    const { fields, files } = await parseForm(req)
 
-    const { documentId, providerId } = fields
+    // formidable returns arrays for all fields in v3+
+    const documentId = Array.isArray(fields.documentId) ? fields.documentId[0] : fields.documentId
+    const providerId  = Array.isArray(fields.providerId)  ? fields.providerId[0]  : fields.providerId
 
     if (!documentId || !providerId) {
       return res.status(400).json({ error: 'Missing documentId or providerId' })
     }
-    if (!fileBuffer || !fileName) {
+
+    // formidable stores uploaded files as an array under the field name
+    const fileField = files.file
+    const uploadedFile = Array.isArray(fileField) ? fileField[0] : fileField
+    if (!uploadedFile) {
       return res.status(400).json({ error: 'No file received' })
     }
-    if (fileBuffer.length > 10 * 1024 * 1024) {
-      return res.status(400).json({ error: 'File exceeds 10MB limit' })
+
+    // Read the file buffer for magic byte validation
+    const fileBuffer = fs.readFileSync(uploadedFile.filepath)
+    const originalName = uploadedFile.originalFilename || uploadedFile.newFilename || 'upload'
+
+    // S-06 FIX: Validate actual file type via magic bytes — client-supplied Content-Type
+    // is untrusted. A malicious client can upload an executable or XSS-capable SVG
+    // with a spoofed MIME type of application/pdf.
+    const detected = await fileTypeFromBuffer(fileBuffer)
+    if (!detected || !ALLOWED_MIME_TYPES.has(detected.mime)) {
+      return res.status(400).json({
+        error: `File type not allowed: ${detected?.mime ?? 'unknown'}. Accepted: PDF, JPEG, PNG, WebP, TIFF.`
+      })
     }
 
     const supabase = getServiceClient()
 
     // Sanitize filename — remove special characters that could cause path issues
-    const safeName = fileName.replace(/[^a-zA-Z0-9._-]/g, '_')
+    const safeName = originalName.replace(/[^a-zA-Z0-9._-]/g, '_')
     const storagePath = `${providerId}/${documentId}/${Date.now()}_${safeName}`
 
     // Upload to storage — service role bypasses all RLS
     const { error: uploadError } = await supabase.storage
       .from('documents')
       .upload(storagePath, fileBuffer, {
-        contentType: mimeType,
+        contentType: detected.mime, // use validated server-detected MIME, not client-supplied
         upsert: true,
       })
 
@@ -120,20 +121,15 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: uploadError.message })
     }
 
-    // Create a long-lived signed URL (10 years)
-    const { data: signedData, error: signedError } = await supabase.storage
-      .from('documents')
-      .createSignedUrl(storagePath, 60 * 60 * 24 * 365 * 10)
-
-    if (signedError) {
-      console.error('[upload-document] Signed URL failed:', signedError)
-      return res.status(500).json({ error: signedError.message })
-    }
-
-    // Update the document row with the file URL and name
+    // S-02 FIX: Store the storage PATH in the DB, not a long-lived signed URL.
+    // Previously stored a 10-year signed URL which:
+    //  (a) Exposed PHI-adjacent docs to anyone who obtained the URL for a decade.
+    //  (b) Had no revocation mechanism short of deleting the storage object.
+    //  (c) Would be silently invalidated by Supabase key rotation events.
+    // Signed URLs are now generated on-demand with 1-hour TTL via get-document-url.js.
     const { error: updateError } = await supabase
       .from('documents')
-      .update({ file_url: signedData.signedUrl, file_name: fileName })
+      .update({ file_path: storagePath, file_name: originalName })
       .eq('id', documentId)
 
     if (updateError) {
@@ -141,9 +137,12 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: updateError.message })
     }
 
+    // Clean up the temp file formidable wrote to disk
+    try { fs.unlinkSync(uploadedFile.filepath) } catch (_) { /* non-fatal */ }
+
     return res.status(200).json({
-      fileUrl: signedData.signedUrl,
-      fileName: fileName,
+      storagePath,
+      fileName: originalName,
     })
 
   } catch (err) {

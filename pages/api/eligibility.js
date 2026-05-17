@@ -1,48 +1,38 @@
 // pages/api/eligibility.js
 import { requireAuth } from '../../lib/supabase-server'
-import { enforceRateLimit } from '../../lib/api-middleware'
+import { enforceRateLimit, validateOrigin } from '../../lib/api-middleware'
+import { getAvailityToken } from '../../lib/availity-token'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
+  // S-05 FIX: Validate request origin to prevent CSRF on state-mutating route
+  if (!validateOrigin(req, res)) return
   if (!enforceRateLimit(req, res, { max: 20, windowMs: 60_000, keyPrefix: 'eligibility:' })) return
 
   const user = await requireAuth(req, res)
   if (!user) return
 
-  const { memberId, dob, payerId, npi, dos } = req.body
-  if (!memberId || !dob || !payerId || !npi) {
-    return res.status(400).json({ error: 'Missing required fields' })
+  // P-01 FIX: lastName was hardcoded as 'Unknown' — Availity treats this as a literal
+  // last name filter, not a wildcard. This caused false-negative eligibility responses
+  // (returning Ineligible for covered patients). lastName is now required.
+  const { memberId, dob, payerId, npi, dos, lastName } = req.body
+  if (!memberId || !dob || !payerId || !npi || !lastName) {
+    return res.status(400).json({
+      error: 'Missing required fields: memberId, dob, payerId, npi, and lastName are all required. ' +
+             'Use "*" for lastName if the member last name is truly unknown (Availity wildcard).'
+    })
   }
 
-  // BUG-006: Single AbortController covers both sequential Availity calls.
-  // 25s timeout: two real network round-trips to Availity can legitimately take 10-15s.
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 25000)
 
   try {
-    // 1. Get OAuth token from Availity
-    const tokenRes = await fetch('https://api.availity.com/availity/v1/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: process.env.AVAILITY_CLIENT_ID,
-        client_secret: process.env.AVAILITY_CLIENT_SECRET,
-        scope: 'hipaa'
-      }),
-      signal: controller.signal,
-    })
-    if (!tokenRes.ok) {
-      const errText = await tokenRes.text()
-      return res.status(502).json({ error: `Availity auth failed (${tokenRes.status}): ${errText}` })
-    }
-    const tokenData = await tokenRes.json()
-    const access_token = tokenData.access_token
-    if (!access_token) {
-      return res.status(502).json({ error: 'Availity did not return an access token. Check AVAILITY_CLIENT_ID and AVAILITY_CLIENT_SECRET.' })
-    }
+    // P-02 FIX: Use cached token — previously fetched a fresh token on every request,
+    // doubling API calls to Availity and risking token issuance rate limits under load.
+    // getAvailityToken() caches the token in memory with a 60-second safety buffer.
+    const access_token = await getAvailityToken(controller.signal)
 
-    // 2. Submit eligibility inquiry (270/271 transaction)
+    // Submit eligibility inquiry (270/271 transaction)
     const eligRes = await fetch('https://api.availity.com/availity/v1/coverages', {
       method: 'POST',
       headers: {
@@ -59,7 +49,7 @@ export default async function handler(req, res) {
         subscriber: {
           memberId,
           dateOfBirth: dob,  // YYYY-MM-DD
-          lastName: 'Unknown' // Availity allows '*' for wildcard
+          lastName,          // P-01 FIX: use actual lastName from request body
         },
         serviceTypeCodes: ['30'], // Health Benefit Plan Coverage
         serviceDate: dos || new Date().toISOString().split('T')[0]
@@ -68,18 +58,17 @@ export default async function handler(req, res) {
     })
 
     const data = await eligRes.json()
-    
-    // 3. Parse key benefit data from the 271 response
+
+    // Parse key benefit data from the 271 response
     const coverage = data.coverages?.[0]
     if (!coverage) return res.status(200).json({ status: 'Ineligible', raw: data })
 
     const benefits = coverage.benefitsInformation || []
-    
+
     function findBenefit(codes) {
       return benefits.find(b => codes.includes(b.code))
     }
 
-    // Code 30 = Health Benefit Plan Coverage, C = Copay, G = Deductible
     const copayBenefit = findBenefit(['B'])
     const deductBenefit = findBenefit(['C'])
     const oopBenefit    = findBenefit(['G'])
@@ -105,6 +94,6 @@ export default async function handler(req, res) {
     console.error('Availity error:', err)
     res.status(500).json({ error: err.message })
   } finally {
-    clearTimeout(timeout) // always cancel the timer
+    clearTimeout(timeout)
   }
 }

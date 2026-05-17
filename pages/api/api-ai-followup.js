@@ -18,7 +18,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { requireAuth } from '../../lib/supabase-server'
 import { createSessionClient } from '../../lib/supabase-server'
-import { enforceRateLimit } from '../../lib/api-middleware'
+import { enforceRateLimit, validateOrigin } from '../../lib/api-middleware'
 
 const client = new Anthropic()
 
@@ -27,6 +27,8 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
+  // S-05: CSRF defense — reject cross-origin requests on mutating routes
+  if (!validateOrigin(req, res)) return
   if (!enforceRateLimit(req, res, { max: 10, windowMs: 60_000, keyPrefix: 'ai:' })) return
 
   // ── Auth guard (was missing — critical security fix) ────────────────────────

@@ -130,7 +130,10 @@ async function checkProviderExpiries(alertDays, alerts) {
         await audit('Task Created', taskText, prov.id)
       }
 
-      alerts.push({ type: 'provider', severity, provId: prov.id, provName: name, label, days, field })
+      // D-05 FIX: Store the createTask() return value on the alert object.
+      // Previously, alerts.filter(a => a.created) always returned [] because
+      // the created flag was never set, making tasks_created always report 0.
+      alerts.push({ type: 'provider', severity, provId: prov.id, provName: name, label, days, field, created })
     }
   }
 }
@@ -179,7 +182,8 @@ async function checkDocumentExpiries(alertDays, alerts) {
     })
 
     if (created) await audit('Task Created', taskText, doc.prov_id)
-    alerts.push({ type: 'document', days, label, provName, docId: doc.id })
+    // D-05 FIX: include created flag on every alert object
+    alerts.push({ type: 'document', days, label, provName, docId: doc.id, created })
   }
 }
 
@@ -223,11 +227,128 @@ async function checkEnrollmentFollowups(alerts) {
     })
 
     if (created) await audit('Task Created', taskText, enr.id)
-    alerts.push({ type: 'followup', days, provName, payerName, enrollmentId: enr.id })
+    // D-05 FIX: include created flag on every alert object
+    alerts.push({ type: 'followup', days, provName, payerName, enrollmentId: enr.id, created })
   }
 }
 
-// ─── Route handler ────────────────────────────────────────────────────────────
+// ─── Check: CAQH attestation staleness ───────────────────────────────────────
+// W-02 FIX: CAQH auto-deactivates a provider profile after 120 days of no attestation.
+// The previous watchdog only tracked caqh_due (the deadline), not caqh_attest (the
+// date of last actual attestation). A provider could have caqh_due in the future but
+// a stale caqh_attest that already triggered auto-deactivation — causing silent
+// credentialing verification failures with payers.
+const CAQH_ATTEST_WARNING_DAYS = 110  // warn at 110 days — 10-day buffer before 120d cutoff
+
+async function checkCaqhStaleness(alerts) {
+  const cutoff = new Date(Date.now() - CAQH_ATTEST_WARNING_DAYS * 86_400_000)
+    .toISOString().slice(0, 10)
+
+  const { data: providers, error } = await supabase
+    .from('providers')
+    .select('id, fname, lname, cred, caqh_attest, caqh_num')
+    .eq('status', 'Active')
+    .is('deleted_at', null)
+    .not('caqh_attest', 'is', null)
+    .lte('caqh_attest', cutoff)  // last attestation was more than 110 days ago
+
+  if (error) throw error
+
+  for (const prov of providers) {
+    const name = `${prov.lname}, ${prov.fname}${prov.cred ? ` ${prov.cred}` : ''}`
+    const daysSince = Math.abs(daysUntil(prov.caqh_attest))
+    const taskText = daysSince >= 120
+      ? `⚠️ CAQH LIKELY DEACTIVATED: ${name} — ${daysSince}d since last attestation (>${CAQH_ATTEST_WARNING_DAYS}d)`
+      : `🔔 CAQH At Risk: ${name} — ${daysSince}d since last attestation (deactivates at 120d)`
+
+    const dedupKey = `watchdog:caqh-stale:${prov.id}:${prov.caqh_attest}`
+    const priority = daysSince >= 120 ? 'Urgent' : 'High'
+
+    const created = await createTask({
+      task: taskText,
+      due: isoToday(),
+      priority,
+      cat: 'CAQH',
+      provId: prov.id,
+      dedupKey,
+    })
+
+    if (created) await audit('Task Created', taskText, prov.id)
+    alerts.push({ type: 'caqh_stale', daysSince, provName: name, provId: prov.id, created })
+  }
+}
+
+// ─── Check: Enrollment SLA overdue ───────────────────────────────────────────
+// W-03 FIX: Payer processing timelines (e.g. "60-90 days") were stored as strings
+// with no parsing, age calculation, or escalation. Enrollments could sit in Submitted
+// status for 200+ days with no alert. This check parses the timeline string, calculates
+// days_pending, and creates an escalation task when the expected processing window has passed.
+function parseTimelineMaxDays(timelineStr) {
+  if (!timelineStr) return null
+  // Match patterns: "60-90 days", "90 days", "3-4 months", "2 months"
+  const monthMatch = timelineStr.match(/(\d+)(?:-\d+)?\s*month/i)
+  if (monthMatch) return parseInt(monthMatch[1], 10) * 30
+
+  const rangeMatch = timelineStr.match(/\d+\s*-\s*(\d+)\s*day/i)
+  if (rangeMatch) return parseInt(rangeMatch[1], 10)
+
+  const singleMatch = timelineStr.match(/(\d+)\s*day/i)
+  if (singleMatch) return parseInt(singleMatch[1], 10)
+
+  return null
+}
+
+async function checkEnrollmentSlaOverdue(alerts) {
+  // Only check enrollments in active processing stages — not terminal stages
+  const { data: enrollments, error } = await supabase
+    .from('enrollments')
+    .select('id, prov_id, pay_id, stage, submitted, timeline')
+    .not('submitted', 'is', null)
+    .not('stage', 'in', '(Active,Denied,Withdrawn)')
+    .is('deleted_at', null)
+
+  if (error) throw error
+
+  const { data: providers } = await supabase
+    .from('providers').select('id, fname, lname').is('deleted_at', null)
+  const { data: payers } = await supabase
+    .from('payers').select('id, name')
+
+  const provMap  = Object.fromEntries((providers ?? []).map(p => [p.id, p]))
+  const payerMap = Object.fromEntries((payers    ?? []).map(p => [p.id, p]))
+
+  for (const enr of enrollments) {
+    const maxDays = parseTimelineMaxDays(enr.timeline)
+    if (!maxDays) continue  // no timeline to compare against
+
+    const daysPending = Math.abs(daysUntil(enr.submitted))
+    if (daysPending <= maxDays) continue  // still within expected window
+
+    const prov  = provMap[enr.prov_id]
+    const payer = payerMap[enr.pay_id]
+    const provName  = prov  ? `${prov.lname}, ${prov.fname}` : 'Unknown Provider'
+    const payerName = payer?.name ?? 'Unknown Payer'
+
+    const overdueDays = daysPending - maxDays
+    const taskText = `📋 Enrollment SLA overdue by ${overdueDays}d: ${provName} @ ${payerName} — submitted ${daysPending}d ago (expected ≤${maxDays}d)`
+
+    const dedupKey = `watchdog:sla:${enr.id}:${enr.submitted}`
+    const created = await createTask({
+      task: taskText,
+      due: isoToday(),
+      priority: overdueDays > 30 ? 'Urgent' : 'High',
+      cat: 'Enrollment',
+      provId: enr.prov_id,
+      payId: enr.pay_id,
+      dedupKey,
+    })
+
+    if (created) await audit('Task Created', taskText, enr.id)
+    alerts.push({ type: 'sla_overdue', daysPending, maxDays, overdueDays, provName, payerName, enrollmentId: enr.id, created })
+  }
+}
+
+
 export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
@@ -268,7 +389,16 @@ export default async function handler(req, res) {
   try { await checkEnrollmentFollowups(alerts) }
   catch (e) { errors.push({ check: 'enrollmentFollowups', message: e.message }) }
 
-  const created = alerts.filter(a => a.created).length
+  // W-02: CAQH attestation staleness (>110 days = at risk of auto-deactivation)
+  try { await checkCaqhStaleness(alerts) }
+  catch (e) { errors.push({ check: 'caqhStaleness', message: e.message }) }
+
+  // W-03: Enrollment SLA overdue (pending beyond the payer's stated timeline)
+  try { await checkEnrollmentSlaOverdue(alerts) }
+  catch (e) { errors.push({ check: 'enrollmentSlaOverdue', message: e.message }) }
+
+  // D-05 FIX: Count tasks where the created flag is explicitly true
+  const created = alerts.filter(a => a.created === true).length
 
   await audit(
     'Watchdog Run Complete',

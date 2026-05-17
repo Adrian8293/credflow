@@ -9,7 +9,7 @@ import { IncomingForm } from 'formidable'
 import fs from 'fs'
 import { requireAuth, supabaseAdmin } from '../../lib/supabase-server'
 import Anthropic from '@anthropic-ai/sdk'
-import { enforceRateLimit } from '../../lib/api-middleware'
+import { enforceRateLimit, validateOrigin } from '../../lib/api-middleware'
 
 export const config = {
   api: { bodyParser: false },
@@ -163,6 +163,8 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
+  // S-05: CSRF defense — reject cross-origin requests on mutating routes
+  if (!validateOrigin(req, res)) return
   if (!enforceRateLimit(req, res, { max: 6, windowMs: 60_000, keyPrefix: 'opca-extract:' })) return
 
   // Auth check — must happen before form parsing since bodyParser is disabled.
