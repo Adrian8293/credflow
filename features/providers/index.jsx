@@ -149,7 +149,7 @@ export function Providers({ db, search, setSearch, fStatus, setFStatus, fSpec, s
                   )}
                 </div>
               </td></tr>
-            ) : list.map(p => {
+            ) : paginated.map(p => {
               const isOpen    = menuOpen === p.id
               const specCol   = SPEC_COLORS[p.spec] || '#4f7ef8'
               const panels    = db.enrollments.filter(e => e.provId === p.id && e.stage === 'Active').length
