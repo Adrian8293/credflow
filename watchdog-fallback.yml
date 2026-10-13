@@ -1,0 +1,22 @@
+# Free fallback trigger for /api/watchdog in case Vercel Cron is not firing.
+# The watchdog is idempotent (tasks are deduplicated by dedup_key), so running both is safe.
+# Required repo secrets: APP_URL (e.g. https://app.example.com), CRON_SECRET. Never print them.
+name: watchdog-fallback
+on:
+  schedule: [{ cron: '30 14 * * *' }]   # 30 min after the Vercel cron (14:00 UTC)
+  workflow_dispatch: {}
+permissions: {}
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Call watchdog
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          code=$(curl -sS -o /tmp/out.json -w '%{http_code}' --max-time 60 \
+            -H "Authorization: Bearer $CRON_SECRET" "$APP_URL/api/watchdog")
+          echo "HTTP $code"
+          [ "$code" = "200" ] || { echo "watchdog failed"; exit 1; }
