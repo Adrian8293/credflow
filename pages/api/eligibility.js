@@ -1,10 +1,13 @@
 // pages/api/eligibility.js
+import { requireFeature } from '../../lib/features'
 import { requireAuth } from '../../lib/supabase-server'
 import { enforceRateLimit, validateOrigin } from '../../lib/api-middleware'
 import { getAvailityToken } from '../../lib/availity-token'
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
+  // Patient data + paid vendor: off unless FEATURE_ELIGIBILITY=true
+  if (!requireFeature(res, 'eligibility', 'Eligibility checks')) return
   // S-05 FIX: Validate request origin to prevent CSRF on state-mutating route
   if (!validateOrigin(req, res)) return
   if (!enforceRateLimit(req, res, { max: 20, windowMs: 60_000, keyPrefix: 'eligibility:' })) return

@@ -10,14 +10,19 @@ import fs from 'fs'
 import { requireAuth, supabaseAdmin } from '../../lib/supabase-server'
 import Anthropic from '@anthropic-ai/sdk'
 import { enforceRateLimit, validateOrigin } from '../../lib/api-middleware'
+import { features } from '../../lib/features'
+import { extractOpcaFromFormFields } from '../../lib/opca-form-reader'
 
 export const config = {
   api: { bodyParser: false },
 }
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
+// Lazy: the SDK throws at construction when no key is set, and the paid path is optional.
+let _anthropic = null
+function getAnthropic() {
+  if (!_anthropic) _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+  return _anthropic
+}
 
 // ─── System prompt for extraction ──────────────────────────────────────────────
 const MAX_PDF_BYTES = 20 * 1024 * 1024
@@ -211,10 +216,13 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Failed to read uploaded file: ' + err.message })
   }
 
-  // ── Send to Claude for extraction ──────────────────────────────────────────
+  // ── Extraction: FREE form-field reader by default; Anthropic (paid) only if FEATURE_AI=true ──
   let extractedData
+  let extractionMethod = 'form-fields'
+  if (features.ai()) {
+    extractionMethod = 'ai'
   try {
-    const response = await anthropic.messages.create({
+    const response = await getAnthropic().messages.create({
       model: 'claude-sonnet-4-5',
       max_tokens: 8192,
       system: EXTRACTION_SYSTEM_PROMPT,
@@ -251,6 +259,21 @@ export default async function handler(req, res) {
   } catch (err) {
     console.error('[opca-extract] Claude extraction failed:', err)
     return res.status(500).json({ error: 'Extraction failed: ' + err.message })
+  }
+  } else {
+    try {
+      const { extracted, fieldsFound } = await extractOpcaFromFormFields(pdfBuffer)
+      if (fieldsFound === 0) {
+        return res.status(422).json({
+          error: 'No fillable form fields were found in this PDF (it may be scanned or flattened). ' +
+                 'Upload the original fillable OPCA PDF, or enter the data manually.',
+        })
+      }
+      extractedData = extracted
+    } catch (err) {
+      console.error('[opca-extract] form-field read failed:', err)
+      return res.status(500).json({ error: 'Could not read the PDF form fields: ' + err.message })
+    }
   }
 
   // ── Map to opca_profiles columns ───────────────────────────────────────────
@@ -396,6 +419,9 @@ export default async function handler(req, res) {
     fieldsExtracted: Object.keys(extractedData).length,
     providerSyncSuggestions: buildProviderSyncSuggestions(provider, li, ml),
     sensitiveFieldsRedacted: ['federal_tax_id'],
-    message: 'OPCA data extracted and saved for review. Provider fields were not overwritten.',
+    extractionMethod,
+    message: extractionMethod === 'form-fields'
+      ? 'Core OPCA fields (name, license, DEA, NPI, malpractice, board certs) were read from the form and saved for review. Work history, education and references were not read — enter them manually. Provider fields were not overwritten.'
+      : 'OPCA data extracted and saved for review. Provider fields were not overwritten.',
   })
 }

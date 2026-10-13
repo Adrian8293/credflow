@@ -16,10 +16,10 @@
  *       Add to vercel.json:
  *         { "crons": [{ "path": "/api/watchdog", "schedule": "0 14 * * *" }] }
  *       0 14 * * * = 2:00 AM UTC = 6:00 AM Pacific Time (Oregon)
- *       Secure it with CRON_SECRET (see bottom of this file).
+ *       Secure it with CRON_SECRET (Vercel sends it as a Bearer token).
  *
  *    B) External cron (Railway, Render, cron-job.org)
- *       Hit GET /api/watchdog?secret=YOUR_CRON_SECRET every 24 h.
+ *       Hit GET /api/watchdog with header `x-cron-secret: YOUR_CRON_SECRET` every 24 h.
  *
  *  PHASE 2.4 CHANGES:
  *    - Added _orgId module-level variable, resolved from organization_members
@@ -31,6 +31,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
+import { timingSafeEqual } from 'crypto'
 import { enforceRateLimit } from '../../lib/api-middleware'
 
 // Use service-role key so we bypass RLS (this is a server-only route)
@@ -62,6 +63,11 @@ const PROVIDER_EXP_FIELDS = {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+function safeEqual(a, b) {
+  const ab = Buffer.from(a), bb = Buffer.from(b)
+  return ab.length === bb.length && timingSafeEqual(ab, bb)
+}
+
 function daysUntil(dateStr) {
   if (!dateStr) return null
   return Math.ceil((new Date(dateStr) - new Date()) / 86_400_000)
@@ -360,8 +366,13 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Watchdog not configured. Set CRON_SECRET env var.' })
   }
 
-  const secret = req.headers['x-cron-secret'] ?? req.query.secret
-  if (!secret || secret !== cronSecret) {
+  // Vercel Cron sends `Authorization: Bearer $CRON_SECRET` automatically when CRON_SECRET is set.
+  // x-cron-secret is kept for GitHub Actions / manual calls. Secrets in the query string are no
+  // longer accepted (they end up in logs and browser history).
+  const authHeader = req.headers['authorization'] || ''
+  const bearer = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : ''
+  const provided = bearer || req.headers['x-cron-secret'] || ''
+  if (!provided || !safeEqual(String(provided), cronSecret)) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
 

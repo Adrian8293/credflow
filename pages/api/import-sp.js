@@ -1,4 +1,5 @@
 // pages/api/import-sp.js
+import { requireFeature } from '../../lib/features'
 import { requireAuth, supabaseAdmin } from '../../lib/supabase-server'
 import { enforceRateLimit, validateOrigin } from '../../lib/api-middleware'
 
@@ -22,6 +23,8 @@ const SP_CLAIM_MAP = {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
+  // Patient data: off unless FEATURE_BILLING=true
+  if (!requireFeature(res, 'billing', 'Claims import')) return
   // S-05: CSRF defense — reject cross-origin requests on mutating routes
   if (!validateOrigin(req, res)) return
   if (!enforceRateLimit(req, res, { max: 8, windowMs: 60_000, keyPrefix: 'import-sp:' })) return
@@ -29,7 +32,10 @@ export default async function handler(req, res) {
   const user = await requireAuth(req, res)
   if (!user) return
 
-  const { rows } = req.body  // Parsed CSV rows from the frontend
+  const { rows } = req.body || {}  // Parsed CSV rows from the frontend
+  if (!Array.isArray(rows) || rows.length === 0 || rows.length > 5000) {
+    return res.status(400).json({ error: 'rows must be a non-empty array (max 5000).' })
+  }
 
   // Fetch lookup tables once
   const [{ data: providers }, { data: payers }] = await Promise.all([
