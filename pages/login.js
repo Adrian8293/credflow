@@ -2,6 +2,10 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import Head from 'next/head'
 
+// Self-registration is OFF unless explicitly enabled. Also disable signups in Supabase
+// (Authentication > Providers > Email > 'Allow new users to sign up') — the UI flag alone is not a control.
+const SIGNUP_ENABLED = process.env.NEXT_PUBLIC_ALLOW_SIGNUP === 'true'
+
 export default function Login() {
   const [mode, setMode]             = useState('login')
   const [step, setStep]             = useState(1)
@@ -54,6 +58,7 @@ export default function Login() {
     setError(''); setSuccess('')
 
     if (mode === 'signup') {
+      if (!SIGNUP_ENABLED) { setError('Self-registration is disabled. Ask an administrator for an invitation.'); return }
       if (step === 1) {
         const err = validateStep1()
         if (err) { setError(err); return }
@@ -305,7 +310,7 @@ export default function Login() {
           {/* Divider + switch */}
           <div className="pc-divider"><span>or</span></div>
           <div className="pc-switch">
-            {mode === 'login'  && <p>No account? <button className="pc-link pc-link--bold" onClick={() => switchMode('signup')}>Create one</button></p>}
+            {mode === 'login'  && SIGNUP_ENABLED && <p>No account? <button className="pc-link pc-link--bold" onClick={() => switchMode('signup')}>Create one</button></p>}
             {mode === 'signup' && <p>Have an account? <button className="pc-link pc-link--bold" onClick={() => switchMode('login')}>Sign in</button></p>}
             {mode === 'reset'  && <p>Remembered it? <button className="pc-link pc-link--bold" onClick={() => switchMode('login')}>Back to sign in</button></p>}
           </div>
