@@ -42,7 +42,7 @@ function nextStage(current) {
 
 
 function exportEnrollmentsCSV(filtered, providers, payers) {
-  const headers = ['Provider', 'Credential', 'Payer', 'Stage', 'Submitted', 'Effective Date', 'Follow-up', 'Notes']
+  const headers = ['Provider', 'Credential', 'Payer', 'Type', 'Group', 'Group NPI', 'Stage', 'Submitted', 'Credentialing Effective', 'Contract Effective', 'Effective Date', 'Follow-up', 'Notes']
   const rows = filtered.map(e => {
     const prov = providers.find(p => p.id === e.provId) || {}
     const payer = payers.find(p => p.id === e.payId) || {}
@@ -50,10 +50,15 @@ function exportEnrollmentsCSV(filtered, providers, payers) {
       (prov.fname + ' ' + (prov.lname || '')).trim(),
       prov.cred || '',
       payer.name || '',
+      e.level || 'Individual',
+      e.groupName || '',
+      e.groupNpi || '',
       e.stage || '',
       e.submitted || '',
-      e.effectiveDate || '',
-      e.followUp || '',
+      e.credentialingEffective || '',
+      e.contractEffective || '',
+      e.effective || '',
+      e.followup || '',
       (e.notes || '').replace(/,/g, ';'),
     ]
   })
@@ -70,6 +75,7 @@ export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStag
   const [menuOpen, setMenuOpen]   = useState(null)
   const [selected, setSelected]   = useState(new Set())
   const [bulkStage, setBulkStage] = useState('')
+  const [fLevel, setFLevel]     = useState('')
   const [advancing, setAdvancing] = useState(null)
   const menuRef = useRef(null)
 
@@ -90,12 +96,13 @@ export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStag
   const allowedStages = STAGE_TO_TAB[subtab]
 
   const filtered = db.enrollments.filter(e => {
-    const txt = `${pNameShort(db.providers, e.provId)} ${payName(db.payers, e.payId)} ${e.stage} ${e.notes||''}`.toLowerCase()
+    const txt = `${pNameShort(db.providers, e.provId)} ${payName(db.payers, e.payId)} ${e.stage} ${e.groupName||''} ${e.notes||''}`.toLowerCase()
     const matchSearch = !search || txt.includes(search.toLowerCase())
     const matchStage  = !fStage  || e.stage === fStage
     const matchProv   = !fProv   || e.provId === fProv
+    const matchLevel  = !fLevel  || (e.level || 'Individual') === fLevel
     const matchTab    = !allowedStages || allowedStages.some(s => (e.stage||'').toLowerCase().includes(s.toLowerCase()))
-    return matchSearch && matchStage && matchProv && matchTab
+    return matchSearch && matchStage && matchProv && matchTab && matchLevel
   })
 
   const { sorted: list, thProps } = useSorted(filtered, 'submitted')
@@ -201,12 +208,17 @@ export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStag
             <option value="">All Providers</option>
             {db.providers.map(p => <option key={p.id} value={p.id}>{p.fname} {p.lname}</option>)}
           </select>
+          <select className="filter-select" value={fLevel} onChange={e => setFLevel(e.target.value)}>
+            <option value="">Individual + Group</option>
+            <option value="Individual">Individual only</option>
+            <option value="Group">Group only</option>
+          </select>
           <select className="filter-select" value={fStage} onChange={e => setFStage(e.target.value)}>
             <option value="">All Stages</option>
             {STAGES.map(s => <option key={s}>{s}</option>)}
           </select>
-          {(search || fProv || fStage) && (
-            <button onClick={() => { setSearch(''); setFProv(''); setFStage('') }}
+          {(search || fProv || fStage || fLevel) && (
+            <button onClick={() => { setSearch(''); setFProv(''); setFStage(''); setFLevel('') }}
               style={{ fontSize: 12, color: 'var(--pr)', background: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
               Clear ×
             </button>
@@ -289,7 +301,12 @@ export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStag
                     <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-1)' }}>{pNameShort(db.providers, e.provId)}</div>
                     <div style={{ fontSize: 11, color: 'var(--text-4)' }}>{db.providers.find(x => x.id === e.provId)?.cred || ''}</div>
                   </td>
-                  <td style={{ fontSize: 13, color: 'var(--text-2)' }}>{payName(db.payers, e.payId)}</td>
+                  <td style={{ fontSize: 13, color: 'var(--text-2)' }}>
+                    {payName(db.payers, e.payId)}
+                    <div style={{ fontSize: 11, color: e.level === 'Group' ? 'var(--pr)' : 'var(--text-4)', fontWeight: e.level === 'Group' ? 600 : 400 }}>
+                      {e.level === 'Group' ? `Group${e.groupName ? ' · ' + e.groupName : ''}` : 'Individual'}
+                    </div>
+                  </td>
                   <td><StageBadge stage={e.stage} /></td>
                   <td style={{ fontSize: 12.5, color: 'var(--text-3)', whiteSpace: 'nowrap' }}>{fmtDate(e.submitted)}</td>
                   <td style={{ fontSize: 12.5, color: 'var(--text-4)', whiteSpace: 'nowrap' }}>{fmtDate(e.updated || e.submitted)}</td>

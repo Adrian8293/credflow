@@ -20,7 +20,7 @@ export default function NotFound() {
       <div style={{
         minHeight: '100vh', display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
-        fontFamily: 'DM Sans, system-ui, sans-serif',
+        fontFamily: 'Inter, system-ui, sans-serif',
         background: '#F8FAFC', color: '#1E293B', gap: 16, padding: 40,
         textAlign: 'center',
       }}>

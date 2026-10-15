@@ -4,7 +4,8 @@
  * No page navigation required — drawer opens over the current page.
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/router'
 import { Providers } from './index.jsx'
 import { AddProviderDrawer } from './AddProviderDrawer.jsx'
 import EnrollmentKanban from '../../components/EnrollmentKanban'
@@ -52,6 +53,17 @@ export function ProvidersPage({
     setNpiResult(null)
     setDrawerOpen(true)
   }
+
+  // Single "Add Provider" flow: every Add Provider button in the app links to /providers?add=1,
+  // which opens this drawer (replaces the separate /add-provider wizard page).
+  const router = useRouter()
+  useEffect(() => {
+    if (router.isReady && router.query.add === '1') {
+      openAddDrawer()
+      router.replace('/providers', undefined, { shallow: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router.isReady, router.query.add])
 
   // Called from WorkflowProviderCard "Edit" button
   // editProvider(id) is already hooked in index.js to open the edit form.

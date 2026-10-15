@@ -13,6 +13,7 @@
  * reduce consumer re-renders.
  */
 
+import { buildAlertFeed } from '../lib/alerts.js'
 import React, { createContext, useContext, useState, useMemo, useCallback } from 'react'
 import { useRouter } from 'next/router'
 import { useAuth } from '../hooks/useAuth'
@@ -25,7 +26,7 @@ import { usePayerActions } from '../hooks/usePayerActions'
 import { useDocumentActions } from '../hooks/useDocumentActions'
 import { useTaskActions } from '../hooks/useTaskActions'
 import { saveSettings as saveSettingsDB, clearAuditLog as clearAuditLogDB } from '../lib/db'
-import { providerAlertCount, daysUntil } from '../lib/helpers'
+import { daysUntil } from '../lib/helpers'
 
 const AppContext = createContext(null)
 
@@ -85,9 +86,7 @@ export function AppContextProvider({ children }) {
   // ── Derived values ────────────────────────────────────────────────────────
   const alertDays  = db.settings?.alertDays || 90
   const caqhDays   = db.settings?.caqhDays  || 30
-  const alertCount = db.providers.reduce(
-    (n, prov) => n + providerAlertCount(prov, { alertDays, caqhDays }), 0
-  )
+  const alertCount = buildAlertFeed(db).length
   const expDocs   = db.documents.filter(d => {
     const days = daysUntil(d.exp)
     return days !== null && days <= alertDays

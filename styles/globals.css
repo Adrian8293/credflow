@@ -1,11 +1,11 @@
 /* globals.css — LACentra v5.0
-   Font loading handled in _app.js (Sora + DM Sans + Geist Mono via Google Fonts).
+   Font loading handled in _app.js (Inter + Geist Mono via Google Fonts).
    This file handles only base resets and shared keyframes to avoid duplication. */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { font-size: 14px; }
 body {
-  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

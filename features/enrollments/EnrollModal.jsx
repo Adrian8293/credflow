@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { pNameShort, payName } from '../../lib/helpers.js'
 import { Modal, DrawerModal } from '../../components/ui/Modal.jsx'
 import { STAGES } from '../../constants/stages.js'
+import { PayerChecklist } from './PayerChecklist.jsx'
+import { ContactLog } from './ContactLog.jsx'
 import { PAYER_CATALOG } from '../../constants/payerRequirements.js'
 
 export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSaveEnrollment, onClose, saving, onAddPayer }) {
@@ -13,10 +15,12 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
   const [touched, setTouched] = useState({ provId: false, payId: false })
   const provInvalid = touched.provId && !f('provId')
   const payInvalid  = touched.payId  && !f('payId')
+  const [npiBad, setNpiBad] = useState(false)
 
   function handleSaveWithValidation() {
     setTouched({ provId: true, payId: true })
     if (!f('provId') || !f('payId')) return
+    if (level === 'Group' && f('groupNpi') && !/^\d{10}$/.test(f('groupNpi'))) { setNpiBad(true); return }
     handleSaveEnrollment()
   }
 
@@ -45,6 +49,11 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
     if (!payer) return null
     return PAYER_CATALOG.find(c => c.name.toLowerCase() === (payer.name || '').toLowerCase())?.warn || null
   })()
+
+  const level = f('level') || 'Individual'
+  const duplicate = f('provId') && f('payId') && db.enrollments.some(x =>
+    x.id !== editingId.enrollment && x.provId === f('provId') && x.payId === f('payId') && (x.level || 'Individual') === level)
+  const groupNames = [...new Set(db.enrollments.map(x => x.groupName).filter(Boolean))]
 
   const fieldStyle = (invalid) => ({
     border: invalid ? '1.5px solid var(--danger)' : undefined,
@@ -136,22 +145,15 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
       {/* Payer requirements auto-suggest */}
       {payerHints.length > 0 && showHints && (
         <div className="fg full">
-          <div style={{ background: 'rgba(21,101,192,.05)', border: '1.5px solid rgba(21,101,192,.18)', borderRadius: 'var(--r-lg)', padding: '12px 14px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--pr)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                Required documents for {db.payers.find(p => p.id === selectedPayerId)?.name}
-              </span>
-              <button onClick={() => setShowHints(false)} style={{ fontSize: 11, color: 'var(--text-4)', background: 'none', border: 'none', cursor: 'pointer' }}>Dismiss ×</button>
-            </div>
-            <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 3 }}>
-              {payerHints.map((hint, i) => (
-                <li key={i} style={{ fontSize: 12, color: 'var(--text-2)', display: 'flex', alignItems: 'flex-start', gap: 6 }}>
-                  <span style={{ color: 'var(--success)', flexShrink: 0, marginTop: 1 }}>•</span>
-                  {hint}
-                </li>
-              ))}
-            </ul>
+          <PayerChecklist
+            title={`Required for ${db.payers.find(p => p.id === selectedPayerId)?.name}`}
+            guidelines={payerHints}
+            provider={db.providers.find(p => p.id === f('provId'))}
+            documents={db.documents}
+            enrollmentId={editingId.enrollment}
+            onDismiss={() => setShowHints(false)}
+          />
+          <div>
             {catalogWarn && (
               <div style={{ marginTop: 10, padding: '6px 10px', background: 'rgba(245,158,11,.08)', border: '1px solid rgba(245,158,11,.3)', borderRadius: 'var(--r)', fontSize: 11.5, color: 'var(--warning)', fontWeight: 500, lineHeight: 1.4 }}>
                 ⚠ {catalogWarn}
@@ -161,9 +163,31 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
         </div>
       )}
 
+      <div className="fg"><label>Enrollment Type</label>
+        <select value={level} onChange={e => set('level', e.target.value)}>
+          <option value="Individual">Individual (Type 1 NPI)</option>
+          <option value="Group">Group (Type 2 NPI / billing group)</option>
+        </select>
+      </div>
+      {level === 'Group' && <>
+        <div className="fg"><label>Group Name</label>
+          <input list="group-names" value={f('groupName')} onChange={e => set('groupName', e.target.value)} placeholder="e.g. Positive Inner Self, LLC" />
+          <datalist id="group-names">{groupNames.map(n => <option key={n} value={n} />)}</datalist>
+        </div>
+        <div className="fg"><label>Group NPI</label><input value={f('groupNpi')} placeholder="Type 2 NPI" inputMode="numeric" maxLength={10} onChange={e => { setNpiBad(false); set('groupNpi', e.target.value.replace(/\D/g, '')) }} style={npiBad ? { border: '1.5px solid var(--danger)' } : undefined} />
+          {npiBad && <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 4 }}>Group NPI must be 10 digits</div>}
+        </div>
+      </>}
+      {duplicate && (
+        <div className="fg full" style={{ fontSize: 12, color: 'var(--amber)', background: 'rgba(180,83,9,.08)', border: '1px solid rgba(180,83,9,.25)', borderRadius: 'var(--r)', padding: '6px 10px' }}>
+          This provider already has a {level.toLowerCase()} enrollment with this payer. Edit that one, or change the type if this is a separate group enrollment.
+        </div>
+      )}
       <div className="fg"><label>Stage</label><select value={f('stage')} onChange={e => set('stage', e.target.value)}>{STAGES.map(s => <option key={s}>{s}</option>)}</select></div>
       <div className="fg"><label>Date Submitted</label><input type="date" value={f('submitted')} onChange={e => set('submitted', e.target.value)} /></div>
-      <div className="fg"><label>Effective Date</label><input type="date" value={f('effective')} onChange={e => set('effective', e.target.value)} /></div>
+      <div className="fg"><label>Effective Date (overall)</label><input type="date" value={f('effective')} onChange={e => set('effective', e.target.value)} /></div>
+      <div className="fg"><label>Credentialing Effective</label><input type="date" value={f('credentialingEffective')} onChange={e => set('credentialingEffective', e.target.value)} /></div>
+      <div className="fg"><label>Contract Effective</label><input type="date" value={f('contractEffective')} onChange={e => set('contractEffective', e.target.value)} /></div>
       <div className="fg"><label>Recredentialing Due</label><input type="date" value={f('recred')} onChange={e => set('recred', e.target.value)} /></div>
       <div className="fg"><label>EFT Status</label><select value={f('eft')} onChange={e => set('eft', e.target.value)}><option>Not Set Up</option><option>Submitted</option><option>Active</option></select></div>
       <div className="fg"><label>ERA Status</label><select value={f('era')} onChange={e => set('era', e.target.value)}><option>Not Set Up</option><option>Submitted</option><option>Active</option></select></div>
@@ -171,5 +195,9 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
       <div className="fg"><label>Contract Received</label><select value={f('contract')} onChange={e => set('contract', e.target.value)}><option value="No">No</option><option value="Yes">Yes</option></select></div>
       <div className="fg full"><label>Notes / Audit Entry</label><textarea value={f('notes')} onChange={e => set('notes', e.target.value)} placeholder="Add a note (logged to audit trail)…"></textarea></div>
     </div>
+
+    {editingId.enrollment && (
+      <ContactLog enrollmentId={editingId.enrollment} onFollowupSet={d => set('followup', d)} />
+    )}
   </DrawerModal>
 }

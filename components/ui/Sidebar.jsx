@@ -123,17 +123,17 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db 
       {!collapsed && (
         <div style={{ padding: '8px 10px 6px' }}>
           <button
-            onClick={() => nav('add-provider')}
+            onClick={() => nav('providers?add=1')}
             style={{
               width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
               background: 'var(--pr)', color: '#fff', border: 'none',
               borderRadius: 'var(--r)', padding: '8px 14px',
               fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--fn)',
-              boxShadow: '0 2px 10px rgba(14,165,233,.25)',
+              boxShadow: '0 2px 10px rgba(79,70,229,.25)',
               transition: 'all var(--t)',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--pr-d)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(14,165,233,.35)' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'var(--pr)'; e.currentTarget.style.boxShadow = '0 2px 10px rgba(14,165,233,.25)' }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'var(--pr-d)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(79,70,229,.35)' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'var(--pr)'; e.currentTarget.style.boxShadow = '0 2px 10px rgba(79,70,229,.25)' }}
           >
             {I.plus} Add Provider
           </button>
@@ -152,7 +152,6 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db 
 
         <div className="sb-group-divider" style={{ margin: '6px 10px' }} />
 
-        {navItem('billing',   'Billing',    I.billing)}
         {navItem('marketing', 'Marketing',  I.marketing)}
         {navItem('reports',   'Reports',    I.reports)}
         {navItem('audit',     'Audit Trail',I.audit)}

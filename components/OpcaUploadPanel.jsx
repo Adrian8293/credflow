@@ -263,7 +263,7 @@ export default function OpcaUploadPanel({ provider, onComplete }) {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const styles = {
   container: {
-    fontFamily: "'DM Sans', system-ui, sans-serif",
+    fontFamily: "'Inter', system-ui, sans-serif",
     maxWidth: 640,
     margin: '0 auto',
     padding: 24,

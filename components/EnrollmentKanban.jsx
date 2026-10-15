@@ -164,7 +164,7 @@ function KanbanColumn({ stage, cards, providers, payers, onOpen, onDrop, onDragO
 }
 
 function FilterBar({ providers, payers, filter, setFilter }) {
-  const sel = { background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 6, padding: '6px 10px', color: '#0D1B3D', fontSize: 12, outline: 'none', cursor: 'pointer' }
+  const sel = { width: 'auto', background: 'var(--card)', border: '1.5px solid var(--border)', borderRadius: 8, padding: '7px 12px', color: 'var(--text-1)', fontSize: 13, outline: 'none', cursor: 'pointer' }
   const active = filter.search || filter.provId || filter.payId || filter.followupOnly
   return (
     <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>

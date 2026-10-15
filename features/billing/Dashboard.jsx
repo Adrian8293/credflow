@@ -62,7 +62,7 @@ function OnboardingChecklist({ db, setPage, openEnrollModal, openPayerModal }) {
   const hasPayers     = db.payers.length > 0
   const hasEnrollment = db.enrollments.length > 0
   const steps = [
-    { done: hasProviders,  title: 'Add your first provider',       desc: 'Enter NPI, license, and credentialing details.', action: () => setPage('add-provider'), label: 'Add Provider' },
+    { done: hasProviders,  title: 'Add your first provider',       desc: 'Enter NPI, license, and credentialing details.', action: () => setPage('providers?add=1'), label: 'Add Provider' },
     { done: hasPayers,     title: 'Add insurance payers',          desc: 'Set up the payers you\'ll be credentialing with.', action: () => openPayerModal?.(), label: 'Add Payer' },
     { done: hasEnrollment, title: 'Create your first application', desc: 'Track a provider\'s enrollment with a specific payer.', action: () => openEnrollModal?.(), label: 'New Application', disabled: !hasProviders || !hasPayers },
   ]
@@ -71,7 +71,7 @@ function OnboardingChecklist({ db, setPage, openEnrollModal, openPayerModal }) {
   return (
     <div style={{ maxWidth: 520, margin: '60px auto', padding: '0 20px' }}>
       <div style={{ marginBottom: 28, textAlign: 'center' }}>
-        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--pr)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px', boxShadow: '0 8px 24px rgba(14,165,233,.2)', color: '#fff' }}>
+        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--pr)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px', boxShadow: '0 8px 24px rgba(79,70,229,.2)', color: '#fff' }}>
           {I.prov}
         </div>
         <h2 style={{ fontFamily: 'var(--fn-display)', fontSize: 22, fontWeight: 800, color: 'var(--text-1)', letterSpacing: '-.04em', margin: '0 0 6px' }}>Welcome to LACentra</h2>
@@ -405,9 +405,6 @@ export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPaye
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button className="btn btn-secondary btn-sm" onClick={() => setPage('add-provider')} style={{ gap: 5 }}>
-            {I.plus} Add Provider
-          </button>
           <button className="btn btn-primary btn-sm" onClick={openEnrollModal} style={{ gap: 5 }}>
             {I.enroll} New Enrollment
           </button>

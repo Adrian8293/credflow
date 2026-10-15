@@ -10,6 +10,12 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        // Old standalone wizard page → the single Add Provider drawer
+        source:      '/add-provider',
+        destination: '/providers?add=1',
+        permanent:   false,
+      },
+      {
         source:      '/applications',
         destination: '/enrollments',
         permanent:   true,
