@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Modal, DrawerModal } from '../../components/ui/Modal.jsx'
 import { PAYER_CATALOG } from '../../constants/payerRequirements.js'
+import { ENROLLMENT_MODELS } from '../../constants/enrollmentOptions.js'
 
 export function PayerModal({ payerForm, setPayerForm, editingId, handleSavePayer, onClose, saving }) {
   const [step, setStep] = useState(editingId.payer ? 2 : 1)
@@ -29,13 +30,14 @@ export function PayerModal({ payerForm, setPayerForm, editingId, handleSavePayer
       timeline: catalog.timeline,
       notes: catalog.notes,
       email: '',
+      enrollmentModel: 'Individual + Group',
     })
     setStep(2)
   }
 
   function pickCustom() {
     setSelectedCatalog(null)
-    setPayerForm({ type:'Commercial', timeline:'60–90 days' })
+    setPayerForm({ type:'Commercial', timeline:'60–90 days', enrollmentModel:'Individual + Group' })
     setStep(2)
   }
 
@@ -160,6 +162,12 @@ export function PayerModal({ payerForm, setPayerForm, editingId, handleSavePayer
                 <option>30–45 days</option><option>45–60 days</option><option>60–90 days</option>
                 <option>90–120 days</option><option>120+ days</option>
               </select>
+            </div>
+            <div className="fg"><label>Enrollment Model</label>
+              <select value={f('enrollmentModel') || 'Individual + Group'} onChange={e => set('enrollmentModel', e.target.value)}>
+                {ENROLLMENT_MODELS.map(m => <option key={m}>{m}</option>)}
+              </select>
+              <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 4 }}>Not every payer allows group enrollment. Individual only hides group options on this payer's enrollments.</div>
             </div>
             <div className="fg full"><label>Notes</label>
               <textarea value={f('notes')} onChange={e => set('notes', e.target.value)} placeholder="Submission requirements, contacts, special instructions…" />

@@ -4,7 +4,7 @@ import { useGlobalContext } from '../context/AppContext'
 import { Alerts as AlertsView } from '../features/billing/Alerts.jsx'
 
 export default function Alerts() {
-  const { db, providers, openAiFollowup, setPage } = useGlobalContext()
+  const { db, providers, openAiFollowup, setPage, openEnrollModal } = useGlobalContext()
 
   const handleOpenProvider = (id) => {
     providers.editProvider(id)
@@ -21,6 +21,7 @@ export default function Alerts() {
         onOpenProvider={handleOpenProvider}
         onDraftEmail={openAiFollowup}
         onMarkDone={providers.handleAlertMarkDone}
+        onOpenEnrollment={(id) => openEnrollModal(id)}
       />
     </>
   )

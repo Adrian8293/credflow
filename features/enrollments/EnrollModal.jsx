@@ -3,6 +3,7 @@ import { pNameShort, payName } from '../../lib/helpers.js'
 import { Modal, DrawerModal } from '../../components/ui/Modal.jsx'
 import { STAGES } from '../../constants/stages.js'
 import { PayerChecklist } from './PayerChecklist.jsx'
+import { PRODUCT_LINES, STATES, ASSOCIATE_MODES } from '../../constants/enrollmentOptions.js'
 import { ContactLog } from './ContactLog.jsx'
 import { PAYER_CATALOG } from '../../constants/payerRequirements.js'
 
@@ -50,10 +51,20 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
     return PAYER_CATALOG.find(c => c.name.toLowerCase() === (payer.name || '').toLowerCase())?.warn || null
   })()
 
-  const level = f('level') || 'Individual'
+  const selPayer = db.payers.find(p => p.id === f('payId'))
+  const selProv  = db.providers.find(p => p.id === f('provId'))
+  const payerModel = selPayer?.enrollmentModel || 'Individual + Group'
+  const groupAllowed = payerModel !== 'Individual only'
+  const groupForced  = payerModel === 'Group only'
+  const level = groupForced ? 'Group' : (!groupAllowed ? 'Individual' : (f('level') || 'Individual'))
   const duplicate = f('provId') && f('payId') && db.enrollments.some(x =>
     x.id !== editingId.enrollment && x.provId === f('provId') && x.payId === f('payId') && (x.level || 'Individual') === level)
   const groupNames = [...new Set(db.enrollments.map(x => x.groupName).filter(Boolean))]
+
+  // Keep the stored level in step with what the payer's enrollment model allows.
+  useEffect(() => {
+    if ((enrollForm.level || 'Individual') !== level) setEnrollForm(prev => ({ ...prev, level }))
+  }, [level, enrollForm.level, setEnrollForm])
 
   const fieldStyle = (invalid) => ({
     border: invalid ? '1.5px solid var(--danger)' : undefined,
@@ -164,10 +175,13 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
       )}
 
       <div className="fg"><label>Enrollment Type</label>
-        <select value={level} onChange={e => set('level', e.target.value)}>
+        <select value={level} disabled={!groupAllowed || groupForced} onChange={e => set('level', e.target.value)}>
           <option value="Individual">Individual (Type 1 NPI)</option>
-          <option value="Group">Group (Type 2 NPI / billing group)</option>
+          {groupAllowed && <option value="Group">Group (Type 2 NPI / billing group)</option>}
         </select>
+        {selPayer && payerModel !== 'Individual + Group' && (
+          <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 4 }}>{selPayer.name} is set to “{payerModel}”.</div>
+        )}
       </div>
       {level === 'Group' && <>
         <div className="fg"><label>Group Name</label>
@@ -188,6 +202,24 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
       <div className="fg"><label>Effective Date (overall)</label><input type="date" value={f('effective')} onChange={e => set('effective', e.target.value)} /></div>
       <div className="fg"><label>Credentialing Effective</label><input type="date" value={f('credentialingEffective')} onChange={e => set('credentialingEffective', e.target.value)} /></div>
       <div className="fg"><label>Contract Effective</label><input type="date" value={f('contractEffective')} onChange={e => set('contractEffective', e.target.value)} /></div>
+      <div className="fg"><label>Billable From</label><input type="date" value={f('billableFrom')} onChange={e => set('billableFrom', e.target.value)} />
+        <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 4 }}>First date claims will be paid. Many payers do not backdate.</div>
+      </div>
+      {level === 'Group' && <div className="fg"><label>Roster / Link Effective</label><input type="date" value={f('rosterEffective')} onChange={e => set('rosterEffective', e.target.value)} /></div>}
+      <div className="fg"><label>Termination Date</label><input type="date" value={f('termDate')} onChange={e => set('termDate', e.target.value)} /></div>
+      <div className="fg"><label>State</label>
+        <select value={f('state')} onChange={e => set('state', e.target.value)}><option value="">—</option>{STATES.map(s => <option key={s}>{s}</option>)}</select>
+      </div>
+      <div className="fg"><label>Product Line</label>
+        <select value={f('productLine')} onChange={e => set('productLine', e.target.value)}><option value="">—</option>{PRODUCT_LINES.map(s => <option key={s}>{s}</option>)}</select>
+      </div>
+      <div className="fg"><label>Payer Provider ID / Contract #</label><input value={f('payerProviderId')} onChange={e => set('payerProviderId', e.target.value)} placeholder="Assigned by payer" /></div>
+      {selProv?.supervisor && (
+        <div className="fg full"><label>Associate Billing Mode ({selProv.fname} is supervised)</label>
+          <select value={f('associateMode') || 'Unverified'} onChange={e => set('associateMode', e.target.value)}>{ASSOCIATE_MODES.map(m => <option key={m}>{m}</option>)}</select>
+          <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 4 }}>How this payer handles pre-licensed clinicians. Keep “Unverified” until confirmed in writing with the payer.</div>
+        </div>
+      )}
       <div className="fg"><label>Recredentialing Due</label><input type="date" value={f('recred')} onChange={e => set('recred', e.target.value)} /></div>
       <div className="fg"><label>EFT Status</label><select value={f('eft')} onChange={e => set('eft', e.target.value)}><option>Not Set Up</option><option>Submitted</option><option>Active</option></select></div>
       <div className="fg"><label>ERA Status</label><select value={f('era')} onChange={e => set('era', e.target.value)}><option>Not Set Up</option><option>Submitted</option><option>Active</option></select></div>

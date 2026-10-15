@@ -4,7 +4,8 @@
  */
 
 import { useState } from 'react'
-import { fmtDate, getProviderAlerts } from '../../lib/helpers.js'
+import { fmtDate, getProviderAlerts, pNameShort, payName } from '../../lib/helpers.js'
+import { buildAlertFeed } from '../../lib/alerts.js'
 
 const NEXT_STEPS = {
   'License':                'Contact provider for renewal documentation; verify with state board.',
@@ -24,7 +25,8 @@ const LABEL_TO_FIELD = {
   'Supervision Agreement':  'supExp',
 }
 
-const TABS = ['All Alerts', 'Critical', 'Warnings', 'Information']
+const TABS = ['All Alerts', 'Critical', 'Warnings', 'Information', 'Enrollments']
+const ACTIVE_STAGES = ['Active', 'Contracted', 'Approved']
 
 const AlertIcon = ({ type }) => {
   const map = {
@@ -41,7 +43,7 @@ const AlertIcon = ({ type }) => {
   )
 }
 
-export function Alerts({ db, onOpenProvider, onDraftEmail, onMarkDone }) {
+export function Alerts({ db, onOpenProvider, onDraftEmail, onMarkDone, onOpenEnrollment }) {
   const [activeTab, setActiveTab] = useState('All Alerts')
   const alertDays = db.settings.alertDays || 90
   const caqhDays = db.settings.caqhDays || 30
@@ -59,6 +61,17 @@ export function Alerts({ db, onOpenProvider, onDraftEmail, onMarkDone }) {
   const critical = items.filter(a => a.days >= 0 && a.days <= 30)
   const warning  = items.filter(a => a.days > 30 && a.days <= 60)
   const info     = items.filter(a => a.days > 60)
+
+  // Enrollment deadlines (follow-ups, payer recredentialing, terminations) and data gaps.
+  const enrItems = buildAlertFeed(db).filter(i => ['followup', 'enr-recred', 'enr-term'].includes(i.type))
+  const gaps = []
+  db.enrollments.forEach(e => {
+    const stage = e.stage || ''
+    const prov = db.providers.find(p => p.id === e.provId)
+    const who = `${pNameShort(db.providers, e.provId)} · ${payName(db.payers, e.payId)}`
+    if (ACTIVE_STAGES.some(s => stage.startsWith(s)) && !e.billableFrom) gaps.push({ enrId: e.id, who, msg: 'Active but no Billable From date set' })
+    if (prov?.supervisor && !['Denied', 'Not Started'].includes(stage) && (!e.associateMode || e.associateMode === 'Unverified')) gaps.push({ enrId: e.id, who, msg: 'Supervised provider: associate billing mode not verified with this payer' })
+  })
 
   const filtered = activeTab === 'All Alerts' ? items
     : activeTab === 'Critical' ? [...expired, ...critical]
@@ -172,7 +185,33 @@ export function Alerts({ db, onOpenProvider, onDraftEmail, onMarkDone }) {
         ))}
       </div>
 
-      {filtered.length > 0 ? (
+      {activeTab === 'Enrollments' ? (
+        <div>
+          {enrItems.length === 0 && gaps.length === 0 && (
+            <div className="empty-state"><div className="empty-state-title">Nothing due</div><div className="empty-state-desc">No enrollment follow-ups, recredentialing dates or data gaps.</div></div>
+          )}
+          {enrItems.map((a, i) => (
+            <div key={`e${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', marginBottom: 8, background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--r)' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text-1)' }}>{a.title}</div>
+                <div style={{ fontSize: 12, color: a.sev === 'expired' || a.sev === 'critical' ? 'var(--red)' : 'var(--text-3)' }}>{a.sub}</div>
+              </div>
+              <button className="btn btn-sm btn-secondary" onClick={() => onOpenEnrollment?.(a.enrId)}>Open enrollment</button>
+            </div>
+          ))}
+          {gaps.length > 0 && (
+            <>
+              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: 'var(--text-4)', margin: '18px 0 8px' }}>Data gaps ({gaps.length})</div>
+              {gaps.map((g, i) => (
+                <div key={`g${i}`} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px', marginBottom: 6, background: 'var(--card)', border: '1px dashed var(--border)', borderRadius: 'var(--r)' }}>
+                  <div style={{ flex: 1, minWidth: 0, fontSize: 12.5, color: 'var(--text-2)' }}><strong style={{ color: 'var(--text-1)' }}>{g.who}</strong> — {g.msg}</div>
+                  <button className="btn btn-sm btn-secondary" onClick={() => onOpenEnrollment?.(g.enrId)}>Fix</button>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+      ) : filtered.length > 0 ? (
         filtered.map((a, i) => <Row key={i} a={a} />)
       ) : (
         <div className="empty-state">
