@@ -4,6 +4,7 @@ import { Modal, DrawerModal } from '../../components/ui/Modal.jsx'
 import { STAGES } from '../../constants/stages.js'
 import { PayerChecklist } from './PayerChecklist.jsx'
 import { PRODUCT_LINES, STATES, ASSOCIATE_MODES } from '../../constants/enrollmentOptions.js'
+import { fetchEntities, fetchContracts } from '../../lib/db'
 import { ContactLog } from './ContactLog.jsx'
 import { PAYER_CATALOG } from '../../constants/payerRequirements.js'
 
@@ -65,6 +66,38 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
   useEffect(() => {
     if ((enrollForm.level || 'Individual') !== level) setEnrollForm(prev => ({ ...prev, level }))
   }, [level, enrollForm.level, setEnrollForm])
+
+  // Optional link to a legal entity (group) and its payer contract (needs migration 013; falls back silently).
+  const [entities, setEntities] = useState([])
+  const [entContracts, setEntContracts] = useState([])
+  useEffect(() => {
+    if (level !== 'Group' || entities.length) return
+    let live = true
+    fetchEntities().then(l => live && setEntities(l)).catch(() => {})
+    return () => { live = false }
+  }, [level, entities.length])
+  const selEntity = entities.find(e => e.id === f('entityId'))
+  useEffect(() => {
+    if (!selEntity) { setEntContracts([]); return }
+    let live = true
+    fetchContracts(selEntity.id).then(l => live && setEntContracts(l)).catch(() => {})
+    return () => { live = false }
+  }, [selEntity])
+  const payerContracts = entContracts.filter(c => c.payerId === f('payId'))
+  function pickEntity(id) {
+    const ent = entities.find(e => e.id === id)
+    setEnrollForm(prev => ({ ...prev, entityId: id, contractId: '', groupName: ent ? ent.name : prev.groupName, groupNpi: ent ? ent.type2Npi : prev.groupNpi }))
+  }
+  function pickContract(id) {
+    const c = entContracts.find(x => x.id === id)
+    setEnrollForm(prev => ({
+      ...prev, contractId: id,
+      state: prev.state || c?.state || '', productLine: prev.productLine || c?.productLine || '',
+      contractEffective: prev.contractEffective || c?.contractEffective || '',
+    }))
+  }
+  const coaConflict = f('associateMode') === 'Roster under group' && selEntity?.holdsCoa
+  const medicaidAssociate = !!selProv?.supervisor && (f('productLine') === 'Medicaid' || selPayer?.type === 'Medicaid')
 
   const fieldStyle = (invalid) => ({
     border: invalid ? '1.5px solid var(--danger)' : undefined,
@@ -183,7 +216,19 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
           <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 4 }}>{selPayer.name} is set to “{payerModel}”.</div>
         )}
       </div>
-      {level === 'Group' && <>
+      {level === 'Group' && entities.length > 0 && <>
+        <div className="fg"><label>Group</label>
+          <select value={f('entityId')} onChange={e => pickEntity(e.target.value)}><option value="">— Select group —</option>{entities.map(e => <option key={e.id} value={e.id}>{e.name}</option>)}</select>
+          {selEntity && <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 4 }}>{selEntity.type2Npi ? `Type 2 NPI ${selEntity.type2Npi}` : 'No Type 2 NPI on this group yet'}</div>}
+        </div>
+        <div className="fg"><label>Payer Contract</label>
+          <select value={f('contractId')} disabled={!selEntity} onChange={e => pickContract(e.target.value)}>
+            <option value="">{payerContracts.length ? '— Select contract —' : 'No contract for this payer'}</option>
+            {payerContracts.map(c => <option key={c.id} value={c.id}>{[c.state, c.productLine, c.contractNo].filter(Boolean).join(' · ') || 'Contract'}</option>)}
+          </select>
+        </div>
+      </>}
+      {level === 'Group' && entities.length === 0 && (<>
         <div className="fg"><label>Group Name</label>
           <input list="group-names" value={f('groupName')} onChange={e => set('groupName', e.target.value)} placeholder="e.g. Positive Inner Self, LLC" />
           <datalist id="group-names">{groupNames.map(n => <option key={n} value={n} />)}</datalist>
@@ -191,7 +236,7 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
         <div className="fg"><label>Group NPI</label><input value={f('groupNpi')} placeholder="Type 2 NPI" inputMode="numeric" maxLength={10} onChange={e => { setNpiBad(false); set('groupNpi', e.target.value.replace(/\D/g, '')) }} style={npiBad ? { border: '1.5px solid var(--danger)' } : undefined} />
           {npiBad && <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 4 }}>Group NPI must be 10 digits</div>}
         </div>
-      </>}
+      </>)}
       {duplicate && (
         <div className="fg full" style={{ fontSize: 12, color: 'var(--amber)', background: 'rgba(180,83,9,.08)', border: '1px solid rgba(180,83,9,.25)', borderRadius: 'var(--r)', padding: '6px 10px' }}>
           This provider already has a {level.toLowerCase()} enrollment with this payer. Edit that one, or change the type if this is a separate group enrollment.
@@ -217,6 +262,8 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
       {selProv?.supervisor && (
         <div className="fg full"><label>Associate Billing Mode ({selProv.fname} is supervised)</label>
           <select value={f('associateMode') || 'Unverified'} onChange={e => set('associateMode', e.target.value)}>{ASSOCIATE_MODES.map(m => <option key={m}>{m}</option>)}</select>
+          {coaConflict && <div style={{ fontSize: 11.5, color: 'var(--amber)', marginTop: 6 }}>This group holds an Oregon COA. Moda’s associate roster program is not available to COA holders; confirm with Moda.</div>}
+          {medicaidAssociate && <div style={{ fontSize: 11.5, color: 'var(--red)', marginTop: 6 }}>Supervised provider on a Medicaid enrollment. Associates do not see Medicaid patients here, and OHA is restricting associate enrollment. Confirm before submitting.</div>}
           <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 4 }}>How this payer handles pre-licensed clinicians. Keep “Unverified” until confirmed in writing with the payer.</div>
         </div>
       )}

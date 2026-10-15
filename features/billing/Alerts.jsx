@@ -70,6 +70,8 @@ export function Alerts({ db, onOpenProvider, onDraftEmail, onMarkDone, onOpenEnr
     const prov = db.providers.find(p => p.id === e.provId)
     const who = `${pNameShort(db.providers, e.provId)} · ${payName(db.payers, e.payId)}`
     if (ACTIVE_STAGES.some(s => stage.startsWith(s)) && !e.billableFrom) gaps.push({ enrId: e.id, who, msg: 'Active but no Billable From date set' })
+    const payer = db.payers.find(p => p.id === e.payId)
+    if (prov?.supervisor && stage !== 'Denied' && (e.productLine === 'Medicaid' || payer?.type === 'Medicaid')) gaps.push({ enrId: e.id, who, msg: 'Supervised provider on a Medicaid enrollment. Associates do not see Medicaid patients here; verify or remove.' })
     if (prov?.supervisor && !['Denied', 'Not Started'].includes(stage) && (!e.associateMode || e.associateMode === 'Unverified')) gaps.push({ enrId: e.id, who, msg: 'Supervised provider: associate billing mode not verified with this payer' })
   })
 

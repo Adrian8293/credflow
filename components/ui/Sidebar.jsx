@@ -33,6 +33,7 @@ const ROUTE_MAP = {
   '/providers':   'providers',
   '/enrollments': 'enrollments',
   '/payers':      'payers',
+  '/groups':      'groups',
   '/documents':   'documents',
   '/tasks':       'tasks',
   '/alerts':      'alerts',
@@ -146,6 +147,7 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db 
         {navItem('providers',    'Providers',    I.providers)}
         {navItem('enrollments',    'Applications', I.applications)}
         {navItem('payers',       'Payers',       I.payers)}
+        {navItem('groups',       'Groups',       I.providers)}
         {navItem('documents',    'Documents',    I.documents, expDocs, false)}
         {navItem('tasks',        'Tasks',        I.tasks,     taskCount, overdueTaskCount > 0)}
         {navItem('alerts',       'Alerts',       I.alerts,    alertCount, false)}

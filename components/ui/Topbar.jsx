@@ -37,6 +37,7 @@ const ROUTE_TITLES = {
   '/providers':    'Providers',
   '/enrollments':  'Applications',
   '/payers':       'Payers',
+  '/groups':       'Groups',
   '/documents':    'Documents',
   '/tasks':        'Tasks',
   '/alerts':       'Alerts',
@@ -215,7 +216,7 @@ export function Topbar({
   const routeTitle = ROUTE_TITLES[router.pathname]
   const legacyMap  = {
     dashboard: 'Dashboard', providers: 'Providers', applications: 'Applications',
-    payers: 'Payers', documents: 'Documents', tasks: 'Tasks', alerts: 'Alerts',
+    payers: 'Payers', groups: 'Groups', documents: 'Documents', tasks: 'Tasks', alerts: 'Alerts',
     billing: 'Billing', marketing: 'Marketing', reports: 'Reports',
     audit: 'Audit Trail', settings: 'Settings', 'add-provider': 'Add Provider',
   }
