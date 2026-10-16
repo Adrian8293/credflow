@@ -6,6 +6,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/router'
+import OrgSwitcher from './OrgSwitcher'
 
 const I = {
   dashboard:   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>,
@@ -15,8 +16,6 @@ const I = {
   documents:   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>,
   tasks:       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>,
   alerts:      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
-  billing:     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
-  marketing:   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>,
   reports:     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
   audit:       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
   settings:    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M5.34 18.66l-1.41 1.41M20.49 12H22M2 12h1.51M19.07 19.07l-1.41-1.41M5.34 5.34L3.93 3.93M12 20.49V22M12 2v1.51"/></svg>,
@@ -34,11 +33,10 @@ const ROUTE_MAP = {
   '/enrollments': 'enrollments',
   '/payers':      'payers',
   '/groups':      'groups',
+  '/matrix':      'matrix',
   '/documents':   'documents',
   '/tasks':       'tasks',
   '/alerts':      'alerts',
-  '/billing':     'billing',
-  '/marketing':   'marketing',
   '/reports':     'reports',
   '/audit':       'audit',
   '/settings':    'settings',
@@ -120,6 +118,8 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db 
         </div>
       </div>
 
+      <OrgSwitcher collapsed={collapsed} />
+
       {/* ── Quick Action ── */}
       {!collapsed && (
         <div style={{ padding: '8px 10px 6px' }}>
@@ -148,13 +148,13 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db 
         {navItem('enrollments',    'Applications', I.applications)}
         {navItem('payers',       'Payers',       I.payers)}
         {navItem('groups',       'Groups',       I.providers)}
+        {navItem('matrix',       'Billing Matrix', I.payers)}
         {navItem('documents',    'Documents',    I.documents, expDocs, false)}
         {navItem('tasks',        'Tasks',        I.tasks,     taskCount, overdueTaskCount > 0)}
         {navItem('alerts',       'Alerts',       I.alerts,    alertCount, false)}
 
         <div className="sb-group-divider" style={{ margin: '6px 10px' }} />
 
-        {navItem('marketing', 'Marketing',  I.marketing)}
         {navItem('reports',   'Reports',    I.reports)}
         {navItem('audit',     'Audit Trail',I.audit)}
         {navItem('settings',  'Settings',   I.settings)}

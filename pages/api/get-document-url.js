@@ -18,7 +18,7 @@
  */
 
 import { createClient } from '@supabase/supabase-js'
-import { requireAuth } from '../../lib/supabase-server'
+import { requireAuth, createSessionClient } from '../../lib/supabase-server'
 
 function getServiceClient() {
   return createClient(
@@ -47,18 +47,21 @@ export default async function handler(req, res) {
   }
 
   try {
-    const supabase = getServiceClient()
-
-    // Fetch both file_path (new) and file_url (legacy) — handle either
-    const { data: doc, error: docError } = await supabase
+    // Tenancy: look the document up with the CALLER's session so row-level security
+    // decides whether they may see it (another organization's documents come back empty).
+    const sessionClient = createSessionClient(req, res)
+    const { data: doc, error: docError } = await sessionClient
       .from('documents')
       .select('file_path, file_url, file_name')
       .eq('id', documentId)
-      .single()
+      .maybeSingle()
 
     if (docError || (!doc?.file_path && !doc?.file_url)) {
       return res.status(404).json({ error: 'Document or file not found' })
     }
+
+    // Only now use the service role, solely to sign a URL for a file the caller may see.
+    const supabase = getServiceClient()
 
     // Resolve storage path — prefer file_path (new), fall back to extracting from file_url (legacy)
     let storagePath = doc.file_path || null

@@ -7,7 +7,7 @@
 
 import { IncomingForm } from 'formidable'
 import fs from 'fs'
-import { requireAuth, supabaseAdmin } from '../../lib/supabase-server'
+import { requireAuth, supabaseAdmin, createSessionClient } from '../../lib/supabase-server'
 import Anthropic from '@anthropic-ai/sdk'
 import { enforceRateLimit, validateOrigin } from '../../lib/api-middleware'
 import { features } from '../../lib/features'
@@ -195,6 +195,11 @@ export default async function handler(req, res) {
   const pdfFile = files.file?.[0] || files.file
 
   if (!providerId) return res.status(400).json({ error: 'providerId is required' })
+
+  // Tenancy: the provider must be visible to the caller's session (row-level security).
+  const { data: ownProv } = await createSessionClient(req, res)
+    .from('providers').select('id, org_id').eq('id', providerId).maybeSingle()
+  if (!ownProv) return res.status(404).json({ error: 'Provider not found' })
   if (!pdfFile) return res.status(400).json({ error: 'No PDF file uploaded' })
   if (!PDF_MIME_TYPES.has(pdfFile.mimetype || '')) {
     return res.status(400).json({ error: 'Only PDF uploads are supported.' })
@@ -286,6 +291,7 @@ export default async function handler(req, res) {
   const ml = extractedData.malpractice || {}
 
   const profileRow = {
+    org_id:         ownProv.org_id,
     provider_id:    providerId,
     form_version:   extractedData.form_version || '2025',
     source:         'uploaded',

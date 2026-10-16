@@ -45,6 +45,13 @@ const supabase = createClient(
 // so they are visible under org-scoped RLS policies.
 let _orgId = null
 
+// Read helper scoped to the organization currently being processed (service role bypasses RLS,
+// so every read must filter by org explicitly).
+function orgFrom(table) {
+  const t = supabase.from(table)
+  return { select: (...a) => t.select(...a).eq('org_id', _orgId) }
+}
+
 // ─── Configuration ────────────────────────────────────────────────────────────
 const DEFAULT_ALERT_DAYS = 90   // warn X days before expiry
 const DEFAULT_FOLLOWUP_OVERDUE = 0 // flag follow-ups on or past due date
@@ -79,8 +86,7 @@ function isoToday() {
 
 // Deduplicate: don't create a task if an open one with this dedup key exists
 async function taskExists(dedupKey) {
-  const { data } = await supabase
-    .from('tasks')
+  const { data } = await orgFrom('tasks')
     .select('id')
     .eq('dedup_key', dedupKey)
     .in('status', ['Open', 'In Progress'])
@@ -118,8 +124,7 @@ async function audit(action, detail, entity) {
 
 // ─── Check: Provider credential fields ───────────────────────────────────────
 async function checkProviderExpiries(alertDays, alerts) {
-  const { data: providers, error } = await supabase
-    .from('providers')
+  const { data: providers, error } = await orgFrom('providers')
     .select('id, fname, lname, cred, ' + Object.keys(PROVIDER_EXP_FIELDS).join(', '))
     .eq('status', 'Active')
     .is('deleted_at', null)   // exclude soft-deleted providers
@@ -159,8 +164,7 @@ async function checkProviderExpiries(alertDays, alerts) {
 
 // ─── Check: Documents table ───────────────────────────────────────────────────
 async function checkDocumentExpiries(alertDays, alerts) {
-  const { data: docs, error } = await supabase
-    .from('documents')
+  const { data: docs, error } = await orgFrom('documents')
     .select('id, prov_id, type, issuer, number, exp')
     .not('exp', 'is', null)
     .gte('exp', new Date(Date.now() - 30 * 86_400_000).toISOString().slice(0, 10))
@@ -168,8 +172,7 @@ async function checkDocumentExpiries(alertDays, alerts) {
 
   if (error) throw error
 
-  const { data: providers } = await supabase
-    .from('providers')
+  const { data: providers } = await orgFrom('providers')
     .select('id, fname, lname, cred')
     .is('deleted_at', null)
 
@@ -204,8 +207,7 @@ async function checkDocumentExpiries(alertDays, alerts) {
 
 // ─── Check: Enrollment follow-ups ────────────────────────────────────────────
 async function checkEnrollmentFollowups(alerts) {
-  const { data: enrollments, error } = await supabase
-    .from('enrollments')
+  const { data: enrollments, error } = await orgFrom('enrollments')
     .select('id, prov_id, pay_id, stage, followup')
     .not('followup', 'is', null)
     .lte('followup', isoToday())
@@ -214,11 +216,10 @@ async function checkEnrollmentFollowups(alerts) {
 
   if (error) throw error
 
-  const { data: providers } = await supabase
-    .from('providers')
+  const { data: providers } = await orgFrom('providers')
     .select('id, fname, lname')
     .is('deleted_at', null)
-  const { data: payers } = await supabase.from('payers').select('id, name')
+  const { data: payers } = await orgFrom('payers').select('id, name')
   const provMap  = Object.fromEntries((providers ?? []).map(p => [p.id, p]))
   const payerMap = Object.fromEntries((payers    ?? []).map(p => [p.id, p]))
 
@@ -254,8 +255,7 @@ async function checkCaqhStaleness(alerts) {
   const cutoff = new Date(Date.now() - CAQH_ATTEST_WARNING_DAYS * 86_400_000)
     .toISOString().slice(0, 10)
 
-  const { data: providers, error } = await supabase
-    .from('providers')
+  const { data: providers, error } = await orgFrom('providers')
     .select('id, fname, lname, cred, caqh_attest, caqh_num')
     .eq('status', 'Active')
     .is('deleted_at', null)
@@ -304,8 +304,7 @@ function parseTimelineMaxDays(timelineStr) {
 }
 
 async function checkEnrollmentSlaOverdue(alerts) {
-  const { data: enrollments, error } = await supabase
-    .from('enrollments')
+  const { data: enrollments, error } = await orgFrom('enrollments')
     .select('id, prov_id, pay_id, stage, submitted, timeline')
     .not('submitted', 'is', null)
     .not('stage', 'in', '(Active,Denied,Withdrawn)')
@@ -313,10 +312,8 @@ async function checkEnrollmentSlaOverdue(alerts) {
 
   if (error) throw error
 
-  const { data: providers } = await supabase
-    .from('providers').select('id, fname, lname').is('deleted_at', null)
-  const { data: payers } = await supabase
-    .from('payers').select('id, name')
+  const { data: providers } = await orgFrom('providers').select('id, fname, lname').is('deleted_at', null)
+  const { data: payers } = await orgFrom('payers').select('id, name')
 
   const provMap  = Object.fromEntries((providers ?? []).map(p => [p.id, p]))
   const payerMap = Object.fromEntries((payers    ?? []).map(p => [p.id, p]))
@@ -376,63 +373,58 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Unauthorized' })
   }
 
-  // ─── Phase 2.4: Resolve org_id once for this entire run ──────────────────
-  // Written to all tasks and audit_log entries created during this run so
-  // they are visible to authenticated users under org-scoped RLS policies.
-  // The service role key bypasses RLS here, so the lookup always succeeds
-  // even before org-scoped policies are applied to organization_members.
-  try {
-    const { data: membership } = await supabase
-      .from('organization_members')
-      .select('org_id')
-      .limit(1)
-      .single()
-    _orgId = membership?.org_id ?? null
-  } catch {
-    // No membership row yet — _orgId stays null. Tasks will be created
-    // without org_id until Phase 2.1 (seed org row) is complete.
-    _orgId = null
+  // ─── Multi-organization: run every check once per organization ───────────
+  // The service role bypasses RLS, so each organization is processed on its own and every
+  // read/write is filtered by org_id. Alert window comes from that organization's settings.
+  const { data: orgRows, error: orgErr } = await supabase.from('organizations').select('id, name')
+  let orgList = orgRows || []
+  if (orgErr || orgList.length === 0) {
+    // Migration 014 not applied (or no orgs yet): fall back to the first membership's org.
+    const { data: membership } = await supabase.from('organization_members').select('org_id').limit(1).maybeSingle()
+    orgList = [{ id: membership?.org_id ?? null, name: 'default' }]
   }
-
-  // Fetch alert_days setting from DB (fall back to default)
-  const { data: settings } = await supabase
-    .from('settings')
-    .select('alert_days')
-    .eq('id', 1)
-    .single()
-
-  const alertDays = settings?.alert_days ?? DEFAULT_ALERT_DAYS
 
   const alerts = []
   const errors = []
+  const perOrg = []
 
-  try { await checkProviderExpiries(alertDays, alerts) }
-  catch (e) { errors.push({ check: 'providerExpiries', message: e.message }) }
+  for (const org of orgList) {
+    _orgId = org.id
+    const orgAlerts = []
 
-  try { await checkDocumentExpiries(alertDays, alerts) }
-  catch (e) { errors.push({ check: 'documentExpiries', message: e.message }) }
+    const { data: settings } = await (_orgId
+      ? supabase.from('settings').select('alert_days').eq('org_id', _orgId).maybeSingle()
+      : supabase.from('settings').select('alert_days').limit(1).maybeSingle())
+    const alertDays = settings?.alert_days ?? DEFAULT_ALERT_DAYS
 
-  try { await checkEnrollmentFollowups(alerts) }
-  catch (e) { errors.push({ check: 'enrollmentFollowups', message: e.message }) }
+    const checks = [
+      ['providerExpiries',    () => checkProviderExpiries(alertDays, orgAlerts)],
+      ['documentExpiries',    () => checkDocumentExpiries(alertDays, orgAlerts)],
+      ['enrollmentFollowups', () => checkEnrollmentFollowups(orgAlerts)],
+      ['caqhStaleness',       () => checkCaqhStaleness(orgAlerts)],
+      ['enrollmentSlaOverdue',() => checkEnrollmentSlaOverdue(orgAlerts)],
+    ]
+    for (const [name, fn] of checks) {
+      try { await fn() }
+      catch (e) { errors.push({ org_id: _orgId, check: name, message: e.message }) }
+    }
 
-  try { await checkCaqhStaleness(alerts) }
-  catch (e) { errors.push({ check: 'caqhStaleness', message: e.message }) }
-
-  try { await checkEnrollmentSlaOverdue(alerts) }
-  catch (e) { errors.push({ check: 'enrollmentSlaOverdue', message: e.message }) }
+    const createdHere = orgAlerts.filter(a => a.created === true).length
+    await audit(
+      'Watchdog Run Complete',
+      `${orgAlerts.length} alerts found, ${createdHere} tasks created. Alert window: ${alertDays}d. org: ${org.name}`,
+      'system'
+    )
+    alerts.push(...orgAlerts.map(a => ({ ...a, org_id: _orgId })))
+    perOrg.push({ org_id: _orgId, name: org.name, alerts: orgAlerts.length, tasks_created: createdHere })
+  }
+  _orgId = null
 
   const created = alerts.filter(a => a.created === true).length
 
-  await audit(
-    'Watchdog Run Complete',
-    `${alerts.length} alerts found, ${created} tasks created. Alert window: ${alertDays}d. org_id: ${_orgId ?? 'null'}`,
-    'system'
-  )
-
   return res.status(200).json({
     ran_at:     new Date().toISOString(),
-    alert_days: alertDays,
-    org_id:     _orgId,
+    organizations: perOrg,
     alerts,
     errors,
     summary: {

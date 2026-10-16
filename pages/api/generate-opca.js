@@ -2,7 +2,7 @@
 // POST { profileId, initials }
 // Fetches profile from opca_profiles, fills the real 2025 OPCA PDF, returns download.
 
-import { requireAuth, supabaseAdmin } from '../../lib/supabase-server'
+import { requireAuth, supabaseAdmin, createSessionClient } from '../../lib/supabase-server'
 import { fillOpcaPdf } from '../../lib/opca-pdf-filler'
 import { enforceRateLimit } from '../../lib/api-middleware'
 
@@ -26,7 +26,8 @@ export default async function handler(req, res) {
   }
 
   // Fetch the OPCA profile
-  const { data: profile, error: profileError } = await supabaseAdmin
+  // Tenancy: read the profile with the caller's session so RLS applies.
+  const { data: profile, error: profileError } = await createSessionClient(req, res)
     .from('opca_profiles')
     .select('*')
     .eq('id', profileId)

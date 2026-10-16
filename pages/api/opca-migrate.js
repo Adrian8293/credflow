@@ -3,7 +3,7 @@
 //                       and creates a new 2025 version, flagging gaps.
 // Returns: { newProfileId, summary }
 
-import { requireAuth, supabaseAdmin } from '../../lib/supabase-server'
+import { requireAuth, createSessionClient } from '../../lib/supabase-server'
 import { migrateToOpca2025, buildMigrationSummary } from '../../lib/opca-migrator'
 import { enforceRateLimit } from '../../lib/api-middleware'
 
@@ -20,7 +20,9 @@ export default async function handler(req, res) {
   if (!profileId) return res.status(400).json({ error: 'profileId is required' })
 
   // Fetch source profile
-  const { data: source, error } = await supabaseAdmin
+  // Session client: row-level security limits this to the caller's organization.
+  const db = createSessionClient(req, res)
+  const { data: source, error } = await db
     .from('opca_profiles')
     .select('*')
     .eq('id', profileId)
@@ -39,7 +41,7 @@ export default async function handler(req, res) {
   const summary = buildMigrationSummary(source, result)
 
   // Save migrated profile
-  const { data: saved, error: saveError } = await supabaseAdmin
+  const { data: saved, error: saveError } = await db
     .from('opca_profiles')
     .insert([result.migratedProfile])
     .select()

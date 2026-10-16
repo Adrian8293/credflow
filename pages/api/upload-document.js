@@ -19,6 +19,7 @@ import { IncomingForm } from 'formidable'
 import { fileTypeFromBuffer } from 'file-type'
 import fs from 'fs'
 import { apiHandler, validateOrigin } from '../../lib/api-middleware'
+import { createSessionClient } from '../../lib/supabase-server'
 
 // Service role client — server-side only, never expose to browser
 function getServiceClient() {
@@ -78,6 +79,19 @@ async function uploadDocumentHandler(req, res) {
 
     if (!documentId || !providerId) {
       return res.status(400).json({ error: 'Missing documentId or providerId' })
+    }
+
+    // Tenancy + role check with the CALLER's session (row-level security applies):
+    // the document must be visible to them, belong to the stated provider, and they must be staff.
+    const sessionClient = createSessionClient(req, res)
+    const { data: staffOk } = await sessionClient.rpc('is_org_staff')
+    if (staffOk !== true) {
+      return res.status(403).json({ error: 'You do not have permission to upload documents.' })
+    }
+    const { data: ownDoc } = await sessionClient
+      .from('documents').select('id, prov_id').eq('id', documentId).maybeSingle()
+    if (!ownDoc || ownDoc.prov_id !== providerId) {
+      return res.status(404).json({ error: 'Document not found' })
     }
 
     // formidable stores uploaded files as an array under the field name

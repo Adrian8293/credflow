@@ -40,7 +40,7 @@ export function AppContextProvider({ children }) {
   const { toasts, toast } = useToast()
 
   // ── Core data ────────────────────────────────────────────────────────────
-  const { db, setDb, loading, settingsForm, setSettingsForm } = useAppData(user, toast)
+  const { db, setDb, loading, settingsForm, setSettingsForm, orgs, activeOrg, switchOrg, createOrg } = useAppData(user, toast)
 
   // ── Confirm dialog ────────────────────────────────────────────────────────
   const { confirmDialog, requestConfirm, settleConfirm } = useConfirm()
@@ -96,7 +96,7 @@ export function AppContextProvider({ children }) {
   // ── Stable modal opener helpers ───────────────────────────────────────────
   const openProvDetail   = useCallback((id)        => { setProvDetailId(id); setModal('provDetail') }, [])
   const openAiFollowup   = useCallback((enrollment) => { setAiModalEnrollment(enrollment); setAiModalOpen(true) }, [])
-  const openEnrollModal  = useCallback((id, preProvId) => { enrollments.openEnrollModal(id, preProvId); setModal('enroll') }, [enrollments])
+  const openEnrollModal  = useCallback((id, preProvId, prePayId) => { enrollments.openEnrollModal(id, preProvId, prePayId); setModal('enroll') }, [enrollments])
   const openPayerModal   = useCallback((id)        => { payers.openPayerModal(id); setModal('payer') }, [payers])
   const openDocModal     = useCallback((id)        => { documents.openDocModal(id); setModal('doc') }, [documents])
   const openTaskModal    = useCallback((id)        => { tasks.openTaskModal(id); setModal('task') }, [tasks])
@@ -201,6 +201,9 @@ export function AppContextProvider({ children }) {
     // Filter states (spread from isolated filterValue memo)
     ...filterValue,
 
+    // Organizations (multi-tenant)
+    orgs, activeOrg, switchOrg, createOrg,
+
     // Derived
     alertDays, caqhDays, alertCount, expDocs, provDetail,
 
@@ -215,6 +218,7 @@ export function AppContextProvider({ children }) {
     toasts, toast,
     confirmDialog, requestConfirm, settleConfirm,
     db, setDb, loading, settingsForm, setSettingsForm,
+    orgs, activeOrg, switchOrg, createOrg,
     providers, enrollments, payers, documents, tasks,
     modal, provDetailId, globalSearchOpen,
     aiModalOpen, aiModalEnrollment,

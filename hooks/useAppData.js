@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { loadAll, subscribeToAll, mergeRealtimeChange } from '../lib/db'
 
@@ -19,30 +19,40 @@ export function useAppData(user, toast) {
   const [db, setDb] = useState({
     providers: [], payers: [], enrollments: [], documents: [],
     tasks: [], auditLog: [], settings: {},
-    eligibilityChecks: [], claims: [], denials: [], payments: [],
     providersMeta: { truncated: false, total: 0 },
   })
   const [loading, setLoading]           = useState(true)
   const [settingsForm, setSettingsForm] = useState({})
-  const [orgId, setOrgId]               = useState(null)
+  const [orgs, setOrgs]               = useState([])   // [{ org_id, name, role, is_active }]
 
-  // Resolve the org UUID from organization_members (not user.id)
+  // Organizations this login belongs to (RPC from migration 014). If the migration has not
+  // been run yet the RPC is missing — the app keeps working single-org as before.
   useEffect(() => {
     if (!user) return
-    supabase
-      .from('organization_members')
-      .select('org_id')
-      .eq('user_id', user.id)
-      .limit(1)
-      .single()
-      .then(({ data, error }) => {
-        if (error) {
-          console.warn('[useAppData] Could not resolve orgId:', error.message)
-          return
-        }
-        if (data?.org_id) setOrgId(data.org_id)
-      })
+    supabase.rpc('my_orgs').then(({ data, error }) => {
+      if (error) {
+        console.warn('[useAppData] my_orgs unavailable (run migration 014):', error.message)
+        return
+      }
+      setOrgs(data || [])
+    })
   }, [user])
+
+  const activeOrg = orgs.find(o => o.is_active) || orgs[0] || null
+  const orgId = activeOrg?.org_id ?? null
+
+  // Switching org changes what every query returns, so reload for a clean slate.
+  const switchOrg = useCallback(async (id) => {
+    const { error } = await supabase.rpc('set_active_org', { p_org: id })
+    if (error) { toast('Could not switch organization: ' + error.message, 'error'); return }
+    window.location.assign('/')
+  }, [toast])
+
+  const createOrg = useCallback(async (name) => {
+    const { error } = await supabase.rpc('create_organization', { p_name: name })
+    if (error) { toast('Could not create organization: ' + error.message, 'error'); return }
+    window.location.assign('/groups')
+  }, [toast])
 
   // Initial data load with 10-second failsafe timeout
   useEffect(() => {
@@ -89,5 +99,5 @@ export function useAppData(user, toast) {
     return unsub
   }, [user, orgId])
 
-  return { db, setDb, loading, settingsForm, setSettingsForm }
+  return { db, setDb, loading, settingsForm, setSettingsForm, orgs, activeOrg, orgId, switchOrg, createOrg }
 }

@@ -41,8 +41,6 @@ export function Layout({ children }) {
     if (path === '/documents') return 'documents'
     if (path === '/tasks') return 'tasks'
     if (path === '/alerts') return 'alerts'
-    if (path === '/billing') return 'billing'
-    if (path === '/marketing') return 'marketing'
     if (path === '/reports') return 'reports'
     if (path === '/audit') return 'audit'
     if (path === '/settings') return 'settings'
