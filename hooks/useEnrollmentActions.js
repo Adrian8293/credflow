@@ -84,13 +84,13 @@ export function useEnrollmentActions({ db, setDb, toast, requestConfirm }) {
     } catch(err) { toast('Stage update failed: ' + err.message, 'error') }
   }
 
-  function openEnrollModal(id, preProvId) {
+  function openEnrollModal(id, preProvId, prePayId) {
     setEditingEnrollmentId(id || null)
     if (id) {
       const en = db.enrollments.find(x => x.id === id)
       if (en) setEnrollForm({ ...en })
     } else {
-      setEnrollForm({ stage: 'Not Started', eft: 'Not Set Up', era: 'Not Set Up', contract: 'No', level: 'Individual', provId: preProvId || '', payId: '' })
+      setEnrollForm({ stage: 'Not Started', eft: 'Not Set Up', era: 'Not Set Up', contract: 'No', level: 'Individual', provId: preProvId || '', payId: prePayId || '' })
     }
     // Note: setModal('enroll') is called by the wrapper in index.js — do NOT call it here
   }
