@@ -99,7 +99,9 @@ export default function Login() {
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
       if (error) throw error
-      window.location.href = '/'
+      // Honor ?next=/some/path (internal paths only) so invite links can send people back after sign-in.
+      const next = new URLSearchParams(window.location.search).get('next') || ''
+      window.location.href = next.startsWith('/') && !next.startsWith('//') ? next : '/'
     } catch (err) { setError(err.message) }
     setLoading(false)
   }

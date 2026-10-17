@@ -91,6 +91,7 @@ export default function App({ Component, pageProps }) {
   const isGuestOrSpecialPage = 
     router.pathname === '/login' || 
     router.pathname === '/reset-password' || 
+    router.pathname === '/invite' || 
     router.pathname.startsWith('/review/')
 
   return (

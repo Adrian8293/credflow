@@ -18,13 +18,15 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 
 // Routes that don't require authentication
-const PUBLIC_PATHS = ['/login', '/reset-password']
+const PUBLIC_PATHS = ['/login', '/reset-password', '/invite']
 
 // API routes that are exempt (public data sources, cron jobs)
 const PUBLIC_API_PATHS = [
   '/api/npi',
   '/api/npi-search',
   '/api/watchdog',
+  '/api/invite-info',
+  '/api/accept-invite',
 ]
 
 export async function proxy(req) {

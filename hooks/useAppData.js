@@ -18,12 +18,13 @@ import { loadAll, subscribeToAll, mergeRealtimeChange } from '../lib/db'
 export function useAppData(user, toast) {
   const [db, setDb] = useState({
     providers: [], payers: [], enrollments: [], documents: [],
-    tasks: [], auditLog: [], settings: {},
+    tasks: [], auditLog: [], settings: {}, requests: [],
     providersMeta: { truncated: false, total: 0 },
   })
   const [loading, setLoading]           = useState(true)
   const [settingsForm, setSettingsForm] = useState({})
   const [orgs, setOrgs]               = useState([])   // [{ org_id, name, role, is_active }]
+  const [orgsLoaded, setOrgsLoaded]     = useState(false)
 
   // Organizations this login belongs to (RPC from migration 014). If the migration has not
   // been run yet the RPC is missing — the app keeps working single-org as before.
@@ -32,9 +33,11 @@ export function useAppData(user, toast) {
     supabase.rpc('my_orgs').then(({ data, error }) => {
       if (error) {
         console.warn('[useAppData] my_orgs unavailable (run migration 014):', error.message)
+        setOrgsLoaded(true)
         return
       }
       setOrgs(data || [])
+      setOrgsLoaded(true)
     })
   }, [user])
 
@@ -99,5 +102,5 @@ export function useAppData(user, toast) {
     return unsub
   }, [user, orgId])
 
-  return { db, setDb, loading, settingsForm, setSettingsForm, orgs, activeOrg, orgId, switchOrg, createOrg }
+  return { db, setDb, loading, settingsForm, setSettingsForm, orgs, orgsLoaded, activeOrg, orgId, switchOrg, createOrg }
 }

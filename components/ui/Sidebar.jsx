@@ -7,6 +7,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/router'
 import OrgSwitcher from './OrgSwitcher'
+import { useGlobalContext } from '../../context/AppContext'
 
 const I = {
   dashboard:   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>,
@@ -37,6 +38,8 @@ const ROUTE_MAP = {
   '/documents':   'documents',
   '/tasks':       'tasks',
   '/alerts':      'alerts',
+  '/requests':    'requests',
+  '/access':      'access',
   '/reports':     'reports',
   '/audit':       'audit',
   '/settings':    'settings',
@@ -45,6 +48,9 @@ const ROUTE_MAP = {
 
 export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db }) {
   const router     = useRouter()
+  const { activeOrg } = useGlobalContext()
+  const canManageAccess = activeOrg?.role === 'owner' || activeOrg?.role === 'admin'
+  const reviewCount = (db?.requests || []).filter(r => r.status === 'submitted').length
   const [collapsed, setCollapsed] = useState(false)
 
   // Active detection from router (preferred) with fallback to prop
@@ -91,6 +97,11 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db 
         )}
       </div>
     )
+  }
+
+  function sectionLabel(text) {
+    if (collapsed) return <div className="sb-group-divider" style={{ margin: '6px 10px' }} />
+    return <div style={{ padding: '12px 14px 4px', fontSize: 10.5, fontWeight: 700, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--sb-text-3, #8A90A6)' }}>{text}</div>
   }
 
   return (
@@ -144,20 +155,25 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db 
       {/* ── Navigation ── */}
       <div className="sb-nav" role="menu">
         {navItem('dashboard',    'Dashboard',    I.dashboard)}
-        {navItem('providers',    'Providers',    I.providers)}
-        {navItem('enrollments',    'Applications', I.applications)}
-        {navItem('payers',       'Payers',       I.payers)}
-        {navItem('groups',       'Groups',       I.providers)}
-        {navItem('matrix',       'Billing Matrix', I.payers)}
-        {navItem('documents',    'Documents',    I.documents, expDocs, false)}
+
+        {sectionLabel('Work')}
+        {navItem('enrollments',  'Applications', I.applications)}
+        {navItem('requests',     'Requests',     I.documents, reviewCount, false)}
         {navItem('tasks',        'Tasks',        I.tasks,     taskCount, overdueTaskCount > 0)}
         {navItem('alerts',       'Alerts',       I.alerts,    alertCount, false)}
 
-        <div className="sb-group-divider" style={{ margin: '6px 10px' }} />
+        {sectionLabel('People & payers')}
+        {navItem('providers',    'Providers',    I.providers)}
+        {navItem('payers',       'Payers',       I.payers)}
+        {navItem('groups',       'Groups',       I.providers)}
+        {navItem('matrix',       'Billing Matrix', I.payers)}
 
-        {navItem('reports',   'Reports',    I.reports)}
-        {navItem('audit',     'Audit Trail',I.audit)}
-        {navItem('settings',  'Settings',   I.settings)}
+        {sectionLabel('Records')}
+        {navItem('documents',    'Documents',    I.documents, expDocs, false)}
+        {navItem('reports',      'Reports',      I.reports)}
+        {navItem('audit',        'Audit Trail',  I.audit)}
+        {canManageAccess && navItem('access', 'Access', I.providers)}
+        {navItem('settings',     'Settings',     I.settings)}
       </div>
 
       {/* ── Footer ── */}

@@ -16,7 +16,7 @@ import { GlobalSearch } from './GlobalSearch.jsx'
 export function Layout({ children }) {
   const router = useRouter()
   const {
-    user, authLoading, signOut, db, loading, setPage,
+    user, authLoading, signOut, db, loading, setPage, activeOrg, orgsLoaded,
     toasts, toast,
     confirmDialog, settleConfirm,
     modal, setModal,
@@ -56,7 +56,16 @@ export function Layout({ children }) {
     }
   }, [user, authLoading, router])
 
-  if (authLoading || loading) {
+  // Providers and clinic staff only get the portal; staff never sit on the portal page.
+  const role = activeOrg?.role
+  const isPortalRole = role === 'provider' || role === 'clinic_staff'
+  useEffect(() => {
+    if (!user || !orgsLoaded || !role) return
+    if (isPortalRole && router.pathname !== '/portal') router.replace('/portal')
+    if (!isPortalRole && router.pathname === '/portal') router.replace('/')
+  }, [user, orgsLoaded, role, isPortalRole, router])
+
+  if (authLoading || (user && !orgsLoaded) || (loading && !isPortalRole)) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter,sans-serif', color: '#6B7280', flexDirection: 'column', gap: 12 }}>
         <div style={{ width: 36, height: 36, border: '3px solid #E5E7EB', borderTopColor: '#1565C0', borderRadius: '50%', animation: 'spin .65s linear infinite' }} />
@@ -66,6 +75,10 @@ export function Layout({ children }) {
   }
 
   if (!user) return null
+
+  // Portal roles never see the staff chrome (sidebar, modals, staff data).
+  if (isPortalRole) return router.pathname === '/portal' ? <>{children}</> : null
+  if (router.pathname === '/portal') return null
 
   return (
     <div className="app-root">

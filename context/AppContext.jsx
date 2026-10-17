@@ -40,7 +40,7 @@ export function AppContextProvider({ children }) {
   const { toasts, toast } = useToast()
 
   // ── Core data ────────────────────────────────────────────────────────────
-  const { db, setDb, loading, settingsForm, setSettingsForm, orgs, activeOrg, switchOrg, createOrg } = useAppData(user, toast)
+  const { db, setDb, loading, settingsForm, setSettingsForm, orgs, orgsLoaded, activeOrg, switchOrg, createOrg } = useAppData(user, toast)
 
   // ── Confirm dialog ────────────────────────────────────────────────────────
   const { confirmDialog, requestConfirm, settleConfirm } = useConfirm()
@@ -202,7 +202,7 @@ export function AppContextProvider({ children }) {
     ...filterValue,
 
     // Organizations (multi-tenant)
-    orgs, activeOrg, switchOrg, createOrg,
+    orgs, orgsLoaded, activeOrg, switchOrg, createOrg,
 
     // Derived
     alertDays, caqhDays, alertCount, expDocs, provDetail,
@@ -218,7 +218,7 @@ export function AppContextProvider({ children }) {
     toasts, toast,
     confirmDialog, requestConfirm, settleConfirm,
     db, setDb, loading, settingsForm, setSettingsForm,
-    orgs, activeOrg, switchOrg, createOrg,
+    orgs, orgsLoaded, activeOrg, switchOrg, createOrg,
     providers, enrollments, payers, documents, tasks,
     modal, provDetailId, globalSearchOpen,
     aiModalOpen, aiModalEnrollment,
