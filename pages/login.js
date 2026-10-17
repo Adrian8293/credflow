@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import Head from 'next/head'
 
@@ -20,6 +20,9 @@ export default function Login() {
   const [loading, setLoading]       = useState(false)
   const [error, setError]           = useState('')
   const [success, setSuccess]       = useState('')
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('reason') === 'idle') setSuccess('You were signed out after 30 minutes of inactivity. Please sign in again.')
+  }, [])
 
   function switchMode(m) {
     setMode(m); setStep(1); setError(''); setSuccess('')

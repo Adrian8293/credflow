@@ -13,6 +13,7 @@ const Icon = {
   plug:     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
 }
 
+import { MfaSetup } from '../security/MfaSetup.jsx'
 import { useState } from 'react'
 
 function SectionHeader({ icon, title, subtitle }) {
@@ -127,10 +128,6 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
               </div>
               <div style={{ marginTop: 16 }}>
                 <Toggle label="Deadline alert emails (30, 14, 7, 3, 1 and 0 days before)" checked={nb('emailExpiry')} onChange={v => set('emailExpiry', v)} />
-                <Toggle label="Task due-date reminders" checked={nb('taskReminders')} onChange={v => set('taskReminders', v)} />
-                <Toggle label="Document upload confirmations" checked={nb('docExpiry')} onChange={v => set('docExpiry', v)} />
-                <Toggle label="Enable audit log" checked={nb('enableAuditLog')} onChange={v => set('enableAuditLog', v)} />
-                <Toggle label="Two-factor authentication" checked={f('twoFactor') === true} onChange={v => set('twoFactor', v)} />
               </div>
               <button className="btn btn-primary mt-12" onClick={handleSaveSettings}>Save Changes</button>
             </div>
@@ -206,17 +203,12 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
       {activeTab === 'Notifications' && (
         <div className="card">
           <div className="card-header">
-            <SectionHeader icon={Icon.bell} title="Notification Preferences" subtitle="Choose when and how Lacentra alerts your team." />
+            <SectionHeader icon={Icon.bell} title="Notification Preferences" subtitle="Email alerts need the optional email setup (FEATURE_EMAIL_DIGEST). In-app alerts are always on." />
           </div>
           <div className="card-body">
             <div style={{ display: 'grid', gap: 0 }}>
               <Toggle label="Deadline alert emails (30, 14, 7, 3, 1 and 0 days before)" checked={nb('emailExpiry')} onChange={v => set('emailExpiry', v)} />
-              <Toggle label="CAQH attestation due reminders" checked={nb('caqhReminders')} onChange={v => set('caqhReminders', v)} />
-              <Toggle label="Application status change alerts" checked={nb('appStatusAlerts')} onChange={v => set('appStatusAlerts', v)} />
-              <Toggle label="Task overdue notifications" checked={nb('taskReminders')} onChange={v => set('taskReminders', v)} />
-              <Toggle label="Document upload confirmations" checked={nb('docExpiry')} onChange={v => set('docExpiry', v)} />
               <Toggle label="Weekly credentialing digest email (Mondays)" checked={nb('weeklyDigest')} onChange={v => set('weeklyDigest', v)} />
-              <Toggle label="New provider onboarding checklist" checked={nb('onboardingChecklist')} onChange={v => set('onboardingChecklist', v)} />
             </div>
             <button className="btn btn-primary mt-12" onClick={handleSaveSettings}>Save Preferences</button>
           </div>
@@ -259,11 +251,13 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
               <SectionHeader icon={Icon.lock} title="Security Settings" subtitle="Protect your Lacentra workspace." />
             </div>
             <div className="card-body">
-              <Toggle label="Two-factor authentication (2FA)" checked={f('twoFactor') === true} onChange={v => set('twoFactor', v)} />
-              <Toggle label="Enable audit log" checked={nb('enableAuditLog')} onChange={v => set('enableAuditLog', v)} />
-              <Toggle label="Session timeout (30 min)" checked={nb('sessionTimeout')} onChange={v => set('sessionTimeout', v)} />
-              <Toggle label="IP allowlist enforcement" checked={f('ipAllowlist') === true} onChange={v => set('ipAllowlist', v)} />
-              <button className="btn btn-primary mt-12">Save Security Settings</button>
+              <MfaSetup />
+              <hr style={{ border: 'none', borderTop: '1px solid var(--border-l)', margin: '18px 0' }} />
+              <Toggle label="Sign out automatically after 30 minutes of inactivity" checked={nb('sessionTimeout')} onChange={v => set('sessionTimeout', v)} />
+              <p style={{ fontSize: 12, color: 'var(--text-4)', lineHeight: 1.5, margin: '4px 0 0' }}>
+                Applies to everyone in this organization. The audit log is always on and cannot be switched off.
+              </p>
+              <button className="btn btn-primary mt-12" onClick={handleSaveSettings}>Save Security Settings</button>
             </div>
           </div>
           <div className="card">
