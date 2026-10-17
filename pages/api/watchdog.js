@@ -33,6 +33,9 @@
 import { createClient } from '@supabase/supabase-js'
 import { timingSafeEqual } from 'crypto'
 import { enforceRateLimit } from '../../lib/api-middleware'
+import { features } from '../../lib/features'
+import { sendEmail } from '../../lib/mailer'
+import { buildDigest } from '../../lib/digest'
 
 // Use service-role key so we bypass RLS (this is a server-only route)
 const supabase = createClient(
@@ -197,6 +200,56 @@ async function checkStateLicenseExpiries(alertDays, alerts) {
     if (created) await audit('Task Created', taskText, prov.id)
     alerts.push({ type: 'license', severity: days <= 0 ? 'EXPIRED' : days <= 14 ? 'CRITICAL' : days <= 30 ? 'HIGH' : 'WARNING', provId: prov.id, provName: name, label, days, created })
   }
+}
+
+// ─── Email digest (FEATURE_EMAIL_DIGEST) ─────────────────────────────────────
+// Monday: full weekly digest (Settings → "Weekly credentialing digest").
+// Other days: only deadlines that hit a milestone today (Settings → "expiration emails"), so nobody gets the
+// same overdue item every morning. At most one digest per org per day (audit_log guard); ?digest=now forces one.
+async function sendOrgDigest(org, alertDays, settings, force) {
+  if (!features.emailDigest()) return { skipped: 'feature off' }
+  const today = isoToday()
+  const monday = new Date().getUTCDay() === 1
+  const weeklyOn = settings?.weekly_digest !== false
+  const urgentOn = settings?.email_expiry !== false
+  const mode = force || monday ? 'weekly' : 'urgent'
+  if (!force && !(monday && weeklyOn) && !(!monday && urgentOn)) return { skipped: 'turned off in settings' }
+
+  if (!force) {
+    const { data: already } = await orgFrom('audit_log').select('id').eq('type', 'Digest').gte('ts', `${today}T00:00:00Z`).limit(1)
+    if (already?.length) return { skipped: 'already sent today' }
+  }
+
+  const soon = new Date(Date.now() + 3 * 86_400_000).toISOString().slice(0, 10)
+  const [prov, lic, tasks, enr, reqs, pay] = await Promise.all([
+    orgFrom('providers').select('id, fname, lname, cred, ' + Object.keys(PROVIDER_EXP_FIELDS).join(', ')).eq('status', 'Active').is('deleted_at', null),
+    orgFrom('provider_licenses').select('provider_id, state, license_type, expires, status').is('deleted_at', null),
+    orgFrom('tasks').select('prov_id, task, due, status').neq('status', 'Done').is('deleted_at', null).lte('due', soon),
+    orgFrom('enrollments').select('prov_id, pay_id, stage, followup').not('followup', 'is', null).lte('followup', soon).is('deleted_at', null),
+    orgFrom('doc_requests').select('status').eq('status', 'submitted').is('deleted_at', null),
+    orgFrom('payers').select('id, name').is('deleted_at', null),
+  ])
+  if (prov.error) throw prov.error
+  const digest = buildDigest({
+    orgName: org.name, appUrl: process.env.NEXT_PUBLIC_APP_URL, todayISO: today, alertDays, mode,
+    providers: prov.data || [], licenses: lic.error ? [] : lic.data || [], tasks: tasks.data || [],
+    enrollments: enr.data || [], requests: reqs.error ? [] : reqs.data || [], payers: pay.data || [],
+  })
+  if (mode === 'urgent' && digest.items.length === 0) return { skipped: 'nothing at a milestone today' }
+
+  const { data: members } = await supabase.from('organization_members').select('user_id').eq('org_id', org.id).in('role', ['owner', 'admin'])
+  const emails = new Set()
+  for (const m of members || []) {
+    const { data } = await supabase.auth.admin.getUserById(m.user_id)
+    if (data?.user?.email) emails.add(data.user.email)
+  }
+  if (!emails.size) return { skipped: 'no owner/admin emails' }
+
+  // One email per recipient so addresses are never exposed to each other.
+  let sent = 0
+  for (const to of emails) { await sendEmail({ to, subject: digest.subject, html: digest.html, text: digest.text }); sent++ }
+  await supabase.from('audit_log').insert([{ type: 'Digest', action: mode === 'weekly' ? 'Weekly digest sent' : 'Milestone alert sent', detail: `${digest.items.length} item(s) to ${sent} recipient(s)`, entity: 'system', org_id: org.id }])
+  return { sent, items: digest.items.length, mode }
 }
 
 // ─── Check: Documents table ───────────────────────────────────────────────────
@@ -424,14 +477,15 @@ export default async function handler(req, res) {
   const alerts = []
   const errors = []
   const perOrg = []
+  const digests = []
 
   for (const org of orgList) {
     _orgId = org.id
     const orgAlerts = []
 
     const { data: settings } = await (_orgId
-      ? supabase.from('settings').select('alert_days').eq('org_id', _orgId).maybeSingle()
-      : supabase.from('settings').select('alert_days').limit(1).maybeSingle())
+      ? supabase.from('settings').select('*').eq('org_id', _orgId).maybeSingle()
+      : supabase.from('settings').select('*').limit(1).maybeSingle())
     const alertDays = settings?.alert_days ?? DEFAULT_ALERT_DAYS
 
     const checks = [
@@ -441,6 +495,7 @@ export default async function handler(req, res) {
       ['enrollmentFollowups', () => checkEnrollmentFollowups(orgAlerts)],
       ['caqhStaleness',       () => checkCaqhStaleness(orgAlerts)],
       ['enrollmentSlaOverdue',() => checkEnrollmentSlaOverdue(orgAlerts)],
+      ['emailDigest',          async () => { digests.push({ org_id: _orgId, ...(await sendOrgDigest(org, alertDays, settings, req.query.digest === 'now')) }) }],
     ]
     for (const [name, fn] of checks) {
       try { await fn() }
@@ -463,6 +518,7 @@ export default async function handler(req, res) {
   return res.status(200).json({
     ran_at:     new Date().toISOString(),
     organizations: perOrg,
+    digests,
     alerts,
     errors,
     summary: {

@@ -126,7 +126,7 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
                 </div>
               </div>
               <div style={{ marginTop: 16 }}>
-                <Toggle label="Document / credential expiration emails" checked={nb('emailExpiry')} onChange={v => set('emailExpiry', v)} />
+                <Toggle label="Deadline alert emails (30, 14, 7, 3, 1 and 0 days before)" checked={nb('emailExpiry')} onChange={v => set('emailExpiry', v)} />
                 <Toggle label="Task due-date reminders" checked={nb('taskReminders')} onChange={v => set('taskReminders', v)} />
                 <Toggle label="Document upload confirmations" checked={nb('docExpiry')} onChange={v => set('docExpiry', v)} />
                 <Toggle label="Enable audit log" checked={nb('enableAuditLog')} onChange={v => set('enableAuditLog', v)} />
@@ -210,12 +210,12 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
           </div>
           <div className="card-body">
             <div style={{ display: 'grid', gap: 0 }}>
-              <Toggle label="License / Malpractice expiration emails" checked={nb('emailExpiry')} onChange={v => set('emailExpiry', v)} />
+              <Toggle label="Deadline alert emails (30, 14, 7, 3, 1 and 0 days before)" checked={nb('emailExpiry')} onChange={v => set('emailExpiry', v)} />
               <Toggle label="CAQH attestation due reminders" checked={nb('caqhReminders')} onChange={v => set('caqhReminders', v)} />
               <Toggle label="Application status change alerts" checked={nb('appStatusAlerts')} onChange={v => set('appStatusAlerts', v)} />
               <Toggle label="Task overdue notifications" checked={nb('taskReminders')} onChange={v => set('taskReminders', v)} />
               <Toggle label="Document upload confirmations" checked={nb('docExpiry')} onChange={v => set('docExpiry', v)} />
-              <Toggle label="Weekly credentialing digest" checked={nb('weeklyDigest')} onChange={v => set('weeklyDigest', v)} />
+              <Toggle label="Weekly credentialing digest email (Mondays)" checked={nb('weeklyDigest')} onChange={v => set('weeklyDigest', v)} />
               <Toggle label="New provider onboarding checklist" checked={nb('onboardingChecklist')} onChange={v => set('onboardingChecklist', v)} />
             </div>
             <button className="btn btn-primary mt-12" onClick={handleSaveSettings}>Save Preferences</button>
