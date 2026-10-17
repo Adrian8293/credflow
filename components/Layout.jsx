@@ -169,6 +169,8 @@ export function Layout({ children }) {
           openEnrollModal={openEnrollModal}
           toast={toast}
           syncFromNPPES={providers.syncFromNPPES}
+          onSaveLicense={providers.handleSaveLicense}
+          onDeleteLicense={providers.handleDeleteLicense}
         />
       )}
       {providers.npiSyncModal && (

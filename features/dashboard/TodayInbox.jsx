@@ -12,7 +12,7 @@ const SEV_BADGE = {
   notice:   { cls: 'b-gray',  dot: 'info',     label: 'Upcoming' },
 }
 const KIND_LABEL = {
-  credential: 'Credential', task: 'Task', followup: 'Follow-up', 'enr-recred': 'Re-credential',
+  credential: 'Credential', 'license-gap': 'License gap', task: 'Task', followup: 'Follow-up', 'enr-recred': 'Re-credential',
   'enr-term': 'Termination', 'req-review': 'Review upload', 'req-overdue': 'Requested doc',
 }
 const PAGE = 8

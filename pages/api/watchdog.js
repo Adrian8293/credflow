@@ -162,6 +162,43 @@ async function checkProviderExpiries(alertDays, alerts) {
   }
 }
 
+// ─── Check: additional state licenses (provider_licenses, migration 016) ────
+async function checkStateLicenseExpiries(alertDays, alerts) {
+  const { data: rows, error } = await orgFrom('provider_licenses')
+    .select('id, provider_id, state, license_type, expires, status')
+    .not('expires', 'is', null)
+    .neq('status', 'Inactive')
+    .is('deleted_at', null)
+  if (error) {
+    if (/provider_licenses|schema cache|does not exist/i.test(error.message || '')) return   // migration 016 not run yet
+    throw error
+  }
+  if (!rows?.length) return
+
+  const { data: providers } = await orgFrom('providers')
+    .select('id, fname, lname, cred').eq('status', 'Active').is('deleted_at', null)
+  const provMap = Object.fromEntries((providers ?? []).map(p => [p.id, p]))
+
+  for (const l of rows) {
+    const prov = provMap[l.provider_id]
+    if (!prov) continue
+    const days = daysUntil(l.expires)
+    if (days === null || days > alertDays) continue
+    const name  = `${prov.lname}, ${prov.fname}${prov.cred ? ` ${prov.cred}` : ''}`
+    const label = `${l.state} License${l.license_type ? ` (${l.license_type})` : ''}`
+    const priority = days <= 0 ? 'Urgent' : days <= 30 ? 'High' : 'Medium'
+    const taskText = days <= 0
+      ? `⚠️ EXPIRED: ${label} for ${name} expired ${Math.abs(days)}d ago`
+      : `🔔 ${label} expiring in ${days}d — ${name}`
+    const created = await createTask({
+      task: taskText, due: l.expires, priority, cat: 'Credential Expiry', provId: prov.id,
+      dedupKey: `watchdog:license:${l.id}:${l.expires}`,
+    })
+    if (created) await audit('Task Created', taskText, prov.id)
+    alerts.push({ type: 'license', severity: days <= 0 ? 'EXPIRED' : days <= 14 ? 'CRITICAL' : days <= 30 ? 'HIGH' : 'WARNING', provId: prov.id, provName: name, label, days, created })
+  }
+}
+
 // ─── Check: Documents table ───────────────────────────────────────────────────
 async function checkDocumentExpiries(alertDays, alerts) {
   const { data: docs, error } = await orgFrom('documents')
@@ -399,6 +436,7 @@ export default async function handler(req, res) {
 
     const checks = [
       ['providerExpiries',    () => checkProviderExpiries(alertDays, orgAlerts)],
+      ['stateLicenseExpiries', () => checkStateLicenseExpiries(alertDays, orgAlerts)],
       ['documentExpiries',    () => checkDocumentExpiries(alertDays, orgAlerts)],
       ['enrollmentFollowups', () => checkEnrollmentFollowups(orgAlerts)],
       ['caqhStaleness',       () => checkCaqhStaleness(orgAlerts)],

@@ -12,6 +12,7 @@
 import { useState } from 'react'
 import { daysUntil, fmtDate, fmtTS } from '../../lib/helpers.js'
 import OpcaUploadPanel from '../../components/OpcaUploadPanel'
+import { LicensesSection } from './LicensesSection.jsx'
 
 // ─── SPECIALTY COLOR MAP ───────────────────────────────────────────────────────
 const SPEC_COLORS = {
@@ -365,16 +366,18 @@ function OverviewTab({ prov, db, openEnrollModal }) {
 }
 
 // ─── CREDENTIALS TAB ─────────────────────────────────────────────────────────
-function CredentialsTab({ prov, onEdit }) {
+function CredentialsTab({ prov, db, onEdit, onSaveLicense, onDeleteLicense }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
 
-      {/* Licenses & expiry */}
+      {/* State licenses: primary + every additional state */}
+      <LicensesSection prov={prov} db={db} onEditPrimary={onEdit} onSave={onSaveLicense} onDelete={onDeleteLicense} />
+
+      {/* Other credentials & expiry */}
       <div>
-        <SectionEyebrow label="Licenses & Expiry Dates" />
+        <SectionEyebrow label="Other Credentials & Expiry Dates" />
         <div className="grid-2" style={{ gap: 10 }}>
           <CredCard label="NPI Number"          value={prov.npi}        mono editAction={onEdit} />
-          <CredCard label="State License #"     value={prov.license}    expDate={prov.licenseExp} editAction={onEdit} />
           <CredCard label="Malpractice Carrier" value={prov.malCarrier} />
           <CredCard label="Malpractice Policy"  value={prov.malPolicy}  expDate={prov.malExp} editAction={onEdit} />
           <CredCard label="DEA Registration #"  value={prov.dea}        expDate={prov.deaExp} mono editAction={onEdit} />
@@ -543,7 +546,7 @@ function DocumentsTab({ prov, db }) {
 }
 
 // ─── MAIN MODAL ───────────────────────────────────────────────────────────────
-export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollModal, toast, syncFromNPPES }) {
+export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollModal, toast, syncFromNPPES, onSaveLicense, onDeleteLicense }) {
   const [tab, setTab] = useState('overview')
 
   if (!prov) return null
@@ -560,7 +563,8 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
   // ── Build credential alerts ─────────────────────────────────────────────────
   const credAlerts = []
   const CRED_FIELDS = [
-    { field: prov.licenseExp, label: 'State License' },
+    { field: prov.licenseExp, label: `State License${prov.licenseState ? ` (${prov.licenseState})` : ''}` },
+    ...(db.licenses || []).filter(l => l.provId === prov.id && l.status !== 'Inactive').map(l => ({ field: l.expires, label: `${l.state} License` })),
     { field: prov.malExp,     label: 'Malpractice Insurance' },
     { field: prov.deaExp,     label: 'DEA Registration' },
     { field: prov.caqhDue,   label: 'CAQH Attestation' },
@@ -685,7 +689,7 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
         {/* ── Scrollable body ────────────────────────────────────────────── */}
         <div className="drawer-body" role="tabpanel">
           {tab === 'overview'    && <OverviewTab     prov={prov} db={db} openEnrollModal={openEnrollModal} />}
-          {tab === 'credentials' && <CredentialsTab  prov={prov} onEdit={() => editProvider?.(prov.id)} />}
+          {tab === 'credentials' && <CredentialsTab  prov={prov} db={db} onEdit={() => editProvider?.(prov.id)} onSaveLicense={onSaveLicense} onDeleteLicense={onDeleteLicense} />}
           {tab === 'enrollments' && <EnrollmentsTab  prov={prov} db={db} openEnrollModal={openEnrollModal} />}
           {tab === 'tasks'       && <TasksTab        prov={prov} db={db} />}
           {tab === 'documents'   && <DocumentsTab    prov={prov} db={db} />}

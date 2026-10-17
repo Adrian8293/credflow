@@ -17,6 +17,7 @@
  *   />
  */
 
+import { US_STATES } from '../../constants/usStates.js'
 import { useState, useCallback, useEffect } from 'react'
 import { NpiLookupPanel } from './NpiLookupPanel.jsx'
 
@@ -315,6 +316,12 @@ export function AddProviderDrawer({
             <Divider label="State License" />
             <Field label="License Number">
               {inp('license', 'C12345')}
+            </Field>
+            <Field label="License State" hint="Add more states from the provider's Credentials tab">
+              <select value={f('licenseState')} onChange={e => set('licenseState', e.target.value)}>
+                <option value="">Select…</option>
+                {US_STATES.map(s => <option key={s}>{s}</option>)}
+              </select>
             </Field>
             <Field label="Expiration Date" required error={errors.licenseExp}>
               {inp('licenseExp', '', 'date')}

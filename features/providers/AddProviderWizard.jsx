@@ -18,6 +18,7 @@
  * Usage: Drop-in replacement. Same props as AddProvider.jsx.
  */
 
+import { US_STATES } from '../../constants/usStates.js'
 import { useState, useCallback } from 'react'
 import { NpiLookupPanel } from './NpiLookupPanel.jsx'
 
@@ -314,6 +315,12 @@ export function AddProviderWizard({
               <Field label="State License Number" required>
                 {inp('license', 'C12345')}
                 {errors.licenseExp && <div style={{ color: 'var(--danger)', fontSize: 11, marginTop: 3 }}>Expiration date required</div>}
+              </Field>
+              <Field label="License State" hint="Add more states later from the Credentials tab">
+                <select value={f('licenseState')} onChange={e => set('licenseState', e.target.value)}>
+                  <option value="">Select…</option>
+                  {US_STATES.map(s => <option key={s}>{s}</option>)}
+                </select>
               </Field>
               <Field label="License Expiration" required>
                 {inp('licenseExp', '', 'date')}

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import {
   upsertProvider, deleteProvider,
   uploadProviderPhoto, deleteProviderPhoto,
-  addAudit,
+  addAudit, saveLicense, deleteLicense,
 } from '../lib/db'
 
 /**
@@ -50,6 +50,33 @@ export function useProviderActions({ db, setDb, toast, requestConfirm, setPage }
       }))
       toast('Photo removed.', 'warn')
     } catch(err) { toast(err.message, 'error') }
+  }
+
+  // Additional state licenses (primary license lives on the provider record itself)
+  async function handleSaveLicense(license) {
+    try {
+      const saved = await saveLicense(license)
+      setDb(prev => {
+        const list = prev.licenses || []
+        const exists = list.some(l => l.id === saved.id)
+        return { ...prev, licenses: exists ? list.map(l => l.id === saved.id ? saved : l) : [...list, saved] }
+      })
+      toast(`${saved.state} license saved.`, 'success')
+      return saved
+    } catch (err) { toast(err.message, 'error'); return null }
+  }
+
+  async function handleDeleteLicense(license) {
+    if (!(await requestConfirm({
+      title: 'Remove license',
+      body: `Remove the ${license.state} ${license.licenseType || ''} license from this provider? Expiry alerts for it will stop.`,
+      confirmText: 'Remove', danger: true,
+    }))) return
+    try {
+      await deleteLicense(license.id, license.provId)
+      setDb(prev => ({ ...prev, licenses: (prev.licenses || []).filter(l => l.id !== license.id) }))
+      toast('License removed.', 'warn')
+    } catch (err) { toast(err.message, 'error') }
   }
 
   async function handleSaveProvider() {
@@ -252,6 +279,7 @@ export function useProviderActions({ db, setDb, toast, requestConfirm, setPage }
     npiSyncModal, setNpiSyncModal,
     handlePhotoUpload, handleDeletePhoto,
     handleSaveProvider, handleDeleteProvider,
+    handleSaveLicense, handleDeleteLicense,
     handleAlertMarkDone,
     lookupNPI, syncFromNPPES, applyNpiSync,
     editProvider,
