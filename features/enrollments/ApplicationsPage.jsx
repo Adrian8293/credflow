@@ -2,7 +2,8 @@
  * ApplicationsPage.jsx — Lacentra
  * Features:
  *  1. Inline stage progression — one-click "→ Next Stage" from row
- *  2. Bulk actions — select rows to bulk-update stage or delete
+ *  2. Bulk actions — stage, follow-up date, export, delete; one confirmation, batched, audited per row;
+ *     selection is cleared when filters change and can span every page of the current view
  *  3. Loading skeleton while data loads
  *  4. Pagination via usePagination hook (25 per page)
  */
@@ -70,11 +71,13 @@ function exportEnrollmentsCSV(filtered, providers, payers) {
   a.click(); URL.revokeObjectURL(url)
 }
 
-export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStage, setFStage, fProv, setFProv, handleDeleteEnrollment, onDraftEmail, handleStageChange, loading }) {
+export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStage, setFStage, fProv, setFProv, handleDeleteEnrollment, onDraftEmail, handleStageChange, handleBulkStage, handleBulkFollowup, handleBulkDelete, loading }) {
   const [subtab, setSubtab]       = useState('All Applications')
   const [menuOpen, setMenuOpen]   = useState(null)
   const [selected, setSelected]   = useState(new Set())
   const [bulkStage, setBulkStage] = useState('')
+  const [bulkDate, setBulkDate]   = useState('')
+  const [bulkBusy, setBulkBusy]   = useState(false)
   const [fLevel, setFLevel]     = useState('')
   const [advancing, setAdvancing] = useState(null)
   const menuRef = useRef(null)
@@ -113,6 +116,11 @@ export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStag
 
   // Reset to page 1 when filters change
   useEffect(() => { pagination.setPage(1) }, [search, fStage, fProv, subtab]) // pagination.setPage is stable (from usePagination)
+  // Selection never outlives the view it was made in: changing a filter clears it, so a bulk action can
+  // never touch rows the user cannot see.
+  useEffect(() => { setSelected(new Set()) }, [search, fStage, fProv, fLevel, subtab])
+  const visibleIds = new Set(list.map(e => e.id))
+  const selectedIds = [...selected].filter(id => visibleIds.has(id))
 
   function tabCount(t) {
     const stages = STAGE_TO_TAB[t]
@@ -121,7 +129,8 @@ export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStag
   }
 
   const allSelected  = pagedList.length > 0 && pagedList.every(e => selected.has(e.id))
-  const someSelected = pagedList.some(e => selected.has(e.id))
+  const someSelected = selectedIds.length > 0
+  const allMatchingSelected = list.length > 0 && selectedIds.length === list.length
 
   function toggleAll() {
     if (allSelected) setSelected(new Set())
@@ -132,16 +141,17 @@ export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStag
     setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n })
   }
 
-  async function handleBulkStage() {
-    if (!bulkStage || selected.size === 0) return
-    for (const id of selected) { await handleStageChange?.(id, bulkStage) }
-    setSelected(new Set()); setBulkStage('')
+  async function runBulk(fn, reset) {
+    if (bulkBusy || !selectedIds.length) return
+    setBulkBusy(true)
+    const ok = await fn()
+    setBulkBusy(false)
+    if (ok) { setSelected(new Set()); reset?.() }
   }
-
-  async function handleBulkDelete() {
-    for (const id of [...selected]) { await handleDeleteEnrollment(id) }
-    setSelected(new Set())
-  }
+  const onBulkStage    = () => bulkStage && runBulk(() => handleBulkStage(selectedIds, bulkStage), () => setBulkStage(''))
+  const onBulkFollowup = (clear) => runBulk(() => handleBulkFollowup(selectedIds, clear ? '' : bulkDate), () => setBulkDate(''))
+  const onBulkDelete   = () => runBulk(() => handleBulkDelete(selectedIds))
+  const onBulkExport   = () => exportEnrollmentsCSV(list.filter(e => selected.has(e.id)), db.providers, db.payers)
 
   async function handleAdvance(ev, enrollment) {
     ev.stopPropagation()
@@ -228,17 +238,38 @@ export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStag
 
       {/* Bulk action bar */}
       {someSelected && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 14px', background: 'rgba(21,101,192,.06)', border: '1.5px solid var(--pr)', borderRadius: 'var(--r)', marginBottom: 10, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--pr)' }}>{selected.size} selected</span>
-          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-            <select className="filter-select" style={{ fontSize: 12, height: 30 }} value={bulkStage} onChange={e => setBulkStage(e.target.value)}>
-              <option value="">Move to stage…</option>
-              {STAGES.map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
-            <button className="btn btn-primary btn-sm" disabled={!bulkStage} onClick={handleBulkStage} style={{ fontSize: 12, height: 30 }}>Apply</button>
+        <div style={{ padding: '10px 14px', background: 'rgba(21,101,192,.06)', border: '1.5px solid var(--pr)', borderRadius: 'var(--r)', marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--pr)' }}>{selectedIds.length} selected</span>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <select className="filter-select" style={{ fontSize: 12, height: 30 }} value={bulkStage} onChange={e => setBulkStage(e.target.value)} aria-label="Move selected to stage">
+                <option value="">Move to stage…</option>
+                {STAGES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+              <button className="btn btn-primary btn-sm" disabled={!bulkStage || bulkBusy} onClick={onBulkStage} style={{ fontSize: 12, height: 30 }}>Apply</button>
+            </div>
+            <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <input type="date" value={bulkDate} onChange={e => setBulkDate(e.target.value)} aria-label="Follow-up date for selected"
+                style={{ fontSize: 12, height: 30, padding: '0 8px', border: '1.5px solid var(--border)', borderRadius: 'var(--r)', background: 'var(--card)', color: 'var(--text-1)' }} />
+              <button className="btn btn-secondary btn-sm" disabled={!bulkDate || bulkBusy} onClick={() => onBulkFollowup(false)} style={{ fontSize: 12, height: 30 }}>Set follow-up</button>
+              <button className="btn btn-ghost btn-sm" disabled={bulkBusy} onClick={() => onBulkFollowup(true)} style={{ fontSize: 12, height: 30 }}>Clear</button>
+            </div>
+            <button className="btn btn-secondary btn-sm" style={{ fontSize: 12, height: 30 }} onClick={onBulkExport}>↓ Export selected</button>
+            <button className="btn btn-sm" disabled={bulkBusy} style={{ fontSize: 12, height: 30, color: 'var(--danger)', borderColor: 'var(--danger)' }} onClick={onBulkDelete}>Delete selected</button>
+            <button style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--text-3)', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => setSelected(new Set())}>Clear ×</button>
           </div>
-          <button className="btn btn-sm" style={{ fontSize: 12, height: 30, color: 'var(--danger)', borderColor: 'var(--danger)' }} onClick={handleBulkDelete}>Delete selected</button>
-          <button style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--text-3)', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => setSelected(new Set())}>Clear ×</button>
+          {allSelected && !allMatchingSelected && list.length > pagedList.length && (
+            <div style={{ marginTop: 8, fontSize: 12.5, color: 'var(--text-2)' }}>
+              All {pagedList.length} on this page are selected.{' '}
+              <button style={{ color: 'var(--pr)', fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 12.5 }}
+                onClick={() => setSelected(new Set(list.map(e => e.id)))}>
+                Select all {list.length} matching this view
+              </button>
+            </div>
+          )}
+          {allMatchingSelected && list.length > pagedList.length && (
+            <div style={{ marginTop: 8, fontSize: 12.5, color: 'var(--text-2)' }}>All {list.length} matching applications are selected.</div>
+          )}
         </div>
       )}
 
@@ -370,7 +401,7 @@ export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStag
             Showing {pagedList.length ? ((pagination.page - 1) * 25) + 1 : 0}–{Math.min(pagination.page * 25, list.length)} of {list.length} applications
             {list.length !== db.enrollments.length ? <span> · filtered from {db.enrollments.length} total</span> : null}
           </span>
-          {someSelected && <span style={{ fontSize: 11.5, color: 'var(--pr)', fontWeight: 600 }}>{selected.size} row{selected.size !== 1 ? 's' : ''} selected</span>}
+          {someSelected && <span style={{ fontSize: 11.5, color: 'var(--pr)', fontWeight: 600 }}>{selectedIds.length} row{selectedIds.length !== 1 ? 's' : ''} selected</span>}
         </div>
       </div>
 

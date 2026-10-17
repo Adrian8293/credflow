@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { upsertEnrollment, deleteEnrollment, addAudit } from '../lib/db'
+import { upsertEnrollment, deleteEnrollment, addAudit, bulkSetStage, bulkSetFollowup, bulkDeleteEnrollments } from '../lib/db'
 import { pNameShort, payName } from '../lib/helpers'
 
 export function useEnrollmentActions({ db, setDb, toast, requestConfirm }) {
@@ -84,6 +84,66 @@ export function useEnrollmentActions({ db, setDb, toast, requestConfirm }) {
     } catch(err) { toast('Stage update failed: ' + err.message, 'error') }
   }
 
+  // ── Bulk actions: one confirmation, batched requests, per-enrollment audit entries ──────────
+  const bulkLabel = e => `${pNameShort(db.providers, e?.provId)} / ${payName(db.payers, e?.payId)}`
+  const byId = ids => Object.fromEntries(db.enrollments.filter(e => ids.includes(e.id)).map(e => [e.id, e]))
+  const merge = saved => setDb(prev => ({
+    ...prev,
+    enrollments: prev.enrollments.map(e => saved.find(s => s.id === e.id) || e),
+  }))
+
+  async function handleBulkStage(ids, stage) {
+    const before = byId(ids)
+    const todo = ids.filter(id => before[id] && before[id].stage !== stage)
+    if (!todo.length) { toast(`Already in ${stage}.`, 'warn'); return false }
+    if (!(await requestConfirm({
+      title: `Move ${todo.length} application${todo.length === 1 ? '' : 's'}`,
+      body: `Move ${todo.length} selected application${todo.length === 1 ? '' : 's'} to "${stage}"${ids.length !== todo.length ? ` (${ids.length - todo.length} already there, skipped)` : ''}? Each change is recorded in the audit trail.`,
+      confirmText: `Move to ${stage}`,
+    }))) return false
+    try {
+      merge(await bulkSetStage(todo, stage, before, bulkLabel))
+      toast(`${todo.length} moved to ${stage}.`, 'success')
+      return true
+    } catch (err) { toast('Bulk update failed: ' + err.message, 'error'); return false }
+  }
+
+  async function handleBulkFollowup(ids, date) {
+    const before = byId(ids)
+    const todo = ids.filter(id => before[id])
+    if (!todo.length) return false
+    if (!(await requestConfirm({
+      title: date ? 'Set follow-up date' : 'Clear follow-up date',
+      body: date
+        ? `Set the follow-up date to ${date} on ${todo.length} application${todo.length === 1 ? '' : 's'}?`
+        : `Clear the follow-up date on ${todo.length} application${todo.length === 1 ? '' : 's'}?`,
+      confirmText: date ? 'Set date' : 'Clear dates',
+    }))) return false
+    try {
+      merge(await bulkSetFollowup(todo, date, before, bulkLabel))
+      toast(date ? `Follow-up set on ${todo.length}.` : `Follow-up cleared on ${todo.length}.`, 'success')
+      return true
+    } catch (err) { toast('Bulk update failed: ' + err.message, 'error'); return false }
+  }
+
+  async function handleBulkDelete(ids) {
+    const before = byId(ids)
+    const todo = ids.filter(id => before[id])
+    if (!todo.length) return false
+    if (!(await requestConfirm({
+      title: `Delete ${todo.length} application${todo.length === 1 ? '' : 's'}`,
+      body: `This soft-deletes ${todo.length} enrollment record${todo.length === 1 ? '' : 's'}. They leave the pipeline but are preserved for audit purposes.`,
+      confirmText: `Delete ${todo.length}`,
+      danger: true,
+    }))) return false
+    try {
+      const done = await bulkDeleteEnrollments(todo, before, bulkLabel)
+      setDb(prev => ({ ...prev, enrollments: prev.enrollments.filter(e => !done.includes(e.id)) }))
+      toast(`${done.length} deleted.`, 'warn')
+      return true
+    } catch (err) { toast('Bulk delete failed: ' + err.message, 'error'); return false }
+  }
+
   function openEnrollModal(id, preProvId, prePayId) {
     setEditingEnrollmentId(id || null)
     if (id) {
@@ -100,6 +160,7 @@ export function useEnrollmentActions({ db, setDb, toast, requestConfirm }) {
     editingEnrollmentId, setEditingEnrollmentId,
     saving,
     handleSaveEnrollment, handleDeleteEnrollment, handleStageChange,
+    handleBulkStage, handleBulkFollowup, handleBulkDelete,
     openEnrollModal,
   }
 }

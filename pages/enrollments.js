@@ -29,6 +29,9 @@ export default function Enrollments() {
         handleDeleteEnrollment={enrollments.handleDeleteEnrollment}
         onDraftEmail={openAiFollowup}
         handleStageChange={enrollments.handleStageChange}
+        handleBulkStage={enrollments.handleBulkStage}
+        handleBulkFollowup={enrollments.handleBulkFollowup}
+        handleBulkDelete={enrollments.handleBulkDelete}
         loading={loading}
       />
     </>
