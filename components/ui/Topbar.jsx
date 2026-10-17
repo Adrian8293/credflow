@@ -33,7 +33,7 @@ const I = {
 
 // ─── ROUTE → TITLE MAP ────────────────────────────────────────────────────────
 const ROUTE_TITLES = {
-  '/':             'Dashboard',
+  '/':             'Today',
   '/providers':    'Providers',
   '/enrollments':  'Applications',
   '/payers':       'Payers',
@@ -216,7 +216,7 @@ export function Topbar({
   // Router-based title takes precedence; fall back to prop for any non-mapped route
   const routeTitle = ROUTE_TITLES[router.pathname]
   const legacyMap  = {
-    dashboard: 'Dashboard', providers: 'Providers', applications: 'Applications',
+    dashboard: 'Today', providers: 'Providers', applications: 'Applications',
     payers: 'Payers', groups: 'Groups', matrix: 'Billing Matrix', documents: 'Documents', tasks: 'Tasks', alerts: 'Alerts', requests: 'Requests', access: 'Access',
     reports: 'Reports',
     audit: 'Audit Trail', settings: 'Settings', 'add-provider': 'Add Provider',

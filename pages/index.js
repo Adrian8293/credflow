@@ -4,12 +4,12 @@ import { useGlobalContext } from '../context/AppContext'
 import { Dashboard } from '../features/billing/Dashboard.jsx'
 
 export default function IndexPage() {
-  const { db, setPage, openEnrollModal, openAiFollowup, openPayerModal } = useGlobalContext()
+  const { db, setPage, openEnrollModal, openAiFollowup, openPayerModal, openProvDetail, openTaskModal } = useGlobalContext()
 
   return (
     <>
       <Head>
-        <title>Lacentra — Dashboard</title>
+        <title>Lacentra — Today</title>
       </Head>
       <Dashboard
         db={db}
@@ -17,6 +17,8 @@ export default function IndexPage() {
         openEnrollModal={openEnrollModal}
         onDraftEmail={openAiFollowup}
         openPayerModal={openPayerModal}
+        openProvDetail={openProvDetail}
+        openTaskModal={openTaskModal}
       />
     </>
   )

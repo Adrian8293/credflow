@@ -154,7 +154,7 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db 
 
       {/* ── Navigation ── */}
       <div className="sb-nav" role="menu">
-        {navItem('dashboard',    'Dashboard',    I.dashboard)}
+        {navItem('dashboard',    'Today',        I.dashboard)}
 
         {sectionLabel('Work')}
         {navItem('enrollments',  'Applications', I.applications)}

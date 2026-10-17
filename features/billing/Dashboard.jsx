@@ -6,6 +6,7 @@
 
 import { useState } from 'react'
 import { daysUntil, fmtDate, pNameShort, payName } from '../../lib/helpers.js'
+import { TodayInbox } from '../dashboard/TodayInbox.jsx'
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 const I = {
@@ -330,7 +331,7 @@ function RecentApps({ db, setPage }) {
 }
 
 // ─── MAIN DASHBOARD ───────────────────────────────────────────────────────────
-export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPayerModal }) {
+export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPayerModal, openProvDetail, openTaskModal }) {
   const isEmpty = db.providers.length === 0 && db.enrollments.length === 0
   if (isEmpty) {
     return (
@@ -455,23 +456,14 @@ export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPaye
         {/* MAIN COLUMN */}
         <div className="dash-main">
 
+          {/* One inbox for everything that needs a person */}
+          <TodayInbox db={db} setPage={setPage} openEnrollModal={openEnrollModal}
+            openProvDetail={openProvDetail} openTaskModal={openTaskModal} onDraftEmail={onDraftEmail} />
+
           {/* Application Pipeline */}
           <div className="card">
             <SH icon={I.chart} title="Application Pipeline" action={() => setPage('applications')} />
             <PipelineSnapshot enrollments={db.enrollments} setPage={setPage} />
-          </div>
-
-          {/* Open Tasks */}
-          <div className="card">
-            <SH icon={I.task} title="Open Tasks" count={overdueTasks} action={() => setPage('tasks')} actionLabel={`View all ${openTasks}`} />
-            {upcomingTasks.length === 0 ? (
-              <div style={{ padding: '20px 16px', textAlign: 'center', fontSize: 12, color: 'var(--text-4)' }}>
-                <div style={{ fontSize: 20, marginBottom: 6 }}>✓</div>
-                No open tasks
-              </div>
-            ) : upcomingTasks.map((t, i) => (
-              <TaskRow key={t.id || i} t={t} db={db} last={i === upcomingTasks.length - 1} />
-            ))}
           </div>
 
           {/* Recent Applications */}
@@ -484,41 +476,6 @@ export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPaye
 
         {/* ASIDE COLUMN */}
         <div className="dash-aside">
-
-          {/* Expiring Credentials */}
-          <div className="card">
-            <SH
-              icon={I.alert}
-              title="Expiring Credentials"
-              count={expired + critical}
-              action={() => setPage('alerts')}
-            />
-            {expiryItems.length === 0 ? (
-              <div style={{ padding: '18px 14px', textAlign: 'center', fontSize: 12, color: 'var(--text-4)' }}>
-                <div style={{ fontSize: 18, marginBottom: 5 }}>✓</div>
-                All credentials current
-              </div>
-            ) : expiryItems.slice(0, 8).map((a, i) => (
-              <ExpiryRow key={i} item={a} last={i === Math.min(7, expiryItems.length - 1)} />
-            ))}
-          </div>
-
-          {/* Follow-up Queue */}
-          <div className="card">
-            <SH
-              icon={I.cal}
-              title="Follow-up Queue"
-              count={followups.filter(e => daysUntil(e.followup) <= 0).length}
-              action={() => setPage('applications')}
-            />
-            {followups.length === 0 ? (
-              <div style={{ padding: '16px 14px', textAlign: 'center', fontSize: 12, color: 'var(--text-4)' }}>
-                No follow-ups due within 14 days
-              </div>
-            ) : followups.slice(0, 5).map((e, i) => (
-              <FollowupRow key={e.id || i} e={e} db={db} onDraftEmail={onDraftEmail} last={i === Math.min(4, followups.length - 1)} />
-            ))}
-          </div>
 
           {/* Provider Breakdown */}
           <div className="card">
