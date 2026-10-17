@@ -18,7 +18,7 @@
     "pdf-lib": "^1.17.1",
     "react": "^18",
     "react-dom": "^18",
-    "xlsx": "^0.18.5"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "eslint": "^9.39.4",
