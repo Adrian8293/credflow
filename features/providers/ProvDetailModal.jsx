@@ -13,6 +13,7 @@ import { useState } from 'react'
 import { daysUntil, fmtDate, fmtTS } from '../../lib/helpers.js'
 import OpcaUploadPanel from '../../components/OpcaUploadPanel'
 import { LicensesSection } from './LicensesSection.jsx'
+import { openPacketWindow } from '../../lib/packet.js'
 
 // ─── SPECIALTY COLOR MAP ───────────────────────────────────────────────────────
 const SPEC_COLORS = {
@@ -633,6 +634,10 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
               </button>
               <button className="btn btn-secondary btn-sm" onClick={() => editProvider?.(prov.id)} style={{ gap: 5 }}>
                 {I.edit} Edit
+              </button>
+              <button className="btn btn-secondary btn-sm" style={{ gap: 5 }} title="Open a printable credentialing packet (print or save as PDF)"
+                onClick={() => { if (!openPacketWindow(prov, db, db.settings?.practice)) toast?.('Your browser blocked the packet window — allow pop-ups for this site and try again.', 'error') }}>
+                Packet
               </button>
               {syncFromNPPES && prov.npi && (
                 <button className="btn btn-ghost btn-sm" onClick={() => syncFromNPPES(prov.id)} title="Sync latest NPPES data" style={{ gap: 5, color: 'var(--pr)' }}>
