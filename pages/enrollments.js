@@ -5,7 +5,7 @@ import { ApplicationsPage } from '../features/enrollments/ApplicationsPage.jsx'
 
 export default function Enrollments() {
   const {
-    db, openEnrollModal, openAiFollowup, loading,
+    db, setDb, openEnrollModal, openAiFollowup, loading,
     enrSearch, setEnrSearch,
     enrFStage, setEnrFStage,
     enrFProv, setEnrFProv,
@@ -19,6 +19,7 @@ export default function Enrollments() {
       </Head>
       <ApplicationsPage
         db={db}
+        setDb={setDb}
         openEnrollModal={openEnrollModal}
         search={enrSearch}
         setSearch={setEnrSearch}

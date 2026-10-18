@@ -17,6 +17,7 @@ import { usePagination } from '../../hooks/usePagination.js'
 import { ApplicationsTableSkeleton } from '../../components/ui/Skeletons.jsx'
 import { Pagination } from '../../components/ui/Pagination.jsx'
 import { DateInput } from '../../components/ui/DateInput.jsx'
+import { ImportEnrollmentsModal } from './ImportEnrollmentsModal.jsx'
 
 const SearchIcon = <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 const MailIcon   = <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
@@ -72,8 +73,9 @@ function exportEnrollmentsCSV(filtered, providers, payers) {
   a.click(); URL.revokeObjectURL(url)
 }
 
-export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStage, setFStage, fProv, setFProv, handleDeleteEnrollment, onDraftEmail, handleStageChange, handleBulkStage, handleBulkFollowup, handleBulkDelete, loading }) {
+export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch, fStage, setFStage, fProv, setFProv, handleDeleteEnrollment, onDraftEmail, handleStageChange, handleBulkStage, handleBulkFollowup, handleBulkDelete, loading }) {
   const [subtab, setSubtab]       = useState('All Applications')
+  const [importOpen, setImportOpen] = useState(false)
   const [menuOpen, setMenuOpen]   = useState(null)
   const [selected, setSelected]   = useState(new Set())
   const [bulkStage, setBulkStage] = useState('')
@@ -173,6 +175,7 @@ export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStag
             <p style={{ fontSize: 12.5, color: 'var(--text-4)', margin: 0 }}>Track and manage all credentialing applications.</p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn btn-secondary" style={{ height: 36, fontSize: 13 }} onClick={() => setImportOpen(true)} title="Add many applications from a CSV file">Import CSV</button>
             <button className="btn btn-secondary" style={{ height: 36, fontSize: 13 }} onClick={() => exportEnrollmentsCSV(filtered, db.providers, db.payers)} title="Export current view to CSV">↓ Export CSV</button>
             <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, height: 36, fontSize: 13 }} onClick={() => openEnrollModal()}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -421,6 +424,13 @@ export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStag
         </div>
       )}
       </>
+      )}
+      {importOpen && (
+        <ImportEnrollmentsModal
+          providers={db.providers} payers={db.payers} existing={db.enrollments}
+          onClose={() => setImportOpen(false)}
+          onImported={(saved) => setDb?.(prev => ({ ...prev, enrollments: [...saved.filter(x => !prev.enrollments.some(e => e.id === x.id)), ...prev.enrollments] }))}
+        />
       )}
     </div>
   )
