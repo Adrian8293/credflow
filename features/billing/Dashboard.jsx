@@ -7,6 +7,7 @@
 import { useState } from 'react'
 import { daysUntil, fmtDate, pNameShort, payName } from '../../lib/helpers.js'
 import { TodayInbox } from '../dashboard/TodayInbox.jsx'
+import { SetupChecklist } from '../dashboard/SetupChecklist.jsx'
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 const I = {
@@ -331,7 +332,7 @@ function RecentApps({ db, setPage }) {
 }
 
 // ─── MAIN DASHBOARD ───────────────────────────────────────────────────────────
-export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPayerModal, openProvDetail, openTaskModal }) {
+export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPayerModal, openProvDetail, openTaskModal, role, orgId }) {
   const isEmpty = db.providers.length === 0 && db.enrollments.length === 0
   if (isEmpty) {
     return (
@@ -406,11 +407,13 @@ export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPaye
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button className="btn btn-primary btn-sm" onClick={openEnrollModal} style={{ gap: 5 }}>
+          <button className="btn btn-primary btn-sm" onClick={() => openEnrollModal()} style={{ gap: 5 }}>
             {I.enroll} New Enrollment
           </button>
         </div>
       </div>
+
+      <SetupChecklist db={db} role={role} orgId={orgId} setPage={setPage} openEnrollModal={openEnrollModal} />
 
       {/* ── KPI Strip ───────────────────────────────────────────────────────── */}
       <div className="kpi-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 22 }}>
