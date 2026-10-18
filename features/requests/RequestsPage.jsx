@@ -8,6 +8,7 @@ import { createRequest, reviewRequest, cancelRequest } from '../../lib/db'
 import { supabase } from '../../lib/supabase'
 import { fmtDate, daysUntil } from '../../lib/helpers.js'
 import { DOC_TYPES } from '../../constants/docTypes.js'
+import { DateInput } from '../../components/ui/DateInput.jsx'
 
 const MIGRATION_MSG = 'Requests need supabase-migration-015-portal.sql. Run it in the Supabase SQL editor, then refresh.'
 const card = { background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--r-lg)', padding: 16 }
@@ -224,7 +225,7 @@ function NewRequest({ form, setForm, providers, toast, onCreated }) {
       <div className="form-grid">
         <div className="fg"><label>Document type</label>
           <select value={form.docType} onChange={e => set('docType', e.target.value)}>{DOC_TYPES.map(t => <option key={t}>{t}</option>)}</select></div>
-        <div className="fg"><label>Due date (optional)</label><input type="date" value={form.due} onChange={e => set('due', e.target.value)} /></div>
+        <div className="fg"><label>Due date (optional)</label><DateInput  value={form.due} onChange={e => set('due', e.target.value)} /></div>
         <div className="fg full"><label>Title</label>
           <input value={form.title} onChange={e => set('title', e.target.value)} placeholder={form.docType} maxLength={120} /></div>
         <div className="fg full"><label>Instructions (optional)</label>

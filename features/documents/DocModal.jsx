@@ -14,6 +14,7 @@ import { useRef, useState } from 'react'
 import { Modal } from '../../components/ui/Modal.jsx'
 import { uploadDocumentFile, deleteDocumentFile } from '../../lib/db.js'
 import { NO_EXPIRY_TYPES } from '../../hooks/useDocumentActions.js'
+import { DateInput } from '../../components/ui/DateInput.jsx'
 
 const ALLOWED_EXTENSIONS = ['pdf','jpg','jpeg','png','webp','doc','docx','tiff']
 const MAX_MB = 10
@@ -183,14 +184,14 @@ export function DocModal({ db, docForm, setDocForm, editingId, handleSaveDocumen
         </div>
         <div className="fg"><label>Issuer / Carrier</label><input type="text" value={f('issuer')} onChange={e => set('issuer', e.target.value)} placeholder="OBRC, HPSO…" /></div>
         <div className="fg"><label>License / Policy Number</label><input type="text" value={f('number')} onChange={e => set('number', e.target.value)} /></div>
-        <div className="fg"><label>Issue Date</label><input type="date" value={f('issue')} onChange={e => set('issue', e.target.value)} /></div>
+        <div className="fg"><label>Issue Date</label><DateInput  value={f('issue')} onChange={e => set('issue', e.target.value)} /></div>
         {!NO_EXPIRY_TYPES.has(f('type')) && (
           <div className="fg">
             <label style={{ color: docForm._touched?.exp && !f('exp') ? 'var(--danger)' : undefined }}>
               Expiration Date <span style={{ color: 'var(--danger)' }}>*</span>
             </label>
-            <input
-              type="date"
+            <DateInput
+              
               value={f('exp')}
               onChange={e => set('exp', e.target.value)}
               style={{ border: docForm._touched?.exp && !f('exp') ? '1.5px solid var(--danger)' : undefined, borderRadius: 'var(--r)' }}

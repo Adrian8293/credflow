@@ -7,6 +7,7 @@ import { PRODUCT_LINES, STATES, ASSOCIATE_MODES } from '../../constants/enrollme
 import { fetchEntities, fetchContracts } from '../../lib/db'
 import { ContactLog } from './ContactLog.jsx'
 import { PAYER_CATALOG } from '../../constants/payerRequirements.js'
+import { DateInput } from '../../components/ui/DateInput.jsx'
 
 export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSaveEnrollment, onClose, saving, onAddPayer }) {
   const f = k => enrollForm[k] ?? ''
@@ -243,15 +244,15 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
         </div>
       )}
       <div className="fg"><label>Stage</label><select value={f('stage')} onChange={e => set('stage', e.target.value)}>{STAGES.map(s => <option key={s}>{s}</option>)}</select></div>
-      <div className="fg"><label>Date Submitted</label><input type="date" value={f('submitted')} onChange={e => set('submitted', e.target.value)} /></div>
-      <div className="fg"><label>Effective Date (overall)</label><input type="date" value={f('effective')} onChange={e => set('effective', e.target.value)} /></div>
-      <div className="fg"><label>Credentialing Effective</label><input type="date" value={f('credentialingEffective')} onChange={e => set('credentialingEffective', e.target.value)} /></div>
-      <div className="fg"><label>Contract Effective</label><input type="date" value={f('contractEffective')} onChange={e => set('contractEffective', e.target.value)} /></div>
-      <div className="fg"><label>Billable From</label><input type="date" value={f('billableFrom')} onChange={e => set('billableFrom', e.target.value)} />
+      <div className="fg"><label>Date Submitted</label><DateInput  value={f('submitted')} onChange={e => set('submitted', e.target.value)} /></div>
+      <div className="fg"><label>Effective Date (overall)</label><DateInput  value={f('effective')} onChange={e => set('effective', e.target.value)} /></div>
+      <div className="fg"><label>Credentialing Effective</label><DateInput  value={f('credentialingEffective')} onChange={e => set('credentialingEffective', e.target.value)} /></div>
+      <div className="fg"><label>Contract Effective</label><DateInput  value={f('contractEffective')} onChange={e => set('contractEffective', e.target.value)} /></div>
+      <div className="fg"><label>Billable From</label><DateInput  value={f('billableFrom')} onChange={e => set('billableFrom', e.target.value)} />
         <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 4 }}>First date claims will be paid. Many payers do not backdate.</div>
       </div>
-      {level === 'Group' && <div className="fg"><label>Roster / Link Effective</label><input type="date" value={f('rosterEffective')} onChange={e => set('rosterEffective', e.target.value)} /></div>}
-      <div className="fg"><label>Termination Date</label><input type="date" value={f('termDate')} onChange={e => set('termDate', e.target.value)} /></div>
+      {level === 'Group' && <div className="fg"><label>Roster / Link Effective</label><DateInput  value={f('rosterEffective')} onChange={e => set('rosterEffective', e.target.value)} /></div>}
+      <div className="fg"><label>Termination Date</label><DateInput  value={f('termDate')} onChange={e => set('termDate', e.target.value)} /></div>
       <div className="fg"><label>State</label>
         <select value={f('state')} onChange={e => set('state', e.target.value)}><option value="">—</option>{STATES.map(s => <option key={s}>{s}</option>)}</select>
       </div>
@@ -267,10 +268,10 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
           <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 4 }}>How this payer handles pre-licensed clinicians. Keep “Unverified” until confirmed in writing with the payer.</div>
         </div>
       )}
-      <div className="fg"><label>Recredentialing Due</label><input type="date" value={f('recred')} onChange={e => set('recred', e.target.value)} /></div>
+      <div className="fg"><label>Recredentialing Due</label><DateInput  value={f('recred')} onChange={e => set('recred', e.target.value)} /></div>
       <div className="fg"><label>EFT Status</label><select value={f('eft')} onChange={e => set('eft', e.target.value)}><option>Not Set Up</option><option>Submitted</option><option>Active</option></select></div>
       <div className="fg"><label>ERA Status</label><select value={f('era')} onChange={e => set('era', e.target.value)}><option>Not Set Up</option><option>Submitted</option><option>Active</option></select></div>
-      <div className="fg"><label>Follow-up Date</label><input type="date" value={f('followup')} onChange={e => set('followup', e.target.value)} /></div>
+      <div className="fg"><label>Follow-up Date</label><DateInput  value={f('followup')} onChange={e => set('followup', e.target.value)} /></div>
       <div className="fg"><label>Contract Received</label><select value={f('contract')} onChange={e => set('contract', e.target.value)}><option value="No">No</option><option value="Yes">Yes</option></select></div>
       <div className="fg full"><label>Notes / Audit Entry</label><textarea value={f('notes')} onChange={e => set('notes', e.target.value)} placeholder="Add a note (logged to audit trail)…"></textarea></div>
     </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Modal } from '../../components/ui/Modal.jsx'
+import { DateInput } from '../../components/ui/DateInput.jsx'
 
 export function TaskModal({ db, taskForm, setTaskForm, editingId, handleSaveTask, onClose, saving }) {
   const f   = k => taskForm[k] ?? ''
@@ -63,8 +64,8 @@ export function TaskModal({ db, taskForm, setTaskForm, editingId, handleSaveTask
           <label style={{ color: dueInvalid ? 'var(--danger)' : undefined }}>
             Due Date <span style={{ color: 'var(--danger)' }}>*</span>
           </label>
-          <input
-            type="date"
+          <DateInput
+            
             value={f('due')}
             onChange={e => { set('due', e.target.value); setTouched(t => ({ ...t, due: true })) }}
             onBlur={() => setTouched(t => ({ ...t, due: true }))}

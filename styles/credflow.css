@@ -797,21 +797,22 @@ select.filter-select {
   z-index: 800; display: flex; align-items: flex-start; justify-content: center;
   padding-top: 10vh;
 }
-.gs-input-row { position: relative; display: flex; align-items: center; }
+.gs-panel { width: 620px; max-width: calc(100vw - 32px); display: flex; flex-direction: column; gap: 8px; }
+.gs-input-row { position: relative; display: flex; align-items: center; background: #fff; background: var(--card); border: 1.5px solid var(--border-mid); border-radius: var(--r-xl); box-shadow: var(--shadow-xl); padding-right: 12px; gap: 8px; }
 .gs-search-icon { position: absolute; left: 14px; color: var(--text-3); pointer-events: none; }
 .gs-input {
-  width: 100%; padding: 14px 14px 14px 44px;
+  flex: 1; min-width: 0; padding: 14px 14px 14px 44px;
   background: transparent; border: none;
   font-family: var(--fn); font-size: 16px; color: var(--text-1);
   outline: none;
 }
 .gs-input::placeholder { color: var(--text-4); }
-.gs-clear { position: absolute; right: 12px; background: var(--elevated); border: 1px solid var(--border); border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-4); font-size: 12px; transition: color var(--t); }
+.gs-clear { position: static; flex-shrink: 0; background: var(--elevated); border: 1px solid var(--border); border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-4); font-size: 12px; transition: color var(--t); }
 .gs-clear:hover { color: var(--text-1); }
 .gs-kbd { font-size: 11px; background: var(--elevated); border: 1px solid var(--border); border-radius: 5px; padding: 2px 6px; color: var(--text-4); }
 
 .gs-dropdown {
-  width: 620px; background: var(--card);
+  width: 100%; background: var(--card);
   border: 1.5px solid var(--border-mid); border-radius: var(--r-xl);
   box-shadow: var(--shadow-xl); overflow: hidden;
 }

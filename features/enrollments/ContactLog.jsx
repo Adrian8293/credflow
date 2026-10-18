@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { fetchContacts, addContact, deleteContact } from '../../lib/db'
+import { DateInput } from '../../components/ui/DateInput.jsx'
 
 const METHODS = ['Phone', 'Email', 'Portal', 'Fax', 'Mail', 'Other']
 
@@ -52,7 +53,7 @@ export function ContactLog({ enrollmentId, onFollowupSet, onChanged }) {
       </div>
 
       <div className="form-grid" style={{ marginBottom: 8 }}>
-        <div className="fg"><label>Date</label><input type="date" value={form.contactedAt} onChange={e => set('contactedAt', e.target.value)} /></div>
+        <div className="fg"><label>Date</label><DateInput  value={form.contactedAt} onChange={e => set('contactedAt', e.target.value)} /></div>
         <div className="fg"><label>Method</label>
           <select value={form.method} onChange={e => set('method', e.target.value)}>{METHODS.map(m => <option key={m}>{m}</option>)}</select>
         </div>
@@ -61,7 +62,7 @@ export function ContactLog({ enrollmentId, onFollowupSet, onChanged }) {
         <div className="fg full"><label>What happened</label>
           <textarea value={form.summary} onChange={e => set('summary', e.target.value)} placeholder="e.g. Payer confirmed application received; needs updated W-9. No patient information." />
         </div>
-        <div className="fg"><label>Next follow-up</label><input type="date" value={form.nextFollowup} onChange={e => set('nextFollowup', e.target.value)} /></div>
+        <div className="fg"><label>Next follow-up</label><DateInput  value={form.nextFollowup} onChange={e => set('nextFollowup', e.target.value)} /></div>
         <div className="fg" style={{ alignSelf: 'end' }}>
           <button className="btn btn-primary" type="button" onClick={save} disabled={saving || !form.summary.trim()}>
             {saving ? 'Saving…' : 'Log contact'}

@@ -149,7 +149,8 @@ export function GlobalSearch({ db, onClose, setPage, openProvDetail, openEnrollM
   const hasResults = total > 0
 
   return (
-    <div ref={wrapRef} className="gs-wrap">
+    <div className="gs-wrap">
+     <div ref={wrapRef} className="gs-panel">
       {/* Input */}
       <div className="gs-input-row">
         <span className="gs-search-icon">{SEARCH_ICON}</span>
@@ -282,6 +283,7 @@ export function GlobalSearch({ db, onClose, setPage, openProvDetail, openEnrollM
           </div>
         </div>
       )}
+     </div>
     </div>
   )
 }

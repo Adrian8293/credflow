@@ -8,6 +8,7 @@ import { DOC_TYPES } from '../../constants/docTypes'
 import {
   portalEnrollmentStatus, REQUEST_LABEL, daysFromToday, fmtDateLong,
 } from '../../lib/portalStatus'
+import { DateInput } from '../../components/ui/DateInput.jsx'
 
 const EXPIRING_TYPES = ['License', 'Malpractice', 'DEA', 'CAQH Attestation', 'Supervision Agreement', 'Recredentialing']
 
@@ -214,7 +215,7 @@ function RequestCard({ req, providerId, onDone }) {
           onChange={e => setFile(e.target.files?.[0] || null)} aria-label={`File for ${req.title}`} />
         {EXPIRING_TYPES.includes(req.doc_type) && (
           <label className="pt-exp">Expiration date (if any)
-            <input type="date" value={exp} onChange={e => setExp(e.target.value)} /></label>
+            <DateInput  value={exp} onChange={e => setExp(e.target.value)} /></label>
         )}
         <button className="pt-btn" onClick={send} disabled={busy}>{busy ? 'Uploading…' : 'Upload'}</button>
       </div>
@@ -257,7 +258,7 @@ function SendForm({ providerId, onDone }) {
         {DOC_TYPES.map(t => <option key={t}>{t}</option>)}</select></label>
       <label>Description (optional)<input value={title} maxLength={120} onChange={e => setTitle(e.target.value)} placeholder="e.g. Renewed license 2027" /></label>
       {EXPIRING_TYPES.includes(docType) && (
-        <label>Expiration date (if any)<input type="date" value={exp} onChange={e => setExp(e.target.value)} /></label>
+        <label>Expiration date (if any)<DateInput  value={exp} onChange={e => setExp(e.target.value)} /></label>
       )}
       <label>File (PDF or image, up to 10 MB)
         <input key={key} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.tif,.tiff,application/pdf,image/*"

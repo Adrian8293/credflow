@@ -20,6 +20,7 @@
 import { US_STATES } from '../../constants/usStates.js'
 import { useState, useCallback, useEffect } from 'react'
 import { NpiLookupPanel } from './NpiLookupPanel.jsx'
+import { DateInput } from '../../components/ui/DateInput.jsx'
 
 // ─── STEPS ───────────────────────────────────────────────────────────────────
 const STEPS = [
@@ -159,15 +160,17 @@ export function AddProviderDrawer({
   const f   = k => provForm[k] || ''
   const set = (k, v) => setProvForm(p => ({ ...p, [k]: v }))
 
-  const inp = (k, placeholder, type = 'text', extra = {}) => (
-    <input
+  const inp = (k, placeholder, type = 'text', extra = {}) => {
+    const Tag = type === 'date' ? DateInput : 'input'
+    return (
+    <Tag
       type={type} value={f(k)}
       onChange={e => { set(k, e.target.value); setErrors(prev => ({ ...prev, [k]: null })) }}
       placeholder={placeholder}
       style={{ borderColor: errors[k] ? 'var(--danger)' : undefined }}
       {...extra}
     />
-  )
+  )}
 
   const sel = (k, opts) => (
     <select value={f(k)} onChange={e => set(k, e.target.value)}>

@@ -4,7 +4,7 @@
  * setPage retained for backward compat with feature components.
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import OrgSwitcher from './OrgSwitcher'
 import { useGlobalContext } from '../../context/AppContext'
@@ -68,10 +68,16 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db 
     : meta.first_name || meta.full_name || 'Admin'
   const initial = (displayName[0] || 'A').toUpperCase()
 
-  function nav(pg) {
-    const route = pg === 'dashboard' ? '/' : `/${pg}`
-    router.push(route)
-  }
+  const routeOf = (pg) => (pg === 'dashboard' ? '/' : `/${pg}`)
+  function nav(pg) { router.push(routeOf(pg)) }
+
+  // Warm every page's code in the background so tab switches are instant (no-op in dev).
+  useEffect(() => {
+    const pages = ['dashboard', 'enrollments', 'requests', 'tasks', 'alerts', 'providers', 'payers', 'groups', 'matrix', 'documents', 'reports', 'audit', 'access', 'settings']
+    const t = setTimeout(() => pages.forEach(pg => { try { router.prefetch(routeOf(pg)) } catch { /* ignore */ } }), 300)
+    return () => clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function navItem(pg, label, icon, badge, badgeDanger) {
     const active = activePage === pg
@@ -80,6 +86,7 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db 
         key={pg}
         className={`sb-item${active ? ' active' : ''}`}
         onClick={() => nav(pg)}
+        onMouseEnter={() => { try { router.prefetch(routeOf(pg)) } catch { /* ignore */ } }}
         title={collapsed ? label : undefined}
         role="menuitem"
         aria-current={active ? 'page' : undefined}
@@ -130,27 +137,6 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db 
       </div>
 
       <OrgSwitcher collapsed={collapsed} />
-
-      {/* ── Quick Action ── */}
-      {!collapsed && (
-        <div style={{ padding: '8px 10px 6px' }}>
-          <button
-            onClick={() => nav('providers?add=1')}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
-              background: 'var(--pr)', color: '#fff', border: 'none',
-              borderRadius: 'var(--r)', padding: '8px 14px',
-              fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--fn)',
-              boxShadow: '0 2px 10px rgba(79,70,229,.25)',
-              transition: 'all var(--t)',
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = 'var(--pr-d)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(79,70,229,.35)' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'var(--pr)'; e.currentTarget.style.boxShadow = '0 2px 10px rgba(79,70,229,.25)' }}
-          >
-            {I.plus} Add Provider
-          </button>
-        </div>
-      )}
 
       {/* ── Navigation ── */}
       <div className="sb-nav" role="menu">

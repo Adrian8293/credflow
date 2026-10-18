@@ -16,6 +16,7 @@ import { useSorted } from '../../hooks/useSorted.js'
 import { usePagination } from '../../hooks/usePagination.js'
 import { ApplicationsTableSkeleton } from '../../components/ui/Skeletons.jsx'
 import { Pagination } from '../../components/ui/Pagination.jsx'
+import { DateInput } from '../../components/ui/DateInput.jsx'
 
 const SearchIcon = <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 const MailIcon   = <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
@@ -249,7 +250,7 @@ export function ApplicationsPage({ db, openEnrollModal, search, setSearch, fStag
               <button className="btn btn-primary btn-sm" disabled={!bulkStage || bulkBusy} onClick={onBulkStage} style={{ fontSize: 12, height: 30 }}>Apply</button>
             </div>
             <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-              <input type="date" value={bulkDate} onChange={e => setBulkDate(e.target.value)} aria-label="Follow-up date for selected"
+              <DateInput  value={bulkDate} onChange={e => setBulkDate(e.target.value)} aria-label="Follow-up date for selected"
                 style={{ fontSize: 12, height: 30, padding: '0 8px', border: '1.5px solid var(--border)', borderRadius: 'var(--r)', background: 'var(--card)', color: 'var(--text-1)' }} />
               <button className="btn btn-secondary btn-sm" disabled={!bulkDate || bulkBusy} onClick={() => onBulkFollowup(false)} style={{ fontSize: 12, height: 30 }}>Set follow-up</button>
               <button className="btn btn-ghost btn-sm" disabled={bulkBusy} onClick={() => onBulkFollowup(true)} style={{ fontSize: 12, height: 30 }}>Clear</button>

@@ -21,6 +21,7 @@
 import { US_STATES } from '../../constants/usStates.js'
 import { useState, useCallback } from 'react'
 import { NpiLookupPanel } from './NpiLookupPanel.jsx'
+import { DateInput } from '../../components/ui/DateInput.jsx'
 
 // ─── STEP DEFINITIONS ────────────────────────────────────────────────────────
 const STEPS = [
@@ -205,8 +206,10 @@ export function AddProviderWizard({
     if (idx > 0) setStep(STEPS[idx - 1].id)
   }
 
-  const inp = useCallback((k, placeholder, type = 'text', opts = {}) => (
-    <input
+  const inp = useCallback((k, placeholder, type = 'text', opts = {}) => {
+    const Tag = type === 'date' ? DateInput : 'input'
+    return (
+    <Tag
       type={type}
       value={f(k)}
       onChange={e => { set(k, e.target.value); if (errors[k]) setErrors(prev => ({ ...prev, [k]: null })) }}
@@ -214,7 +217,7 @@ export function AddProviderWizard({
       style={errors[k] ? { borderColor: 'var(--danger)' } : {}}
       {...opts}
     />
-  ), [provForm, errors])
+  )}, [provForm, errors])
 
   const sel = useCallback((k, children) => (
     <select value={f(k)} onChange={e => set(k, e.target.value)}>

@@ -6,6 +6,7 @@ import {
   fetchLocations, upsertLocation, deleteLocation, upsertEnrollment,
 } from '../../lib/db'
 import { PRODUCT_LINES, STATES, ASSOCIATE_MODES } from '../../constants/enrollmentOptions.js'
+import { DateInput } from '../../components/ui/DateInput.jsx'
 
 const ENTITY_TYPES = ['LLC', 'PLLC', 'PC', 'MSO', 'Other']
 const MIGRATION_MSG = 'Groups need supabase-migration-013-legal-entities.sql (run 012 first). Run it in the Supabase SQL editor, then refresh.'
@@ -284,8 +285,8 @@ export function GroupsPage({ db, setDb, toast, openEnrollModal }) {
             <div className="fg"><label>State</label><select value={val('state')} onChange={e => set('state', e.target.value)}><option value="">—</option>{STATES.map(s => <option key={s}>{s}</option>)}</select></div>
             <div className="fg"><label>Product line</label><select value={val('productLine')} onChange={e => set('productLine', e.target.value)}><option value="">—</option>{PRODUCT_LINES.map(s => <option key={s}>{s}</option>)}</select></div>
             <div className="fg"><label>Contract #</label><input value={val('contractNo')} onChange={e => set('contractNo', e.target.value)} /></div>
-            <div className="fg"><label>Contract effective</label><input type="date" value={val('contractEffective')} onChange={e => set('contractEffective', e.target.value)} /></div>
-            <div className="fg"><label>Term date</label><input type="date" value={val('termDate')} onChange={e => set('termDate', e.target.value)} /></div>
+            <div className="fg"><label>Contract effective</label><DateInput  value={val('contractEffective')} onChange={e => set('contractEffective', e.target.value)} /></div>
+            <div className="fg"><label>Term date</label><DateInput  value={val('termDate')} onChange={e => set('termDate', e.target.value)} /></div>
             <div className="fg"><label>Roster cadence</label><input value={val('rosterCadence')} onChange={e => set('rosterCadence', e.target.value)} placeholder="e.g. monthly" /></div>
             <div className="fg"><label>Delegated credentialing</label><select value={contractForm.delegated ? 'yes' : 'no'} onChange={e => set('delegated', e.target.value === 'yes')}><option value="no">No</option><option value="yes">Yes</option></select></div>
             <div className="fg"><label>Associate policy</label><select value={val('associatePolicy') || 'Unverified'} onChange={e => set('associatePolicy', e.target.value)}>{ASSOCIATE_MODES.map(m => <option key={m}>{m}</option>)}</select></div>

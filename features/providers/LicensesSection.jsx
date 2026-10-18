@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { daysUntil, fmtDate } from '../../lib/helpers.js'
 import { allLicenses, licenseGaps } from '../../lib/licenses.js'
 import { US_STATES, LICENSE_TYPES, LICENSE_STATUSES } from '../../constants/usStates.js'
+import { DateInput } from '../../components/ui/DateInput.jsx'
 
 const blank = (provId, state = '') => ({ id: null, provId, state, licenseType: '', number: '', expires: '', status: 'Active', notes: '' })
 
@@ -102,7 +103,7 @@ export function LicensesSection({ prov, db, onEditPrimary, onSave, onDelete, can
               <input value={form.number} onChange={e => set('number', e.target.value)} placeholder="e.g. C12345" />
             </div>
             <div className="fg"><label>Expiration date</label>
-              <input type="date" value={form.expires} onChange={e => set('expires', e.target.value)} />
+              <DateInput  value={form.expires} onChange={e => set('expires', e.target.value)} />
             </div>
             <div className="fg"><label>Status</label>
               <select value={form.status} onChange={e => set('status', e.target.value)}>

@@ -37,8 +37,11 @@ function useAuth() {
     })
 
     // Listen for sign-in / sign-out events
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+    // Returning to the browser tab makes Supabase re-emit the SAME user as a new object (token refresh).
+    // Keep the existing object when it is the same person, so nothing downstream reloads the whole app.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      const next = session?.user ?? null
+      setUser(prev => (prev && next && prev.id === next.id && event !== 'USER_UPDATED') ? prev : next)
       if (session !== undefined) setAuthLoading(false)
     })
 
