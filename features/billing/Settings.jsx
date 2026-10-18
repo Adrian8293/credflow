@@ -52,7 +52,7 @@ function Toggle({ checked, onChange, label }) {
   )
 }
 
-const TABS = ['General', 'Organization', 'Users & Roles', 'Integrations', 'Notifications', 'Templates', 'Security']
+const TABS = ['General', 'Notifications', 'Security', 'Integrations']
 
 export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, exportJSON }) {
   const [activeTab, setActiveTab] = useState('General')
@@ -87,10 +87,6 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
                 <div className="fg full">
                   <label>Organization Name</label>
                   <input type="text" value={f('practice')} onChange={e => set('practice', e.target.value)} placeholder="Positive Inner Self, LLC" />
-                </div>
-                <div className="fg full">
-                  <label>Tax ID (EIN)</label>
-                  <input type="text" value={f('ein')} onChange={e => set('ein', e.target.value)} placeholder="12-3456789" />
                 </div>
                 <div className="fg full">
                   <label>Address</label>
@@ -135,71 +131,33 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
         </div>
       )}
 
-      {activeTab === 'Organization' && (
-        <Group2Settings settingsForm={settingsForm} setSettingsForm={setSettingsForm} handleSaveSettings={handleSaveSettings} />
-      )}
-
-      {activeTab === 'Users & Roles' && (
+      {activeTab === 'Integrations' && (
         <div className="card">
           <div className="card-header">
-            <SectionHeader icon={Icon.users} title="Users & Roles" subtitle="Manage team members and their access permissions." />
-            <div style={{ marginLeft: 'auto' }}>
-              <button className="btn btn-primary btn-sm">+ Invite User</button>
-            </div>
+            <SectionHeader icon={Icon.plug} title="Integrations" subtitle="What Lacentra connects to." />
           </div>
           <div className="card-body">
             {[
-              { name: 'Alex Kim', email: 'alex@lacentra.com', role: 'Admin', status: 'Active', last: '2 min ago' },
-              { name: 'Jordan Smith', email: 'jordan@lacentra.com', role: 'Credentialing Specialist', status: 'Active', last: '1 hour ago' },
-              { name: 'Taylor Brown', email: 'taylor@lacentra.com', role: 'Billing Manager', status: 'Active', last: 'Yesterday' },
-              { name: 'Casey Johnson', email: 'casey@lacentra.com', role: 'Read Only', status: 'Inactive', last: '3 days ago' },
-            ].map((u, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--border-l)' }}>
-                <div style={{ width: 34, height: 34, borderRadius: '50%', background: 'var(--pr)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>
-                  {u.name.split(' ').map(n=>n[0]).join('')}
+              { name: 'Supabase', desc: 'Database, sign-in and file storage for your workspace.', badge: 'Connected', cls: 'b-green' },
+              { name: 'NPI Registry (NPPES)', desc: 'Public lookup used by Add Provider and Sync from NPPES.', badge: 'Connected', cls: 'b-green' },
+              { name: 'AI follow-up emails (Anthropic)', desc: 'Optional and paid. Off unless your administrator turns it on in the deployment settings (FEATURE_AI). Sends provider details to the vendor when on.', badge: 'Optional', cls: 'b-gray' },
+              { name: 'Email digest (Resend)', desc: 'Optional, free plan available. Off unless turned on in the deployment settings (FEATURE_EMAIL_DIGEST). Needs a verified sending domain.', badge: 'Optional', cls: 'b-gray' },
+            ].map(int => (
+              <div key={int.name} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, padding: '12px 0', borderBottom: '1px solid var(--border-l)' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text-1)', marginBottom: 3 }}>{int.name}</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-4)', lineHeight: 1.5 }}>{int.desc}</div>
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-1)' }}>{u.name}</div>
-                  <div style={{ fontSize: 11.5, color: 'var(--text-4)' }}>{u.email}</div>
-                </div>
-                <span style={{ fontSize: 11.5, color: 'var(--text-3)', background: 'var(--elevated)', padding: '3px 10px', borderRadius: 6, border: '1px solid var(--border)' }}>{u.role}</span>
-                <span className={`badge ${u.status === 'Active' ? 'b-green' : 'b-gray'}`}>{u.status}</span>
-                <span style={{ fontSize: 11, color: 'var(--text-4)', minWidth: 70, textAlign: 'right' }}>{u.last}</span>
+                <span className={`badge ${int.cls}`}>{int.badge}</span>
               </div>
             ))}
+            <p style={{ fontSize: 12, color: 'var(--text-4)', lineHeight: 1.55, margin: '14px 0 0' }}>
+              Not integrated: CAQH ProView and Availity. CAQH IDs and attestation dates are tracked here by hand.
+              Legal entities and EINs (last 4 digits only) live under <strong>Groups</strong>; team members and provider portal access live under <strong>Access</strong>.
+            </p>
           </div>
         </div>
       )}
-
-      {activeTab === 'Integrations' && (
-        <div className="grid-2">
-          {[
-            { name: 'CAQH ProView', desc: 'Sync provider attestation data directly from CAQH.', status: 'Connected', icon: '🔗' },
-            { name: 'Availity', desc: 'Submit applications and verify eligibility via Availity.', status: 'Connected', icon: '⚡' },
-            { name: 'NPI Registry (NPPES)', desc: 'Auto-populate provider info from NPPES lookup.', status: 'Connected', icon: '✓' },
-            { name: 'Supabase', desc: 'Secure database backend with real-time sync.', status: 'Connected', icon: '🛡' },
-            { name: 'Anthropic AI', desc: 'AI-powered email drafting and follow-up suggestions.', status: 'Connected', icon: '🤖' },
-            { name: 'SendGrid', desc: 'Automated email notifications and reminders.', status: 'Not Connected', icon: '📧' },
-          ].map((int, i) => (
-            <div key={i} className="card" style={{ display: 'flex', flexDirection: 'column', gap: 0, padding: 0, overflow: 'visible' }}>
-              <div className="card-body" style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                <div style={{ fontSize: 22, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--elevated)', borderRadius: 8, border: '1px solid var(--border)', flexShrink: 0 }}>{int.icon}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text-1)' }}>{int.name}</span>
-                    <span className={`badge ${int.status === 'Connected' ? 'b-green' : 'b-gray'}`}>{int.status}</span>
-                  </div>
-                  <p style={{ fontSize: 12, color: 'var(--text-4)', margin: 0, lineHeight: 1.5 }}>{int.desc}</p>
-                  <button className="btn btn-sm btn-secondary" style={{ marginTop: 10 }}>
-                    {int.status === 'Connected' ? 'Configure' : 'Connect'}
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
       {activeTab === 'Notifications' && (
         <div className="card">
           <div className="card-header">
@@ -211,35 +169,6 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
               <Toggle label="Weekly credentialing digest email (Mondays)" checked={nb('weeklyDigest')} onChange={v => set('weeklyDigest', v)} />
             </div>
             <button className="btn btn-primary mt-12" onClick={handleSaveSettings}>Save Preferences</button>
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'Templates' && (
-        <div className="card">
-          <div className="card-header">
-            <SectionHeader icon={Icon.plug} title="Email Templates" subtitle="Customize automated communications sent by Lacentra." />
-            <div style={{ marginLeft: 'auto' }}>
-              <button className="btn btn-primary btn-sm">+ New Template</button>
-            </div>
-          </div>
-          <div className="card-body">
-            {[
-              { name: 'License Expiration Reminder', trigger: 'Auto — 90/60/30 days before expiry', lastEdit: 'Jun 2, 2024' },
-              { name: 'CAQH Attestation Due', trigger: 'Auto — 30/14/7 days before due', lastEdit: 'May 18, 2024' },
-              { name: 'Application Follow-Up', trigger: 'Manual / AI Draft', lastEdit: 'Jun 6, 2024' },
-              { name: 'New Provider Welcome', trigger: 'Auto — on provider creation', lastEdit: 'Apr 30, 2024' },
-              { name: 'Payer Application Submitted', trigger: 'Auto — on application submit', lastEdit: 'Mar 12, 2024' },
-            ].map((t, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid var(--border-l)' }}>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-1)', marginBottom: 2 }}>{t.name}</div>
-                  <div style={{ fontSize: 11.5, color: 'var(--text-4)' }}>{t.trigger}</div>
-                </div>
-                <span style={{ fontSize: 11, color: 'var(--text-4)' }}>Edited {t.lastEdit}</span>
-                <button className="btn btn-sm btn-secondary">Edit</button>
-              </div>
-            ))}
           </div>
         </div>
       )}
@@ -283,62 +212,3 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
 }
 
 export default Settings
-
-// ─── GROUP 2 / ORGANIZATION ──────────────────────────────────────────────────
-// This is injected as a new settings section for Group NPI / Organization billing
-export function Group2Settings({ settingsForm, setSettingsForm, handleSaveSettings }) {
-  const f   = k => settingsForm?.[k] ?? ''
-  const set = (k, v) => setSettingsForm(prev => ({ ...prev, [k]: v }))
-  return (
-    <div className="card">
-      <div className="card-header">
-        <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-          <span style={{ width:22, height:22, borderRadius:6, background:'var(--pr)', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:11, fontWeight:700 }}>G2</span>
-          <h3>Group / Organization (Type 2 NPI)</h3>
-        </div>
-        <span className="ch-meta">Group billing entity settings</span>
-      </div>
-      <div className="card-body">
-        <div className="form-grid">
-          <div className="fg full">
-            <label>Organization / Group Name</label>
-            <input type="text" value={f('groupName')} onChange={e=>set('groupName',e.target.value)} placeholder="Lacentra Health Partners LLC" />
-          </div>
-          <div className="fg">
-            <label>Group NPI (Type 2)</label>
-            <input type="text" value={f('groupNpi')} onChange={e=>set('groupNpi',e.target.value)} placeholder="1234567890" maxLength={10} />
-          </div>
-          <div className="fg">
-            <label>Group Tax ID / EIN</label>
-            <input type="text" value={f('groupEin')} onChange={e=>set('groupEin',e.target.value)} placeholder="12-3456789" />
-          </div>
-          <div className="fg">
-            <label>CAQH Group ID</label>
-            <input type="text" value={f('groupCaqh')} onChange={e=>set('groupCaqh',e.target.value)} placeholder="Group CAQH ID" />
-          </div>
-          <div className="fg">
-            <label>Group Medicaid ID</label>
-            <input type="text" value={f('groupMedicaid')} onChange={e=>set('groupMedicaid',e.target.value)} placeholder="State Medicaid group ID" />
-          </div>
-          <div className="fg full">
-            <label>Group Address</label>
-            <input type="text" value={f('groupAddress')} onChange={e=>set('groupAddress',e.target.value)} placeholder="123 Main St, Suite 100, Portland, OR 97201" />
-          </div>
-          <div className="fg">
-            <label>Billing Contact Name</label>
-            <input type="text" value={f('groupBillingContact')} onChange={e=>set('groupBillingContact',e.target.value)} placeholder="Billing Manager" />
-          </div>
-          <div className="fg">
-            <label>Billing Contact Email</label>
-            <input type="email" value={f('groupBillingEmail')} onChange={e=>set('groupBillingEmail',e.target.value)} placeholder="billing@example.com" />
-          </div>
-          <div className="fg full">
-            <label>Group Notes</label>
-            <textarea value={f('groupNotes')} onChange={e=>set('groupNotes',e.target.value)} placeholder="Group NPI credentialing notes, payer-specific group enrollment details…" rows={3} style={{ resize:'vertical', fontFamily:'inherit' }} />
-          </div>
-        </div>
-        <button className="btn btn-primary mt-12" onClick={handleSaveSettings}>Save Group Settings</button>
-      </div>
-    </div>
-  )
-}
