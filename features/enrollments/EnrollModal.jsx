@@ -8,11 +8,23 @@ import { fetchEntities, fetchContracts } from '../../lib/db'
 import { ContactLog } from './ContactLog.jsx'
 import { PAYER_CATALOG } from '../../constants/payerRequirements.js'
 import { DateInput } from '../../components/ui/DateInput.jsx'
+import { suggestFollowup, needsFollowup } from '../../constants/followupCadence.js'
+import { fmtDate } from '../../lib/helpers.js'
 
 export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSaveEnrollment, onClose, saving, onAddPayer }) {
   const f = k => enrollForm[k] ?? ''
   const set = (k, v) => setEnrollForm(prev => ({ ...prev, [k]: v }))
   const stageIdx = STAGES.indexOf(f('stage'))
+  const [autoFollowup, setAutoFollowup] = useState(null)   // { days } when the follow-up date was filled in for the chosen stage
+
+  // Changing the stage suggests a follow-up date (only when there is none, or it is already past).
+  function changeStage(stage) {
+    const sug = suggestFollowup(stage)
+    setEnrollForm(prev => (sug && needsFollowup(prev.followup))
+      ? { ...prev, stage, followup: sug.date }
+      : { ...prev, stage })
+    setAutoFollowup(sug && needsFollowup(enrollForm.followup) ? { days: sug.days } : null)
+  }
 
   // ── Inline validation state ───────────────────────────────────────────────
   const [touched, setTouched] = useState({ provId: false, payId: false })
@@ -243,7 +255,7 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
           This provider already has a {level.toLowerCase()} enrollment with this payer. Edit that one, or change the type if this is a separate group enrollment.
         </div>
       )}
-      <div className="fg"><label>Stage</label><select value={f('stage')} onChange={e => set('stage', e.target.value)}>{STAGES.map(s => <option key={s}>{s}</option>)}</select></div>
+      <div className="fg"><label>Stage</label><select value={f('stage')} onChange={e => changeStage(e.target.value)}>{STAGES.map(s => <option key={s}>{s}</option>)}</select></div>
       <div className="fg"><label>Date Submitted</label><DateInput  value={f('submitted')} onChange={e => set('submitted', e.target.value)} /></div>
       <div className="fg"><label>Effective Date (overall)</label><DateInput  value={f('effective')} onChange={e => set('effective', e.target.value)} /></div>
       <div className="fg"><label>Credentialing Effective</label><DateInput  value={f('credentialingEffective')} onChange={e => set('credentialingEffective', e.target.value)} /></div>
@@ -271,7 +283,8 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
       <div className="fg"><label>Recredentialing Due</label><DateInput  value={f('recred')} onChange={e => set('recred', e.target.value)} /></div>
       <div className="fg"><label>EFT Status</label><select value={f('eft')} onChange={e => set('eft', e.target.value)}><option>Not Set Up</option><option>Submitted</option><option>Active</option></select></div>
       <div className="fg"><label>ERA Status</label><select value={f('era')} onChange={e => set('era', e.target.value)}><option>Not Set Up</option><option>Submitted</option><option>Active</option></select></div>
-      <div className="fg"><label>Follow-up Date</label><DateInput  value={f('followup')} onChange={e => set('followup', e.target.value)} /></div>
+      <div className="fg"><label>Follow-up Date</label><DateInput  value={f('followup')} onChange={e => { set('followup', e.target.value); setAutoFollowup(null) }} />
+        {autoFollowup && <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 3 }}>Suggested for this stage: {autoFollowup.days} days from today ({fmtDate(f('followup'))}). Change it if you like.</div>}</div>
       <div className="fg"><label>Contract Received</label><select value={f('contract')} onChange={e => set('contract', e.target.value)}><option value="No">No</option><option value="Yes">Yes</option></select></div>
       <div className="fg full"><label>Notes / Audit Entry</label><textarea value={f('notes')} onChange={e => set('notes', e.target.value)} placeholder="Add a note (logged to audit trail)…"></textarea></div>
     </div>

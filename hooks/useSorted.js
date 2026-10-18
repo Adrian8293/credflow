@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { usePersistedState } from './usePersistedState.js'
 
-function useSorted(items, defaultKey, defaultDir='asc') {
-  const [sortKey, setSortKey] = useState(defaultKey)
-  const [sortDir, setSortDir] = useState(defaultDir)
+// persistKey (optional): remember the chosen sort in this browser, e.g. 'lc_pref_apps_sort'.
+function useSorted(items, defaultKey, defaultDir='asc', persistKey) {
+  const [sortKey, setSortKey] = usePersistedState(persistKey ? persistKey + '_key' : null, defaultKey, v => typeof v === 'string')
+  const [sortDir, setSortDir] = usePersistedState(persistKey ? persistKey + '_dir' : null, defaultDir, v => v === 'asc' || v === 'desc')
   function toggleSort(key) {
     if (sortKey===key) setSortDir(d=>d==='asc'?'desc':'asc')
     else { setSortKey(key); setSortDir('asc') }

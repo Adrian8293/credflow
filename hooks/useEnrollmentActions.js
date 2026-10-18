@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { upsertEnrollment, deleteEnrollment, addAudit, bulkSetStage, bulkSetFollowup, bulkDeleteEnrollments } from '../lib/db'
-import { pNameShort, payName } from '../lib/helpers'
+import { pNameShort, payName, fmtDate } from '../lib/helpers'
+import { suggestFollowup, needsFollowup } from '../constants/followupCadence'
 
 export function useEnrollmentActions({ db, setDb, toast, requestConfirm }) {
   const [enrollForm, setEnrollForm]               = useState({})
@@ -59,8 +60,11 @@ export function useEnrollmentActions({ db, setDb, toast, requestConfirm }) {
       const payer   = db.payers.find(p => p.id === enr.payId)
       const provName = prov ? `${prov.fname} ${prov.lname}` : ''
       const payerName = payer?.name || ''
+      // Suggest a follow-up date for the new stage when there is none (or the old one has passed).
+      const sug = suggestFollowup(newStage)
+      const followup = sug && needsFollowup(enr.followup) ? sug.date : enr.followup
       const saved   = await upsertEnrollment(
-        { ...enr, stage: newStage },
+        { ...enr, stage: newStage, followup },
         provName,
         payerName
       )
@@ -80,7 +84,7 @@ export function useEnrollmentActions({ db, setDb, toast, requestConfirm }) {
         )
       } catch (_) { /* audit failure should not block stage transition */ }
 
-      toast(`Moved to ${newStage}`, 'success')
+      toast(followup && followup !== enr.followup ? `Moved to ${newStage}. Follow-up set for ${fmtDate(followup)}.` : `Moved to ${newStage}`, 'success')
     } catch(err) { toast('Stage update failed: ' + err.message, 'error') }
   }
 

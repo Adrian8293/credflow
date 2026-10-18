@@ -13,6 +13,7 @@ import { STAGES } from '../../constants/stages.js'
 import { StageBadge } from '../../components/ui/Badge.jsx'
 import { daysUntil, fmtDate, pNameShort, payName } from '../../lib/helpers.js'
 import { useSorted } from '../../hooks/useSorted.js'
+import { usePersistedState } from '../../hooks/usePersistedState.js'
 import { usePagination } from '../../hooks/usePagination.js'
 import { ApplicationsTableSkeleton } from '../../components/ui/Skeletons.jsx'
 import { Pagination } from '../../components/ui/Pagination.jsx'
@@ -74,14 +75,14 @@ function exportEnrollmentsCSV(filtered, providers, payers) {
 }
 
 export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch, fStage, setFStage, fProv, setFProv, handleDeleteEnrollment, onDraftEmail, handleStageChange, handleBulkStage, handleBulkFollowup, handleBulkDelete, loading }) {
-  const [subtab, setSubtab]       = useState('All Applications')
+  const [subtab, setSubtab]       = usePersistedState('lc_pref_apps_tab', 'All Applications', v => SUBTABS.includes(v))
   const [importOpen, setImportOpen] = useState(false)
   const [menuOpen, setMenuOpen]   = useState(null)
   const [selected, setSelected]   = useState(new Set())
   const [bulkStage, setBulkStage] = useState('')
   const [bulkDate, setBulkDate]   = useState('')
   const [bulkBusy, setBulkBusy]   = useState(false)
-  const [fLevel, setFLevel]     = useState('')
+  const [fLevel, setFLevel]     = usePersistedState('lc_pref_apps_level', '', v => ['', 'Individual', 'Group'].includes(v))
   const [advancing, setAdvancing] = useState(null)
   const menuRef = useRef(null)
 
@@ -111,7 +112,7 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
     return matchSearch && matchStage && matchProv && matchTab && matchLevel
   })
 
-  const { sorted: list, thProps } = useSorted(filtered, 'submitted')
+  const { sorted: list, thProps } = useSorted(filtered, 'submitted', 'asc', 'lc_pref_apps_sort')
 
   // ── Pagination ────────────────────────────────────────────────────────────
   const pagination = usePagination(list, { pageSize: 25 })
