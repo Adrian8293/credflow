@@ -43,6 +43,7 @@ const ROUTE_MAP = {
   '/reports':     'reports',
   '/audit':       'audit',
   '/settings':    'settings',
+  '/help':        'help',
   '/add-provider':'add-provider',
 }
 
@@ -73,7 +74,7 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db 
 
   // Warm every page's code in the background so tab switches are instant (no-op in dev).
   useEffect(() => {
-    const pages = ['dashboard', 'enrollments', 'requests', 'tasks', 'alerts', 'providers', 'payers', 'groups', 'matrix', 'documents', 'reports', 'audit', 'access', 'settings']
+    const pages = ['help', 'dashboard', 'enrollments', 'requests', 'tasks', 'alerts', 'providers', 'payers', 'groups', 'matrix', 'documents', 'reports', 'audit', 'access', 'settings']
     const t = setTimeout(() => pages.forEach(pg => { try { router.prefetch(routeOf(pg)) } catch { /* ignore */ } }), 300)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -167,12 +168,12 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db 
         {!collapsed && (
           <div
             className="sb-support"
-            onClick={() => window.open('mailto:support@lacentra.com')}
+            onClick={() => nav('help')}
             role="button"
             tabIndex={0}
           >
             <div className="sb-support-title">{I.support} Need help?</div>
-            <div className="sb-support-sub">Contact Support</div>
+            <div className="sb-support-sub">Open the guide</div>
           </div>
         )}
 

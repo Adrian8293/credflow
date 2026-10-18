@@ -47,6 +47,7 @@ const ROUTE_TITLES = {
   '/reports':      'Reports',
   '/audit':        'Audit Trail',
   '/settings':     'Settings',
+  '/help':         'Help',
   '/add-provider': 'Add Provider',
 }
 
