@@ -8,6 +8,8 @@ import { useState } from 'react'
 import { payName, getProviderAlerts } from '../../lib/helpers.js'
 import { Badge, StageBadge } from '../../components/ui/Badge.jsx'
 import { STATUS_COLOR } from '../../constants/stages.js'
+import { DataQuality } from './DataQuality.jsx'
+import { dataQualityIssues } from '../../lib/dataQuality.js'
 import { PERIODS, inPeriod, inPreviousPeriod, turnaroundStats, monthlySubmissions, complianceStats, caqhOnTime, followupCoverage, toCsv } from '../../lib/reportStats.js'
 
 const Icon = {
@@ -88,7 +90,7 @@ function MiniDonut({ data, total }) {
   )
 }
 
-const TABS = ['Overview', 'Applications', 'Providers', 'Payers', 'Turnaround Time']
+const TABS = ['Overview', 'Applications', 'Providers', 'Payers', 'Turnaround Time', 'Data Quality']
 const EXPORT_CARDS = [
   { id: 'roster',   icon: Icon.users,    title: 'Provider Roster',    desc: 'All providers with license & expiry details (CSV)' },
   { id: 'enroll',   icon: Icon.file,     title: 'Enrollment Status',  desc: 'All payer enrollments by current stage (CSV)' },
@@ -97,7 +99,7 @@ const EXPORT_CARDS = [
   { id: 'backup',   icon: Icon.archive,  title: 'Full Data Backup',   desc: 'Export all Lacentra data as JSON' },
 ]
 
-export function Reports({ db, exportJSON }) {
+export function Reports({ db, exportJSON, onOpenProvider, onOpenEnrollment }) {
   const [activeTab, setActiveTab] = useState('Overview')
   const [periodId, setPeriodId] = useState('365')
   const period = PERIODS.find(x => x.id === periodId) || PERIODS[1]
@@ -236,6 +238,7 @@ export function Reports({ db, exportJSON }) {
     panels[name] = (panels[name] || 0) + 1
   })
   const maxPanels = Math.max(...Object.values(panels), 1)
+  const dqCount = dataQualityIssues(db).length
 
   const weekData = monthlySubmissions(db.enrollments, 6)   // applications submitted per month, last 6 months
   const maxWeek = Math.max(...weekData.map(d => d.val), 1)
@@ -292,7 +295,7 @@ export function Reports({ db, exportJSON }) {
       </div>
 
       <div className="tabs">
-        {TABS.map(t => <div key={t} className={`tab${activeTab === t ? ' active' : ''}`} onClick={() => setActiveTab(t)}>{t}</div>)}
+        {TABS.map(t => <div key={t} className={`tab${activeTab === t ? ' active' : ''}`} onClick={() => setActiveTab(t)}>{t}{t === 'Data Quality' && dqCount > 0 && <span style={{ marginLeft: 6, background: 'var(--danger)', color: '#fff', fontSize: 9.5, fontWeight: 700, padding: '1px 6px', borderRadius: 20 }}>{dqCount}</span>}</div>)}
       </div>
 
       {activeTab === 'Overview' && (
@@ -515,6 +518,8 @@ export function Reports({ db, exportJSON }) {
           </div>
         </div>
       )}
+
+      {activeTab === 'Data Quality' && <DataQuality db={db} onOpenProvider={onOpenProvider} onOpenEnrollment={onOpenEnrollment} />}
 
       {/* Export Cards */}
       <div className="card" style={{ marginTop: 18 }}>
