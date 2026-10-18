@@ -10,9 +10,10 @@ import { Providers } from './index.jsx'
 import { AddProviderDrawer } from './AddProviderDrawer.jsx'
 import EnrollmentKanban from '../../components/EnrollmentKanban'
 import { CredentialTimeline } from './CredentialTimeline.jsx'
+import { ImportProvidersModal } from './ImportProvidersModal.jsx'
 
 export function ProvidersPage({
-  db,
+  db, setDb,
   provSearch, setProvSearch,
   provFStatus, setProvFStatus,
   provFSpec, setProvFSpec,
@@ -31,6 +32,7 @@ export function ProvidersPage({
   const [view, setView]             = useState('table')
   const [tableTab, setTableTab]     = useState('all')
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [importOpen, setImportOpen] = useState(false)
 
   // A-01/A-02: providersMeta carries { truncated, total } from fetchProviders().
   // Destructure with safe defaults so this works whether or not the field is present.
@@ -117,6 +119,7 @@ export function ProvidersPage({
               }}>{v.icon} {v.label}</button>
             ))}
           </div>
+          <button className="btn btn-secondary btn-sm" onClick={() => setImportOpen(true)} title="Add many providers from a CSV file">Import CSV</button>
           <button className="btn btn-primary btn-sm" onClick={openAddDrawer}
             style={{ display:'flex', alignItems:'center', gap:6 }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -236,6 +239,13 @@ export function ProvidersPage({
         handleDeleteProvider={handleDeleteProvider}
         saving={saving}
       />
+      {importOpen && (
+        <ImportProvidersModal
+          existing={db.providers}
+          onClose={() => setImportOpen(false)}
+          onImported={(saved) => setDb?.(prev => ({ ...prev, providers: [...saved.filter(s => !prev.providers.some(p => p.id === s.id)), ...prev.providers] }))}
+        />
+      )}
     </div>
   )
 }

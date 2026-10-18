@@ -5,7 +5,7 @@ import { ProvidersPage } from '../features/providers/ProvidersPage.jsx'
 
 export default function Providers() {
   const {
-    db, setPage, openProvDetail, openEnrollModal,
+    db, setDb, setPage, openProvDetail, openEnrollModal,
     provSearch, setProvSearch,
     provFStatus, setProvFStatus,
     provFSpec, setProvFSpec,
@@ -19,6 +19,7 @@ export default function Providers() {
       </Head>
       <ProvidersPage
         db={db}
+        setDb={setDb}
         provSearch={provSearch}
         setProvSearch={setProvSearch}
         provFStatus={provFStatus}
