@@ -5,9 +5,10 @@
  */
 
 import { useState } from 'react'
-import { daysUntil, payName, pName } from '../../lib/helpers.js'
+import { payName, getProviderAlerts } from '../../lib/helpers.js'
 import { Badge, StageBadge } from '../../components/ui/Badge.jsx'
 import { STATUS_COLOR } from '../../constants/stages.js'
+import { PERIODS, inPeriod, inPreviousPeriod, turnaroundStats, monthlySubmissions, complianceStats, caqhOnTime, followupCoverage, toCsv } from '../../lib/reportStats.js'
 
 const Icon = {
   chart:    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>,
@@ -89,17 +90,17 @@ function MiniDonut({ data, total }) {
 
 const TABS = ['Overview', 'Applications', 'Providers', 'Payers', 'Turnaround Time']
 const EXPORT_CARDS = [
-  { icon: Icon.users,    title: 'Provider Roster',    desc: 'All providers with license & expiry details' },
-  { icon: Icon.file,     title: 'Enrollment Status',  desc: 'All payer enrollments by current stage' },
-  { icon: Icon.calendar, title: 'Expiration Report',  desc: 'Credentials expiring within 90 days' },
-  { icon: Icon.bolt,     title: 'Open Tasks',         desc: 'All pending and in-progress tasks' },
-  { icon: Icon.archive,  title: 'Full Data Backup',   desc: 'Export all Lacentra data as JSON' },
+  { id: 'roster',   icon: Icon.users,    title: 'Provider Roster',    desc: 'All providers with license & expiry details (CSV)' },
+  { id: 'enroll',   icon: Icon.file,     title: 'Enrollment Status',  desc: 'All payer enrollments by current stage (CSV)' },
+  { id: 'expiring', icon: Icon.calendar, title: 'Expiration Report',  desc: 'Credentials expiring within 90 days (CSV)' },
+  { id: 'tasks',    icon: Icon.bolt,     title: 'Open Tasks',         desc: 'All pending and in-progress tasks (CSV)' },
+  { id: 'backup',   icon: Icon.archive,  title: 'Full Data Backup',   desc: 'Export all Lacentra data as JSON' },
 ]
 
 export function Reports({ db, exportJSON }) {
   const [activeTab, setActiveTab] = useState('Overview')
-  const [dateRange, setDateRange] = useState('May 12 – Jun 10, 2024')
-  const [groupBy, setGroupBy] = useState('Week')
+  const [periodId, setPeriodId] = useState('365')
+  const period = PERIODS.find(x => x.id === periodId) || PERIODS[1]
 
   // Feature 9: Excel export
   async function exportXLSX() {
@@ -207,27 +208,28 @@ export function Reports({ db, exportJSON }) {
     }
   }
 
-  // Computed metrics
-  const total = db.providers.length || 1
-  const compliant = db.providers.filter(p => {
-    const l = daysUntil(p.licenseExp); const m = daysUntil(p.malExp); const c = daysUntil(p.caqhDue)
-    return (l === null || l > 0) && (m === null || m > 0) && (c === null || c > 0)
-  }).length
-  const compliancePct = Math.round((compliant / total) * 100)
-  const complianceColor = compliancePct >= 80 ? 'var(--success)' : compliancePct >= 60 ? 'var(--warning)' : 'var(--danger)'
+  // ── Computed metrics (all real; applications are filtered by their Submitted date) ──
+  const { compliant, total: liveProviders, pct: compliancePct } = complianceStats(db.providers)
+  const complianceColor = compliancePct === null ? 'var(--text-4)' : compliancePct >= 80 ? 'var(--success)' : compliancePct >= 60 ? 'var(--warning)' : 'var(--danger)'
 
   const done = db.tasks.filter(t => t.status === 'Done').length
-  const tTotal = db.tasks.length || 1
-  const taskPct = Math.round((done / tTotal) * 100)
-  const taskColor = taskPct >= 80 ? 'var(--success)' : taskPct >= 50 ? 'var(--warning)' : 'var(--danger)'
+  const taskPct = db.tasks.length ? Math.round((done / db.tasks.length) * 100) : null
+  const taskColor = taskPct === null ? 'var(--text-4)' : taskPct >= 80 ? 'var(--success)' : taskPct >= 50 ? 'var(--warning)' : 'var(--danger)'
 
+  const periodEnr = db.enrollments.filter(e => inPeriod(e, period.days))
+  const prevCount = db.enrollments.filter(e => inPreviousPeriod(e, period.days)).length
   const stages = {}
-  db.enrollments.forEach(e => { stages[e.stage] = (stages[e.stage] || 0) + 1 })
-  const totalEnr = db.enrollments.length
-  const approvedEnr = db.enrollments.filter(e => ['Active','Approved'].includes(e.stage)).length
-  const returnRate = totalEnr > 0 ? Math.round(db.enrollments.filter(e => ['Returned','Denied'].includes(e.stage)).length / totalEnr * 100) : 0
-  const avgTAT = 28 // placeholder
+  periodEnr.forEach(e => { stages[e.stage] = (stages[e.stage] || 0) + 1 })
+  const totalEnr = periodEnr.length
+  const approvedEnr = periodEnr.filter(e => e.stage === 'Active').length
+  const deniedEnr = periodEnr.filter(e => e.stage === 'Denied').length
+  const denialRate = totalEnr > 0 ? Math.round((deniedEnr / totalEnr) * 100) : null
+  const tat = turnaroundStats(periodEnr, db.payers)
+  const caqh = caqhOnTime(db.providers)
+  const follow = followupCoverage(db.enrollments)
+  const delta = period.days !== null && prevCount > 0 ? Math.round(((totalEnr - prevCount) / prevCount) * 100) : null
 
+  // Active panels by payer (current state, not period-filtered)
   const panels = {}
   db.enrollments.filter(e => e.stage === 'Active').forEach(e => {
     const name = payName(db.payers, e.payId) || 'Unknown'
@@ -235,15 +237,32 @@ export function Reports({ db, exportJSON }) {
   })
   const maxPanels = Math.max(...Object.values(panels), 1)
 
-  // Mock weekly trend
-  const weekData = ['May 12','May 19','May 26','Jun 2','Jun 9'].map((l, i) => ({
-    label: l, val: [12, 19, 15, 22, 18][i]
-  }))
-  const maxWeek = Math.max(...weekData.map(d => d.val))
+  const weekData = monthlySubmissions(db.enrollments, 6)   // applications submitted per month, last 6 months
+  const maxWeek = Math.max(...weekData.map(d => d.val), 1)
 
-  // By payer donut data
   const payerData = Object.entries(panels).slice(0, 5).map(([name, val]) => ({ label: name, val }))
   const payerTotal = payerData.reduce((a, b) => a + b.val, 0)
+
+  // ── Exports (each card exports what its title says) ──
+  const stamp = new Date().toISOString().split('T')[0]
+  function downloadCsv(name, rows) {
+    if (!rows.length) { window.alert('Nothing to export yet.'); return }
+    const url = URL.createObjectURL(new Blob([toCsv(rows)], { type: 'text/csv' }))
+    const a = document.createElement('a'); a.href = url; a.download = `${name}-${stamp}.csv`; a.click()
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
+  }
+  const provName = (id) => { const p = db.providers.find(x => x.id === id); return p ? `${p.fname} ${p.lname}`.trim() : '' }
+  function runExport(id) {
+    if (id === 'backup') return exportJSON()
+    if (id === 'roster') return downloadCsv('provider-roster', db.providers.map(p => ({ 'First Name': p.fname, 'Last Name': p.lname, Credential: p.cred, Specialty: p.spec, Status: p.status, NPI: p.npi, CAQH: p.caqh, 'License #': p.license, 'License State': p.licenseState, 'License Exp': p.licenseExp, 'Malpractice Exp': p.malExp, 'DEA Exp': p.deaExp, 'CAQH Due': p.caqhDue })))
+    if (id === 'enroll') return downloadCsv('enrollment-status', db.enrollments.map(e => ({ Provider: provName(e.provId), Payer: payName(db.payers, e.payId), Type: e.level, Stage: e.stage, Submitted: e.submitted, 'Credentialing Effective': e.credentialingEffective, Effective: e.effective, 'Follow-up': e.followup })))
+    if (id === 'expiring') {
+      const rows = []
+      db.providers.filter(p => p.status !== 'Inactive').forEach(p => getProviderAlerts(p, { alertDays: 90, caqhDays: 90 }).forEach(a => rows.push({ Provider: `${p.fname} ${p.lname}`.trim(), Item: a.label, 'Expires': p[a.field], 'Days Left': a.days })))
+      return downloadCsv('expiration-report', rows.sort((a, b) => a['Days Left'] - b['Days Left']))
+    }
+    if (id === 'tasks') return downloadCsv('open-tasks', db.tasks.filter(t => t.status !== 'Done').map(t => ({ Task: t.task || t.title, Provider: provName(t.provId), Category: t.cat, Status: t.status, Due: t.due })))
+  }
 
   return (
     <div className="page">
@@ -263,18 +282,13 @@ export function Reports({ db, exportJSON }) {
         </div>
       </div>
 
-      {/* Date + filters */}
+      {/* Period (applies to applications, by their Submitted date) */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18, flexWrap: 'wrap' }}>
-        <div style={{ fontSize: 12.5, color: 'var(--text-3)', fontWeight: 500 }}>Date Range:</div>
-        <select className="filter-select" style={{ fontSize: 12 }} value={dateRange} onChange={e => setDateRange(e.target.value)}>
-          <option>May 12 – Jun 10, 2024</option>
-          <option>Apr 1 – Apr 30, 2024</option>
-          <option>Jan 1 – Mar 31, 2024</option>
+        <div style={{ fontSize: 12.5, color: 'var(--text-3)', fontWeight: 500 }}>Applications submitted:</div>
+        <select className="filter-select" style={{ fontSize: 12 }} value={periodId} onChange={e => setPeriodId(e.target.value)}>
+          {PERIODS.map(x => <option key={x.id} value={x.id}>{x.label}</option>)}
         </select>
-        <div style={{ fontSize: 12.5, color: 'var(--text-3)', fontWeight: 500 }}>Group By:</div>
-        <select className="filter-select" style={{ fontSize: 12 }} value={groupBy} onChange={e => setGroupBy(e.target.value)}>
-          <option>Week</option><option>Month</option><option>Quarter</option>
-        </select>
+        <span style={{ fontSize: 11.5, color: 'var(--text-4)' }}>Provider, compliance and active-panel numbers always show today’s state.</span>
       </div>
 
       <div className="tabs">
@@ -286,17 +300,15 @@ export function Reports({ db, exportJSON }) {
           {/* Summary KPIs */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 18 }}>
             {[
-              { label: 'Total Applications', val: totalEnr, trend: '+18%', up: true, color: 'var(--pr)' },
-              { label: 'Approved', val: approvedEnr, trend: '+12%', up: true, color: 'var(--success)' },
-              { label: 'Avg Turnaround Time', val: `${avgTAT}d`, trend: '+8%', up: false, color: 'var(--warning)' },
-              { label: 'Return Rate', val: `${returnRate}%`, trend: '-2%', up: true, color: returnRate > 15 ? 'var(--danger)' : 'var(--success)' },
+              { label: 'Total Applications', val: totalEnr, note: delta === null ? null : `${delta >= 0 ? '↑' : '↓'} ${Math.abs(delta)}% vs previous ${period.label.toLowerCase().replace('last ', '')}`, up: delta === null || delta >= 0, color: 'var(--pr)' },
+              { label: 'Active', val: approvedEnr, note: totalEnr ? `${Math.round(approvedEnr / totalEnr * 100)}% of applications` : null, up: true, color: 'var(--success)' },
+              { label: 'Avg Days to Effective', val: tat.avgDays === null ? '—' : `${tat.avgDays}d`, note: tat.n ? `from ${tat.n} application${tat.n === 1 ? '' : 's'} with both dates` : 'needs Submitted + Effective dates', up: true, color: 'var(--warning)' },
+              { label: 'Denial Rate', val: denialRate === null ? '—' : `${denialRate}%`, note: totalEnr ? `${deniedEnr} of ${totalEnr}` : null, up: true, color: denialRate > 15 ? 'var(--danger)' : 'var(--success)' },
             ].map((k, i) => (
               <div key={i} className="kpi" style={{ [`--kpi-accent`]: k.color }}>
                 <div className="kpi-label">{k.label}</div>
                 <div className="kpi-value">{k.val}</div>
-                <div style={{ fontSize: 11, fontWeight: 600, color: k.up ? 'var(--success)' : 'var(--danger)', display: 'flex', alignItems: 'center', gap: 3, marginTop: 4 }}>
-                  {k.up ? '↑' : '↓'} {k.trend} vs previous period
-                </div>
+                {k.note && <div style={{ fontSize: 11, fontWeight: 600, color: k.up ? 'var(--text-4)' : 'var(--danger)', marginTop: 4 }}>{k.note}</div>}
               </div>
             ))}
           </div>
@@ -304,12 +316,12 @@ export function Reports({ db, exportJSON }) {
           <div className="grid-2">
             {/* Applications Over Time */}
             <div className="card">
-              <div className="card-header"><SH icon={Icon.trend} title="Applications Over Time" /></div>
+              <div className="card-header"><SH icon={Icon.trend} title="Applications Submitted per Month" /></div>
               <div className="card-body">
                 <BarChart data={weekData} maxVal={maxWeek} colorFn={i => COLORS[0]} />
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
                   <div style={{ width: 10, height: 10, borderRadius: 2, background: COLORS[0] }} />
-                  <span style={{ fontSize: 11, color: 'var(--text-4)' }}>Applications submitted</span>
+                  <span style={{ fontSize: 11, color: 'var(--text-4)' }}>Applications submitted (last 6 months)</span>
                 </div>
               </div>
             </div>
@@ -341,9 +353,9 @@ export function Reports({ db, exportJSON }) {
             <div className="card">
               <div className="card-header"><SH icon={Icon.shield} title="Provider Compliance Rate" /></div>
               <div className="card-body">
-                <BigStat value={compliancePct} suffix="%" color={complianceColor} />
-                <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 12 }}>{compliant} of {db.providers.length} providers fully compliant</div>
-                <ProgressBar pct={compliancePct} color={complianceColor} />
+                <BigStat value={compliancePct ?? '—'} suffix={compliancePct === null ? '' : '%'} color={complianceColor} />
+                <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 12 }}>{compliant} of {liveProviders} active providers have a current license and malpractice policy (and CAQH not overdue)</div>
+                <ProgressBar pct={compliancePct ?? 0} color={complianceColor} />
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: 'var(--text-4)', marginTop: 5 }}>
                   <span>0%</span><span style={{ fontWeight: 600, color: complianceColor }}>Target: 80%</span><span>100%</span>
                 </div>
@@ -354,7 +366,7 @@ export function Reports({ db, exportJSON }) {
             <div className="card">
               <div className="card-header"><SH icon={Icon.check} title="Task Completion" /></div>
               <div className="card-body">
-                <BigStat value={taskPct} suffix="%" color={taskColor} />
+                <BigStat value={taskPct ?? '—'} suffix={taskPct === null ? '' : '%'} color={taskColor} />
                 <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 14 }}>{done} of {db.tasks.length} tasks completed</div>
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {['Open', 'In Progress', 'Waiting', 'Done'].map(s => (
@@ -469,34 +481,30 @@ export function Reports({ db, exportJSON }) {
       {activeTab === 'Turnaround Time' && (
         <div className="grid-2">
           <div className="card">
-            <div className="card-header"><SH icon={Icon.clock} title="Avg Turnaround by Payer" /></div>
+            <div className="card-header"><SH icon={Icon.clock} title="Avg Days from Submitted to Effective, by Payer" /></div>
             <div className="card-body">
-              {[
-                { name: 'Aetna', days: 62, target: 90 },
-                { name: 'BCBS', days: 54, target: 60 },
-                { name: 'Cigna', days: 78, target: 90 },
-                { name: 'Humana', days: 45, target: 60 },
-                { name: 'Medicare', days: 38, target: 60 },
-              ].map(p => (
+              {tat.byPayer.length === 0 ? (
+                <div className="empty-state"><div className="empty-state-title">Not enough data yet</div>
+                  <div className="empty-state-desc">Fill in Submitted and Credentialing Effective (or Effective) dates on applications and this fills in by itself.</div></div>
+              ) : tat.byPayer.map(p => (
                 <div key={p.name} style={{ marginBottom: 12 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, marginBottom: 5 }}>
-                    <span>{p.name}</span>
-                    <span style={{ fontWeight: 600, color: p.days > p.target ? 'var(--danger)' : 'var(--success)' }}>{p.days}d avg</span>
+                    <span>{p.name} <span style={{ fontSize: 10.5, color: 'var(--text-4)' }}>· {p.n} application{p.n === 1 ? '' : 's'}</span></span>
+                    <span style={{ fontWeight: 600, color: 'var(--text-1)' }}>{p.days}d avg</span>
                   </div>
-                  <ProgressBar pct={Math.min(Math.round(p.days/p.target*100), 100)} color={p.days > p.target ? 'var(--danger)' : 'var(--success)'} />
+                  <ProgressBar pct={Math.round(p.days / Math.max(tat.byPayer[0].days, 1) * 100)} color="var(--pr)" />
                 </div>
               ))}
             </div>
           </div>
           <div className="card">
-            <div className="card-header"><SH icon={Icon.trend} title="Processing Speed Metrics" /></div>
+            <div className="card-header"><SH icon={Icon.trend} title="Processing Metrics" /></div>
             <div className="card-body">
               {[
-                { label: 'Avg Days to Submit', val: '8d', sub: 'from provider onboarding' },
-                { label: 'Avg Days to Approval', val: '28d', sub: 'industry avg: 45–90d' },
-                { label: 'Fastest Approval', val: '12d', sub: 'Medicare, Q1 2024' },
-                { label: 'Re-attestation Compliance', val: '94%', sub: 'CAQH attestations on time' },
-                { label: 'Follow-up Rate', val: '87%', sub: 'enrollments with documented follow-up' },
+                { label: 'Avg Days to Effective', val: tat.avgDays === null ? '—' : `${tat.avgDays}d`, sub: tat.n ? `${tat.n} application${tat.n === 1 ? '' : 's'} in this period` : 'no applications with both dates' },
+                { label: 'Fastest', val: tat.fastest ? `${tat.fastest.days}d` : '—', sub: tat.fastest ? tat.fastest.payer : 'no data yet' },
+                { label: 'CAQH Re-attestation On Time', val: caqh.pct === null ? '—' : `${caqh.pct}%`, sub: caqh.total ? `${caqh.good} of ${caqh.total} providers with a due date` : 'no CAQH due dates entered' },
+                { label: 'Open Applications with a Follow-up Date', val: follow.pct === null ? '—' : `${follow.pct}%`, sub: follow.total ? `${follow.withDate} of ${follow.total} open applications` : 'no open applications' },
               ].map((m, i) => (
                 <div key={i} className="stat-row">
                   <span className="stat-row-label">{m.label} <span style={{ fontSize: 10.5, color: 'var(--text-4)' }}>· {m.sub}</span></span>
@@ -513,8 +521,8 @@ export function Reports({ db, exportJSON }) {
         <div className="card-header"><SH icon={Icon.download} title="Export Reports" /></div>
         <div className="card-body">
           <div className="grid-3" style={{ gap: 10 }}>
-            {EXPORT_CARDS.map(({ icon, title, desc }) => (
-              <div key={title} className="report-card" onClick={exportJSON}>
+            {EXPORT_CARDS.map(({ id, icon, title, desc }) => (
+              <div key={title} className="report-card" role="button" tabIndex={0} onClick={() => runExport(id)} onKeyDown={e => { if (e.key === 'Enter') runExport(id) }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
                   <span style={{ color: 'var(--pr)' }}>{icon}</span>
                   <h4>{title}</h4>

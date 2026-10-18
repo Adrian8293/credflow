@@ -139,17 +139,20 @@ export function useProviderActions({ db, setDb, toast, requestConfirm, setPage }
     }
   }
 
-  async function handleAlertMarkDone(providerId, field) {
+  // Record a renewal: replaces the expiration date with the NEW one. (It used to blank the date, which made the
+  // credential silently disappear from tracking.) Returns true when saved.
+  async function handleAlertMarkDone(providerId, field, newDate) {
     const prov = db.providers.find(p => p.id === providerId)
-    if (!prov || !field) return
+    if (!prov || !field || !/^\d{4}-\d{2}-\d{2}$/.test(newDate || '')) return false
     try {
-      const saved = await upsertProvider({ ...prov, [field]: null })
+      const saved = await upsertProvider({ ...prov, [field]: newDate })
       setDb(prev => ({
         ...prev,
         providers: prev.providers.map(p => p.id === saved.id ? saved : p),
       }))
-      toast('Alert dismissed.', 'success')
-    } catch(err) { toast(err.message, 'error') }
+      toast('Renewal recorded — new expiration saved.', 'success')
+      return true
+    } catch(err) { toast(err.message, 'error'); return false }
   }
 
   async function lookupNPI() {
