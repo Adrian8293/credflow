@@ -31,7 +31,7 @@ export default function PortalPage() {
 
   useEffect(() => {
     if (!flash) return
-    const t = setTimeout(() => setFlash(''), 8000)
+    const t = setTimeout(() => setFlash(''), 30000)
     return () => clearTimeout(t)
   }, [flash])
 
@@ -53,6 +53,8 @@ export default function PortalPage() {
     .map(x => ({ ...x, days: daysFromToday(x.date) }))
     .sort((a, b) => a.days - b.days)
 
+  const soon = expirations.filter(x => x.days <= 90)
+
   return (
     <div className="pt-root">
       <style>{CSS}</style>
@@ -61,8 +63,7 @@ export default function PortalPage() {
         <div className="pt-brand"><span>LAC</span>entra</div>
         <div className="pt-top-r">
           {data?.org && <span className="pt-org">{data.org}</span>}
-          <span className="pt-email">{email}</span>
-          <button className="pt-link" onClick={signOut}>Sign out</button>
+          <button className="pt-signout" onClick={signOut}>Sign out</button>
         </div>
       </header>
 
@@ -79,8 +80,8 @@ export default function PortalPage() {
           <>
             <div className="pt-head">
               <div>
-                <h1>{data.role === 'provider' ? `Hi, ${prov?.name?.split(' ')[0] || 'there'}` : 'Provider credentialing'}</h1>
-                <p className="pt-muted">Track your applications, send requested documents and see when things expire.</p>
+                <h1>{data.role === 'provider' ? `Hello, ${prov?.name?.split(' ')[0] || 'there'}` : 'Provider credentialing'}</h1>
+                <p className="pt-muted">{email}</p>
               </div>
               {data.providers.length > 1 && (
                 <label className="pt-pick">Provider
@@ -91,17 +92,55 @@ export default function PortalPage() {
               )}
             </div>
 
-            {flash && <div className="pt-banner pt-ok" role="status">{flash}</div>}
+            {flash && (
+              <div className="pt-thanks" role="status">
+                <div className="pt-thanks-icon" aria-hidden="true">✓</div>
+                <div className="pt-thanks-body"><b>Received. Thank you!</b><span>{flash}</span></div>
+                <button className="pt-btn pt-btn-quiet" onClick={() => setFlash('')}>OK</button>
+              </div>
+            )}
+
+            {/* ── The one thing to know right now ── */}
+            {openRequests.length > 0 ? (
+              <a href="#pt-needed" className="pt-status pt-status-action">
+                <span className="pt-status-icon" aria-hidden="true">!</span>
+                <span><b>{openRequests.length === 1 ? 'We need 1 thing from you' : `We need ${openRequests.length} things from you`}</b><small>Tap here to see what to send</small></span>
+              </a>
+            ) : (
+              <div className="pt-status pt-status-ok">
+                <span className="pt-status-icon" aria-hidden="true">✓</span>
+                <span><b>You&apos;re all set</b><small>Nothing is needed from you right now</small></span>
+              </div>
+            )}
+
+            {soon.length > 0 && (
+              <div className="pt-soon">
+                <h2>Renewing soon</h2>
+                {soon.map(x => (
+                  <div key={x.label} className={`pt-soon-row pt-tone-${x.days < 0 ? 'bad' : x.days <= 30 ? 'action' : 'wait'}`}>
+                    <div><b>{x.label}</b><span>{x.days < 0 ? `Expired ${Math.abs(x.days)} days ago` : x.days === 0 ? 'Expires today' : `Expires in ${x.days} days`} · {fmtDateLong(x.date)}</span></div>
+                    <a href="#pt-send" className="pt-btn pt-btn-small">Send renewal</a>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* ── Action needed ── */}
-            <section className="pt-card">
-              <h2>Action needed {openRequests.length > 0 && <span className="pt-count">{openRequests.length}</span>}</h2>
-              {openRequests.length === 0
-                ? <p className="pt-muted">Nothing is needed from you right now.</p>
-                : openRequests.map(r => (
+            {openRequests.length > 0 && (
+              <section className="pt-card" id="pt-needed">
+                <h2>What we need from you {<span className="pt-count">{openRequests.length}</span>}</h2>
+                {openRequests.map(r => (
                   <RequestCard key={r.id} req={r} providerId={prov.id}
-                    onDone={msg => { setFlash(msg); load() }} />
+                    onDone={msg => { setFlash(msg); load(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
                 ))}
+              </section>
+            )}
+
+            {/* ── Send a document ── */}
+            <section className="pt-card" id="pt-send">
+              <h2>Send a document</h2>
+              <p className="pt-muted">Renewed a license or insurance? Send the new copy here.</p>
+              <SendForm providerId={prov.id} onDone={msg => { setFlash(msg); load(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
             </section>
 
             {/* ── Applications ── */}
@@ -132,9 +171,9 @@ export default function PortalPage() {
                 )}
             </section>
 
-            {/* ── Expirations ── */}
+            {/* ── All expiration dates ── */}
             <section className="pt-card">
-              <h2>Expiration dates</h2>
+              <h2>All expiration dates</h2>
               {expirations.length === 0
                 ? <p className="pt-muted">No expiration dates are on file.</p>
                 : (
@@ -153,19 +192,12 @@ export default function PortalPage() {
                     })}
                   </ul>
                 )}
-              <p className="pt-sub">Renewed something? Send the new document below so your team can update your record.</p>
-            </section>
-
-            {/* ── Send a document ── */}
-            <section className="pt-card">
-              <h2>Send a document</h2>
-              <SendForm providerId={prov.id} onDone={msg => { setFlash(msg); load() }} />
             </section>
 
             {/* ── History ── */}
             {sentRequests.length > 0 && (
               <section className="pt-card">
-                <h2>Sent documents</h2>
+                <h2>Documents you sent</h2>
                 <ul className="pt-list">
                   {sentRequests.map(r => {
                     const l = REQUEST_LABEL[r.status]
@@ -179,9 +211,27 @@ export default function PortalPage() {
                 </ul>
               </section>
             )}
+
+            <p className="pt-help">Questions? Contact your credentialing team{data.org ? ` at ${data.org}` : ''}.</p>
           </>
         )}
       </main>
+    </div>
+  )
+}
+
+// Big, obvious file chooser. On a phone the same button also offers the camera.
+function FilePicker({ file, onFile, label }) {
+  const id = useMemo(() => `f${Math.random().toString(36).slice(2, 9)}`, [])
+  return (
+    <div className="pt-file">
+      <input id={id} className="pt-file-input" type="file" aria-label={label}
+        accept=".pdf,.jpg,.jpeg,.png,.webp,.tif,.tiff,application/pdf,image/*"
+        onChange={e => onFile(e.target.files?.[0] || null)} />
+      <label htmlFor={id} className={`pt-btn pt-btn-outline pt-file-btn${file ? ' has-file' : ''}`}>
+        <span aria-hidden="true">{file ? '✓' : '📎'}</span> {file ? 'Change file' : 'Choose a file or take a photo'}
+      </label>
+      {file && <div className="pt-file-name">{file.name}</div>}
     </div>
   )
 }
@@ -196,7 +246,7 @@ function RequestCard({ req, providerId, onDone }) {
   const l = REQUEST_LABEL[req.status]
 
   async function send() {
-    if (!file) { setErr('Choose a file first.'); return }
+    if (!file) { setErr('Please choose a file first (tap the button above).'); return }
     if (sizeProblem(file)) { setErr(sizeProblem(file)); return }
     setBusy(true); setErr('')
     const fd = new FormData()
@@ -207,7 +257,7 @@ function RequestCard({ req, providerId, onDone }) {
       const r = await fetch('/api/portal-upload', { method: 'POST', body: fd })
       const j = await r.json().catch(() => ({}))
       if (!r.ok) { setErr(j.error || 'Upload failed.'); setBusy(false); return }
-      onDone(`Thanks, "${req.title}" was sent for review.`)
+      onDone(`"${req.title}" was sent to your credentialing team for review.`)
     } catch { setErr('Upload failed. Check your connection and try again.'); setBusy(false) }
   }
 
@@ -221,13 +271,12 @@ function RequestCard({ req, providerId, onDone }) {
       {req.note && <p className="pt-note">{req.note}</p>}
       {req.status === 'rejected' && req.reject_reason && <div className="pt-banner pt-bad">Reason: {req.reject_reason}</div>}
       <div className="pt-up">
-        <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.tif,.tiff,application/pdf,image/*"
-          onChange={e => setFile(e.target.files?.[0] || null)} aria-label={`File for ${req.title}`} />
+        <FilePicker file={file} onFile={f => { setFile(f); setErr('') }} label={`File for ${req.title}`} />
         {EXPIRING_TYPES.includes(req.doc_type) && (
           <label className="pt-exp">Expiration date (if any)
             <DateInput  value={exp} onChange={e => setExp(e.target.value)} /></label>
         )}
-        <button className="pt-btn" onClick={send} disabled={busy}>{busy ? 'Uploading…' : 'Upload'}</button>
+        <button className="pt-btn pt-btn-go" onClick={send} disabled={busy}>{busy ? 'Sending…' : 'Send to my credentialing team'}</button>
       </div>
       {err && <div className="pt-err" role="alert">{err}</div>}
     </div>
@@ -246,7 +295,7 @@ function SendForm({ providerId, onDone }) {
 
   async function send(e) {
     e.preventDefault()
-    if (!file) { setErr('Choose a file first.'); return }
+    if (!file) { setErr('Please choose a file first (tap the button above).'); return }
     if (sizeProblem(file)) { setErr(sizeProblem(file)); return }
     setBusy(true); setErr('')
     const fd = new FormData()
@@ -259,7 +308,7 @@ function SendForm({ providerId, onDone }) {
       const j = await r.json().catch(() => ({}))
       if (!r.ok) { setErr(j.error || 'Upload failed.'); setBusy(false); return }
       setFile(null); setTitle(''); setExp(''); setKey(k => k + 1); setBusy(false)
-      onDone('Thanks, your document was sent for review.')
+      onDone('Your document was sent to your credentialing team for review.')
     } catch { setErr('Upload failed. Check your connection and try again.'); setBusy(false) }
   }
 
@@ -271,57 +320,85 @@ function SendForm({ providerId, onDone }) {
       {EXPIRING_TYPES.includes(docType) && (
         <label>Expiration date (if any)<DateInput  value={exp} onChange={e => setExp(e.target.value)} /></label>
       )}
-      <label>File (PDF or image, up to 10 MB)
-        <input key={key} type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.tif,.tiff,application/pdf,image/*"
-          onChange={e => setFile(e.target.files?.[0] || null)} /></label>
+      <div><div className="pt-lbl">File (PDF or photo, up to 10 MB)</div><FilePicker key={key} file={file} onFile={f => { setFile(f); setErr('') }} label="File to send" /></div>
       {err && <div className="pt-err" role="alert">{err}</div>}
-      <button className="pt-btn" type="submit" disabled={busy}>{busy ? 'Uploading…' : 'Send document'}</button>
+      <button className="pt-btn pt-btn-go" type="submit" disabled={busy}>{busy ? 'Sending…' : 'Send to my credentialing team'}</button>
     </form>
   )
 }
 
 const CSS = `
-.pt-root{min-height:100vh;background:#F6F7FB;font-family:Inter,system-ui,sans-serif;color:#111827}
-.pt-top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 20px;background:#fff;border-bottom:1px solid #E5E7EF;flex-wrap:wrap}
-.pt-brand{font-size:18px;font-weight:800;letter-spacing:-.02em}.pt-brand span{color:#4F46E5}
-.pt-top-r{display:flex;align-items:center;gap:12px;font-size:13px;color:#6B7280;flex-wrap:wrap}
-.pt-org{font-weight:600;color:#111827}
-.pt-link{background:none;border:none;color:#4F46E5;font-weight:600;cursor:pointer;font-size:13px;padding:0}
-.pt-main{max-width:860px;margin:0 auto;padding:22px 16px 60px}
-.pt-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:14px}
-h1{margin:0 0 4px;font-size:24px;letter-spacing:-.02em}
-h2{margin:0 0 12px;font-size:16px;display:flex;align-items:center;gap:8px}
-.pt-muted{color:#6B7280;font-size:14px;margin:0}
-.pt-sub{color:#6B7280;font-size:12.5px;margin-top:2px}
-.pt-card{background:#fff;border:1px solid #E5E7EF;border-radius:12px;padding:18px;margin-bottom:14px}
-.pt-count{background:#EEF2FF;color:#4F46E5;border-radius:999px;font-size:12px;padding:1px 9px}
-.pt-pick{font-size:12.5px;font-weight:600;color:#374151;display:block}
-.pt-pick select{display:block;margin-top:4px;padding:8px 10px;border:1px solid #D1D5DB;border-radius:8px;font-size:14px;min-width:220px}
-.pt-pill{display:inline-block;border-radius:999px;font-size:12px;font-weight:600;padding:2px 10px}
+.pt-root{min-height:100vh;background:#F6F7FB;font-family:Inter,system-ui,sans-serif;color:#111827;font-size:17px;line-height:1.5}
+.pt-top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 18px;background:#fff;border-bottom:1px solid #E5E7EF}
+.pt-brand{font-size:21px;font-weight:800;letter-spacing:-.02em}.pt-brand span{color:#4F46E5}
+.pt-top-r{display:flex;align-items:center;gap:12px;font-size:15px;color:#6B7280}
+.pt-org{font-weight:600;color:#111827;display:none}
+.pt-signout{background:#fff;border:2px solid #4F46E5;color:#4F46E5;font-weight:700;font-size:15px;border-radius:10px;padding:9px 16px;min-height:44px;cursor:pointer}
+.pt-main{max-width:760px;margin:0 auto;padding:20px 16px 70px}
+.pt-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+h1{margin:0 0 2px;font-size:32px;letter-spacing:-.02em;line-height:1.15}
+h2{margin:0 0 12px;font-size:21px;display:flex;align-items:center;gap:10px}
+.pt-muted{color:#4B5563;font-size:16px;margin:0 0 10px}
+.pt-sub{color:#4B5563;font-size:14.5px;margin-top:2px}
+.pt-card{background:#fff;border:1.5px solid #E5E7EF;border-radius:16px;padding:20px;margin-bottom:16px}
+.pt-count{background:#EEF2FF;color:#4338CA;border-radius:999px;font-size:15px;padding:1px 12px}
+.pt-pick{font-size:15px;font-weight:700;color:#374151;display:block}
+.pt-pick select{display:block;margin-top:4px;padding:12px;border:2px solid #9CA3AF;border-radius:10px;font-size:17px;min-width:240px;min-height:48px;background:#fff}
+.pt-pill{display:inline-block;border-radius:999px;font-size:14.5px;font-weight:700;padding:3px 12px}
 .pt-ok{background:#ECFDF5;color:#047857}.pt-wait{background:#EFF6FF;color:#1D4ED8}.pt-action{background:#FFF7ED;color:#C2410C}
-.pt-bad{background:#FEF2F2;color:#B91C1C}.pt-muted-pill,.pt-muted{}
+.pt-bad{background:#FEF2F2;color:#B91C1C}
 span.pt-muted.pt-pill{background:#F3F4F6;color:#4B5563}
-.pt-banner{border-radius:8px;padding:10px 12px;font-size:13.5px;margin:0 0 12px}
+.pt-banner{border-radius:10px;padding:12px 14px;font-size:16px;margin:0 0 12px}
+
+.pt-status{display:flex;align-items:center;gap:14px;border-radius:16px;padding:18px 20px;margin-bottom:16px;text-decoration:none;font-size:20px}
+.pt-status b{display:block;font-size:22px;line-height:1.2}.pt-status small{display:block;font-size:16px;font-weight:500;margin-top:2px}
+.pt-status-icon{flex:0 0 44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff}
+.pt-status-action{background:#FFF7ED;border:2px solid #FB923C;color:#9A3412}.pt-status-action .pt-status-icon{background:#EA580C}
+.pt-status-ok{background:#ECFDF5;border:2px solid #34D399;color:#065F46}.pt-status-ok .pt-status-icon{background:#059669}
+
+.pt-thanks{display:flex;align-items:center;gap:14px;background:#ECFDF5;border:2px solid #34D399;border-radius:16px;padding:16px 18px;margin-bottom:16px;color:#065F46;flex-wrap:wrap}
+.pt-thanks-icon{flex:0 0 44px;height:44px;border-radius:50%;background:#059669;color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800}
+.pt-thanks-body{flex:1;min-width:180px}.pt-thanks-body b{display:block;font-size:20px}.pt-thanks-body span{font-size:16px}
+
+.pt-soon{background:#fff;border:1.5px solid #E5E7EF;border-radius:16px;padding:18px 20px;margin-bottom:16px}
+.pt-soon-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border-radius:12px;margin-top:8px;border-left:6px solid}
+.pt-soon-row b{display:block;font-size:18px}.pt-soon-row span{font-size:15.5px}
+.pt-tone-bad{background:#FEF2F2;border-color:#DC2626;color:#7F1D1D}.pt-tone-action{background:#FFF7ED;border-color:#EA580C;color:#7C2D12}.pt-tone-wait{background:#EFF6FF;border-color:#2563EB;color:#1E3A8A}
+
 .pt-table-wrap{overflow-x:auto}
-.pt-table{width:100%;border-collapse:collapse;font-size:14px}
-.pt-table th{text-align:left;font-size:12px;color:#6B7280;font-weight:600;padding:6px 10px 8px 0;border-bottom:1px solid #E5E7EF}
-.pt-table td{padding:11px 10px 11px 0;border-bottom:1px solid #F1F2F6;vertical-align:top}
+.pt-table{width:100%;border-collapse:collapse;font-size:16px}
+.pt-table th{text-align:left;font-size:14px;color:#4B5563;font-weight:700;padding:6px 10px 8px 0;border-bottom:1px solid #E5E7EF}
+.pt-table td{padding:12px 10px 12px 0;border-bottom:1px solid #F1F2F6;vertical-align:top}
 .pt-list{list-style:none;margin:0 0 10px;padding:0}
-.pt-list li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid #F1F2F6;font-size:14px;flex-wrap:wrap}
-.pt-req{border:1px solid #E5E7EF;border-radius:10px;padding:14px;margin-bottom:10px}
-.pt-req-h{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
-.pt-note{margin:8px 0;font-size:14px;color:#374151;white-space:pre-wrap}
-.pt-up{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-top:10px}
-.pt-exp,.pt-send label{font-size:12.5px;font-weight:600;color:#374151;display:block}
-.pt-exp input,.pt-send input,.pt-send select{display:block;margin-top:4px;padding:8px 10px;border:1px solid #D1D5DB;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box}
-.pt-send{display:grid;gap:12px;max-width:460px}.pt-send input,.pt-send select{width:100%}
-.pt-btn{background:#4F46E5;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer}
+.pt-list li{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #F1F2F6;font-size:16.5px;flex-wrap:wrap}
+.pt-req{border:2px solid #FDBA74;background:#FFFBF5;border-radius:14px;padding:16px;margin-bottom:12px}
+.pt-req-h{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;font-size:19px}
+.pt-note{margin:8px 0;font-size:16.5px;color:#374151;white-space:pre-wrap}
+.pt-up{display:grid;gap:14px;margin-top:12px}
+.pt-exp,.pt-send label,.pt-lbl{font-size:16px;font-weight:700;color:#374151;display:block}
+.pt-exp input,.pt-send input,.pt-send select{display:block;margin-top:6px;padding:12px;border:2px solid #9CA3AF;border-radius:10px;font-size:17px;font-family:inherit;box-sizing:border-box;min-height:50px;background:#fff}
+.pt-send{display:grid;gap:16px;max-width:520px}.pt-send input,.pt-send select{width:100%}
+
+.pt-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#4F46E5;color:#fff;border:2px solid #4F46E5;border-radius:12px;padding:12px 20px;font-size:18px;font-weight:700;cursor:pointer;min-height:54px;text-decoration:none;font-family:inherit}
 .pt-btn:disabled{opacity:.6;cursor:default}
-.pt-err{color:#B91C1C;font-size:13px;margin-top:8px}
+.pt-btn-go{background:#059669;border-color:#059669;width:100%}
+.pt-btn-outline{background:#fff;color:#4338CA}
+.pt-btn-quiet{background:#fff;color:#065F46;border-color:#059669;min-height:48px}
+.pt-btn-small{min-height:46px;font-size:16px;padding:8px 16px}
+.pt-file-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.pt-file{position:relative}
+.pt-file-btn{width:100%;border-style:dashed}.pt-file-btn.has-file{border-style:solid;color:#047857;border-color:#059669;background:#ECFDF5}
+.pt-file-input:focus-visible + .pt-file-btn{outline:3px solid #4F46E5;outline-offset:2px}
+.pt-file-name{margin-top:8px;font-size:16px;font-weight:600;word-break:break-all}
+.pt-err{color:#B91C1C;font-size:16px;font-weight:600;margin-top:8px}
+.pt-help{text-align:center;color:#4B5563;font-size:16px;margin-top:24px}
+@media(min-width:700px){.pt-org{display:inline}.pt-btn-go{width:auto}.pt-file-btn{width:auto}}
 @media(max-width:640px){
+  h1{font-size:28px}
   .pt-table thead{display:none}
   .pt-table tr{display:block;border-bottom:1px solid #E5E7EF;padding:8px 0}
   .pt-table td{display:block;border:none;padding:4px 0}
-  .pt-table td::before{content:attr(data-l);display:block;font-size:11px;color:#6B7280;font-weight:600}
+  .pt-table td::before{content:attr(data-l);display:block;font-size:13px;color:#4B5563;font-weight:700}
+  .pt-soon-row .pt-btn{width:100%}
 }
 `
