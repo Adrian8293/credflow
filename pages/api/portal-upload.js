@@ -22,6 +22,12 @@ export const config = { api: { bodyParser: false } }
 
 const ALLOWED_MIME = new Set(['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'image/tiff'])
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+function validDate(s) {
+  if (!DATE_RE.test(s)) return false
+  const [y, m, d] = s.split('-').map(Number)
+  const dt = new Date(Date.UTC(y, m - 1, d))
+  return y >= 1990 && y <= 2100 && dt.getUTCFullYear() === y && dt.getUTCMonth() === m - 1 && dt.getUTCDate() === d
+}
 
 function parseForm(req) {
   return new Promise((resolve, reject) => {
@@ -45,7 +51,7 @@ async function handler(req, res, user) {
 
     if (!providerId) return res.status(400).json({ error: 'Missing providerId' })
     if (!file)       return res.status(400).json({ error: 'No file received' })
-    if (exp && !DATE_RE.test(exp)) return res.status(400).json({ error: 'Expiration date must be YYYY-MM-DD' })
+    if (exp && !validDate(exp)) return res.status(400).json({ error: 'Please enter a valid expiration date.' })
 
     // 1) Authorization by the database, as the caller.
     const session = createSessionClient(req, res)

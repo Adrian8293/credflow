@@ -10,6 +10,9 @@ import {
 } from '../../lib/portalStatus'
 import { DateInput } from '../../components/ui/DateInput.jsx'
 
+const MAX_BYTES = 10 * 1024 * 1024
+const sizeProblem = (f) => (f && f.size > MAX_BYTES ? 'That file is over 10 MB. Please upload a smaller PDF or photo.' : '')
+
 const EXPIRING_TYPES = ['License', 'Malpractice', 'DEA', 'CAQH Attestation', 'Supervision Agreement', 'Recredentialing']
 
 export default function PortalPage() {
@@ -25,6 +28,12 @@ export default function PortalPage() {
     setData(d)
     setProvId(prev => (prev && d.providers.some(p => p.id === prev)) ? prev : (d.providers[0]?.id || ''))
   }, [])
+
+  useEffect(() => {
+    if (!flash) return
+    const t = setTimeout(() => setFlash(''), 8000)
+    return () => clearTimeout(t)
+  }, [flash])
 
   useEffect(() => {
     load()
@@ -188,6 +197,7 @@ function RequestCard({ req, providerId, onDone }) {
 
   async function send() {
     if (!file) { setErr('Choose a file first.'); return }
+    if (sizeProblem(file)) { setErr(sizeProblem(file)); return }
     setBusy(true); setErr('')
     const fd = new FormData()
     fd.append('providerId', providerId); fd.append('requestId', req.id)
@@ -237,6 +247,7 @@ function SendForm({ providerId, onDone }) {
   async function send(e) {
     e.preventDefault()
     if (!file) { setErr('Choose a file first.'); return }
+    if (sizeProblem(file)) { setErr(sizeProblem(file)); return }
     setBusy(true); setErr('')
     const fd = new FormData()
     fd.append('providerId', providerId); fd.append('docType', docType)

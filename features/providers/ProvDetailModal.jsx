@@ -9,6 +9,7 @@
  * Header: Avatar · Name · Status · Readiness ring · Action buttons
  */
 
+import { safeUrl } from '../../lib/safeUrl.js'
 import { useState } from 'react'
 import { daysUntil, fmtDate, fmtTS } from '../../lib/helpers.js'
 import OpcaUploadPanel from '../../components/OpcaUploadPanel'
@@ -532,8 +533,8 @@ function DocumentsTab({ prov, db }) {
                     {expired ? `${Math.abs(days)}d ago` : `${days}d left`}
                   </span>
                 )}
-                {d.url && (
-                  <a href={d.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: 'var(--pr)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
+                {safeUrl(d.url) && (
+                  <a href={safeUrl(d.url)} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: 'var(--pr)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
                     View {I.ext}
                   </a>
                 )}

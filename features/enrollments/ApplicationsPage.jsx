@@ -19,6 +19,7 @@ import { ApplicationsTableSkeleton } from '../../components/ui/Skeletons.jsx'
 import { Pagination } from '../../components/ui/Pagination.jsx'
 import { DateInput } from '../../components/ui/DateInput.jsx'
 import { ImportEnrollmentsModal } from './ImportEnrollmentsModal.jsx'
+import { csvFromRows, downloadCsv } from '../../lib/csv.js'
 
 const SearchIcon = <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 const MailIcon   = <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
@@ -63,15 +64,10 @@ function exportEnrollmentsCSV(filtered, providers, payers) {
       e.contractEffective || '',
       e.effective || '',
       e.followup || '',
-      (e.notes || '').replace(/,/g, ';'),
+      e.notes || '',
     ]
   })
-  const csv = [headers, ...rows].map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n')
-  const blob = new Blob([csv], { type: 'text/csv' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a'); a.href = url
-  a.download = 'applications_' + new Date().toISOString().split('T')[0] + '.csv'
-  a.click(); URL.revokeObjectURL(url)
+  downloadCsv('applications_' + new Date().toISOString().split('T')[0] + '.csv', csvFromRows([headers, ...rows]))
 }
 
 export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch, fStage, setFStage, fProv, setFProv, handleDeleteEnrollment, onDraftEmail, handleStageChange, handleBulkStage, handleBulkFollowup, handleBulkDelete, loading }) {

@@ -13,6 +13,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
+import { useGlobalContext } from '../../context/AppContext'
 import { buildAlertFeed } from '../../lib/alerts.js'
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
@@ -84,7 +85,7 @@ function AlertFlyout({ db, setPage, openProvDetail, onClose }) {
   return (
     <div style={{
       position: 'absolute', top: 'calc(100% + 8px)', right: 0,
-      width: 360, maxHeight: 520,
+      width: 'min(360px, calc(100vw - 16px))', maxHeight: 520,
       background: 'var(--card)', border: '1.5px solid var(--border-mid)',
       borderRadius: 'var(--r-xl)', boxShadow: 'var(--shadow-xl)',
       zIndex: 400, display: 'flex', flexDirection: 'column',
@@ -203,10 +204,23 @@ export function Topbar({
   user, signOut,
   db,
   openProvDetail,
+  onMenu,
+  menuOpen = false,
 }) {
   const router = useRouter()
   const [bellOpen,     setBellOpen]     = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const { activeOrg } = useGlobalContext()
+  const ROLE_NAMES = { owner: 'Owner', admin: 'Admin', credentialer: 'Credentialer', viewer: 'Viewer', clinic_staff: 'Clinic staff', provider: 'Provider' }
+  const roleLabel = ROLE_NAMES[activeOrg?.role] || ''
+  // Real connection state (replaces the old always-green "Operational" label)
+  const [online, setOnline] = useState(true)
+  useEffect(() => {
+    const up = () => setOnline(true), down = () => setOnline(false)
+    setOnline(navigator.onLine)
+    window.addEventListener('online', up); window.addEventListener('offline', down)
+    return () => { window.removeEventListener('online', up); window.removeEventListener('offline', down) }
+  }, [])
 
   const bellRef    = useRef(null)
   const userRef    = useRef(null)
@@ -244,6 +258,9 @@ export function Topbar({
 
   return (
     <div className="topbar">
+      <button className="topbar-menu" onClick={onMenu} aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+      </button>
 
       {/* ── Search button ──────────────────────────────────────────────── */}
       <div className="topbar-left">
@@ -260,7 +277,7 @@ export function Topbar({
       </div>
 
       {/* ── Centre: brand + page title ─────────────────────────────────── */}
-      <div style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: 10, padding: '0 16px', whiteSpace: 'nowrap' }}>
+      <div className="topbar-brand" style={{ flex: '0 0 auto', display: 'flex', alignItems: 'center', gap: 10, padding: '0 16px', whiteSpace: 'nowrap' }}>
         <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-.02em' }}>
           LACentra
         </span>
@@ -269,10 +286,12 @@ export function Topbar({
       </div>
 
       {/* ── System status ──────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-4)', fontWeight: 500, whiteSpace: 'nowrap', padding: '0 8px' }}>
-        <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--success)', boxShadow: '0 0 0 2px rgba(16,185,129,.2)', flexShrink: 0, display: 'inline-block', animation: 'pulse 3s infinite' }} />
-        Operational
-      </div>
+      {!online && (
+        <div role="status" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--danger)', fontWeight: 600, whiteSpace: 'nowrap', padding: '0 8px' }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--danger)', flexShrink: 0, display: 'inline-block' }} />
+          Offline
+        </div>
+      )}
 
       {/* ── Right cluster ──────────────────────────────────────────────── */}
       <div className="topbar-right">
@@ -323,9 +342,9 @@ export function Topbar({
             aria-label="User menu"
           >
             <div className="tb-avatar">{initial}</div>
-            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, textAlign: 'left' }}>
+            <div className="tb-user-text" style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.25, textAlign: 'left' }}>
               <span style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--text-1)' }}>{displayName}</span>
-              <span style={{ fontSize: 10.5, color: 'var(--text-4)' }}>Admin</span>
+              {roleLabel && <span style={{ fontSize: 10.5, color: 'var(--text-4)' }}>{roleLabel}</span>}
             </div>
             <span style={{ color: 'var(--text-4)', display: 'flex', flexShrink: 0 }}>{I.chevD}</span>
           </button>

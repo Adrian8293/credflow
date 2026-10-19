@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react'
-import { fmtDate, fmtFull, pNameShort, payName } from '../../lib/helpers.js'
+import { fmtDate, fmtFull, pNameShort, payName, daysUntil } from '../../lib/helpers.js'
 import { StageBadge } from '../../components/ui/Badge.jsx'
 import { useSorted } from '../../hooks/useSorted.js'
 import { STAGES } from '../../constants/stages.js'
@@ -94,7 +94,7 @@ function EnrollmentTable({ db, search, setSearch, fStage, setFStage, fProv, setF
                 </div>
               </td></tr>
             ) : list.map(e => {
-              const fuD   = fmtDate(e.followup) !== '—' ? (new Date(e.followup) - new Date()) / 86400000 : null
+              const fuD   = e.followup ? daysUntil(e.followup) : null
               const fuCol = fuD !== null && fuD <= 0 ? 'var(--danger)' : fuD !== null && fuD <= 7 ? 'var(--warning)' : 'var(--text-3)'
               const payer = db.payers.find(x => x.id === e.payId)
               const isOpen = menuOpen === e.id

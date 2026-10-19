@@ -1,25 +1,23 @@
 import { useMemo, useState } from 'react'
-import { pNameShort } from '../../lib/helpers.js'
+import { pNameShort, daysUntil } from '../../lib/helpers.js'
+import { usePersistedState } from '../../hooks/usePersistedState.js'
 import { enrollmentStatus, bestStatus, STATUS_META, todayStr } from '../../lib/matrix.js'
 import { PRODUCT_LINES, STATES } from '../../constants/enrollmentOptions.js'
+import { csvFromRows, downloadCsv } from '../../lib/csv.js'
 
 function exportCSV(rows, payers) {
   const head = ['Provider', ...payers.map(p => p.name)]
   const lines = [head, ...rows.map(r => [r.name, ...payers.map(p => (r.cells[p.id]?.label || ''))])]
-  const csv = lines.map(l => l.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n')
-  const a = document.createElement('a')
-  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }))
-  a.download = `provider-payer-matrix-${todayStr()}.csv`
-  a.click()
-  URL.revokeObjectURL(a.href)
+  downloadCsv(`provider-payer-matrix-${todayStr()}.csv`, csvFromRows(lines))
 }
 
 export function MatrixPage({ db, openEnrollModal }) {
-  const [fState, setFState] = useState('')
-  const [fProduct, setFProduct] = useState('')
-  const [fLevel, setFLevel] = useState('')
-  const [onlyBillable, setOnlyBillable] = useState(false)
+  const [fState, setFState] = usePersistedState('lc_pref_matrix_state', '')
+  const [fProduct, setFProduct] = usePersistedState('lc_pref_matrix_product', '')
+  const [fLevel, setFLevel] = usePersistedState('lc_pref_matrix_level', '')
+  const [onlyBillable, setOnlyBillable] = usePersistedState('lc_pref_matrix_billable', false, v => typeof v === 'boolean')
   const [allPayers, setAllPayers] = useState(false)
+  const [showInactive, setShowInactive] = useState(false)
   const today = todayStr()
 
   const enrollments = useMemo(() => db.enrollments.filter(e =>
@@ -31,7 +29,7 @@ export function MatrixPage({ db, openEnrollModal }) {
     return db.payers.filter(p => allPayers || used.has(p.id)).sort((a, b) => a.name.localeCompare(b.name))
   }, [db.payers, enrollments, allPayers])
 
-  const rows = useMemo(() => db.providers.map(p => {
+  const rows = useMemo(() => db.providers.filter(p => showInactive || p.status !== 'Inactive').map(p => {
     const cells = {}
     payers.forEach(pay => {
       const list = enrollments.filter(e => e.provId === p.id && e.payId === pay.id)
@@ -40,8 +38,9 @@ export function MatrixPage({ db, openEnrollModal }) {
       const best = bestStatus(sts)
       cells[pay.id] = { list: sts, best, label: STATUS_META[best.key].label }
     })
-    return { prov: p, name: pNameShort(db.providers, p.id), cells }
-  }).filter(r => !onlyBillable || Object.values(r.cells).some(c => c.best.key === 'billable')), [db.providers, payers, enrollments, today, onlyBillable])
+    const expiredCreds = [['License', p.licenseExp], ['Malpractice', p.malExp], ['DEA', p.deaExp]].filter(([, d]) => d && daysUntil(d) < 0).map(([n]) => n)
+    return { prov: p, name: pNameShort(db.providers, p.id), cells, expiredCreds }
+  }).filter(r => !onlyBillable || Object.values(r.cells).some(c => c.best.key === 'billable')), [db.providers, payers, enrollments, today, onlyBillable, showInactive])
 
   const billableCount = pay => rows.filter(r => r.cells[pay.id]?.best.key === 'billable').length
 
@@ -61,6 +60,7 @@ export function MatrixPage({ db, openEnrollModal }) {
         <select className="filter-select" value={fLevel} onChange={e => setFLevel(e.target.value)}><option value="">Individual + Group</option><option value="Individual">Individual only</option><option value="Group">Group only</option></select>
         <label style={{ fontSize: 12.5, color: 'var(--text-3)', display: 'flex', gap: 6, alignItems: 'center' }}><input type="checkbox" checked={onlyBillable} onChange={e => setOnlyBillable(e.target.checked)} /> Billable providers only</label>
         <label style={{ fontSize: 12.5, color: 'var(--text-3)', display: 'flex', gap: 6, alignItems: 'center' }}><input type="checkbox" checked={allPayers} onChange={e => setAllPayers(e.target.checked)} /> Show all payers</label>
+        <label style={{ fontSize: 12.5, color: 'var(--text-3)', display: 'flex', gap: 6, alignItems: 'center' }}><input type="checkbox" checked={showInactive} onChange={e => setShowInactive(e.target.checked)} /> Show inactive providers</label>
       </div>
 
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12 }}>
@@ -92,7 +92,7 @@ export function MatrixPage({ db, openEnrollModal }) {
               {rows.map(r => (
                 <tr key={r.prov.id}>
                   <td style={{ position: 'sticky', left: 0, background: 'var(--card)', padding: '8px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>
-                    <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-1)' }}>{r.name}</div>
+                    <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-1)' }}>{r.name}{r.expiredCreds.length > 0 && <span title={`Expired: ${r.expiredCreds.join(', ')} — claims may be denied`} style={{ color: 'var(--danger)', marginLeft: 6, fontSize: 12 }}>⚠ {r.expiredCreds.join(', ')}</span>}</div>
                     <div style={{ fontSize: 11, color: 'var(--text-4)' }}>{r.prov.cred}{r.prov.supervisor ? ' · supervised' : ''}</div>
                   </td>
                   {payers.map(pay => {

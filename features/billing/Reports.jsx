@@ -4,6 +4,7 @@
  * application breakdowns, provider stats, payer analysis, turnaround time.
  */
 
+import { downloadCsv as saveCsv } from '../../lib/csv.js'
 import { useState } from 'react'
 import { payName, getProviderAlerts } from '../../lib/helpers.js'
 import { Badge, StageBadge } from '../../components/ui/Badge.jsx'
@@ -250,9 +251,7 @@ export function Reports({ db, exportJSON, onOpenProvider, onOpenEnrollment }) {
   const stamp = new Date().toISOString().split('T')[0]
   function downloadCsv(name, rows) {
     if (!rows.length) { window.alert('Nothing to export yet.'); return }
-    const url = URL.createObjectURL(new Blob([toCsv(rows)], { type: 'text/csv' }))
-    const a = document.createElement('a'); a.href = url; a.download = `${name}-${stamp}.csv`; a.click()
-    setTimeout(() => URL.revokeObjectURL(url), 1000)
+    saveCsv(`${name}-${stamp}.csv`, toCsv(rows))
   }
   const provName = (id) => { const p = db.providers.find(x => x.id === id); return p ? `${p.fname} ${p.lname}`.trim() : '' }
   function runExport(id) {

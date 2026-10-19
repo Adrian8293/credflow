@@ -7,6 +7,11 @@
 import { useState } from 'react'
 import { useSorted } from '../../hooks/useSorted.js'
 import { PAYER_CATALOG } from '../../constants/payerRequirements.js'
+import { safeUrl } from '../../lib/safeUrl.js'
+
+// Payer logos come from third-party favicon services (each payer domain is sent to them).
+// Off by default: initials are shown instead. Set NEXT_PUBLIC_PAYER_LOGOS=true to turn on.
+const SHOW_LOGOS = process.env.NEXT_PUBLIC_PAYER_LOGOS === 'true'
 
 const SearchIcon = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 const LinkIcon   = () => <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
@@ -126,7 +131,7 @@ function payerColor(name) {
 
 // Logo source waterfall: Google favicon (64px) → DuckDuckGo → initials
 function getLogoSources(domain) {
-  if (!domain) return []
+  if (!domain || !SHOW_LOGOS) return []
   return [
     `https://t1.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=https://${domain}&size=64`,
     `https://icons.duckduckgo.com/ip3/${domain}.ico`,
@@ -364,8 +369,8 @@ export function PayersTab({ db, search, setSearch, fType, setFType, openPayerMod
                   <button className="btn btn-secondary btn-sm" style={{ flex:1, fontSize:12, display:'flex', alignItems:'center', justifyContent:'center', gap:4 }} onClick={()=>openPayerModal(p.id)}>
                     <EditIcon /> Edit
                   </button>
-                  {p.portal && (
-                    <a href={p.portal} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm" style={{ flex:1, fontSize:12, display:'flex', alignItems:'center', justifyContent:'center', gap:4, textDecoration:'none', color:'var(--pr)' }}>
+                  {safeUrl(p.portal) && (
+                    <a href={safeUrl(p.portal)} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm" style={{ flex:1, fontSize:12, display:'flex', alignItems:'center', justifyContent:'center', gap:4, textDecoration:'none', color:'var(--pr)' }}>
                       <LinkIcon /> Portal
                     </a>
                   )}
@@ -422,8 +427,8 @@ export function PayersTab({ db, search, setSearch, fType, setFType, openPayerMod
                     <td style={{ fontSize:12, color:'var(--text-3)' }}>{p.timeline||'—'}</td>
                     <td style={{ fontSize:12, color:'var(--text-3)' }}>{p.phone||'—'}</td>
                     <td>
-                      {p.portal
-                        ? <a href={p.portal} target="_blank" rel="noreferrer" style={{ fontSize:12, color:'var(--pr)', fontWeight:500, textDecoration:'none', display:'flex', alignItems:'center', gap:3 }}><LinkIcon /> Portal ↗</a>
+                      {safeUrl(p.portal)
+                        ? <a href={safeUrl(p.portal)} target="_blank" rel="noreferrer" style={{ fontSize:12, color:'var(--pr)', fontWeight:500, textDecoration:'none', display:'flex', alignItems:'center', gap:3 }}><LinkIcon /> Portal ↗</a>
                         : <span style={{ color:'var(--text-4)' }}>—</span>}
                     </td>
                     <td>

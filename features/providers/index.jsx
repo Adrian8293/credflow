@@ -52,9 +52,9 @@ function StatusBadge({ status }) {
 // Payers require re-attestation every 120 days; warn at 90 days elapsed.
 function CaqhAttestBadge({ caqhAttest }) {
   if (!caqhAttest) return null
-  const attested = new Date(caqhAttest)
-  if (isNaN(attested.getTime())) return null
-  const daysSince = Math.floor((Date.now() - attested.getTime()) / 86400000)
+  const until = daysUntil(caqhAttest)
+  if (until === null || isNaN(until)) return null
+  const daysSince = -until
   if (daysSince < 90) return null
 
   const isAlert = daysSince >= 120

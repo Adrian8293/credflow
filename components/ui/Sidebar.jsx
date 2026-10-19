@@ -47,12 +47,13 @@ const ROUTE_MAP = {
   '/add-provider':'add-provider',
 }
 
-export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db }) {
+export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db, mobileOpen = false, onNavClose }) {
   const router     = useRouter()
   const { activeOrg } = useGlobalContext()
   const canManageAccess = activeOrg?.role === 'owner' || activeOrg?.role === 'admin'
   const reviewCount = (db?.requests || []).filter(r => r.status === 'submitted').length
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsedPref, setCollapsed] = useState(false)
+  const collapsed = collapsedPref && !mobileOpen   // the phone menu always shows full labels
 
   // Active detection from router (preferred) with fallback to prop
   const activePage = ROUTE_MAP[router.pathname] || page
@@ -70,7 +71,7 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db 
   const initial = (displayName[0] || 'A').toUpperCase()
 
   const routeOf = (pg) => (pg === 'dashboard' ? '/' : `/${pg}`)
-  function nav(pg) { router.push(routeOf(pg)) }
+  function nav(pg) { onNavClose?.(); router.push(routeOf(pg)) }
 
   // Warm every page's code in the background so tab switches are instant (no-op in dev).
   useEffect(() => {
@@ -113,7 +114,7 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db 
   }
 
   return (
-    <nav className={`sidebar${collapsed ? ' sidebar-collapsed' : ''}`} role="navigation" aria-label="Main navigation">
+    <nav className={`sidebar${collapsed ? ' sidebar-collapsed' : ''}${mobileOpen ? ' mobile-open' : ''}`} role="navigation" aria-label="Main navigation">
 
       {/* ── Brand ── */}
       <div className="sb-logo">

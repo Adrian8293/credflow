@@ -6,6 +6,7 @@
 
 import { useState, useMemo } from 'react'
 import { PAYER_REQUIREMENTS } from '../../constants/stages.js'
+import { safeUrl } from '../../lib/safeUrl.js'
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 const SearchIcon    = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -204,7 +205,7 @@ function PayerCard({ name, req, isExpanded, onToggle, activeState, onClickState,
           <span>{req.revalidation}</span>
         </div>
         {req.portalUrl && (
-          <a href={req.portalUrl} target="_blank" rel="noreferrer" style={{ display:'flex', alignItems:'center', gap:4, fontSize:11.5, color:'var(--pr)', fontWeight:600, textDecoration:'none', marginLeft:'auto' }}>
+          <a href={safeUrl(req.portalUrl) || '#'} target="_blank" rel="noreferrer" style={{ display:'flex', alignItems:'center', gap:4, fontSize:11.5, color:'var(--pr)', fontWeight:600, textDecoration:'none', marginLeft:'auto' }}>
             <LinkIcon /> Portal ↗
           </a>
         )}
@@ -267,7 +268,7 @@ function PayerCard({ name, req, isExpanded, onToggle, activeState, onClickState,
               </button>
             )}
             {req.portalUrl && (
-              <a href={req.portalUrl} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm" style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, textDecoration:'none' }}>
+              <a href={safeUrl(req.portalUrl) || '#'} target="_blank" rel="noreferrer" className="btn btn-secondary btn-sm" style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, textDecoration:'none' }}>
                 <LinkIcon /> Open Portal
               </a>
             )}

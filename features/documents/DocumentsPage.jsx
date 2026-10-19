@@ -7,6 +7,8 @@ import { daysUntil, fmtDate, fmtFull, pName } from '../../lib/helpers.js'
 import { Badge, ExpiryBadge } from '../../components/ui/Badge.jsx'
 import { NO_EXPIRY_TYPES } from '../../hooks/useDocumentActions.js'
 import OpcaUploadPanel from '../../components/OpcaUploadPanel.jsx'
+import { useFeatures } from '../../hooks/useFeatures.js'
+import { csvFromRows, downloadCsv } from '../../lib/csv.js'
 
 const TABS = [
   { id: 'all',      label: 'All Documents' },
@@ -17,15 +19,16 @@ const TABS = [
 ]
 
 function ExpiringSoon({ db, openDocModal, alertDays = 90 }) {
+  const inactive = new Set(db.providers.filter(p => p.status === 'Inactive').map(p => p.id))
   const docs = db.documents
     .map(d => ({ ...d, days: daysUntil(d.exp) }))
-    .filter(d => d.days !== null && d.days <= alertDays)
+    .filter(d => d.days !== null && d.days <= alertDays && !inactive.has(d.provId))
     .sort((a, b) => a.days - b.days)
 
   return (
     <div>
       {docs.length === 0 ? (
-        <div className="empty-state"><div className="ei"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><h4>No documents expiring soon</h4><p>All credentials are valid beyond 90 days.</p></div>
+        <div className="empty-state"><div className="ei"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><h4>No documents expiring soon</h4><p>All documents are valid beyond {alertDays} days.</p></div>
       ) : (
         <>
           <div style={{ background: 'rgba(245,158,11,.07)', border: '1px solid rgba(245,158,11,.3)', borderRadius: 'var(--r)', padding: '10px 14px', marginBottom: 12, fontSize: 12, color: 'var(--amber-d)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 7 }}>
@@ -65,16 +68,12 @@ function ExpiringSoon({ db, openDocModal, alertDays = 90 }) {
 }
 
 function OpcaIntake({ db }) {
+  const feat = useFeatures()
   const [selectedProv, setSelectedProv] = useState('')
   const provider = db.providers.find(p => p.id === selectedProv) || null
 
   // Recent OPCA intakes: docs of type "OPCA" or similar
   const opcaDocs = db.documents.filter(d => d.type && d.type.toLowerCase().includes('opca'))
-
-  // Version stats
-  const v2025 = opcaDocs.filter(d => (d.notes || '').includes('2025')).length
-  const v2024 = opcaDocs.filter(d => (d.notes || '').includes('2024') && !(d.notes || '').includes('2025')).length
-  const v2023 = opcaDocs.filter(d => (d.notes || '').includes('2023') && !(d.notes || '').includes('2024') && !(d.notes || '').includes('2025')).length
 
   return (
     <div className="grid-2" style={{ alignItems: 'flex-start' }}>
@@ -82,11 +81,14 @@ function OpcaIntake({ db }) {
         <div className="card mb-12">
           <div className="card-header">
             <h3>OPCA PDF Intake</h3>
-            <span className="badge b-blue">AI-Powered</span>
+            <span className={`badge ${feat.ai ? 'b-blue' : 'b-gray'}`}>{feat.ai ? 'AI-assisted' : 'Free form reader'}</span>
           </div>
           <div className="card-body">
             <div style={{ background: 'var(--pr-l)', border: '1px solid #BFDBFE', borderRadius: 'var(--r)', padding: '10px 13px', marginBottom: 13, fontSize: 11.5, color: '#1e40af', fontWeight: 500, display: 'flex', gap: 7 }}>
-              ℹ Upload any OPCA PDF (2023–2025). AI extracts all fields and migrates to the current 2025 format automatically.
+              ℹ {feat.ai
+                ? 'Upload an OPCA PDF. AI reads the form and the data is saved for your review.'
+                : 'Upload an OPCA PDF that still has its fillable form fields. Core credentialing fields (name, license, DEA, NPI, malpractice, board certifications) are read for free; work history, education and references are not, so enter those by hand.'}
+              {' '}Personal details such as home address, birth date and demographics are {feat.opcaStoresPersonal ? 'saved (OPCA_STORE_PERSONAL is on)' : 'not saved'}.
             </div>
             <div className="fg" style={{ marginBottom: 12 }}>
               <label>Select Provider</label>
@@ -104,30 +106,6 @@ function OpcaIntake({ db }) {
                 <div style={{ fontSize: 11.5 }}>2023 · 2024 · 2025 versions supported</div>
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Workflow steps */}
-        <div className="card">
-          <div className="card-header"><h3>Extraction Workflow</h3></div>
-          <div className="card-body" style={{ padding: '4px 16px' }}>
-            {[
-              { n: 1, label: 'Upload PDF', status: 'done' },
-              { n: 2, label: 'AI Extraction', status: 'ready' },
-              { n: 3, label: 'Review & Verify', status: 'next' },
-              { n: 4, label: 'Migrate to 2025', status: 'next' },
-              { n: 5, label: 'Save to Provider', status: 'next' },
-            ].map((s, i, arr) => (
-              <div key={s.n} style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '8px 0', borderBottom: i < arr.length - 1 ? '1px solid var(--border-l)' : 'none' }}>
-                <div style={{ width: 20, height: 20, borderRadius: '50%', border: `1.5px solid ${s.status === 'done' ? 'var(--success)' : s.status === 'ready' ? 'var(--pr)' : 'var(--border)'}`, background: s.status === 'done' ? 'var(--success)' : s.status === 'ready' ? 'var(--pr-l)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: s.status === 'done' ? '#fff' : s.status === 'ready' ? 'var(--pr)' : 'var(--text-3)', flexShrink: 0 }}>
-                  {s.status === 'done' ? '✓' : s.n}
-                </div>
-                <div style={{ flex: 1, fontSize: 12, fontWeight: 500, color: 'var(--text-1)' }}>{s.label}</div>
-                <span className={`badge ${s.status === 'done' ? 'b-green' : s.status === 'ready' ? 'b-blue' : 'b-gray'}`} style={{ fontSize: 10 }}>
-                  {s.status === 'done' ? 'Done' : s.status === 'ready' ? 'Ready' : 'Pending'}
-                </span>
-              </div>
-            ))}
           </div>
         </div>
       </div>
@@ -153,39 +131,17 @@ function OpcaIntake({ db }) {
             )}
           </div>
         </div>
-
-        {/* Version migration stats */}
-        <div className="card">
-          <div className="card-header"><h3>Version Migration Stats</h3><span className="badge b-gray">{opcaDocs.length} total</span></div>
-          <div className="card-body" style={{ padding: '4px 16px' }}>
-            {[
-              { label: 'OPCA 2025', note: 'current', count: v2025 + 14, pct: 60, bar: 'var(--success)' },
-              { label: 'OPCA 2024', note: '', count: v2024 + 8, pct: 35, bar: 'var(--warning)' },
-              { label: 'OPCA 2023', note: 'legacy', count: v2023 + 4, pct: 15, bar: 'var(--danger)' },
-            ].map((v, i, arr) => (
-              <div key={v.label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: i < arr.length - 1 ? '1px solid var(--border-l)' : 'none' }}>
-                <span style={{ fontSize: 12, color: 'var(--text-2)' }}>{v.label} {v.note && <span style={{ fontSize: 10, color: 'var(--text-3)', marginLeft: 4 }}>{v.note}</span>}</span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 9, flex: 1, marginLeft: 14 }}>
-                  <div style={{ flex: 1, height: 4, background: 'var(--elevated)', borderRadius: 2, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: `${v.pct}%`, background: v.bar, borderRadius: 2 }} />
-                  </div>
-                  <span style={{ fontWeight: 700, color: 'var(--text-1)', minWidth: 20, textAlign: 'right', fontSize: 12 }}>{v.count}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   )
 }
 
-function VerifiedDocs({ db }) {
+function VerifiedDocs({ db, alertDays = 90 }) {
   // Docs that are active (not expired)
   const docs = db.documents.filter(d => {
     if (NO_EXPIRY_TYPES.has(d.type)) return true  // exempt types are always current
     const days = daysUntil(d.exp)
-    return days !== null && days > 90
+    return days !== null && days > alertDays
   })
   return (
     <div className="tbl-wrap">
@@ -220,22 +176,17 @@ function exportDocumentsCSV(documents, providers) {
   const headers = ['Provider', 'Document Type', 'Expiration Date', 'Days Until Expiry', 'File Name', 'Notes']
   const rows = documents.map(d => {
     const prov = providers.find(p => p.id === d.provId) || {}
-    const daysLeft = d.exp ? Math.round((new Date(d.exp + 'T00:00:00') - new Date()) / 86400000) : ''
+    const daysLeft = d.exp ? daysUntil(d.exp) : ''
     return [
       ((prov.fname || '') + ' ' + (prov.lname || '')).trim(),
       d.type || '',
       d.exp || '',
       String(daysLeft),
       d.fileName || '',
-      (d.notes || '').replace(/,/g, ';'),
+      d.notes || '',
     ]
   })
-  const csv = [headers, ...rows].map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n')
-  const blob = new Blob([csv], { type: 'text/csv' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a'); a.href = url
-  a.download = 'documents_' + new Date().toISOString().split('T')[0] + '.csv'
-  a.click(); URL.revokeObjectURL(url)
+  downloadCsv('documents_' + new Date().toISOString().split('T')[0] + '.csv', csvFromRows([headers, ...rows]))
 }
 
 export function DocumentsPage({ db, docSearch, setDocSearch, docFType, setDocFType, docFStatus, setDocFStatus, openDocModal, handleDeleteDocument }) {
@@ -275,7 +226,7 @@ export function DocumentsPage({ db, docSearch, setDocSearch, docFType, setDocFTy
       {tab === 'missing'  && <MissingDocuments db={db} />}
       {tab === 'expiring' && <ExpiringSoon db={db} openDocModal={openDocModal} alertDays={alertDays} />}
       {tab === 'opca'     && <OpcaIntake db={db} />}
-      {tab === 'verified' && <VerifiedDocs db={db} />}
+      {tab === 'verified' && <VerifiedDocs db={db} alertDays={alertDays} />}
     </div>
   )
 }

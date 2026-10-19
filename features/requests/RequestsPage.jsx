@@ -4,7 +4,7 @@
  */
 import { useMemo, useState } from 'react'
 import { DrawerModal } from '../../components/ui/Modal.jsx'
-import { createRequest, reviewRequest, cancelRequest } from '../../lib/db'
+import { createRequest, reviewRequest, cancelRequest, addAudit } from '../../lib/db'
 import { supabase } from '../../lib/supabase'
 import { fmtDate, daysUntil } from '../../lib/helpers.js'
 import { DOC_TYPES } from '../../constants/docTypes.js'
@@ -69,9 +69,14 @@ export function RequestsPage({ db, setDb, toast }) {
       const updated = await reviewRequest(r.id, true)
       upsertLocal(updated)
       const map = EXP_FIELD[r.docType]
-      if (syncExp && map && r.docExp) {
+      const current = providers.find(p => p.id === r.provId)?.[map?.key]
+      if (syncExp && map && r.docExp && current && r.docExp < current) {
+        // Never move a credential date backwards by accident.
+        toast(`Approved. Provider ${map.label} left as ${fmtDate(current)} (the new document shows an earlier date, ${fmtDate(r.docExp)}).`, 'warn')
+      } else if (syncExp && map && r.docExp) {
         const { error } = await supabase.from('providers').update({ [map.col]: r.docExp }).eq('id', r.provId)
         if (error) throw error
+        addAudit('Provider', 'Updated', `${map.label} set to ${fmtDate(r.docExp)} from an approved request`, r.provId)
         setDb(prev => ({ ...prev, providers: prev.providers.map(p => (p.id === r.provId ? { ...p, [map.key]: r.docExp } : p)) }))
         toast(`Approved. Provider ${map.label} updated to ${fmtDate(r.docExp)}.`, 'success')
       } else {

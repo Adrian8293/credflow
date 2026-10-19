@@ -12,6 +12,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { enforceRateLimit, validateOrigin } from '../../lib/api-middleware'
 import { features } from '../../lib/features'
 import { extractOpcaFromFormFields } from '../../lib/opca-form-reader'
+import { minimizeExtraction } from '../../lib/opcaMinimize'
 
 export const config = {
   api: { bodyParser: false },
@@ -280,6 +281,9 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Could not read the PDF form fields: ' + err.message })
     }
   }
+
+  // Credentialing only: drop personal details (home address, birth date, demographics, SSN) before anything is saved.
+  extractedData = minimizeExtraction(extractedData)
 
   // ── Map to opca_profiles columns ───────────────────────────────────────────
   const pi = extractedData.practitioner_info || {}

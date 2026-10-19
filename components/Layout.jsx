@@ -69,6 +69,16 @@ export function Layout({ children }) {
 
   // Two-step verification gate: if the account has an authenticator app but this session has not passed
   // the code check yet (aal1 → aal2), show the code screen instead of the app.
+  // Phone/tablet: the sidebar slides in over the page; it closes when you pick a page.
+  const [navOpen, setNavOpen] = React.useState(false)
+  useEffect(() => { setNavOpen(false) }, [router.asPath])
+  useEffect(() => {
+    if (!navOpen) return
+    const onKey = (e) => { if (e.key === 'Escape') setNavOpen(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [navOpen])
+
   const [mfaState, setMfaState] = React.useState('checking')   // checking | needed | ok
   useEffect(() => {
     if (!user) return
@@ -115,7 +125,10 @@ export function Layout({ children }) {
   return (
     <div className="app-root">
       {idleBanner}
+      {navOpen && <div className="sb-backdrop" onClick={() => setNavOpen(false)} aria-hidden="true" />}
       <Sidebar
+        mobileOpen={navOpen}
+        onNavClose={() => setNavOpen(false)}
         page={activePage}
         setPage={setPage}
         alertCount={alertCount}
@@ -127,6 +140,8 @@ export function Layout({ children }) {
 
       <div className="main">
         <Topbar
+          onMenu={() => setNavOpen(o => !o)}
+          menuOpen={navOpen}
           page={activePage}
           setPage={setPage}
           openEnrollModal={openEnrollModal}

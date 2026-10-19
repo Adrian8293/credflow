@@ -45,7 +45,11 @@ export function useEnrollmentActions({ db, setDb, toast, requestConfirm }) {
       danger: true,
     }))) return
     try {
-      await deleteEnrollment(id)
+      await deleteEnrollment(id, (() => {
+        const e = db.enrollments.find(x => x.id === id); if (!e) return undefined
+        const p = db.providers.find(x => x.id === e.provId); const y = db.payers.find(x => x.id === e.payId)
+        return `${p ? `${p.fname} ${p.lname}`.trim() : 'Provider'} — ${y?.name || 'Payer'}`
+      })())
       setDb(prev => ({ ...prev, enrollments: prev.enrollments.filter(x => x.id !== id) }))
       toast('Deleted.', 'warn')
     } catch(err) { toast(err.message, 'error') }

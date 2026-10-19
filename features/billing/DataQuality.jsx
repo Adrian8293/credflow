@@ -4,6 +4,7 @@
 import { useMemo, useState } from 'react'
 import { dataQualityIssues } from '../../lib/dataQuality.js'
 import { toCsv } from '../../lib/reportStats.js'
+import { downloadCsv } from '../../lib/csv.js'
 
 export function DataQuality({ db, onOpenProvider, onOpenEnrollment }) {
   const issues = useMemo(() => dataQualityIssues(db), [db])
@@ -12,9 +13,7 @@ export function DataQuality({ db, onOpenProvider, onOpenEnrollment }) {
   const shown = issues.filter(i => scope === 'all' || i.scope === scope)
 
   function exportCsv() {
-    const url = URL.createObjectURL(new Blob([toCsv(shown.map(i => ({ Type: i.scope, Name: i.who, Issue: i.issue, Priority: i.sev === 'high' ? 'High' : 'Medium' })))], { type: 'text/csv' }))
-    const a = document.createElement('a'); a.href = url; a.download = `data-quality-${new Date().toISOString().split('T')[0]}.csv`; a.click()
-    setTimeout(() => URL.revokeObjectURL(url), 1000)
+    downloadCsv(`data-quality-${new Date().toISOString().split('T')[0]}.csv`, toCsv(shown.map(i => ({ Type: i.scope, Name: i.who, Issue: i.issue, Priority: i.sev === 'high' ? 'High' : 'Medium' }))))
   }
 
   if (issues.length === 0) {
@@ -27,7 +26,7 @@ export function DataQuality({ db, onOpenProvider, onOpenEnrollment }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 14 }}>
         <span style={{ fontSize: 13, color: 'var(--text-2)' }}><strong>{issues.length}</strong> item{issues.length === 1 ? '' : 's'} to fix · <strong style={{ color: 'var(--danger)' }}>{high}</strong> high priority (hide a risk or break tracking)</span>
         <select className="filter-select" style={{ fontSize: 12, marginLeft: 'auto' }} value={scope} onChange={e => setScope(e.target.value)} aria-label="Filter by type">
-          <option value="all">Providers + applications</option><option value="provider">Providers only</option><option value="enrollment">Applications only</option>
+          <option value="all">Everything</option><option value="provider">Providers only</option><option value="enrollment">Applications only</option><option value="document">Documents only</option>
         </select>
         <button className="btn btn-secondary btn-sm" onClick={exportCsv}>↓ Export CSV</button>
       </div>
@@ -38,8 +37,8 @@ export function DataQuality({ db, onOpenProvider, onOpenEnrollment }) {
             <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{i.issue}</div>
           </div>
           <span className={`badge ${i.sev === 'high' ? 'b-red' : 'b-amber'}`}>{i.sev === 'high' ? 'High' : 'Medium'}</span>
-          <button className="btn btn-sm btn-secondary" onClick={() => (i.scope === 'provider' ? onOpenProvider?.(i.refId) : onOpenEnrollment?.(i.refId))}>
-            {i.scope === 'provider' ? 'Open provider' : 'Open application'}
+          <button className="btn btn-sm btn-secondary" onClick={() => (i.scope === 'provider' ? onOpenProvider?.(i.refId) : i.scope === 'document' ? onOpenProvider?.(i.provId) : onOpenEnrollment?.(i.refId))}>
+            {i.scope === 'enrollment' ? 'Open application' : 'Open provider'}
           </button>
         </div>
       ))}

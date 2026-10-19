@@ -100,7 +100,7 @@ export function TaskModal({ db, taskForm, setTaskForm, editingId, handleSaveTask
           <label>Provider <span style={{ fontSize: 10.5, color: 'var(--text-4)', fontWeight: 400 }}>(optional)</span></label>
           <select value={f('provId')} onChange={e => set('provId', e.target.value)}>
             <option value="">— None —</option>
-            {db.providers.map(p => <option key={p.id} value={p.id}>{p.fname} {p.lname}</option>)}
+            {[...db.providers].filter(p => p.status !== 'Inactive' || p.id === f('provId')).sort((a, b) => `${a.lname} ${a.fname}`.localeCompare(`${b.lname} ${b.fname}`)).map(p => <option key={p.id} value={p.id}>{p.fname} {p.lname}</option>)}
           </select>
         </div>
 
@@ -108,7 +108,7 @@ export function TaskModal({ db, taskForm, setTaskForm, editingId, handleSaveTask
           <label>Payer <span style={{ fontSize: 10.5, color: 'var(--text-4)', fontWeight: 400 }}>(optional)</span></label>
           <select value={f('payId')} onChange={e => set('payId', e.target.value)}>
             <option value="">— None —</option>
-            {db.payers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+            {[...db.payers].sort((a, b) => a.name.localeCompare(b.name)).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </div>
 

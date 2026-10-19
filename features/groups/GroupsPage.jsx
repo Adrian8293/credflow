@@ -13,6 +13,12 @@ const MIGRATION_MSG = 'Groups need supabase-migration-013-legal-entities.sql (ru
 const card = { background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--r-lg)', padding: 16 }
 const label = { fontSize: 11, fontWeight: 700, letterSpacing: '.6px', textTransform: 'uppercase', color: 'var(--text-4)' }
 
+// Only blame a missing migration when the database says the table doesn't exist.
+function explain(e) {
+  const missing = /42P01|does not exist|schema cache|relation/i.test(`${e?.code} ${e?.message}`)
+  return missing ? MIGRATION_MSG : `Could not load groups: ${e?.message || 'unknown error'}. Check your connection and refresh.`
+}
+
 function isMedicaid(contract, payer) {
   return contract.productLine === 'Medicaid' || payer?.type === 'Medicaid'
 }
@@ -40,7 +46,7 @@ export function GroupsPage({ db, setDb, toast, openEnrollModal }) {
       const list = await fetchEntities()
       setEntities(list)
       setSelId(prev => prev || list[0]?.id || '')
-    } catch { setError(MIGRATION_MSG) }
+    } catch (e) { setError(explain(e)) }
     setLoading(false)
   }, [])
   useEffect(() => { loadEntities() }, [loadEntities])
@@ -48,7 +54,7 @@ export function GroupsPage({ db, setDb, toast, openEnrollModal }) {
   const loadChildren = useCallback(async (id) => {
     if (!id) { setContracts([]); setLocations([]); return }
     try { const [c, l] = await Promise.all([fetchContracts(id), fetchLocations(id)]); setContracts(c); setLocations(l) }
-    catch { setError(MIGRATION_MSG) }
+    catch (e) { setError(explain(e)) }
   }, [])
   useEffect(() => { loadChildren(selId) }, [selId, loadChildren])
 
@@ -75,7 +81,7 @@ export function GroupsPage({ db, setDb, toast, openEnrollModal }) {
   }
   async function removeContract(id) {
     if (!window.confirm('Delete this contract? Linked enrollments keep their data but lose the contract link.')) return
-    try { await deleteContract(id); await loadChildren(selId) } catch (err) { toast(err.message, 'error') }
+    try { await deleteContract(id, (() => { const c = contracts.find(x => x.id === id); return c ? `${payName(db.payers, c.payerId)} ${[c.state, c.productLine].filter(Boolean).join(' ')}`.trim() : undefined })()); await loadChildren(selId) } catch (err) { toast(err.message, 'error') }
   }
   async function saveLocation() {
     if (!locForm.name.trim()) return
@@ -85,13 +91,13 @@ export function GroupsPage({ db, setDb, toast, openEnrollModal }) {
   }
   async function removeLocation(id) {
     if (!window.confirm('Delete this location?')) return
-    try { await deleteLocation(id); await loadChildren(selId) } catch (err) { toast(err.message, 'error') }
+    try { await deleteLocation(id, locations.find(x => x.id === id)?.name); await loadChildren(selId) } catch (err) { toast(err.message, 'error') }
   }
 
   // Bulk onboarding: create Not Started enrollments under a contract for the chosen providers.
   const onboardPayer = onboard ? db.payers.find(p => p.id === onboard.payerId) : null
   const medicaidBlock = onboard ? isMedicaid(onboard, onboardPayer) : false
-  const candidates = onboard ? db.providers.filter(p => !db.enrollments.some(e => e.provId === p.id && e.payId === onboard.payerId && e.entityId === selId)) : []
+  const candidates = onboard ? db.providers.filter(p => p.status !== 'Inactive' && !db.enrollments.some(e => e.provId === p.id && e.payId === onboard.payerId && e.entityId === selId)) : []
 
   async function runOnboard() {
     const ids = Object.keys(picked).filter(k => picked[k])

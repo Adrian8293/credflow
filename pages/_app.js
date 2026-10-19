@@ -85,6 +85,12 @@ class ErrorBoundary extends React.Component {
 }
 
 export default function App({ Component, pageProps }) {
+  // Installable app: register the service worker (production only; it never caches data).
+  React.useEffect(() => {
+    if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => { /* optional feature */ })
+    }
+  }, [])
   const router = useRouter()
   
   // Define routes that shouldn't render the layout
@@ -107,7 +113,14 @@ export default function App({ Component, pageProps }) {
           rel="stylesheet"
         />
         <title>Lacentra</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+        <meta name="theme-color" content="#1565C0" />
+        <link rel="manifest" href="/manifest.webmanifest" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-title" content="Lacentra" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </Head>
       <ErrorBoundary>
         <AppContextProvider>

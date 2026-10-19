@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { fetchContacts, addContact, deleteContact } from '../../lib/db'
 import { DateInput } from '../../components/ui/DateInput.jsx'
+import { fmtDate, daysUntil } from '../../lib/helpers.js'
 
 const METHODS = ['Phone', 'Email', 'Portal', 'Fax', 'Mail', 'Other']
 
@@ -23,7 +24,7 @@ export function ContactLog({ enrollmentId, onFollowupSet, onChanged }) {
   const load = useCallback(async () => {
     setLoading(true); setError('')
     try { setRows(await fetchContacts(enrollmentId)) }
-    catch { setError('Contact log unavailable. Run supabase-migration-009-contact-log.sql in Supabase.') }
+    catch (e) { setError(/relation|does not exist|42P01/i.test(`${e?.code} ${e?.message}`) ? 'Contact log unavailable. Run supabase-migration-009-contact-log.sql in Supabase.' : `Could not load the contact log: ${e?.message || 'unknown error'}`) }
     setLoading(false)
   }, [enrollmentId])
   useEffect(() => { load() }, [load])
@@ -43,7 +44,7 @@ export function ContactLog({ enrollmentId, onFollowupSet, onChanged }) {
 
   async function remove(id) {
     if (!window.confirm('Delete this log entry?')) return
-    try { await deleteContact(id); await load() } catch { setError('Could not delete the entry.') }
+    try { await deleteContact(id, enrollmentId); await load() } catch { setError('Could not delete the entry.') }
   }
 
   return (
@@ -78,11 +79,14 @@ export function ContactLog({ enrollmentId, onFollowupSet, onChanged }) {
           {rows.map(r => (
             <li key={r.id} style={{ border: '1px solid var(--border)', borderRadius: 'var(--r)', padding: '8px 12px', background: 'var(--card)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 12, color: 'var(--text-3)' }}>
-                <span><strong style={{ color: 'var(--text-1)' }}>{r.method}</strong> · {r.contacted_at}{r.contact_name ? ` · ${r.contact_name}` : ''}{r.reference_no ? ` · Ref ${r.reference_no}` : ''}</span>
+                <span><strong style={{ color: 'var(--text-1)' }}>{r.method}</strong> · {fmtDate(r.contacted_at)}{r.contact_name ? ` · ${r.contact_name}` : ''}{r.reference_no ? ` · Ref ${r.reference_no}` : ''}</span>
                 <button type="button" onClick={() => remove(r.id)} aria-label="Delete entry" style={{ background: 'none', border: 'none', color: 'var(--text-4)', cursor: 'pointer' }}>×</button>
               </div>
               <div style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4, whiteSpace: 'pre-wrap' }}>{r.summary}</div>
-              {r.next_followup && <div style={{ fontSize: 11.5, color: 'var(--amber)', marginTop: 4 }}>Follow up: {r.next_followup}</div>}
+              {r.next_followup && (() => {
+                const d = daysUntil(r.next_followup)
+                return <div style={{ fontSize: 11.5, color: d !== null && d < 0 ? 'var(--red)' : 'var(--amber)', marginTop: 4 }}>Follow up: {fmtDate(r.next_followup)}{d !== null && d < 0 ? ' (past)' : ''}</div>
+              })()}
             </li>
           ))}
         </ul>

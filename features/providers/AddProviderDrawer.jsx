@@ -463,7 +463,7 @@ export function AddProviderDrawer({
       {/* Drawer panel */}
       <div style={{
         position: 'fixed', top: 0, right: 0, bottom: 0,
-        width: 580, background: 'var(--card)',
+        width: 'min(580px, 100vw)', background: 'var(--card)',
         boxShadow: '-12px 0 48px rgba(0,0,0,.18)',
         zIndex: 201, display: 'flex', flexDirection: 'column',
         animation: 'slideInRight .22s cubic-bezier(.16,1,.3,1)',

@@ -127,7 +127,9 @@ export function useProviderActions({ db, setDb, toast, requestConfirm, setPage }
     }))) return
     setSaving(true)
     try {
-      await deleteProvider(id)
+      await deleteProvider(id, (() => {
+        const p = db.providers.find(x => x.id === id); return p ? `${p.fname} ${p.lname}`.trim() : undefined
+      })())
       setDb(prev => ({ ...prev, providers: prev.providers.filter(x => x.id !== id) }))
       toast('Provider deleted.', 'warn')
       setEditingProviderId(null)

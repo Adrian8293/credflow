@@ -1,20 +1,23 @@
 import React from 'react'
 import Head from 'next/head'
 import { useGlobalContext } from '../context/AppContext'
-import { WorkflowTasks } from '../components/WorkflowOverhaul'
+import { TasksPage } from '../features/tasks/TasksPage.jsx'
 
 export default function Tasks() {
-  const { db, openTaskModal, tasks } = useGlobalContext()
+  const { db, openTaskModal, openProvDetail, tasks } = useGlobalContext()
 
   return (
     <>
       <Head>
         <title>Lacentra — Tasks</title>
       </Head>
-      <WorkflowTasks
+      <TasksPage
         db={db}
         openTaskModal={openTaskModal}
+        openProvDetail={openProvDetail}
         handleMarkDone={tasks.handleMarkDone}
+        handleReopen={tasks.handleReopen}
+        handleQuickAdd={tasks.handleQuickAdd}
         handleDeleteTask={tasks.handleDeleteTask}
       />
     </>
@@ -23,6 +26,4 @@ export default function Tasks() {
 
 // Static page — no getServerSideProps needed.
 // Auth is enforced client-side: Layout.jsx redirects unauthenticated
-// users to /login via useAuth. Removing getServerSideProps eliminates
-// the server round-trip that was causing tab-switch delays (every navigation
-// previously waited for a /_next/data fetch before rendering).
+// users to /login via useAuth.
