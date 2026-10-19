@@ -486,7 +486,7 @@ export function AddProviderDrawer({
               {isEdit ? `Updating ${f('fname')} ${f('lname')}` : 'Start with NPI lookup to auto-fill the form'}
             </p>
           </div>
-          <button onClick={onClose} style={{
+          <button onClick={onClose} className="x-close" aria-label="Close" style={{
             width: 30, height: 30, borderRadius: 'var(--r)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             background: 'var(--elevated)', border: '1.5px solid var(--border)',

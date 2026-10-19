@@ -1105,3 +1105,39 @@ select.filter-select {
   }
   table.cards tr:not(:has(td[data-role="check"])) td[data-role="title"] { padding-right: 52px !important; }
 }
+
+/* ── Stage 34: easier to see and tap (older users) ── */
+.show-on-phone { display: none !important; }
+.modal-close, .x-close {
+  width: 38px !important; height: 38px !important; border-radius: 50% !important; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+  background: var(--red-l, #FEE2E2) !important; border: 2px solid var(--red-b, #FCA5A5) !important; color: var(--red, #DC2626) !important;
+  font-size: 16px !important; font-weight: 700;
+}
+.modal-close:hover, .x-close:hover { background: var(--red, #DC2626) !important; border-color: var(--red, #DC2626) !important; color: #fff !important; }
+.x-hide, .x-link {
+  display: inline-flex; align-items: center; gap: 4px; cursor: pointer; font-family: inherit; font-weight: 700; font-size: 13px;
+  padding: 7px 14px; min-height: 36px; border-radius: 999px; border: 1.5px solid var(--pr); color: var(--pr); background: var(--card);
+}
+.x-hide:hover, .x-link:hover { background: var(--pr); color: #fff; }
+:focus-visible { outline: 3px solid var(--pr); outline-offset: 2px; }
+.badge { font-size: 12px; }
+
+@media (max-width: 900px) {
+  .show-on-phone { display: inline-flex !important; }
+  /* Notification box: always fully on screen, under the top bar */
+  .tb-flyout {
+    position: fixed !important; top: 64px !important; left: 8px !important; right: 8px !important;
+    width: auto !important; max-height: calc(100vh - 64px - 76px - env(safe-area-inset-bottom)) !important;
+  }
+  /* Bigger text and touch targets */
+  body { font-size: 15px; }
+  .btn, .btn-sm, .btn-xs { min-height: 44px; padding: 8px 14px; font-size: 14px; }
+  .btn-xs { min-width: 44px; }
+  .badge { font-size: 12.5px; padding: 4px 10px; }
+  input, select, textarea { min-height: 46px; }
+  input[type="checkbox"], input[type="radio"] { min-height: 0; width: 24px; height: 24px; }
+  .modal-close, .x-close { width: 44px !important; height: 44px !important; }
+  .tabs .tab { font-size: 14px; }
+  .toast { font-size: 14px; }
+}

@@ -90,11 +90,11 @@ function AlertFlyout({ db, setPage, openProvDetail, onClose }) {
       borderRadius: 'var(--r-xl)', boxShadow: 'var(--shadow-xl)',
       zIndex: 400, display: 'flex', flexDirection: 'column',
       animation: 'menuIn .14s ease', overflow: 'hidden',
-    }} role="dialog" aria-label="Notifications">
+    }} className="tb-flyout" role="dialog" aria-label="Notifications">
 
       {/* Header */}
       <div style={{ padding: '14px 16px 12px', borderBottom: '1px solid var(--border-l)', background: 'var(--elevated)', flexShrink: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <div>
             <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-.02em' }}>
               Notifications
@@ -108,11 +108,14 @@ function AlertFlyout({ db, setPage, openProvDetail, onClose }) {
           {alerts.length > 0 && (
             <button
               onClick={() => { setPage('alerts'); onClose() }}
-              style={{ fontSize: 11, color: 'var(--pr)', fontWeight: 600, cursor: 'pointer', border: 'none', background: 'none', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 3 }}
+              className="x-link"
             >
               View all {I.ext}
             </button>
           )}
+          <button onClick={onClose} className="x-close show-on-phone" aria-label="Close notifications">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
       </div>
 

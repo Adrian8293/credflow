@@ -61,7 +61,7 @@ export function SetupChecklist({ db, role, orgId, setPage, openEnrollModal }) {
         <div style={{ flex: 1, minWidth: 80, height: 6, background: 'var(--elevated)', borderRadius: 99, overflow: 'hidden' }} aria-hidden="true">
           <div style={{ width: `${(doneCount / steps.length) * 100}%`, height: '100%', background: 'var(--pr)', transition: 'width .3s' }} />
         </div>
-        <button onClick={hide} style={{ fontSize: 11.5, color: 'var(--text-4)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>Hide</button>
+        <button onClick={hide} className="x-hide" aria-label="Hide the setup card">Hide</button>
       </div>
       <div>
         {steps.map(s => {
