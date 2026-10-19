@@ -36,7 +36,7 @@ export function AccessPage({ db, toast, activeOrg }) {
   const load = useCallback(async () => {
     try {
       const [m, i] = await Promise.all([fetchMembers(), fetchInvites()])
-      setMembers(m); setInvites(i); setError('')
+      setMembers(Array.isArray(m) ? m : []); setInvites(Array.isArray(i) ? i : []); setError('')
     } catch (e) {
       setError(/function|relation|does not exist/i.test(e.message || '')
         ? 'Access management needs supabase-migration-015-portal.sql. Run it in the Supabase SQL editor, then refresh.'
