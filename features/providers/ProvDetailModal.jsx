@@ -549,7 +549,7 @@ function DocumentsTab({ prov, db }) {
 }
 
 // ─── MAIN MODAL ───────────────────────────────────────────────────────────────
-export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollModal, toast, syncFromNPPES, onSaveLicense, onDeleteLicense, onRenewCredential }) {
+export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollModal, toast, syncFromNPPES, onSaveLicense, onDeleteLicense, onRenewCredential, onSyncRenewalDocument }) {
   const [renew, setRenew] = useState(null)   // { kind, license? } — which credential is being renewed
   const [tab, setTab] = useState('overview')
 
@@ -628,10 +628,10 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
               </div>
             </div>
 
-            <ReadinessRing score={score} size={64} />
+            <span className="prof-ring"><ReadinessRing score={score} size={64} /></span>
 
             {/* Actions */}
-            <div style={{ display: 'flex', gap: 6, alignItems: 'flex-start', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            <div className="prof-actions" style={{ display: 'flex', gap: 6, alignItems: 'flex-start', flexShrink: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
               <button className="btn btn-primary btn-sm" onClick={() => openEnrollModal(null, prov.id)} style={{ gap: 5 }}>
                 {I.plus} Enrollment
               </button>
@@ -712,6 +712,7 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
           onClose={() => setRenew(null)}
           onSave={(patch, label) => onRenewCredential?.(prov.id, patch, label)}
           onSaveLicense={onSaveLicense}
+          onSyncDocument={(meta, file) => onSyncRenewalDocument?.(prov.id, meta, file)}
         />
       )}
     </>

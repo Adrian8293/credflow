@@ -47,7 +47,12 @@ const KINDS = {
   ] },
 }
 
-export function RenewCredentialModal({ prov, target, onClose, onSave, onSaveLicense }) {
+const DOC_TYPE = { license: 'License', extraLicense: 'License', malpractice: 'Malpractice', dea: 'DEA', caqh: 'CAQH Attestation', recred: 'Recredentialing' }
+const EXPIRY_KEY = { license: 'licenseExp', extraLicense: 'expires', malpractice: 'malExp', dea: 'deaExp', caqh: 'caqhDue', recred: 'recred' }
+const NUMBER_KEY = { license: 'license', extraLicense: 'number', malpractice: 'malPolicy', dea: 'dea' }
+const OK_EXT = ['pdf', 'jpg', 'jpeg', 'png', 'webp', 'doc', 'docx', 'tiff']
+
+export function RenewCredentialModal({ prov, target, onClose, onSave, onSaveLicense, onSyncDocument }) {
   const cfg = KINDS[target.kind]
   const source = target.kind === 'extraLicense' ? (target.license || {}) : prov
   const [vals, setVals] = useState(() => {
@@ -60,6 +65,7 @@ export function RenewCredentialModal({ prov, target, onClose, onSave, onSaveLice
   })
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const [file, setFile] = useState(null)
   const set = (k, v) => { setVals(s => ({ ...s, [k]: v })); setErr('') }
 
   async function submit() {
@@ -67,6 +73,11 @@ export function RenewCredentialModal({ prov, target, onClose, onSave, onSaveLice
       const v = vals[f.key]
       if (f.required && !/^\d{4}-\d{2}-\d{2}$/.test(v || '')) { setErr(`Enter a valid date for “${f.label}”.`); return }
       if (f.future && v && daysUntil(v) <= 0) { setErr(`“${f.label}” must be a date in the future.`); return }
+    }
+    if (file) {
+      const ext = file.name.split('.').pop().toLowerCase()
+      if (!OK_EXT.includes(ext)) { setErr(`That file type (.${ext}) is not allowed. Use PDF, JPG, PNG, WEBP, DOC, DOCX or TIFF.`); return }
+      if (file.size > 10 * 1024 * 1024) { setErr('That file is over 10 MB. Choose a smaller file or a PDF scan at lower resolution.'); return }
     }
     setBusy(true)
     let ok
@@ -79,6 +90,14 @@ export function RenewCredentialModal({ prov, target, onClose, onSave, onSaveLice
         if (f.date || v) patch[f.key] = v   // an empty text box means "unchanged"
       })
       ok = await onSave?.(patch, cfg.title)
+    }
+    if (ok && DOC_TYPE[target.kind]) {
+      await onSyncDocument?.({
+        type: DOC_TYPE[target.kind],
+        exp: vals[EXPIRY_KEY[target.kind]],
+        number: (vals[NUMBER_KEY[target.kind]] || '').trim(),
+        issuer: (vals.malCarrier || '').trim(),
+      }, file)
     }
     setBusy(false)
     if (ok) onClose()
@@ -113,8 +132,12 @@ export function RenewCredentialModal({ prov, target, onClose, onSave, onSaveLice
         </div>
       ))}
       {err && <div role="alert" style={{ color: 'var(--danger)', fontSize: 13.5, fontWeight: 600 }}>{err}</div>}
-      <div style={{ fontSize: 12.5, color: 'var(--text-4)', marginTop: 10 }}>
-        Tip: also upload the new document on the Documents tab so the file on record matches.
+      <div className="fg" style={{ marginTop: 6 }}>
+        <label>Attach the new document (optional)</label>
+        <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.tiff" onChange={e => { setFile(e.target.files?.[0] || null); setErr('') }} />
+        <div style={{ fontSize: 12.5, color: 'var(--text-4)' }}>
+          PDF or photo, up to 10 MB. It replaces the file on record and the Documents list gets the new expiration.
+        </div>
       </div>
     </Modal>
   )

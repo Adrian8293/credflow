@@ -1156,3 +1156,29 @@ select.filter-select {
   .btn-ghost, a.link, .fg a, .fg button.link { min-height: 40px; }
   .page .hint, .fg .hint { font-size: 13px; }
 }
+
+/* ── Stage 37: readable stage stepper, tidy profile header ── */
+@media (max-width: 900px) {
+  /* Enrollment stage: a clear vertical list instead of tiny side-by-side labels */
+  .workflow-steps { flex-direction: column; align-items: stretch; gap: 6px; overflow: visible; }
+  .ws { flex-direction: row; align-items: center; gap: 12px; min-width: 0; padding: 4px 0; }
+  .ws:not(:last-child)::after { display: none; }
+  .ws-dot { width: 32px; height: 32px; font-size: 14px; flex-shrink: 0; }
+  .ws-label { font-size: 15px; max-width: none; margin-top: 0; text-align: left; color: var(--text-3); }
+  .ws.done .ws-label, .ws.active .ws-label { font-size: 15px; }
+  .ws.active .ws-label { font-weight: 700; }
+
+  /* Provider profile header: close button stays top-right, actions are a tidy 2-column grid */
+  .drawer-xl .drawer-header { position: sticky; }
+  .drawer-xl .drawer-header > div:first-child { padding-right: 52px; }
+  .prof-actions .modal-close { position: absolute !important; top: 10px; right: 10px; z-index: 3; margin-left: 0 !important; }
+  .drawer-xl .drawer-header > div:first-child > .prof-actions { display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+  .prof-actions .btn { justify-content: center; }
+  .prof-ring { flex-shrink: 0; }
+  .alert-item .btn { min-height: 44px; font-size: 14px !important; padding: 8px 14px !important; }
+}
+@media (max-width: 900px) {
+  /* The Stage dropdown below already lets you change it; the list only needs to show where you are now */
+  .workflow-steps .ws:not(.active) { display: none; }
+  .workflow-steps .ws.active .ws-label { font-size: 17px; }
+}

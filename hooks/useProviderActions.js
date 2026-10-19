@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import {
+  upsertDocument, uploadDocumentFile, deleteDocumentFile,
   upsertProvider, deleteProvider,
   uploadProviderPhoto, deleteProviderPhoto,
   addAudit, saveLicense, deleteLicense,
@@ -173,6 +174,46 @@ export function useProviderActions({ db, setDb, toast, requestConfirm, setPage }
     } catch (err) { toast(err.message, 'error'); return false }
   }
 
+  // Keep the Documents record in step with a renewal: the existing document of that type gets the new expiration
+  // (and the new file, if one was chosen); if there is none and a file was chosen, a new document is created.
+  async function syncRenewalDocument(providerId, meta, file) {
+    const prov = db.providers.find(p => p.id === providerId)
+    if (!prov || !meta?.type) return
+    const existing = (db.documents || [])
+      .filter(d => d.provId === providerId && d.type === meta.type)
+      .sort((a, b) => String(b.exp || '').localeCompare(String(a.exp || '')))[0]
+    if (!existing && !file) return
+    try {
+      let doc = await upsertDocument({
+        ...(existing || {}),
+        id: existing?.id,
+        provId: providerId,
+        type: meta.type,
+        exp: meta.exp,
+        issuer: meta.issuer || existing?.issuer || '',
+        number: meta.number || existing?.number || '',
+      }, `${prov.fname} ${prov.lname}`)
+      if (file) {
+        try {
+          const { filePath, fileName } = await uploadDocumentFile(doc.id, providerId, file)
+          const oldPath = existing?.filePath
+          doc = { ...doc, filePath, fileName }
+          if (oldPath && oldPath !== filePath) deleteDocumentFile(doc.id, oldPath).catch(() => {})
+        } catch (err) {
+          toast(`Renewal saved, but the file did not upload: ${err.message}. Add it on the Documents tab.`, 'warn')
+        }
+      }
+      setDb(prev => ({
+        ...prev,
+        documents: (prev.documents || []).some(d => d.id === doc.id)
+          ? prev.documents.map(d => d.id === doc.id ? doc : d)
+          : [...(prev.documents || []), doc],
+      }))
+    } catch (err) {
+      toast(`Renewal saved, but the document record was not updated: ${err.message}`, 'warn')
+    }
+  }
+
   async function lookupNPI() {
     if (!/^\d{10}$/.test(npiInput)) { toast('Enter a valid 10-digit NPI.', 'error'); return }
     setNpiLoading(true)
@@ -301,7 +342,7 @@ export function useProviderActions({ db, setDb, toast, requestConfirm, setPage }
     handlePhotoUpload, handleDeletePhoto,
     handleSaveProvider, handleDeleteProvider,
     handleSaveLicense, handleDeleteLicense,
-    handleAlertMarkDone, handleRenewCredential,
+    handleAlertMarkDone, handleRenewCredential, syncRenewalDocument,
     lookupNPI, syncFromNPPES, applyNpiSync,
     editProvider,
     pendingEdit, setPendingEdit,

@@ -229,6 +229,7 @@ export function Layout({ children }) {
           toast={toast}
           syncFromNPPES={providers.syncFromNPPES}
           onRenewCredential={providers.handleRenewCredential}
+          onSyncRenewalDocument={providers.syncRenewalDocument}
           onSaveLicense={providers.handleSaveLicense}
           onDeleteLicense={providers.handleDeleteLicense}
         />
