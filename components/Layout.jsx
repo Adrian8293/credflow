@@ -228,6 +228,7 @@ export function Layout({ children }) {
           openEnrollModal={openEnrollModal}
           toast={toast}
           syncFromNPPES={providers.syncFromNPPES}
+          onRenewCredential={providers.handleRenewCredential}
           onSaveLicense={providers.handleSaveLicense}
           onDeleteLicense={providers.handleDeleteLicense}
         />

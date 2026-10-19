@@ -159,6 +159,20 @@ export function useProviderActions({ db, setDb, toast, requestConfirm, setPage }
     } catch(err) { toast(err.message, 'error'); return false }
   }
 
+  // Focused renewal from the profile: saves only the changed credential fields and records who renewed what.
+  async function handleRenewCredential(providerId, patch, label) {
+    const prov = db.providers.find(p => p.id === providerId)
+    if (!prov || !patch) return false
+    try {
+      const saved = await upsertProvider({ ...prov, ...patch })
+      setDb(prev => ({ ...prev, providers: prev.providers.map(p => p.id === saved.id ? saved : p) }))
+      const changed = Object.keys(patch).map(k => `${k}: ${prov[k] || '—'} → ${patch[k]}`).join('; ')
+      await addAudit('Provider', 'Credential renewed', `${prov.fname} ${prov.lname} — ${label || 'credential'} (${changed})`, prov.id)
+      toast('Renewal saved.', 'success')
+      return true
+    } catch (err) { toast(err.message, 'error'); return false }
+  }
+
   async function lookupNPI() {
     if (!/^\d{10}$/.test(npiInput)) { toast('Enter a valid 10-digit NPI.', 'error'); return }
     setNpiLoading(true)
@@ -287,7 +301,7 @@ export function useProviderActions({ db, setDb, toast, requestConfirm, setPage }
     handlePhotoUpload, handleDeletePhoto,
     handleSaveProvider, handleDeleteProvider,
     handleSaveLicense, handleDeleteLicense,
-    handleAlertMarkDone,
+    handleAlertMarkDone, handleRenewCredential,
     lookupNPI, syncFromNPPES, applyNpiSync,
     editProvider,
     pendingEdit, setPendingEdit,

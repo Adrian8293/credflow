@@ -14,6 +14,7 @@ import { useState } from 'react'
 import { daysUntil, fmtDate, fmtTS } from '../../lib/helpers.js'
 import OpcaUploadPanel from '../../components/OpcaUploadPanel'
 import { LicensesSection } from './LicensesSection.jsx'
+import { RenewCredentialModal } from './RenewCredentialModal.jsx'
 import { openPacketWindow } from '../../lib/packet.js'
 
 // ─── SPECIALTY COLOR MAP ───────────────────────────────────────────────────────
@@ -78,7 +79,7 @@ function readinessScore(prov) {
 }
 
 // ─── CREDENTIAL CARD ──────────────────────────────────────────────────────────
-function CredCard({ label, value, expDate, mono, editAction }) {
+function CredCard({ label, value, expDate, mono, editAction, actionLabel = 'Update' }) {
   if (!value && !expDate) return null
   const days = daysUntil(expDate)
   const isExpired  = days !== null && days < 0
@@ -116,7 +117,7 @@ function CredCard({ label, value, expDate, mono, editAction }) {
         {badgeText && <span className={`badge ${badgeCls}`} style={{ fontSize: 10 }}>{badgeText}</span>}
         {editAction && (
           <button onClick={editAction} style={{ marginLeft: 'auto', fontSize: 10.5, color: 'var(--pr)', fontWeight: 600, cursor: 'pointer', border: 'none', background: 'none', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 3 }}>
-            Update {I.ext}
+            {actionLabel} {I.ext}
           </button>
         )}
       </div>
@@ -368,7 +369,7 @@ function OverviewTab({ prov, db, openEnrollModal }) {
 }
 
 // ─── CREDENTIALS TAB ─────────────────────────────────────────────────────────
-function CredentialsTab({ prov, db, onEdit, onSaveLicense, onDeleteLicense }) {
+function CredentialsTab({ prov, db, onEdit, onRenew, onSaveLicense, onDeleteLicense }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 22 }}>
 
@@ -381,9 +382,9 @@ function CredentialsTab({ prov, db, onEdit, onSaveLicense, onDeleteLicense }) {
         <div className="grid-2" style={{ gap: 10 }}>
           <CredCard label="NPI Number"          value={prov.npi}        mono editAction={onEdit} />
           <CredCard label="Malpractice Carrier" value={prov.malCarrier} />
-          <CredCard label="Malpractice Policy"  value={prov.malPolicy}  expDate={prov.malExp} editAction={onEdit} />
-          <CredCard label="DEA Registration #"  value={prov.dea}        expDate={prov.deaExp} mono editAction={onEdit} />
-          <CredCard label="Re-credentialing Due" value={prov.recred ? 'Scheduled' : null} expDate={prov.recred} editAction={onEdit} />
+          <CredCard label="Malpractice Policy"  value={prov.malPolicy}  expDate={prov.malExp} editAction={() => onRenew({ kind: 'malpractice' })} actionLabel="Renew" />
+          <CredCard label="DEA Registration #"  value={prov.dea}        expDate={prov.deaExp} mono editAction={() => onRenew({ kind: 'dea' })} actionLabel="Renew" />
+          <CredCard label="Re-credentialing Due" value={prov.recred ? 'Scheduled' : null} expDate={prov.recred} editAction={() => onRenew({ kind: 'recred' })} actionLabel="Renew" />
         </div>
       </div>
 
@@ -391,7 +392,7 @@ function CredentialsTab({ prov, db, onEdit, onSaveLicense, onDeleteLicense }) {
       <div>
         <SectionEyebrow label="IDs & Identifiers" />
         <div className="grid-2" style={{ gap: 10 }}>
-          <CredCard label="CAQH ID"            value={prov.caqh}     expDate={prov.caqhDue} mono editAction={onEdit} />
+          <CredCard label="CAQH ID"            value={prov.caqh}     expDate={prov.caqhDue} mono editAction={() => onRenew({ kind: 'caqh' })} actionLabel="Attest" />
           <CredCard label="Medicare PTAN"      value={prov.ptan}     mono />
           <CredCard label="Medicaid / DMAP ID" value={prov.medicaid} mono />
           {prov.supervisor && <CredCard label="Supervising Provider" value={prov.supervisor} />}
@@ -548,7 +549,8 @@ function DocumentsTab({ prov, db }) {
 }
 
 // ─── MAIN MODAL ───────────────────────────────────────────────────────────────
-export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollModal, toast, syncFromNPPES, onSaveLicense, onDeleteLicense }) {
+export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollModal, toast, syncFromNPPES, onSaveLicense, onDeleteLicense, onRenewCredential }) {
+  const [renew, setRenew] = useState(null)   // { kind, license? } — which credential is being renewed
   const [tab, setTab] = useState('overview')
 
   if (!prov) return null
@@ -565,17 +567,17 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
   // ── Build credential alerts ─────────────────────────────────────────────────
   const credAlerts = []
   const CRED_FIELDS = [
-    { field: prov.licenseExp, label: `State License${prov.licenseState ? ` (${prov.licenseState})` : ''}` },
-    ...(db.licenses || []).filter(l => l.provId === prov.id && l.status !== 'Inactive').map(l => ({ field: l.expires, label: `${l.state} License` })),
-    { field: prov.malExp,     label: 'Malpractice Insurance' },
-    { field: prov.deaExp,     label: 'DEA Registration' },
-    { field: prov.caqhDue,   label: 'CAQH Attestation' },
+    { field: prov.licenseExp, label: `State License${prov.licenseState ? ` (${prov.licenseState})` : ''}`, target: { kind: 'license' } },
+    ...(db.licenses || []).filter(l => l.provId === prov.id && l.status !== 'Inactive').map(l => ({ field: l.expires, label: `${l.state} License`, target: { kind: 'extraLicense', license: l } })),
+    { field: prov.malExp,     label: 'Malpractice Insurance', target: { kind: 'malpractice' } },
+    { field: prov.deaExp,     label: 'DEA Registration', target: { kind: 'dea' } },
+    { field: prov.caqhDue,   label: 'CAQH Attestation', target: { kind: 'caqh' } },
   ]
-  CRED_FIELDS.forEach(({ field, label }) => {
+  CRED_FIELDS.forEach(({ field, label, target }) => {
     const d = daysUntil(field)
     if (d === null) return
-    if (d < 0) credAlerts.push({ label: `${label} EXPIRED ${Math.abs(d)}d ago`, sev: 'error' })
-    else if (d <= 30) credAlerts.push({ label: `${label} expires in ${d} day${d !== 1 ? 's' : ''}`, sev: 'warn' })
+    if (d < 0) credAlerts.push({ label: `${label} EXPIRED ${Math.abs(d)}d ago`, sev: 'error', target })
+    else if (d <= 30) credAlerts.push({ label: `${label} expires in ${d} day${d !== 1 ? 's' : ''}`, sev: 'warn', target })
   })
 
   const TABS = [
@@ -661,9 +663,9 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
                   <button
                     className="btn btn-sm"
                     style={{ fontSize: 11, padding: '4px 10px', flexShrink: 0, background: a.sev === 'error' ? 'rgba(239,68,68,.1)' : 'rgba(245,158,11,.1)', color: a.sev === 'error' ? 'var(--danger)' : 'var(--warning)', borderColor: a.sev === 'error' ? 'rgba(239,68,68,.3)' : 'rgba(245,158,11,.3)' }}
-                    onClick={() => editProvider?.(prov.id)}
+                    onClick={() => (a.target ? setRenew(a.target) : editProvider?.(prov.id))}
                   >
-                    Update →
+                    Renew →
                   </button>
                 </div>
               ))}
@@ -695,7 +697,7 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
         {/* ── Scrollable body ────────────────────────────────────────────── */}
         <div className="drawer-body" role="tabpanel">
           {tab === 'overview'    && <OverviewTab     prov={prov} db={db} openEnrollModal={openEnrollModal} />}
-          {tab === 'credentials' && <CredentialsTab  prov={prov} db={db} onEdit={() => editProvider?.(prov.id)} onSaveLicense={onSaveLicense} onDeleteLicense={onDeleteLicense} />}
+          {tab === 'credentials' && <CredentialsTab  prov={prov} db={db} onEdit={() => editProvider?.(prov.id)} onRenew={setRenew} onSaveLicense={onSaveLicense} onDeleteLicense={onDeleteLicense} />}
           {tab === 'enrollments' && <EnrollmentsTab  prov={prov} db={db} openEnrollModal={openEnrollModal} />}
           {tab === 'tasks'       && <TasksTab        prov={prov} db={db} />}
           {tab === 'documents'   && <DocumentsTab    prov={prov} db={db} />}
@@ -703,6 +705,15 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
         </div>
 
       </div>
+      {renew && (
+        <RenewCredentialModal
+          prov={prov}
+          target={renew}
+          onClose={() => setRenew(null)}
+          onSave={(patch, label) => onRenewCredential?.(prov.id, patch, label)}
+          onSaveLicense={onSaveLicense}
+        />
+      )}
     </>
   )
 }
