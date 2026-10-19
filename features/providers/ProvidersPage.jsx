@@ -17,7 +17,7 @@ export function ProvidersPage({
   provSearch, setProvSearch,
   provFStatus, setProvFStatus,
   provFSpec, setProvFSpec,
-  openProvDetail, editProvider,
+  openProvDetail, editProvider, pendingEdit, clearPendingEdit,
   setPage, setProvForm, setEditingId,
   setNpiInput, setNpiResult,
   syncFromNPPES,
@@ -66,6 +66,11 @@ export function ProvidersPage({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [router.isReady, router.query.add])
+
+  // Edit requested from elsewhere (profile window, alerts): open the drawer once this page is showing
+  useEffect(() => {
+    if (pendingEdit) { setDrawerOpen(true); clearPendingEdit?.() }
+  }, [pendingEdit]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Called from WorkflowProviderCard "Edit" button
   // editProvider(id) is already hooked in index.js to open the edit form.
@@ -119,7 +124,7 @@ export function ProvidersPage({
               }}>{v.icon} {v.label}</button>
             ))}
           </div>
-          <button className="btn btn-secondary btn-sm" onClick={() => setImportOpen(true)} title="Add many providers from a CSV file">Import CSV</button>
+          <button className="btn btn-secondary btn-sm hide-on-phone" onClick={() => setImportOpen(true)} title="Add many providers from a CSV file">Import CSV</button>
           <button className="btn btn-primary btn-sm" onClick={openAddDrawer}
             style={{ display:'flex', alignItems:'center', gap:6 }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>

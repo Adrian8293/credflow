@@ -67,14 +67,14 @@ export function SetupChecklist({ db, role, orgId, setPage, openEnrollModal }) {
         {steps.map(s => {
           const isNext = firstOpen?.key === s.key
           return (
-            <div key={s.key} className="alert-feed-item" style={{ gap: 12, alignItems: 'center', opacity: s.done === true ? 0.6 : 1 }}>
+            <div key={s.key} className={`alert-feed-item${s.done === true ? ' sc-done' : ''}`} style={{ gap: 12, alignItems: 'center', opacity: s.done === true ? 0.6 : 1 }}>
               <span aria-hidden="true" style={{ width: 20, height: 20, borderRadius: '50%', flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700,
                 background: s.done === true ? 'var(--success, #12b76a)' : 'transparent', color: '#fff', border: s.done === true ? 'none' : '1.5px solid var(--border-mid, #d0d5dd)' }}>
                 {s.done === true ? '✓' : ''}
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--text-1)', textDecoration: s.done === true ? 'line-through' : 'none' }}>{s.title}</div>
-                <div style={{ fontSize: 11.5, color: 'var(--text-4)' }}>{s.hint}</div>
+                <div className="sc-hint" style={{ fontSize: 11.5, color: 'var(--text-4)' }}>{s.hint}</div>
               </div>
               {s.done !== true && (
                 <button className={`btn btn-sm ${isNext ? 'btn-primary' : 'btn-secondary'}`} onClick={s.go}>{s.cta}</button>

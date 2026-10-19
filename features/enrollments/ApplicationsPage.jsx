@@ -172,8 +172,8 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
             <p style={{ fontSize: 12.5, color: 'var(--text-4)', margin: 0 }}>Track and manage all credentialing applications.</p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn btn-secondary" style={{ height: 36, fontSize: 13 }} onClick={() => setImportOpen(true)} title="Add many applications from a CSV file">Import CSV</button>
-            <button className="btn btn-secondary" style={{ height: 36, fontSize: 13 }} onClick={() => exportEnrollmentsCSV(filtered, db.providers, db.payers)} title="Export current view to CSV">↓ Export CSV</button>
+            <button className="btn btn-secondary hide-on-phone" style={{ height: 36, fontSize: 13 }} onClick={() => setImportOpen(true)} title="Add many applications from a CSV file">Import CSV</button>
+            <button className="btn btn-secondary hide-on-phone" style={{ height: 36, fontSize: 13 }} onClick={() => exportEnrollmentsCSV(filtered, db.providers, db.payers)} title="Export current view to CSV">↓ Export CSV</button>
             <button className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, height: 36, fontSize: 13 }} onClick={() => openEnrollModal()}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               New Application

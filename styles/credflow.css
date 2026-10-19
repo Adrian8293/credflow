@@ -1011,7 +1011,97 @@ select.filter-select {
   h2 { overflow-wrap: anywhere; }
 }
 
+/* ─── PHONE MODE: simple, card-based, thumb-reachable ────────────────────── */
+.mtb { display: none; }
+
+@media (max-width: 900px) {
+  /* Bottom tab bar */
+  .mtb {
+    display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 400;
+    background: var(--card); border-top: 1.5px solid var(--border);
+    padding: 4px 4px calc(4px + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 20px rgba(16,24,40,.06);
+  }
+  .mtb-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 6px 2px; min-height: 52px; color: var(--text-4); border-radius: 10px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mtb-item.active { color: var(--pr); }
+  .mtb-ic { position: relative; display: flex; }
+  .mtb-lb { font-size: 10.5px; font-weight: 600; letter-spacing: .01em; }
+  .mtb-badge {
+    position: absolute; top: -5px; right: -9px; min-width: 16px; height: 16px; padding: 0 4px;
+    border-radius: 99px; background: var(--danger, #dc2626); color: #fff; font-size: 9.5px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .pages { padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
+  .toast-wrap { bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .sidebar { padding-bottom: calc(60px + env(safe-area-inset-bottom)); }
+
+  /* Less to read: no page descriptions, no secondary export/import buttons, no hints */
+  .page > div:first-child p, .page > div:first-child > div > p { display: none; }
+  .hide-on-phone { display: none !important; }
+  .kpi-sub, .kpi-icon-wrap { display: none; }
+  .kpi { padding: 12px 14px; }
+  .kpi-label { margin-bottom: 4px; }
+  .kpi-value { margin-bottom: 0; }
+  .topbar-title, .topbar-crumb { display: none; }
+
+  /* Tables become cards: title, then label/value rows, actions last */
+  .tbl-wrap { overflow: visible; border: none; box-shadow: none; background: transparent; border-radius: 0; }
+  .tbl-wrap table.cards, table.cards { min-width: 0 !important; width: 100%; display: block; border: none; background: transparent; }
+  table.cards thead { display: none; }
+  table.cards tbody { display: block; }
+  table.cards tr {
+    display: block; position: relative; background: var(--card);
+    border: 1.5px solid var(--border); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px;
+    box-shadow: var(--shadow-sm);
+  }
+  table.cards td {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 5px 0 !important; border: none !important; text-align: right;
+    white-space: normal !important; min-width: 0; overflow-wrap: anywhere;
+  }
+  table.cards td::before {
+    content: attr(data-label); flex-shrink: 0; text-align: left;
+    font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--text-4);
+  }
+  table.cards td[data-role="title"] { display: block; text-align: left; padding: 0 34px 8px 0 !important; font-size: 15px; font-weight: 700; }
+  table.cards td[data-role="title"]::before { display: none; }
+  table.cards td[data-role="check"] { position: absolute; top: 12px; right: 12px; display: block; padding: 0 !important; width: auto; }
+  table.cards td[data-role="check"]::before { display: none; }
+  table.cards td[data-empty="1"] { display: none; }
+  table.cards td[data-role="actions"] { justify-content: flex-end; gap: 8px; margin-top: 8px; padding-top: 10px !important; border-top: 1px solid var(--border-l) !important; }
+  table.cards td[data-role="actions"]::before { display: none; }
+  table.cards td[data-label=""]::before { display: none; }
+
+  /* Label/value rows: value column stacks cleanly instead of spreading apart */
+  table.cards td:not([data-role]) { display: grid; grid-template-columns: minmax(82px, 38%) 1fr; align-items: start; column-gap: 10px; padding: 4px 0 !important; }
+  table.cards td:not([data-role]) > * { grid-column: 2; text-align: right; justify-self: end; max-width: 100%; }
+  table.cards td:not([data-role])::before { grid-column: 1; padding-top: 2px; }
+  table.cards tr { padding: 10px 14px; }
+
+  /* Today: setup card shows only what is still to do, without the small print */
+  .sc-done, .sc-hint { display: none !important; }
+
+  /* Big, clear primary actions; filter rows stay on one tidy line */
+  .toolbar .filter-select { flex: 1 1 140px; }
+  .tabs .tab { padding: 10px 14px; }
+}
+
 /* Installed app (home-screen icon): leave room for the notch / home bar */
 @media (display-mode: standalone) {
   body { overscroll-behavior-y: none; }
+}
+
+/* ── Stage 32: phone polish ── */
+@media (max-width: 900px) {
+  .dash-layout { grid-template-columns: minmax(0, 1fr); }
+  .dash-main, .dash-layout > * { min-width: 0; }
+  /* Row actions sit in the card corner instead of taking a row of their own */
+  table.cards tr:not(:has(td[data-role="check"])) td[data-role="actions"] {
+    position: absolute; top: 8px; right: 10px; margin: 0; padding: 0 !important; border: none !important;
+  }
+  table.cards tr:not(:has(td[data-role="check"])) td[data-role="title"] { padding-right: 52px !important; }
 }

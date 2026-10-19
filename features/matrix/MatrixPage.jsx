@@ -51,7 +51,7 @@ export function MatrixPage({ db, openEnrollModal }) {
           <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-.03em', marginBottom: 3 }}>Billing Matrix</h2>
           <p style={{ fontSize: 13, color: 'var(--text-4)' }}>Who can bill which payer today. Click a cell to open the enrollment, or an empty cell to start one.</p>
         </div>
-        <button className="btn btn-secondary" onClick={() => exportCSV(rows, payers)}>Export CSV</button>
+        <button className="btn btn-secondary hide-on-phone" onClick={() => exportCSV(rows, payers)}>Export CSV</button>
       </div>
 
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 14 }}>
@@ -74,7 +74,7 @@ export function MatrixPage({ db, openEnrollModal }) {
       {payers.length === 0 || rows.length === 0 ? (
         <div className="empty-state"><div className="empty-state-title">Nothing to show</div><div className="empty-state-desc">No enrollments match these filters.</div></div>
       ) : (
-        <div style={{ overflowX: 'auto', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--r-lg)' }}>
+        <div data-no-cards style={{ overflowX: 'auto', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--r-lg)' }}>
           <table style={{ borderCollapse: 'separate', borderSpacing: 0, minWidth: '100%' }}>
             <thead>
               <tr>

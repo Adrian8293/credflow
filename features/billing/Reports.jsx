@@ -274,7 +274,7 @@ export function Reports({ db, exportJSON, onOpenProvider, onOpenEnrollment }) {
           <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-.03em', marginBottom: 3 }}>Reports</h2>
           <p style={{ fontSize: 13, color: 'var(--text-4)' }}>Analyze performance and credentialing metrics across Lacentra.</p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="hide-on-phone" style={{ display: 'flex', gap: 8 }}>
           <button className="btn btn-secondary btn-sm" onClick={exportXLSX} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {Icon.download} Export Excel (.xlsx)
           </button>

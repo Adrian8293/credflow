@@ -8,6 +8,9 @@ import { EnrollModal } from '../features/enrollments/EnrollModal.jsx'
 import { PayerModal } from '../features/payers/PayerModal.jsx'
 import { DocModal } from '../features/documents/DocModal.jsx'
 import { TaskModal } from '../features/documents/TaskModal.jsx'
+import { MobileTabBar } from './ui/MobileTabBar.jsx'
+import { useCardTables } from '../hooks/useCardTables.js'
+import { daysUntil } from '../lib/helpers.js'
 import { ProvDetailModal } from '../features/providers/ProvDetailModal.jsx'
 import { NpiSyncModal } from '../features/providers/NpiSyncModal.jsx'
 import { AiFollowupModal } from './AiFollowupModal.jsx'
@@ -69,6 +72,8 @@ export function Layout({ children }) {
 
   // Two-step verification gate: if the account has an authenticator app but this session has not passed
   // the code check yet (aal1 → aal2), show the code screen instead of the app.
+  useCardTables()   // phone mode: tables become cards
+
   // Phone/tablet: the sidebar slides in over the page; it closes when you pick a page.
   const [navOpen, setNavOpen] = React.useState(false)
   useEffect(() => { setNavOpen(false) }, [router.asPath])
@@ -162,6 +167,12 @@ export function Layout({ children }) {
           {children}
         </div>
       </div>
+      <MobileTabBar
+        menuOpen={navOpen}
+        onMore={() => setNavOpen(o => !o)}
+        overdueCount={(db?.tasks || []).filter(t => t.status !== 'Done' && t.due && daysUntil(t.due) < 0).length}
+        taskCount={(db?.tasks || []).filter(t => t.status !== 'Done').length}
+      />
 
       {modal === 'enroll' && (
         <EnrollModal
@@ -213,7 +224,7 @@ export function Layout({ children }) {
           prov={provDetail}
           db={db}
           onClose={() => setModal(null)}
-          editProvider={providers.editProvider}
+          editProvider={(id) => { providers.editProvider(id); setModal(null); setPage('providers') }}
           openEnrollModal={openEnrollModal}
           toast={toast}
           syncFromNPPES={providers.syncFromNPPES}

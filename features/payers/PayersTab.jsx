@@ -170,7 +170,7 @@ function PayerLogo({ name, color, size = 28 }) {
     </div>
   )
 
-  if (!domain || failed) return Fallback
+  if (!domain || failed || !sources.length) return Fallback
 
   return (
     <div style={{

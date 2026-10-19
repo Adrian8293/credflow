@@ -28,6 +28,8 @@ export default function Providers() {
         setProvFSpec={setProvFSpec}
         openProvDetail={openProvDetail}
         editProvider={providers.editProvider}
+        pendingEdit={providers.pendingEdit}
+        clearPendingEdit={() => providers.setPendingEdit(false)}
         setPage={setPage}
         setProvForm={providers.setProvForm}
         setEditingId={({ provider }) => providers.setEditingProviderId(provider)}

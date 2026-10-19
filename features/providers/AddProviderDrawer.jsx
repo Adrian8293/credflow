@@ -457,7 +457,7 @@ export function AddProviderDrawer({
       {/* Backdrop */}
       <div onClick={onClose} style={{
         position: 'fixed', inset: 0, background: 'rgba(13,27,61,.35)',
-        backdropFilter: 'blur(2px)', zIndex: 200, transition: 'opacity .2s',
+        backdropFilter: 'blur(2px)', zIndex: 500, transition: 'opacity .2s',
       }} />
 
       {/* Drawer panel */}
@@ -465,7 +465,7 @@ export function AddProviderDrawer({
         position: 'fixed', top: 0, right: 0, bottom: 0,
         width: 'min(580px, 100vw)', background: 'var(--card)',
         boxShadow: '-12px 0 48px rgba(0,0,0,.18)',
-        zIndex: 201, display: 'flex', flexDirection: 'column',
+        zIndex: 501, display: 'flex', flexDirection: 'column',
         animation: 'slideInRight .22s cubic-bezier(.16,1,.3,1)',
       }}>
 

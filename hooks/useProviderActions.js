@@ -13,6 +13,8 @@ export function useProviderActions({ db, setDb, toast, requestConfirm, setPage }
   const [provForm, setProvForm]           = useState({})
   const [editingProviderId, setEditingProviderId] = useState(null)
   const [saving, setSaving]               = useState(false)
+  // Set when something outside the Providers page asks to edit a provider; the page opens its drawer and clears it.
+  const [pendingEdit, setPendingEdit]     = useState(false)
   const [photoUploading, setPhotoUploading] = useState(false)
   const [npiInput, setNpiInput]           = useState('')
   const [npiResult, setNpiResult]         = useState(null)
@@ -271,7 +273,7 @@ export function useProviderActions({ db, setDb, toast, requestConfirm, setPage }
     setProvForm({ ...prov })
     setNpiInput(prov.npi || '')
     setNpiResult(null)
-    // Note: caller (ProvidersPage.handleEditFromCard) is responsible for opening the drawer
+    setPendingEdit(true)
   }
 
   return {
@@ -288,5 +290,6 @@ export function useProviderActions({ db, setDb, toast, requestConfirm, setPage }
     handleAlertMarkDone,
     lookupNPI, syncFromNPPES, applyNpiSync,
     editProvider,
+    pendingEdit, setPendingEdit,
   }
 }
