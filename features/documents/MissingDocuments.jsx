@@ -2,8 +2,27 @@ import { daysUntil, fmtDate, pName } from '../../lib/helpers.js'
 import { Badge } from '../../components/ui/Badge.jsx'
 import { REQUIRED_DOCS } from '../../constants/payerRequirements.js'
 import { useState } from 'react'
+import { createRequest } from '../../lib/db'
+import { DOC_TYPES } from '../../constants/docTypes.js'
 
-export function MissingDocuments({ db }) {
+// What each requirement needs, and how it gets fixed.
+//  type  = a document the provider can send (we can request it, or add it ourselves)
+//  field = a value that lives on the provider record (edit the provider)
+const FIX = {
+  license: { how: 'type', docType: 'License' },
+  malpractice: { how: 'type', docType: 'Malpractice' },
+  w9: { how: 'type', docType: 'W-9' },
+  dea: { how: 'type', docType: 'DEA' },
+  supAgreement: { how: 'type', docType: 'Supervision Agreement' },
+  npi: { how: 'field', hint: 'Add the NPI' },
+  caqh: { how: 'field', hint: 'Add the CAQH number' },
+  caqhAttest: { how: 'field', hint: 'Set the attestation date' },
+  recred: { how: 'field', hint: 'Set the date' },
+}
+
+export function MissingDocuments({ db, openDocModal, actions = {} }) {
+  const { setDb, toast, setPage, editProvider, setDocForm } = actions
+  const [busy, setBusy] = useState('')
   const [filterSeverity, setFilterSeverity] = useState('')
   const [filterProv, setFilterProv] = useState('')
 
@@ -22,18 +41,59 @@ export function MissingDocuments({ db }) {
           if (days !== null && days < 0) missing = true
         }
       }
-      if (missing) issues.push({ prov, label: req.label, severity: req.severity, key: req.key })
+      if (missing) issues.push({ prov, label: req.label, severity: req.severity, key: req.key, fix: FIX[req.key] })
     })
     // Also flag expired documents from the documents table
     db.documents.filter(d => d.provId === prov.id).forEach(doc => {
       const days = daysUntil(doc.exp)
       if (days !== null && days < 0) {
-        issues.push({ prov, label: `${doc.type} EXPIRED`, severity: 'error', key: `doc-${doc.id}`, detail: `Expired ${Math.abs(days)} days ago` })
+        issues.push({ prov, label: `${doc.type} EXPIRED`, severity: 'error', key: `doc-${doc.id}`, doc, fix: { how: 'doc', docType: doc.type }, detail: `Expired ${Math.abs(days)} days ago` })
       } else if (days !== null && days <= 30) {
-        issues.push({ prov, label: `${doc.type} expiring soon`, severity: 'warn', key: `doc-exp-${doc.id}`, detail: `${days} days remaining` })
+        issues.push({ prov, label: `${doc.type} expiring soon`, severity: 'warn', key: `doc-exp-${doc.id}`, doc, fix: { how: 'doc', docType: doc.type }, detail: `${days} days remaining` })
       }
     })
   })
+
+  const openReqs = (db.requests || []).filter(r => r.status === 'requested' || r.status === 'submitted')
+  const reqFor = (issue) => issue.fix?.docType && openReqs.find(r => r.provId === issue.prov.id && r.docType === issue.fix.docType)
+
+  async function request(issue) {
+    const docType = DOC_TYPES.includes(issue.fix.docType) ? issue.fix.docType : 'Other'
+    const k = issue.prov.id + issue.key
+    setBusy(k)
+    try {
+      const due = new Date(); due.setDate(due.getDate() + 14)
+      const dueStr = `${due.getFullYear()}-${String(due.getMonth() + 1).padStart(2, '0')}-${String(due.getDate()).padStart(2, '0')}`
+      const r = await createRequest({ provId: issue.prov.id, docType, title: docType, note: '', due: dueStr })
+      setDb?.(prev => ({ ...prev, requests: [r, ...(prev.requests || [])] }))
+      toast?.(`Requested from ${issue.prov.fname} ${issue.prov.lname}. Due in 14 days. Track it on the Requests page.`, 'success')
+    } catch (e) { toast?.(e.message || 'Could not send the request', 'error') }
+    finally { setBusy('') }
+  }
+  function addMyself(issue) {
+    if (issue.fix.how === 'doc' && issue.doc) { openDocModal?.(issue.doc.id); return }
+    openDocModal?.()
+    setDocForm?.({ type: DOC_TYPES.includes(issue.fix.docType) ? issue.fix.docType : 'Other', provId: issue.prov.id })
+  }
+  function editProv(issue) { editProvider?.(issue.prov.id); setPage?.('providers') }
+
+  function Actions({ issue }) {
+    const f = issue.fix
+    if (!f) return null
+    const open = reqFor(issue)
+    const k = issue.prov.id + issue.key
+    if (f.how === 'field') {
+      return <button className="btn btn-sm btn-primary" onClick={() => editProv(issue)}>{f.hint || 'Fix it'} →</button>
+    }
+    return (
+      <>
+        {open
+          ? <span className="badge b-blue" title="Waiting on the provider. See the Requests page.">{open.status === 'submitted' ? 'Uploaded — review' : 'Requested'}</span>
+          : <button className="btn btn-sm btn-primary" disabled={busy === k} onClick={() => request(issue)}>{busy === k ? 'Sending…' : f.how === 'doc' ? 'Request renewal' : 'Ask provider'}</button>}
+        <button className="btn btn-sm btn-secondary" onClick={() => addMyself(issue)}>{f.how === 'doc' ? 'Update it' : 'Add it myself'}</button>
+      </>
+    )
+  }
 
   const filtered = issues.filter(i =>
     (!filterSeverity || i.severity === filterSeverity) &&
@@ -74,7 +134,7 @@ export function MissingDocuments({ db }) {
                     <div className="missing-doc-title">{issue.prov.fname} {issue.prov.lname}{issue.prov.cred ? `, ${issue.prov.cred}` : ''}</div>
                     <div className="missing-doc-sub">{issue.label}{issue.detail ? ` · ${issue.detail}` : ''}</div>
                   </div>
-                  <div className="missing-doc-badge"><span className="badge b-red">Action Required</span></div>
+                  <div className="missing-doc-badge" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end' }}><Actions issue={issue} /></div>
                 </div>
               ))}
             </div>
@@ -89,7 +149,7 @@ export function MissingDocuments({ db }) {
                     <div className="missing-doc-title">{issue.prov.fname} {issue.prov.lname}{issue.prov.cred ? `, ${issue.prov.cred}` : ''}</div>
                     <div className="missing-doc-sub">{issue.label}{issue.detail ? ` · ${issue.detail}` : ''}</div>
                   </div>
-                  <div className="missing-doc-badge"><span className="badge b-amber">Review</span></div>
+                  <div className="missing-doc-badge" style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end' }}><Actions issue={issue} /></div>
                 </div>
               ))}
             </div>

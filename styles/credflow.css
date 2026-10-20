@@ -1250,3 +1250,41 @@ select.filter-select {
 
 /* Brand mark: the "LAC" box must not overlap "entra" on any screen */
 .sb-logo h1 .brand-prime { display: inline-block; padding: 2px 8px 2px 6px; margin-right: 2px; line-height: 1.15; }
+
+/* Stage 44 — Today first on phones: the work list comes before the summary numbers */
+@media (max-width: 900px) {
+  .dash-page { display: flex; flex-direction: column; }
+  .dash-page > * { order: 2; }
+  .dash-page > .dash-header { order: 0; }
+  .dash-page > .dash-layout { order: 3; }
+  .dash-page > .dash-kpis { order: 4; margin-top: 16px; margin-bottom: 0 !important; }
+}
+@media (max-width: 900px) {
+  .inbox-row { flex-wrap: wrap; row-gap: 8px; }
+  .inbox-row > div:nth-child(2) { flex: 1 1 0; min-width: 0; }
+  .inbox-row > div:nth-child(2) > div:first-child { white-space: normal !important; }
+  .inbox-actions { flex: 1 1 100%; padding-left: 20px; }
+  .inbox-actions .btn { flex: 1; min-height: 44px; justify-content: center; }
+}
+
+/* Stage 50 — Payers page on phones: the four views fit as a 2x2 grid instead of widening the page */
+@media (max-width: 900px) {
+  .pay-views { display: grid !important; grid-template-columns: 1fr 1fr; width: 100% !important; max-width: 100%; position: static !important; }
+  .pay-views button { justify-content: center; min-height: 44px; padding: 8px 10px !important; font-size: 13.5px !important; }
+  .pay-head { flex-wrap: wrap; gap: 12px; }
+}
+
+/* Stage 51 — provider profile tabs on phones: all six visible at once (a hidden, side-scrolling tab strip hides Documents) */
+@media (max-width: 900px) {
+  .prof-tabs { display: grid !important; grid-template-columns: repeat(3, 1fr); overflow: visible !important; gap: 4px; padding: 6px 0; }
+  .prof-tabs button { padding: 10px 4px !important; min-height: 44px; font-size: 13px !important; white-space: normal !important; border-radius: 10px; text-align: center; margin-bottom: 0 !important; }
+  .prof-tabs button[aria-selected="true"] { background: var(--pr-l, #eef0ff) !important; border-bottom-color: transparent !important; }
+}
+
+/* The whole provider profile scrolls on phones, so the tall header no longer eats the screen */
+@media (max-width: 900px) {
+  .drawer-xl { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .drawer-xl .drawer-header { position: static !important; }
+  .drawer-xl .drawer-body { overflow: visible !important; flex: none !important; }
+  .drawer-xl { padding-bottom: 72px; }
+}

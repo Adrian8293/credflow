@@ -332,7 +332,7 @@ function RecentApps({ db, setPage }) {
 }
 
 // ─── MAIN DASHBOARD ───────────────────────────────────────────────────────────
-export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPayerModal, openProvDetail, openTaskModal, role, orgId }) {
+export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPayerModal, openProvDetail, openTaskModal, onMarkTaskDone, role, orgId }) {
   const isEmpty = db.providers.length === 0 && db.enrollments.length === 0
   if (isEmpty) {
     return (
@@ -390,7 +390,7 @@ export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPaye
   const urgentCount = expired + (overdueTasks > 0 ? 1 : 0)
 
   return (
-    <div className="page">
+    <div className="page dash-page">
 
       {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="dash-header">
@@ -416,7 +416,7 @@ export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPaye
       <SetupChecklist db={db} role={role} orgId={orgId} setPage={setPage} openEnrollModal={openEnrollModal} />
 
       {/* ── KPI Strip ───────────────────────────────────────────────────────── */}
-      <div className="kpi-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 22 }}>
+      <div className="kpi-grid dash-kpis" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 22 }}>
         <KpiCard
           label="Active Providers"
           value={activeProviders}
@@ -461,7 +461,7 @@ export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPaye
 
           {/* One inbox for everything that needs a person */}
           <TodayInbox db={db} setPage={setPage} openEnrollModal={openEnrollModal}
-            openProvDetail={openProvDetail} openTaskModal={openTaskModal} onDraftEmail={onDraftEmail} />
+            openProvDetail={openProvDetail} openTaskModal={openTaskModal} onMarkTaskDone={onMarkTaskDone} onDraftEmail={onDraftEmail} />
 
           {/* Application Pipeline */}
           <div className="card">

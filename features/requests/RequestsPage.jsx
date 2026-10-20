@@ -115,7 +115,7 @@ export function RequestsPage({ db, setDb, toast }) {
           <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-.03em', marginBottom: 3 }}>Requests</h2>
           <p style={{ fontSize: 13, color: 'var(--text-4)' }}>Ask providers for documents or information, then review what they send. Providers see and answer these in their portal.</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setForm({ provIds: [], docType: 'W-9', title: '', note: '', due: '' })}>+ New request</button>
+        <button className="btn btn-primary" onClick={() => setForm({ provIds: [], docType: 'W-9', title: '', note: '', due: (() => { const d = new Date(); d.setDate(d.getDate() + 14); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` })() })}>+ New request</button>
       </div>
 
       <div className="tabs" style={{ marginBottom: 14 }}>
@@ -138,7 +138,7 @@ export function RequestsPage({ db, setDb, toast }) {
       ) : (
         <div className="tbl-wrap">
           <table className="data-table" style={{ width: '100%' }}>
-            <thead><tr><th>Provider</th><th>Request</th><th>Due</th><th>Status</th><th style={{ textAlign: 'right' }}>Actions</th></tr></thead>
+            <thead><tr><th>Provider</th><th>Request</th><th>Due / received</th><th>Status</th><th style={{ textAlign: 'right' }}>Actions</th></tr></thead>
             <tbody>
               {rows.map(r => {
                 const b = STATUS_BADGE[r.status] || { cls: 'b-gray', label: r.status }
@@ -154,7 +154,16 @@ export function RequestsPage({ db, setDb, toast }) {
                         {r.status === 'rejected' && r.rejectReason ? ` · "${r.rejectReason}"` : ''}
                       </div>
                     </td>
-                    <td>{r.due ? <span style={overdue ? { color: 'var(--red)', fontWeight: 600 } : undefined}>{fmtDate(r.due)}</span> : '—'}</td>
+                    <td>
+                      {r.status === 'submitted' || r.status === 'approved'
+                        ? <span>Received {r.submittedAt ? fmtDate(r.submittedAt) : ''}</span>
+                        : r.due
+                          ? <span style={overdue ? { color: 'var(--red)', fontWeight: 600 } : undefined}>Due {fmtDate(r.due)}</span>
+                          : <span style={{ color: 'var(--text-4)' }}>No due date</span>}
+                      {(r.status === 'submitted' || r.status === 'approved') && r.due && (
+                        <div style={{ fontSize: 11.5, color: 'var(--text-4)' }}>was due {fmtDate(r.due)}</div>
+                      )}
+                    </td>
                     <td><span className={`badge ${b.cls}`}>{overdue ? 'Overdue' : b.label}</span></td>
                     <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                       {r.documentId && <button className="btn btn-sm btn-secondary" onClick={() => openFile(r)}>View file</button>}{' '}
@@ -230,7 +239,7 @@ function NewRequest({ form, setForm, providers, toast, onCreated }) {
       <div className="form-grid">
         <div className="fg"><label>Document type</label>
           <select value={form.docType} onChange={e => set('docType', e.target.value)}>{DOC_TYPES.map(t => <option key={t}>{t}</option>)}</select></div>
-        <div className="fg"><label>Due date (optional)</label><DateInput  value={form.due} onChange={e => set('due', e.target.value)} /></div>
+        <div className="fg"><label>Due date (optional — 14 days from today is filled in)</label><DateInput  value={form.due} onChange={e => set('due', e.target.value)} /></div>
         <div className="fg full"><label>Title</label>
           <input value={form.title} onChange={e => set('title', e.target.value)} placeholder={form.docType} maxLength={120} /></div>
         <div className="fg full"><label>Instructions (optional)</label>

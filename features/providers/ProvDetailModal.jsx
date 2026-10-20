@@ -11,6 +11,7 @@
 
 import { safeUrl } from '../../lib/safeUrl.js'
 import { useState } from 'react'
+import { DocViewerModal } from '../documents/DocViewerModal.jsx'
 import { daysUntil, fmtDate, fmtTS } from '../../lib/helpers.js'
 import OpcaUploadPanel from '../../components/OpcaUploadPanel'
 import { LicensesSection } from './LicensesSection.jsx'
@@ -495,14 +496,21 @@ function TasksTab({ prov, db }) {
 }
 
 // ─── DOCUMENTS TAB ────────────────────────────────────────────────────────────
-function DocumentsTab({ prov, db }) {
+function DocumentsTab({ prov, db, onAddDocument }) {
   const docs = (db.documents || []).filter(d => d.provId === prov.id)
+  const [viewing, setViewing] = useState(null)
+  const addBtn = onAddDocument && (
+    <div style={{ marginBottom: 14 }}>
+      <button type="button" className="btn btn-secondary" onClick={() => onAddDocument(prov.id)}>+ Add document</button>
+    </div>
+  )
 
   if (docs.length === 0) return (
     <div className="empty-state">
       <div className="ei">📁</div>
       <h4>No documents on file</h4>
-      <p style={{ fontSize: 12.5, color: 'var(--text-4)', margin: '4px 0 14px' }}>Upload documents via the Documents section.</p>
+      <p style={{ fontSize: 12.5, color: 'var(--text-4)', margin: '4px 0 14px' }}>Add a license, malpractice policy, W-9 or any other file for this provider.</p>
+      {onAddDocument && <button type="button" className="btn btn-primary" onClick={() => onAddDocument(prov.id)}>+ Add document</button>}
     </div>
   )
 
@@ -515,6 +523,7 @@ function DocumentsTab({ prov, db }) {
 
   return (
     <div>
+      {addBtn}
       {Object.entries(byType).map(([type, list]) => (
         <div key={type} style={{ marginBottom: 18 }}>
           <SectionEyebrow label={type} />
@@ -534,6 +543,9 @@ function DocumentsTab({ prov, db }) {
                     {expired ? `${Math.abs(days)}d ago` : `${days}d left`}
                   </span>
                 )}
+                {(d.filePath || d.fileUrl) && (
+                  <button type="button" className="btn btn-sm btn-secondary" onClick={() => setViewing(d)}>View file</button>
+                )}
                 {safeUrl(d.url) && (
                   <a href={safeUrl(d.url)} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: 'var(--pr)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 3 }}>
                     View {I.ext}
@@ -544,12 +556,13 @@ function DocumentsTab({ prov, db }) {
           })}
         </div>
       ))}
+      {viewing && <DocViewerModal doc={viewing} db={db} onClose={() => setViewing(null)} />}
     </div>
   )
 }
 
 // ─── MAIN MODAL ───────────────────────────────────────────────────────────────
-export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollModal, toast, syncFromNPPES, onSaveLicense, onDeleteLicense, onRenewCredential, onSyncRenewalDocument }) {
+export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollModal, toast, syncFromNPPES, onSaveLicense, onDeleteLicense, onRenewCredential, onSyncRenewalDocument, onAddDocument }) {
   const [renew, setRenew] = useState(null)   // { kind, license? } — which credential is being renewed
   const [tab, setTab] = useState('overview')
 
@@ -673,7 +686,7 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
           )}
 
           {/* Tab bar */}
-          <div style={{ display: 'flex', borderBottom: '1.5px solid var(--border)', width: '100%', overflowX: 'auto' }}>
+          <div className="prof-tabs" role="tablist" style={{ display: 'flex', borderBottom: '1.5px solid var(--border)', width: '100%', overflowX: 'auto' }}>
             {TABS.map(t => (
               <button
                 key={t.id}
@@ -700,7 +713,7 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
           {tab === 'credentials' && <CredentialsTab  prov={prov} db={db} onEdit={() => editProvider?.(prov.id)} onRenew={setRenew} onSaveLicense={onSaveLicense} onDeleteLicense={onDeleteLicense} />}
           {tab === 'enrollments' && <EnrollmentsTab  prov={prov} db={db} openEnrollModal={openEnrollModal} />}
           {tab === 'tasks'       && <TasksTab        prov={prov} db={db} />}
-          {tab === 'documents'   && <DocumentsTab    prov={prov} db={db} />}
+          {tab === 'documents'   && <DocumentsTab    prov={prov} db={db} onAddDocument={onAddDocument} />}
           {tab === 'opca'        && <OpcaUploadPanel provider={{ id: prov.id, fname: prov.fname, lname: prov.lname }} onComplete={() => toast?.('OPCA profile saved!', 'success')} />}
         </div>
 

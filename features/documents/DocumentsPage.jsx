@@ -189,13 +189,13 @@ function exportDocumentsCSV(documents, providers) {
   downloadCsv('documents_' + new Date().toISOString().split('T')[0] + '.csv', csvFromRows([headers, ...rows]))
 }
 
-export function DocumentsPage({ db, docSearch, setDocSearch, docFType, setDocFType, docFStatus, setDocFStatus, openDocModal, handleDeleteDocument }) {
+export function DocumentsPage({ db, docSearch, setDocSearch, docFType, setDocFType, docFStatus, setDocFStatus, openDocModal, handleDeleteDocument, actions }) {
   const [tab, setTab] = useState('all')
 
   const alertDays = db.settings?.alertDays || 90
   const expCount = db.documents.filter(d => { const days = daysUntil(d.exp); return days !== null && days <= alertDays }).length
   // missCount: providers missing required credential fields (NPI, license, malpractice)
-  const missCount = db.providers.filter(p => p.status === 'Active' && (!p.npi || !p.licenseExp || !p.malExp)).length
+  const missCount = db.providers.filter(p => p.status === 'Active' && (!p.npi || !p.licenseExp || !p.malExp || !p.caqh || !db.documents.some(d => d.provId === p.id && d.type === 'W-9'))).length
 
   return (
     <div className="page">
@@ -223,7 +223,7 @@ export function DocumentsPage({ db, docSearch, setDocSearch, docFType, setDocFTy
       </div>
 
       {tab === 'all'      && <Documents db={db} search={docSearch} setSearch={setDocSearch} fType={docFType} setFType={setDocFType} fStatus={docFStatus} setFStatus={setDocFStatus} openDocModal={openDocModal} handleDeleteDocument={handleDeleteDocument} />}
-      {tab === 'missing'  && <MissingDocuments db={db} />}
+      {tab === 'missing'  && <MissingDocuments db={db} openDocModal={openDocModal} actions={actions} />}
       {tab === 'expiring' && <ExpiringSoon db={db} openDocModal={openDocModal} alertDays={alertDays} />}
       {tab === 'opca'     && <OpcaIntake db={db} />}
       {tab === 'verified' && <VerifiedDocs db={db} alertDays={alertDays} />}

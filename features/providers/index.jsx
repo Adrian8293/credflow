@@ -89,6 +89,13 @@ function CredWarning({ prov }) {
   return null
 }
 
+// Days until the soonest credential date (negative = already expired); 99999 when nothing is on file.
+function nextDays(prov) {
+  const ds = [prov.licenseExp, prov.malExp, prov.deaExp, prov.caqhDue, prov.recred].map(d => daysUntil(d)).filter(d => d !== null)
+  return ds.length ? Math.min(...ds) : 99999
+}
+const readinessWord = r => (r >= 80 ? 'Ready' : r >= 60 ? 'Almost' : 'Needs work')
+
 // ─── NEXT EXPIRY CELL — the most operationally critical column ────────────────
 function NextExpiryCell({ prov }) {
   const fields = [
@@ -185,21 +192,36 @@ export function Providers({
   setNpiInput, setNpiResult, syncFromNPPES, onAddProvider,
 }) {
   const [menuOpen, setMenuOpen] = useState(null)
+  const [quick, setQuick] = useState('')   // '' | 'expired' | 'soon' | 'low'
   const specs = [...new Set(db.providers.map(p => p.spec).filter(Boolean))].sort()
 
-  const filtered = db.providers.filter(p => {
+  const withNext = db.providers.map(p => ({ ...p, _next: nextDays(p), _ready: providerReadiness(p) }))
+  const quickCount = {
+    expired: withNext.filter(p => p._next < 0).length,
+    soon:    withNext.filter(p => p._next >= 0 && p._next <= 30).length,
+    low:     withNext.filter(p => p._ready < 60).length,
+  }
+  const quickTest = {
+    expired: p => p._next < 0,
+    soon:    p => p._next >= 0 && p._next <= 30,
+    low:     p => p._ready < 60,
+  }
+
+  const filtered = withNext.filter(p => {
     const txt = `${p.fname} ${p.lname} ${p.cred || ''} ${p.npi || ''} ${p.spec || ''} ${p.email || ''} ${p.license || ''}`.toLowerCase()
     return (!search || txt.includes(search.toLowerCase()))
       && (!fStatus || (p.status || '').trim() === fStatus)
+      && (!quick || quickTest[quick](p))
       && (!fSpec   || (p.spec   || '').trim().toLowerCase() === fSpec.toLowerCase())
   })
 
-  const { sorted: list, thProps } = useSorted(filtered, 'lname')
+  const { sorted: list, thProps, sortKey, sortDir, toggleSort } = useSorted(filtered, 'lname')
   const {
     paginated, page, totalPages, nextPage, prevPage, setPage: goToPage, totalItems,
   } = usePagination(list, { pageSize: PAGE_SIZE })
 
-  const hasFilters = !!(search || fStatus || fSpec)
+  const hasFilters = !!(search || fStatus || fSpec || quick)
+  const clearAll = () => { setSearch(''); setFStatus(''); setFSpec(''); setQuick('') }
 
   return (
     <div>
@@ -227,13 +249,21 @@ export function Providers({
           {specs.map(s => <option key={s}>{s}</option>)}
         </select>
 
+        <select className="filter-select show-on-phone" aria-label="Sort providers"
+          value={`${sortKey}`} onChange={e => { if (e.target.value !== sortKey) toggleSort(e.target.value) }}>
+          <option value="lname">Sort: Name</option>
+          <option value="_next">Sort: Soonest expiry</option>
+          <option value="_ready">Sort: Readiness</option>
+          <option value="status">Sort: Status</option>
+        </select>
+
         {hasFilters && (
           <button
-            onClick={() => { setSearch(''); setFStatus(''); setFSpec('') }}
-            style={{ fontSize: 12, color: 'var(--pr)', background: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit' }}
-            aria-label="Clear filters"
+            onClick={clearAll}
+            className="x-link"
+            aria-label="Clear all filters"
           >
-            Clear ×
+            Clear filters ×
           </button>
         )}
 
@@ -241,6 +271,20 @@ export function Providers({
           {list.length} provider{list.length !== 1 ? 's' : ''}
         </span>
       </div>
+
+      {/* ── Quick filters ───────────────────────────────────────────────── */}
+      {(quickCount.expired + quickCount.soon + quickCount.low) > 0 && (
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+          {[['expired', 'Expired', quickCount.expired], ['soon', 'Expiring in 30 days', quickCount.soon], ['low', 'Needs work', quickCount.low]].map(([k, l, n]) => (
+            (n > 0 || quick === k) && (
+              <button key={k} type="button" aria-pressed={quick === k} onClick={() => setQuick(quick === k ? '' : k)}
+                className={`btn btn-sm ${quick === k ? 'btn-primary' : 'btn-secondary'}`} style={{ borderRadius: 999 }}>
+                {l} <span style={{ opacity: .75 }}>{n}</span>
+              </button>
+            )
+          ))}
+        </div>
+      )}
 
       {/* ── Table ───────────────────────────────────────────────────────── */}
       <div className="tbl-wrap">
@@ -252,8 +296,8 @@ export function Providers({
               <th {...thProps('caqh', 'CAQH')} />
               <th {...thProps('spec', 'Specialty')} />
               <th {...thProps('status', 'Status')} />
-              <th {...thProps('licenseExp', 'Next Expiry')} />
-              <th className="no-sort" style={{ width: 100 }}>Readiness</th>
+              <th {...thProps('_next', 'Next Expiry')} />
+              <th {...thProps('_ready', 'Readiness')} style={{ width: 130, cursor: 'pointer' }} />
               <th className="no-sort" style={{ width: 52, textAlign: 'center' }}>⋯</th>
             </tr>
           </thead>
@@ -270,7 +314,7 @@ export function Providers({
                         : 'Add your first provider to start tracking credentialing.'}
                     </p>
                     {hasFilters
-                      ? <button className="btn btn-secondary btn-sm" onClick={() => { setSearch(''); setFStatus(''); setFSpec('') }}>Clear filters</button>
+                      ? <button className="btn btn-secondary btn-sm" onClick={clearAll}>Clear filters</button>
                       : onAddProvider && <button className="btn btn-primary btn-sm" onClick={onAddProvider}>+ Add Provider</button>
                     }
                   </div>
@@ -281,7 +325,7 @@ export function Providers({
               const sc         = specColor(p.spec)
               const panels     = db.enrollments.filter(e => e.provId === p.id && e.stage === 'Active').length
               const ini        = ((p.fname || '')[0] || '') + ((p.lname || '')[0] || '')
-              const readiness  = providerReadiness(p)
+              const readiness  = p._ready
               const rdColor    = readiness >= 80 ? 'var(--success)' : readiness >= 60 ? 'var(--warning)' : 'var(--danger)'
 
               return (
@@ -363,8 +407,8 @@ export function Providers({
                       <div style={{ flex: 1, height: 4, borderRadius: 4, background: 'var(--border)', overflow: 'hidden', minWidth: 50 }}>
                         <div style={{ height: '100%', width: `${readiness}%`, background: rdColor, borderRadius: 4, transition: 'width .3s' }} />
                       </div>
-                      <span style={{ fontSize: 11, fontWeight: 700, color: rdColor, minWidth: 30, textAlign: 'right' }}>
-                        {readiness}%
+                      <span style={{ fontSize: 11, fontWeight: 700, color: rdColor, minWidth: 30, textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        {readiness}% <span style={{ fontWeight: 600 }}>{readinessWord(readiness)}</span>
                       </span>
                     </div>
                   </td>

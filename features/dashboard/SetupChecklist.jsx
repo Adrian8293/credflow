@@ -7,14 +7,17 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
 const hiddenKey = (orgId) => `lc_setup_hidden_${orgId || 'x'}`
+const openKey = (orgId) => `lc_setup_open_${orgId || 'x'}`
 const readHidden = (orgId) => { try { return localStorage.getItem(hiddenKey(orgId)) === '1' } catch { return false } }
 
 export function SetupChecklist({ db, role, orgId, setPage, openEnrollModal }) {
   const isAdmin = role === 'owner' || role === 'admin'
   const [hidden, setHidden] = useState(() => readHidden(orgId))
+  const [open, setOpen] = useState(false)
   const [extra, setExtra] = useState({ entities: null, people: null, mfa: null })   // null = still checking
 
-  useEffect(() => { setHidden(readHidden(orgId)) }, [orgId])
+  useEffect(() => { setHidden(readHidden(orgId)); try { setOpen(localStorage.getItem(openKey(orgId)) === '1') } catch { /* ignore */ } }, [orgId])
+  const toggle = () => setOpen(o => { const n = !o; try { localStorage.setItem(openKey(orgId), n ? '1' : '0') } catch { /* ignore */ } return n })
 
   useEffect(() => {
     if (!isAdmin || hidden) return
@@ -54,16 +57,20 @@ export function SetupChecklist({ db, role, orgId, setPage, openEnrollModal }) {
   const firstOpen = steps.find(s => s.done !== true)
 
   return (
-    <div className="card" style={{ marginBottom: 22 }}>
+    <div className="card" style={{ marginBottom: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '13px 16px 10px', flexWrap: 'wrap' }}>
         <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text-1)' }}>Get set up</span>
         <span className="badge b-gray">{doneCount} of {steps.length} done</span>
         <div style={{ flex: 1, minWidth: 80, height: 6, background: 'var(--elevated)', borderRadius: 99, overflow: 'hidden' }} aria-hidden="true">
           <div style={{ width: `${(doneCount / steps.length) * 100}%`, height: '100%', background: 'var(--pr)', transition: 'width .3s' }} />
         </div>
+        <button onClick={toggle} className="x-link" aria-expanded={open}>{open ? 'Close list' : 'Show steps'}</button>
         <button onClick={hide} className="x-hide" aria-label="Hide the setup card">Hide</button>
       </div>
-      <div>
+      {!open && firstOpen && (
+        <div style={{ padding: '0 16px 12px', fontSize: 12.5, color: 'var(--text-3)' }}>Next: <b>{firstOpen.title}</b></div>
+      )}
+      <div style={{ display: open ? 'block' : 'none' }}>
         {steps.map(s => {
           const isNext = firstOpen?.key === s.key
           return (

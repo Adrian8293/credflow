@@ -19,14 +19,15 @@ const KIND_LABEL = {
 }
 const PAGE = 8
 
-export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openTaskModal, onDraftEmail }) {
+export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openTaskModal, onMarkTaskDone, onDraftEmail }) {
   const [filter, setFilter] = useState('all')
   const [showAll, setShowAll] = useState(false)
   const [view, setView] = useState('inbox')   // 'inbox' | 'week'
+  const [doneIds, setDoneIds] = useState([])   // rows finished this visit (hidden at once, even before the save syncs)
 
   const all = useMemo(() => buildInbox(db), [db])
   const week = useMemo(() => buildWeek(db), [db])
-  const items = inboxFilter(all, filter)
+  const items = inboxFilter(all, filter).filter(i => !(i.type === 'task' && doneIds.includes(i.taskId)))
   const shown = showAll ? items : items.slice(0, PAGE)
   const count = k => inboxFilter(all, k).length
 
@@ -36,13 +37,18 @@ export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openT
     if (i.type === 'req-review' || i.type === 'req-overdue') return setPage('requests')
     if (i.provId) return openProvDetail?.(i.provId)
   }
+  async function finishTask(i) {
+    const t = db.tasks.find(x => x.id === i.taskId)
+    setDoneIds(d => [...d, i.taskId])
+    try { await onMarkTaskDone(i.taskId, t?.task || i.title) } catch { setDoneIds(d => d.filter(x => x !== i.taskId)) }
+  }
   const actionLabel = i => (i.type === 'req-review' ? 'Review' : i.type === 'task' ? 'Open task' : i.enrId ? 'Open' : i.type === 'req-overdue' ? 'View' : 'Open provider')
 
   function renderRow(i, idx, last) {
     const b = SEV_BADGE[i.sev] || SEV_BADGE.notice
     const followupEnr = i.type === 'followup' ? db.enrollments.find(e => e.id === i.enrId) : null
     return (
-      <div key={`${i.type}-${i.enrId || i.taskId || i.reqId || i.provId}-${idx}`} className="alert-feed-item"
+      <div key={`${i.type}-${i.enrId || i.taskId || i.reqId || i.provId}-${idx}`} className="alert-feed-item inbox-row"
         style={{ borderBottom: last ? 'none' : undefined, gap: 10 }}>
         <span className={`alert-severity ${b.dot}`} />
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -52,7 +58,8 @@ export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openT
           </div>
         </div>
         <span className={`badge ${b.cls}`} style={{ fontSize: 10, flexShrink: 0 }}>{b.label}</span>
-        <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+        <div className="inbox-actions" style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+          {i.type === 'task' && i.taskId && onMarkTaskDone && <button className="btn btn-sm btn-green" onClick={() => finishTask(i)} aria-label={`Mark done: ${i.title}`}>✓ Done</button>}
           {followupEnr && onDraftEmail && <button className="btn btn-sm btn-ghost" onClick={() => onDraftEmail(followupEnr)}>Draft</button>}
           <button className="btn btn-sm btn-secondary" onClick={() => act(i)}>{actionLabel(i)}</button>
         </div>

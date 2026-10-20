@@ -1,11 +1,19 @@
 import { useState } from 'react'
-import { upsertDocument, deleteDocument } from '../lib/db'
+import { upsertDocument, deleteDocument, upsertProvider, addAudit } from '../lib/db'
+import { fmtDate } from '../lib/helpers'
 import { pNameShort } from '../lib/helpers'
 
 // Document types that do not have an expiration date.
 // W-9s, CVs, and NPI Letters are point-in-time documents — they don't expire.
 // Exported so DocModal, Documents, and DocumentsPage all use the same list.
 export const NO_EXPIRY_TYPES = new Set(['W-9', 'CV / Resume', 'NPI Letter'])
+
+// Document type -> provider field holding the same expiration date.
+const PROVIDER_DATE = {
+  License:     { key: 'licenseExp', label: 'license expiration' },
+  Malpractice: { key: 'malExp',     label: 'malpractice expiration' },
+  DEA:         { key: 'deaExp',     label: 'DEA expiration' },
+}
 
 export function useDocumentActions({ db, setDb, toast, requestConfirm }) {
   const [docForm, setDocForm]       = useState({})
@@ -35,6 +43,7 @@ export function useDocumentActions({ db, setDb, toast, requestConfirm }) {
       toast(editingDocId ? 'Document updated!' : 'Document saved!', 'success')
       setDocForm({})
       setEditingDocId(null)
+      offerProviderDateUpdate(saved)
     } catch(err) {
       toast(err.message, 'error')
     } finally {
@@ -42,6 +51,29 @@ export function useDocumentActions({ db, setDb, toast, requestConfirm }) {
     }
     // Returns null on error — DocModal checks for null before attempting file upload
     return saved
+  }
+
+  // A newer License / Malpractice / DEA date on a document should also move the provider's tracked date,
+  // otherwise alerts keep warning about the old one. Asks first, and never moves a date backwards.
+  async function offerProviderDateUpdate(doc) {
+    const map = PROVIDER_DATE[doc?.type]
+    if (!map || !doc.exp) return
+    const prov = db.providers.find(p => p.id === doc.provId)
+    if (!prov) return
+    const current = prov[map.key]
+    if (current && doc.exp <= current) return
+    const ok = await requestConfirm({
+      title: `Update ${map.label}?`,
+      body: `${prov.fname} ${prov.lname}'s ${map.label} is ${current ? fmtDate(current) : 'not set'}. This document shows ${fmtDate(doc.exp)}. Update the provider so alerts use the new date?`,
+      confirmText: `Yes, update to ${fmtDate(doc.exp)}`,
+    })
+    if (!ok) return
+    try {
+      const savedProv = await upsertProvider({ ...prov, [map.key]: doc.exp })
+      setDb(prev => ({ ...prev, providers: prev.providers.map(p => p.id === savedProv.id ? savedProv : p) }))
+      addAudit('Provider', 'Updated', `${map.label} set to ${fmtDate(doc.exp)} from a saved document`, prov.id)
+      toast(`${map.label[0].toUpperCase()}${map.label.slice(1)} updated.`, 'success')
+    } catch (err) { toast(err.message, 'error') }
   }
 
   async function handleDeleteDocument(id) {

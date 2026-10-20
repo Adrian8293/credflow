@@ -2,6 +2,7 @@
  * PortalPage — what providers and clinic staff see. Reads ONLY portal_summary() (curated by the
  * database) and uploads through /api/portal-upload. No staff data, notes or other organizations.
  */
+import { compressImage } from '../../lib/compressImage'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { DOC_TYPES } from '../../constants/docTypes'
@@ -297,12 +298,13 @@ function RequestCard({ req, providerId, onDone }) {
 
   async function send() {
     if (!file) { setErr('Please choose a file first (tap the button above).'); return }
-    if (sizeProblem(file)) { setErr(sizeProblem(file)); return }
     setBusy(true); setErr('')
+    const toSend = await compressImage(file)   // phone photos get smaller before sending; this also helps on weak signal
+    if (sizeProblem(toSend)) { setErr(sizeProblem(toSend)); setBusy(false); return }
     const fd = new FormData()
     fd.append('providerId', providerId); fd.append('requestId', req.id)
     if (exp) fd.append('exp', exp)
-    fd.append('file', file)
+    fd.append('file', toSend)
     const res = await postUpload(fd)
     if (!res.ok) { setErr(res.error); setBusy(false); return }
     onDone(`"${req.title}" was sent to your credentialing team for review.`)
@@ -343,13 +345,14 @@ function SendForm({ providerId, onDone }) {
   async function send(e) {
     e.preventDefault()
     if (!file) { setErr('Please choose a file first (tap the button above).'); return }
-    if (sizeProblem(file)) { setErr(sizeProblem(file)); return }
     setBusy(true); setErr('')
+    const toSend = await compressImage(file)   // phone photos get smaller before sending; this also helps on weak signal
+    if (sizeProblem(toSend)) { setErr(sizeProblem(toSend)); setBusy(false); return }
     const fd = new FormData()
     fd.append('providerId', providerId); fd.append('docType', docType)
     fd.append('title', title.trim() || docType)
     if (exp) fd.append('exp', exp)
-    fd.append('file', file)
+    fd.append('file', toSend)
     const res = await postUpload(fd)
     if (!res.ok) { setErr(res.error); setBusy(false); return }
     setFile(null); setTitle(''); setExp(''); setKey(k => k + 1); setBusy(false)

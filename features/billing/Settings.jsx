@@ -15,6 +15,7 @@ const Icon = {
 
 import { MfaSetup } from '../security/MfaSetup.jsx'
 import { useState } from 'react'
+import { StorageCard } from './StorageCard.jsx'
 import { IDLE_CHOICES, getIdleMinutes, setIdleMinutes } from '../../lib/idle'
 
 function SectionHeader({ icon, title, subtitle }) {
@@ -68,7 +69,7 @@ function Toggle({ checked, onChange, label }) {
   )
 }
 
-const TABS = ['General', 'Notifications', 'Security', 'Integrations']
+const TABS = ['General', 'Notifications', 'Security', 'Storage', 'Integrations']
 
 export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, exportJSON }) {
   const [activeTab, setActiveTab] = useState('General')
@@ -146,6 +147,8 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
           </div>
         </div>
       )}
+
+      {activeTab === 'Storage' && <StorageCard />}
 
       {activeTab === 'Integrations' && (
         <div className="card">
