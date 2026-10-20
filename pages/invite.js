@@ -4,6 +4,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { supabase } from '../lib/supabase'
+import { AUTH_READABLE_CSS } from '../lib/authCss'
 
 const ROLE_LABEL = {
   provider: 'provider', clinic_staff: 'clinic staff member', admin: 'administrator',
@@ -77,7 +78,7 @@ export default function InvitePage() {
   return (
     <>
       <Head><title>Accept invitation</title></Head>
-      <style>{CSS}</style>
+      <style>{CSS + AUTH_READABLE_CSS}</style>
       <main className="iv-wrap">
         <div className="iv-card">
           <div className="iv-brand"><span>LAC</span>entra</div>

@@ -5,6 +5,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { AppContextProvider } from '../context/AppContext'
 import { Layout } from '../components/Layout'
+import { OfflineBanner } from '../components/ui/OfflineBanner.jsx'
 
 // ── Env validation (dev only) ────────────────────────────────────────────────
 // NOTE: Never throw at module scope — it crashes the Next.js SSR build worker
@@ -122,6 +123,7 @@ export default function App({ Component, pageProps }) {
         <meta name="apple-mobile-web-app-title" content="Lacentra" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </Head>
+      <OfflineBanner />
       <ErrorBoundary>
         <AppContextProvider>
           {isGuestOrSpecialPage ? (

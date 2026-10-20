@@ -17,6 +17,8 @@ import { AiFollowupModal } from './AiFollowupModal.jsx'
 import { GlobalSearch } from './GlobalSearch.jsx'
 import { MfaChallenge } from './MfaChallenge.jsx'
 import { useIdleLogout } from '../hooks/useIdleLogout'
+import { getIdleMinutes, clearSeen } from '../lib/idle'
+import { initQueue } from '../lib/offlineQueue'
 import { supabase } from '../lib/supabase'
 
 export function Layout({ children }) {
@@ -64,10 +66,14 @@ export function Layout({ children }) {
   }, [user, authLoading, router])
 
   // Automatic logoff after 30 minutes idle (Settings → Security; on by default).
+  useEffect(() => { if (user?.id) initQueue() }, [user?.id])
+
+  const [idleMinutes] = React.useState(() => (typeof window === 'undefined' ? 30 : getIdleMinutes()))
   const idle = useIdleLogout({
     enabled: !!user && db?.settings?.sessionTimeout !== false,
-    minutes: 30,
-    onTimeout: async () => { try { await supabase.auth.signOut() } catch { /* ignore */ } window.location.href = '/login?reason=idle' },
+    minutes: idleMinutes,
+    sessionId: user?.last_sign_in_at || user?.id || '',
+    onTimeout: async () => { clearSeen(); try { await supabase.auth.signOut() } catch { /* ignore */ } window.location.href = '/login?reason=idle' },
   })
 
   // Two-step verification gate: if the account has an authenticator app but this session has not passed

@@ -3,21 +3,33 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lacentra — offline</title>
+<title>Lacentra — no connection</title>
 <style>
-  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f8fafc;color:#1e293b;padding:24px;text-align:center}
-  main{max-width:360px}
-  h1{font-size:20px;margin:16px 0 8px}
-  p{font-size:14px;line-height:1.5;color:#475569;margin:0 0 20px}
-  button{background:#1565c0;color:#fff;border:0;border-radius:8px;padding:11px 22px;font-size:15px;font-weight:600;cursor:pointer}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#f8fafc;color:#1e293b;padding:24px;text-align:center;font-size:18px}
+  main{max-width:420px}
+  h1{font-size:30px;margin:18px 0 10px;line-height:1.15}
+  p{font-size:19px;line-height:1.5;color:#334155;margin:0 0 14px}
+  ol{text-align:left;font-size:19px;line-height:1.5;color:#334155;margin:0 0 24px;padding-left:26px}
+  li{margin-bottom:8px}
+  button{background:#4F46E5;color:#fff;border:0;border-radius:12px;padding:16px 28px;font-size:20px;font-weight:700;cursor:pointer;width:100%;min-height:60px}
+  #s{margin-top:16px;font-size:17px;color:#475569}
 </style>
 </head>
 <body>
 <main>
-  <svg width="56" height="56" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 2L4 10V26C4 36 13 44 24 47C35 44 44 36 44 26V10L24 2Z" fill="#1565C0"/><path d="M24 2L44 10V26C44 36 35 44 24 47V2Z" fill="#5CB85C"/><polyline points="13,25 21,33 35,17" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
-  <h1>You're offline</h1>
-  <p>Lacentra needs an internet connection. Your data is kept on the server, not on this device, so nothing is lost. Reconnect and try again.</p>
+  <svg width="64" height="64" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 2L4 10V26C4 36 13 44 24 47C35 44 44 36 44 26V10L24 2Z" fill="#1565C0"/><path d="M24 2L44 10V26C44 36 35 44 24 47V2Z" fill="#5CB85C"/><polyline points="13,25 21,33 35,17" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+  <h1>No internet connection</h1>
+  <p>Nothing is lost. Your information is safe on our server.</p>
+  <ol>
+    <li>Check that Wi-Fi or mobile data is on.</li>
+    <li>Move to a place with a better signal.</li>
+    <li>Tap the button below.</li>
+  </ol>
   <button onclick="location.reload()">Try again</button>
+  <div id="s" role="status">This page will reload by itself when you are back online.</div>
 </main>
+<script>
+  window.addEventListener('online', function () { document.getElementById('s').textContent = 'Back online. Loading…'; location.reload() })
+</script>
 </body>
 </html>

@@ -13,6 +13,50 @@ import { DateInput } from '../../components/ui/DateInput.jsx'
 const MAX_BYTES = 10 * 1024 * 1024
 const sizeProblem = (f) => (f && f.size > MAX_BYTES ? 'That file is over 10 MB. Please upload a smaller PDF or photo.' : '')
 
+// Sends the upload with a time limit and plain-language failures. Returns { ok, error }.
+async function postUpload(fd) {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    return { ok: false, error: 'You are offline, so nothing was sent. Reconnect to the internet, then tap Send again. Your file is still selected.' }
+  }
+  const ctl = new AbortController()
+  const timer = setTimeout(() => ctl.abort(), 90_000)
+  try {
+    const r = await fetch('/api/portal-upload', { method: 'POST', body: fd, signal: ctl.signal })
+    const j = await r.json().catch(() => ({}))
+    if (!r.ok) return { ok: false, error: j.error || 'The upload did not go through. Please tap Send again.' }
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e?.name === 'AbortError'
+      ? 'The upload is taking too long, probably because of a weak signal. Your file is still selected. Try again when you have a better connection.'
+      : 'The upload did not go through. Check your internet connection and tap Send again. Your file is still selected.' }
+  } finally { clearTimeout(timer) }
+}
+
+const WELCOME_KEY = 'lc_portal_welcome_seen'
+const isIphone = () => typeof navigator !== 'undefined' && /iPhone|iPad|iPod/i.test(navigator.userAgent)
+
+// Three plain steps, shown the first time and reopenable from "How does this work?".
+function Welcome({ onClose }) {
+  const steps = [
+    ['Look at the top of the page', 'A green box means you are all set. An orange box means we need something from you.'],
+    ['Tap the big button to send a file', 'Choose a file from your phone, or take a clear photo of the document. Then tap the green “Send” button.'],
+    ['Put this on your phone (optional)', isIphone()
+      ? 'In Safari, tap the Share button (square with an arrow), then “Add to Home Screen”. After that you can open it like any app.'
+      : 'In your browser menu, choose “Install app” or “Add to Home screen”. After that you can open it like any app.'],
+  ]
+  return (
+    <div className="pt-welcome-back" role="dialog" aria-modal="true" aria-label="How this works">
+      <div className="pt-welcome">
+        <h2>How this works</h2>
+        {steps.map(([t, d], i) => (
+          <div className="pt-step" key={t}><span className="pt-step-n">{i + 1}</span><div><b>{t}</b><p>{d}</p></div></div>
+        ))}
+        <button className="pt-btn pt-btn-go" onClick={onClose} autoFocus>Got it</button>
+      </div>
+    </div>
+  )
+}
+
 const EXPIRING_TYPES = ['License', 'Malpractice', 'DEA', 'CAQH Attestation', 'Supervision Agreement', 'Recredentialing']
 
 export default function PortalPage() {
@@ -21,6 +65,7 @@ export default function PortalPage() {
   const [provId, setProvId] = useState('')
   const [email, setEmail] = useState('')
   const [flash, setFlash] = useState('')
+  const [welcome, setWelcome] = useState(false)
 
   const load = useCallback(async () => {
     const { data: d, error: e } = await supabase.rpc('portal_summary')
@@ -36,9 +81,12 @@ export default function PortalPage() {
   }, [flash])
 
   useEffect(() => {
+    try { if (!localStorage.getItem(WELCOME_KEY)) setWelcome(true) } catch { /* storage unavailable */ }
     load()
     supabase.auth.getUser().then(({ data: u }) => setEmail(u?.user?.email || ''))
   }, [load])
+
+  function closeWelcome() { setWelcome(false); try { localStorage.setItem(WELCOME_KEY, '1') } catch { /* storage unavailable */ } }
 
   async function signOut() {
     await supabase.auth.signOut()
@@ -58,6 +106,7 @@ export default function PortalPage() {
   return (
     <div className="pt-root">
       <style>{CSS}</style>
+      {welcome && data && data.providers.length > 0 && <Welcome onClose={closeWelcome} />}
 
       <header className="pt-top">
         <div className="pt-brand"><span>LAC</span>entra</div>
@@ -212,6 +261,7 @@ export default function PortalPage() {
               </section>
             )}
 
+            <p className="pt-help"><button className="pt-btn pt-btn-outline pt-btn-small" onClick={() => setWelcome(true)}>How does this work?</button></p>
             <p className="pt-help">Questions? Contact your credentialing team{data.org ? ` at ${data.org}` : ''}.</p>
           </>
         )}
@@ -253,12 +303,9 @@ function RequestCard({ req, providerId, onDone }) {
     fd.append('providerId', providerId); fd.append('requestId', req.id)
     if (exp) fd.append('exp', exp)
     fd.append('file', file)
-    try {
-      const r = await fetch('/api/portal-upload', { method: 'POST', body: fd })
-      const j = await r.json().catch(() => ({}))
-      if (!r.ok) { setErr(j.error || 'Upload failed.'); setBusy(false); return }
-      onDone(`"${req.title}" was sent to your credentialing team for review.`)
-    } catch { setErr('Upload failed. Check your connection and try again.'); setBusy(false) }
+    const res = await postUpload(fd)
+    if (!res.ok) { setErr(res.error); setBusy(false); return }
+    onDone(`"${req.title}" was sent to your credentialing team for review.`)
   }
 
   return (
@@ -303,13 +350,10 @@ function SendForm({ providerId, onDone }) {
     fd.append('title', title.trim() || docType)
     if (exp) fd.append('exp', exp)
     fd.append('file', file)
-    try {
-      const r = await fetch('/api/portal-upload', { method: 'POST', body: fd })
-      const j = await r.json().catch(() => ({}))
-      if (!r.ok) { setErr(j.error || 'Upload failed.'); setBusy(false); return }
-      setFile(null); setTitle(''); setExp(''); setKey(k => k + 1); setBusy(false)
-      onDone('Your document was sent to your credentialing team for review.')
-    } catch { setErr('Upload failed. Check your connection and try again.'); setBusy(false) }
+    const res = await postUpload(fd)
+    if (!res.ok) { setErr(res.error); setBusy(false); return }
+    setFile(null); setTitle(''); setExp(''); setKey(k => k + 1); setBusy(false)
+    onDone('Your document was sent to your credentialing team for review.')
   }
 
   return (
@@ -391,6 +435,11 @@ span.pt-muted.pt-pill{background:#F3F4F6;color:#4B5563}
 .pt-file-input:focus-visible + .pt-file-btn{outline:3px solid #4F46E5;outline-offset:2px}
 .pt-file-name{margin-top:8px;font-size:16px;font-weight:600;word-break:break-all}
 .pt-err{color:#B91C1C;font-size:16px;font-weight:600;margin-top:8px}
+.pt-welcome-back{position:fixed;inset:0;background:rgba(17,24,39,.6);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
+.pt-welcome{background:#fff;border-radius:18px;padding:24px;max-width:480px;width:100%}
+.pt-welcome h2{font-size:26px;margin-bottom:16px}
+.pt-step{display:flex;gap:14px;margin-bottom:18px}.pt-step b{font-size:19px;display:block}.pt-step p{margin:4px 0 0;font-size:17px;color:#374151}
+.pt-step-n{flex:0 0 40px;height:40px;border-radius:50%;background:#4F46E5;color:#fff;font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center}
 .pt-help{text-align:center;color:#4B5563;font-size:16px;margin-top:24px}
 @media(min-width:700px){.pt-org{display:inline}.pt-btn-go{width:auto}.pt-file-btn{width:auto}}
 @media(max-width:640px){

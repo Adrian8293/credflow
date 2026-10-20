@@ -2,7 +2,7 @@
  * It deliberately caches NO pages, NO API responses and NO Supabase data: credentialing data
  * always comes live from the server and never sits in a device cache. Only the app's own
  * static files (scripts, styles, icons) are cached so the app opens faster. */
-const CACHE = 'lc-static-v1'
+const CACHE = 'lc-static-v2'
 const PRECACHE = ['/offline.html', '/icons/icon-192.png']
 
 self.addEventListener('install', (event) => {

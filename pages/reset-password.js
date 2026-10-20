@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import Head from 'next/head'
+import { AUTH_READABLE_CSS } from '../lib/authCss'
 
 export default function ResetPassword() {
   const [password, setPassword]     = useState('')
@@ -46,7 +47,7 @@ export default function ResetPassword() {
       <Head>
         <title>Lacentra — Set New Password</title>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-        <style dangerouslySetInnerHTML={{ __html: CSS }} />
+        <style dangerouslySetInnerHTML={{ __html: CSS + AUTH_READABLE_CSS }} />
       </Head>
 
       <div className="pc-root">

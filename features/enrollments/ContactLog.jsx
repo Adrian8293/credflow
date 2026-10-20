@@ -33,10 +33,12 @@ export function ContactLog({ enrollmentId, onFollowupSet, onChanged }) {
     if (!form.summary.trim() || saving) return
     setSaving(true); setError('')
     try {
-      await addContact(enrollmentId, { ...form, summary: form.summary.trim() })
+      const saved = await addContact(enrollmentId, { ...form, summary: form.summary.trim() })
       if (form.nextFollowup) onFollowupSet?.(form.nextFollowup)
       setForm(blank())
-      await load()
+      // Show the entry straight away (it may be waiting to send if the connection is poor), then refresh from the server.
+      if (saved?.id) setRows(r => [saved, ...r.filter(x => x.id !== saved.id)])
+      if (typeof navigator === 'undefined' || navigator.onLine !== false) await load()
       onChanged?.()
     } catch { setError('Could not save the entry. Please try again.') }
     setSaving(false)

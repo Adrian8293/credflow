@@ -29,8 +29,36 @@ const PUBLIC_API_PATHS = [
   '/api/accept-invite',
 ]
 
+// Clears the login and the activity cookies (used when a session has been away longer than its limit).
+function clearSession(req, res) {
+  req.cookies.getAll().forEach(c => {
+    if (c.name.startsWith('sb-') || c.name === 'lc_seen' || c.name === 'lc_idle') res.cookies.set(c.name, '', { path: '/', maxAge: 0 })
+  })
+  return res
+}
+
 export async function proxy(req) {
   const { pathname } = req.nextUrl
+
+  // Inactivity limit: the browser records when the app was last used (lc_seen) and the limit (lc_idle, minutes).
+  // If the gap is longer, the login is cleared here so reopening the site or app asks for the password again.
+  const seen = Number(req.cookies.get('lc_seen')?.value) || 0
+  const limitMin = Number(req.cookies.get('lc_idle')?.value) || 30
+  const awayTooLong = seen > 0 && Date.now() - seen > limitMin * 60_000
+  if (awayTooLong && !pathname.startsWith('/_next') && !pathname.includes('.')) {
+    if (pathname.startsWith('/api/')) {
+      if (PUBLIC_API_PATHS.some(p => pathname.startsWith(p))) return NextResponse.next()
+      return clearSession(req, NextResponse.json({ error: 'Session expired. Please sign in again.' }, { status: 401 }))
+    }
+    if (!PUBLIC_PATHS.some(p => pathname.startsWith(p))) {
+      const url = req.nextUrl.clone()
+      url.pathname = '/login'; url.search = ''
+      url.searchParams.set('reason', 'idle')
+      return clearSession(req, NextResponse.redirect(url))
+    }
+    // On a public page (e.g. /login) just clear the stale cookies so the next sign-in starts fresh.
+    return clearSession(req, NextResponse.next())
+  }
 
   // Allow public pages
   if (PUBLIC_PATHS.some(p => pathname.startsWith(p))) {

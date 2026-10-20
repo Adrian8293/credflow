@@ -15,6 +15,7 @@ const Icon = {
 
 import { MfaSetup } from '../security/MfaSetup.jsx'
 import { useState } from 'react'
+import { IDLE_CHOICES, getIdleMinutes, setIdleMinutes } from '../../lib/idle'
 
 function SectionHeader({ icon, title, subtitle }) {
   return (
@@ -24,6 +25,21 @@ function SectionHeader({ icon, title, subtitle }) {
         <h3 style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text-1)', margin: 0 }}>{title}</h3>
       </div>
       {subtitle && <p style={{ fontSize: 11.5, color: 'var(--text-4)', margin: '2px 0 0 22px' }}>{subtitle}</p>}
+    </div>
+  )
+}
+
+// How long this device may sit idle (or the app stay closed) before sign-in is required again.
+function IdleMinutesPicker() {
+  const [mins, setMins] = useState(() => (typeof window === 'undefined' ? 30 : getIdleMinutes()))
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', margin: '10px 0 6px' }}>
+      <label htmlFor="idle-minutes" style={{ fontSize: 13, fontWeight: 600 }}>Sign me out on this device after</label>
+      <select id="idle-minutes" className="filter-select" style={{ width: 'auto' }} value={mins}
+        onChange={e => { const v = Number(e.target.value); setMins(v); setIdleMinutes(v) }}>
+        {IDLE_CHOICES.map(m => <option key={m} value={m}>{m >= 60 ? `${m / 60} hour${m > 60 ? 's' : ''}` : `${m} minutes`} of no activity</option>)}
+      </select>
+      <span style={{ fontSize: 12, color: 'var(--text-4)' }}>Takes effect the next time you open the app.</span>
     </div>
   )
 }
@@ -182,9 +198,10 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
             <div className="card-body">
               <MfaSetup />
               <hr style={{ border: 'none', borderTop: '1px solid var(--border-l)', margin: '18px 0' }} />
-              <Toggle label="Sign out automatically after 30 minutes of inactivity" checked={nb('sessionTimeout')} onChange={v => set('sessionTimeout', v)} />
+              <Toggle label="Sign out automatically after a period of inactivity" checked={nb('sessionTimeout')} onChange={v => set('sessionTimeout', v)} />
+              <IdleMinutesPicker />
               <p style={{ fontSize: 12, color: 'var(--text-4)', lineHeight: 1.5, margin: '4px 0 0' }}>
-                Applies to everyone in this organization. The audit log is always on and cannot be switched off.
+                The on/off switch applies to everyone in this organization. The audit log is always on and cannot be switched off.
               </p>
               <button className="btn btn-primary mt-12" onClick={handleSaveSettings}>Save Security Settings</button>
             </div>

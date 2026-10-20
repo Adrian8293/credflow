@@ -8,6 +8,8 @@
  */
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { clearSeen } from '../lib/idle'
+import { getQueueStatus } from '../lib/offlineQueue'
 
 function useAuth() {
   const [user, setUser] = useState(null)
@@ -50,6 +52,9 @@ function useAuth() {
 
   async function signOut() {
     if (typeof window === 'undefined') return
+    const { pending, failed } = getQueueStatus()
+    if (pending + failed > 0 && !window.confirm(`You have ${pending + failed} change${pending + failed === 1 ? '' : 's'} that ${pending + failed === 1 ? 'has' : 'have'} not been sent yet. If you sign out now they stay on this device and are sent the next time you sign in. Sign out anyway?`)) return
+    clearSeen()
     await supabase.auth.signOut()
     setUser(null)
     window.location.href = '/login'
