@@ -214,6 +214,9 @@ export default function PortalPage() {
               <SendForm providerId={prov.id} onDone={msg => { setFlash(msg); load(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
             </section>
 
+            {/* ── My details (providers only) ── */}
+            {data?.role === 'provider' && <DetailsCard key={prov.id} onSaved={msg => { setFlash(msg); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />}
+
             {/* ── Applications ── */}
             <section className="pt-card">
               <h2>Your payer applications</h2>
@@ -350,6 +353,60 @@ function RequestCard({ req, providerId, onDone }) {
       </div>
       {err && <div className="pt-err" role="alert">{err}</div>}
     </div>
+  )
+}
+
+// ─── Provider confirms their own roster details ──────────────────────────────
+// Payer directories ask for these. Only the provider's own four answers can be changed from here.
+function DetailsCard({ onSaved }) {
+  const [state, setState] = useState('loading')   // loading | ready | hidden
+  const [f, setF] = useState({ gender: '', languages: '', accepts: '', telehealth: '' })
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+
+  useEffect(() => {
+    let live = true
+    supabase.rpc('portal_my_details').then(({ data: d, error: e }) => {
+      if (!live) return
+      if (e || !d) { setState('hidden'); return }       // not set up yet (migration 025) or not a provider account
+      const yn = v => (v === true ? 'Yes' : v === false ? 'No' : '')
+      setF({ gender: d.gender || '', languages: d.languages || '', accepts: yn(d.accepts_new_patients), telehealth: yn(d.telehealth) })
+      setState('ready')
+    })
+    return () => { live = false }
+  }, [])
+
+  if (state !== 'ready') return null
+  const set = (k, v) => setF(x => ({ ...x, [k]: v }))
+  const tri = v => (v === 'Yes' ? true : v === 'No' ? false : null)
+
+  async function save(e) {
+    e.preventDefault()
+    setBusy(true); setErr('')
+    const { error } = await supabase.rpc('portal_save_details', {
+      p_gender: f.gender || null, p_languages: f.languages.trim() || null, p_accepts: tri(f.accepts), p_telehealth: tri(f.telehealth),
+    })
+    setBusy(false)
+    if (error) { setErr('That did not save. Please check your internet connection and tap Save again.'); return }
+    onSaved('Thank you. Your details were saved.')
+  }
+
+  return (
+    <section className="pt-card">
+      <h2>Your directory details</h2>
+      <p className="pt-muted">Insurance companies list these in their provider directories. Everything here is optional, and you can change it any time.</p>
+      <form onSubmit={save} className="pt-send">
+        <label>Gender<select value={f.gender} onChange={e => set('gender', e.target.value)}>
+          <option value="">Prefer not to say</option><option>Female</option><option>Male</option><option>Non-binary</option></select></label>
+        <label>Languages you see clients in<input value={f.languages} maxLength={200} onChange={e => set('languages', e.target.value)} placeholder="e.g. English, Spanish" /></label>
+        <label>Taking new clients?<select value={f.accepts} onChange={e => set('accepts', e.target.value)}>
+          <option value="">Not sure yet</option><option>Yes</option><option>No</option></select></label>
+        <label>Offer telehealth (video or phone)?<select value={f.telehealth} onChange={e => set('telehealth', e.target.value)}>
+          <option value="">Not sure yet</option><option>Yes</option><option>No</option></select></label>
+        {err && <div className="pt-err" role="alert">{err}</div>}
+        <button className="pt-btn pt-btn-go" type="submit" disabled={busy}>{busy ? 'Saving…' : 'Save my details'}</button>
+      </form>
+    </section>
   )
 }
 

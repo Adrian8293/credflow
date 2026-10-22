@@ -6,6 +6,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { buildInbox, inboxFilter, INBOX_FILTERS } from '../../lib/inbox.js'
 import { buildWeek } from '../../lib/week.js'
+import { todayStr } from '../../lib/matrix.js'
 import { fetchAllContracts, fetchEntities, markRosterSent } from '../../lib/db'
 import { RosterFillModal } from '../billing/RosterFillModal.jsx'
 
@@ -33,7 +34,7 @@ export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openT
   const loadContracts = () => { fetchAllContracts().then(setContracts).catch(() => setContracts([])) }
   useEffect(() => { loadContracts(); fetchEntities().then(setEntities).catch(() => {}) }, [])
   async function rosterSent(i) {
-    setContracts(cs => cs.map(c => c.id === i.contractId ? { ...c, lastRosterSent: new Date().toISOString().slice(0, 10) } : c))
+    setContracts(cs => cs.map(c => c.id === i.contractId ? { ...c, lastRosterSent: todayStr() } : c))
     try { await markRosterSent(i.contractId, undefined, i.title) } catch { loadContracts() }
   }
 

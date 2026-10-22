@@ -12,6 +12,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Modal } from '../../components/ui/Modal.jsx'
 import { fetchEntities, fetchLocations, fetchContracts, fetchRosterMap, saveRosterMap, markRosterSent, addAudit } from '../../lib/db'
 import { rosterRecords } from '../../lib/roster.js'
+import { todayStr } from '../../lib/matrix.js'
 
 const sel = { width: '100%' }
 
@@ -134,7 +135,7 @@ export function RosterFillModal({ db, onClose, initial }) {
       })
       const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
       const base = fileName.replace(/\.xlsx$/i, '')
-      setResult({ report, blob, outName: `${base} - filled ${new Date().toISOString().slice(0, 10)}.xlsx` })
+      setResult({ report, blob, outName: `${base} - filled ${todayStr()}.xlsx` })
       // remember the column meanings for next quarter (headings only, never provider data)
       const toSave = {}
       headers.forEach(h => { toSave[h.key] = mapping[h.col] || '-' })
