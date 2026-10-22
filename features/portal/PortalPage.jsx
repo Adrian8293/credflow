@@ -3,7 +3,7 @@
  * database) and uploads through /api/portal-upload. No staff data, notes or other organizations.
  */
 import { compressImage } from '../../lib/compressImage'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { DOC_TYPES } from '../../constants/docTypes'
 import {
@@ -297,7 +297,7 @@ export default function PortalPage() {
 
 // Big, obvious file chooser. On a phone the same button also offers the camera.
 function FilePicker({ file, onFile, label }) {
-  const id = useMemo(() => `f${Math.random().toString(36).slice(2, 9)}`, [])
+  const id = useId()   // stable per component; Math.random() during render is flagged by the linter and differs between server and browser
   return (
     <div className="pt-file">
       <input id={id} className="pt-file-input" type="file" aria-label={label}
