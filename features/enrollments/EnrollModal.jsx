@@ -14,6 +14,7 @@ import { fmtDate } from '../../lib/helpers.js'
 export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSaveEnrollment, onClose, saving, onAddPayer }) {
   const f = k => enrollForm[k] ?? ''
   const set = (k, v) => setEnrollForm(prev => ({ ...prev, [k]: v }))
+  const [showMore, setShowMore] = useState(!!editingId.enrollment)   // new enrollments start short; the rest is one tap away
   const stageIdx = STAGES.indexOf(f('stage'))
   const [autoFollowup, setAutoFollowup] = useState(null)   // { days } when the follow-up date was filled in for the chosen stage
 
@@ -43,6 +44,12 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
   const [payerHints, setPayerHints] = useState([])
   const [showHints, setShowHints]   = useState(true)
   const selectedPayerId = f('payId')
+  // New enrollment with a payer that asks for CAQH: start as "provider still needs to authorize" (only if not chosen yet).
+  useEffect(() => {
+    if (editingId.enrollment || f('caqhStatus')) return
+    if (payerHints.some(h => /caqh/i.test(h))) set('caqhStatus', 'needed')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [payerHints])
 
   useEffect(() => {
     if (!selectedPayerId) { setPayerHints([]); return }
@@ -257,6 +264,24 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
       )}
       <div className="fg"><label>Stage</label><select value={f('stage')} onChange={e => changeStage(e.target.value)}>{STAGES.map(s => <option key={s}>{s}</option>)}</select></div>
       <div className="fg"><label>Date Submitted</label><DateInput  value={f('submitted')} onChange={e => set('submitted', e.target.value)} /></div>
+      <div className="fg"><label>CAQH authorization for this payer</label>
+        <select value={f('caqhStatus')} onChange={e => set('caqhStatus', e.target.value)}>
+          <option value="">Not set yet</option>
+          <option value="needed">Provider still needs to authorize this payer</option>
+          <option value="authorized">Authorized in CAQH</option>
+          <option value="none">Not needed for this payer</option>
+        </select>
+        <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 4 }}>In CAQH, each provider must authorize each payer before the payer can read their profile. “Still needs to” shows up on Today and in the provider’s portal.</div>
+      </div>
+      <div className="fg"><label>Follow-up Date</label><DateInput  value={f('followup')} onChange={e => { set('followup', e.target.value); setAutoFollowup(null) }} />
+        {autoFollowup && <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 3 }}>Suggested for this stage: {autoFollowup.days} days from today ({fmtDate(f('followup'))}). Change it if you like.</div>}</div>
+      <div className="fg full"><label>Notes / Audit Entry</label><textarea value={f('notes')} onChange={e => set('notes', e.target.value)} placeholder="Add a note (logged to audit trail)…"></textarea></div>
+      <div className="fg full">
+        <button type="button" className="x-link" aria-expanded={showMore} onClick={() => setShowMore(m => !m)}>
+          {showMore ? 'Hide extra details ▲' : 'More details: effective dates, state, IDs, EFT/ERA ▼'}
+        </button>
+      </div>
+      {showMore && <>
       <div className="fg"><label>Effective Date (overall)</label><DateInput  value={f('effective')} onChange={e => set('effective', e.target.value)} /></div>
       <div className="fg"><label>Credentialing Effective</label><DateInput  value={f('credentialingEffective')} onChange={e => set('credentialingEffective', e.target.value)} /></div>
       <div className="fg"><label>Contract Effective</label><DateInput  value={f('contractEffective')} onChange={e => set('contractEffective', e.target.value)} /></div>
@@ -283,10 +308,8 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
       <div className="fg"><label>Recredentialing Due</label><DateInput  value={f('recred')} onChange={e => set('recred', e.target.value)} /></div>
       <div className="fg"><label>EFT Status</label><select value={f('eft')} onChange={e => set('eft', e.target.value)}><option>Not Set Up</option><option>Submitted</option><option>Active</option></select></div>
       <div className="fg"><label>ERA Status</label><select value={f('era')} onChange={e => set('era', e.target.value)}><option>Not Set Up</option><option>Submitted</option><option>Active</option></select></div>
-      <div className="fg"><label>Follow-up Date</label><DateInput  value={f('followup')} onChange={e => { set('followup', e.target.value); setAutoFollowup(null) }} />
-        {autoFollowup && <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 3 }}>Suggested for this stage: {autoFollowup.days} days from today ({fmtDate(f('followup'))}). Change it if you like.</div>}</div>
       <div className="fg"><label>Contract Received</label><select value={f('contract')} onChange={e => set('contract', e.target.value)}><option value="No">No</option><option value="Yes">Yes</option></select></div>
-      <div className="fg full"><label>Notes / Audit Entry</label><textarea value={f('notes')} onChange={e => set('notes', e.target.value)} placeholder="Add a note (logged to audit trail)…"></textarea></div>
+      </>}
     </div>
 
     {editingId.enrollment && (

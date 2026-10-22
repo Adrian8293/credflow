@@ -432,9 +432,9 @@ export function PayersTab({ db, search, setSearch, fType, setFType, openPayerMod
                         : <span style={{ color:'var(--text-4)' }}>—</span>}
                     </td>
                     <td>
-                      <div style={{ display:'flex', gap:5 }}>
-                        <button className="btn btn-secondary btn-sm" onClick={()=>openPayerModal(p.id)} style={{ fontSize:11, padding:'3px 8px' }}>Edit</button>
-                        <button className="btn btn-sm" onClick={()=>handleDeletePayer(p.id)} style={{ fontSize:11, padding:'3px 8px', color:'var(--danger)', borderColor:'var(--danger)' }}>Del</button>
+                      <div style={{ display:'flex', gap:10 }}>
+                        <button className="btn btn-secondary btn-sm" onClick={()=>openPayerModal(p.id)} style={{ fontSize:12.5, padding:'5px 12px' }}>Edit</button>
+                        <button className="btn btn-sm" onClick={()=>handleDeletePayer(p.id)} style={{ fontSize:12.5, padding:'5px 12px', color:'var(--danger)', borderColor:'var(--danger)' }} aria-label={`Delete payer ${p.name}`}>Delete</button>
                       </div>
                     </td>
                   </tr>

@@ -28,6 +28,7 @@ export function useIdleLogout({ enabled, minutes = 30, onTimeout, sessionId = ''
   const [secondsLeft, setSecondsLeft] = useState(null)   // null = not in the warning window
   const last = useRef(0)
   const cb = useRef(onTimeout)
+  const stayRef = useRef(() => {})
   useEffect(() => { cb.current = onTimeout })
 
   useEffect(() => {
@@ -50,6 +51,8 @@ export function useIdleLogout({ enabled, minutes = 30, onTimeout, sessionId = ''
       if (t - lastWrite > 10_000) { lastWrite = t; write(t, sessionId); writeSeen(t, minutes) }   // throttle writes
     }
     EVENTS.forEach(e => window.addEventListener(e, bump, { passive: true }))
+    // The "Stay signed in" button: count it as activity right now and hide the warning.
+    stayRef.current = () => { const t = Date.now(); last.current = t; lastWrite = t; write(t, sessionId); writeSeen(t, minutes); setSecondsLeft(null) }
 
     let done = false
     const check = () => {
@@ -74,5 +77,5 @@ export function useIdleLogout({ enabled, minutes = 30, onTimeout, sessionId = ''
     }
   }, [enabled, minutes, sessionId])
 
-  return { secondsLeft }
+  return { secondsLeft, stay: () => stayRef.current() }
 }

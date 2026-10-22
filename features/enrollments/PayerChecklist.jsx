@@ -34,18 +34,18 @@ export function PayerChecklist({ title, guidelines, provider, documents, enrollm
         <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--pr)' }}>
           {title} · {provider ? `${ready}/${items.length} ready` : 'Required items'}
         </span>
-        <button type="button" onClick={onDismiss} style={{ fontSize: 11, color: 'var(--text-4)', background: 'none', border: 'none', cursor: 'pointer' }}>Dismiss ×</button>
+        <button type="button" onClick={onDismiss} className="x-hide" aria-label="Hide this checklist">Hide</button>
       </div>
       <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 4 }}>
         {items.map(it => {
           const st = it.done && it.status !== 'ok' && it.status !== 'na' ? 'ok' : it.status
           return (
-            <li key={it.key} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 12.5, color: 'var(--text-2)' }}>
+            <li key={it.key} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 13.5, color: 'var(--text-2)', padding: '4px 0' }}>
               <button
                 type="button" onClick={() => it.status !== 'ok' && it.status !== 'na' && toggle(it)}
                 disabled={!enrollmentId || it.status === 'ok' || it.status === 'na'}
                 aria-label={`Mark ${it.text} ${it.ticked ? 'not done' : 'done'}`}
-                style={{ width: 18, height: 18, flexShrink: 0, borderRadius: 4, border: `1.5px solid ${COLOR[st]}`, background: st === 'ok' ? COLOR.ok : 'var(--card)', color: st === 'ok' ? '#fff' : COLOR[st], fontSize: 11, fontWeight: 700, lineHeight: 1, cursor: it.status === 'manual' || it.status === 'warn' || it.status === 'bad' ? 'pointer' : 'default', padding: 0 }}
+                style={{ width: 26, height: 26, fontSize: 15, fontWeight: 700, flexShrink: 0, borderRadius: 4, border: `1.5px solid ${COLOR[st]}`, background: st === 'ok' ? COLOR.ok : 'var(--card)', color: st === 'ok' ? '#fff' : COLOR[st], fontSize: 11, fontWeight: 700, lineHeight: 1, cursor: it.status === 'manual' || it.status === 'warn' || it.status === 'bad' ? 'pointer' : 'default', padding: 0 }}
               >{st === 'ok' ? '✓' : ICON[st]}</button>
               <span style={{ flex: 1, textDecoration: it.ticked && it.status === 'manual' ? 'line-through' : 'none' }}>
                 {it.text}

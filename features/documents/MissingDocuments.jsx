@@ -21,7 +21,7 @@ const FIX = {
 }
 
 export function MissingDocuments({ db, openDocModal, actions = {} }) {
-  const { setDb, toast, setPage, editProvider, setDocForm } = actions
+  const { setDb, toast, setPage, editProvider, setDocForm, requestConfirm } = actions
   const [busy, setBusy] = useState('')
   const [filterSeverity, setFilterSeverity] = useState('')
   const [filterProv, setFilterProv] = useState('')
@@ -70,6 +70,36 @@ export function MissingDocuments({ db, openDocModal, actions = {} }) {
     } catch (e) { toast?.(e.message || 'Could not send the request', 'error') }
     finally { setBusy('') }
   }
+  // One tap: ask for everything that is missing and not already requested (skips renewals of existing files).
+  const dueStr = () => { const d = new Date(); d.setDate(d.getDate() + 14); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` }
+  async function requestAll(list) {
+    const seen = new Set()
+    const todo = list.filter(i => {
+      const k = i.prov.id + '|' + i.fix.docType
+      if (seen.has(k) || reqFor(i)) return false
+      seen.add(k); return true
+    })
+    if (!todo.length) return
+    const names = [...new Set(todo.map(i => `${i.prov.fname} ${i.prov.lname}`))]
+    const ok = requestConfirm ? await requestConfirm({
+      title: `Ask for ${todo.length} document${todo.length === 1 ? '' : 's'}?`,
+      body: `Sends ${todo.length} request${todo.length === 1 ? '' : 's'} to ${names.length === 1 ? names[0] : `${names.length} providers`}, each due in 14 days. They see them in their portal.`,
+      confirmText: `Send ${todo.length} request${todo.length === 1 ? '' : 's'}`,
+    }) : true
+    if (!ok) return
+    setBusy('all')
+    let sent = 0
+    try {
+      for (const i of todo) {
+        const docType = DOC_TYPES.includes(i.fix.docType) ? i.fix.docType : 'Other'
+        const r = await createRequest({ provId: i.prov.id, docType, title: docType, note: '', due: dueStr() })
+        setDb?.(prev => ({ ...prev, requests: [r, ...(prev.requests || [])] }))
+        sent++
+      }
+      toast?.(`Sent ${sent} request${sent === 1 ? '' : 's'}. Track them on the Requests page.`, 'success')
+    } catch (e) { toast?.(`Sent ${sent}, then stopped: ${e.message || 'something went wrong'}`, 'error') }
+    finally { setBusy('') }
+  }
   function addMyself(issue) {
     if (issue.fix.how === 'doc' && issue.doc) { openDocModal?.(issue.doc.id); return }
     openDocModal?.()
@@ -99,6 +129,8 @@ export function MissingDocuments({ db, openDocModal, actions = {} }) {
     (!filterSeverity || i.severity === filterSeverity) &&
     (!filterProv || i.prov.id === filterProv)
   )
+  const askable = filtered.filter(i => i.fix?.how === 'type')
+  const askableCount = new Set(askable.filter(i => !reqFor(i)).map(i => i.prov.id + '|' + i.fix.docType)).size
   const errors = filtered.filter(i => i.severity === 'error')
   const warns = filtered.filter(i => i.severity === 'warn')
 
@@ -114,7 +146,12 @@ export function MissingDocuments({ db, openDocModal, actions = {} }) {
           <option value="">All Providers</option>
           {db.providers.filter(p=>p.status==='Active').map(p=><option key={p.id} value={p.id}>{p.fname} {p.lname}</option>)}
         </select>
-        <div style={{ marginLeft:'auto', display:'flex', gap:8 }}>
+        <div style={{ marginLeft:'auto', display:'flex', gap:8, flexWrap:'wrap', alignItems:'center' }}>
+          {askableCount > 0 && (
+            <button className="btn btn-primary btn-sm" disabled={busy === 'all'} onClick={() => requestAll(askable)}>
+              {busy === 'all' ? 'Sending…' : `Ask for all ${askableCount} missing document${askableCount === 1 ? '' : 's'}`}
+            </button>
+          )}
           {errors.length > 0 && <span className="badge b-red"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> {errors.length} Critical</span>}
           {warns.length > 0 && <span className="badge b-amber">! {warns.length} Warnings</span>}
           {filtered.length === 0 && <span className="badge b-green"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> All Clear</span>}

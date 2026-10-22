@@ -21,12 +21,13 @@ export default function Login() {
   const [loading, setLoading]       = useState(false)
   const [error, setError]           = useState('')
   const [success, setSuccess]       = useState('')
+  const [notice, setNotice]         = useState('')   // informational (e.g. signed out for inactivity): the sign-in form stays visible
   useEffect(() => {
-    if (new URLSearchParams(window.location.search).get('reason') === 'idle') setSuccess('For your security you were signed out after a period of inactivity. Please sign in again.')
+    if (new URLSearchParams(window.location.search).get('reason') === 'idle') setNotice('You were signed out because the app was not used for a while. This protects patient and provider information. Please sign in again below.')
   }, [])
 
   function switchMode(m) {
-    setMode(m); setStep(1); setError(''); setSuccess('')
+    setMode(m); setStep(1); setError(''); setSuccess(''); setNotice('')
     setEmail(''); setPassword(''); setFirstName(''); setLastName('')
     setConfirmPass(''); setOrg(''); setShowPass(false); setShowConfirm(false)
   }
@@ -59,7 +60,7 @@ export default function Login() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    setError(''); setSuccess('')
+    setError(''); setSuccess(''); setNotice('')
 
     if (mode === 'signup') {
       if (!SIGNUP_ENABLED) { setError('Self-registration is disabled. Ask an administrator for an invitation.'); return }
@@ -164,6 +165,12 @@ export default function Login() {
           )}
 
           {/* Messages */}
+          {notice && !success && (
+            <div className="pc-msg pc-msg--ok" role="status">
+              <span className="pc-msg-icon">i</span>
+              <span>{notice}</span>
+            </div>
+          )}
           {success && (
             <div className="pc-msg pc-msg--ok">
               <span className="pc-msg-icon">✓</span>

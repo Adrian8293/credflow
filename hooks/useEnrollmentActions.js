@@ -100,6 +100,18 @@ export function useEnrollmentActions({ db, setDb, toast, requestConfirm }) {
     enrollments: prev.enrollments.map(e => saved.find(s => s.id === e.id) || e),
   }))
 
+  // One tap: the provider has authorized this payer in CAQH.
+  async function handleCaqhAuthorized(id) {
+    const enr = db.enrollments.find(e => e.id === id)
+    if (!enr) return false
+    try {
+      const saved = await upsertEnrollment({ ...enr, caqhStatus: 'authorized' }, pNameShort(db.providers, enr.provId), payName(db.payers, enr.payId))
+      setDb(prev => ({ ...prev, enrollments: prev.enrollments.map(e => e.id === saved.id ? saved : e) }))
+      toast('Marked as authorized in CAQH.', 'success')
+      return true
+    } catch (err) { toast(err.message, 'error'); return false }
+  }
+
   async function handleBulkStage(ids, stage) {
     const before = byId(ids)
     const todo = ids.filter(id => before[id] && before[id].stage !== stage)
@@ -168,7 +180,7 @@ export function useEnrollmentActions({ db, setDb, toast, requestConfirm }) {
     editingEnrollmentId, setEditingEnrollmentId,
     saving,
     handleSaveEnrollment, handleDeleteEnrollment, handleStageChange,
-    handleBulkStage, handleBulkFollowup, handleBulkDelete,
+    handleBulkStage, handleBulkFollowup, handleBulkDelete, handleCaqhAuthorized,
     openEnrollModal,
   }
 }

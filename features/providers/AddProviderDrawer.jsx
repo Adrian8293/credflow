@@ -342,6 +342,18 @@ export function AddProviderDrawer({
             <Field label="Medicare PTAN">{inp('ptan', 'If applicable')}</Field>
             <Field label="DEA Registration #">{inp('dea', 'AB1234567')}</Field>
             <Field label="DEA Expiration">{inp('deaExp', '', 'date')}</Field>
+
+            <Divider label="Payer roster details (optional)" />
+            <Field label="Gender" hint="Some payer roster forms ask for this">
+              {sel('gender', <><option value="">Not entered</option><option>Female</option><option>Male</option><option>Non-binary</option></>)}
+            </Field>
+            <Field label="Languages spoken" hint="English, Spanish">{inp('languages', 'English')}</Field>
+            <Field label="Accepting new patients">
+              {sel('acceptsNew', <><option value="">Not entered</option><option>Yes</option><option>No</option></>)}
+            </Field>
+            <Field label="Offers telehealth">
+              {sel('telehealth', <><option value="">Not entered</option><option>Yes</option><option>No</option></>)}
+            </Field>
           </FG>
         )
 

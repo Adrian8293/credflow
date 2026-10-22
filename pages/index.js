@@ -4,7 +4,7 @@ import { useGlobalContext } from '../context/AppContext'
 import { Dashboard } from '../features/billing/Dashboard.jsx'
 
 export default function IndexPage() {
-  const { db, setPage, openEnrollModal, openAiFollowup, openPayerModal, openProvDetail, openTaskModal, activeOrg, tasks } = useGlobalContext()
+  const { db, setPage, openEnrollModal, openAiFollowup, openPayerModal, openProvDetail, openTaskModal, activeOrg, tasks, enrollments } = useGlobalContext()
 
   return (
     <>
@@ -20,6 +20,7 @@ export default function IndexPage() {
         openProvDetail={openProvDetail}
         openTaskModal={openTaskModal}
         onMarkTaskDone={tasks?.handleMarkDone}
+        onCaqhAuthorized={enrollments?.handleCaqhAuthorized}
         role={activeOrg?.role}
         orgId={activeOrg?.org_id}
       />

@@ -5,7 +5,7 @@ import { DocumentsPage } from '../features/documents/DocumentsPage.jsx'
 
 export default function Documents() {
   const {
-    db, setDb, toast, setPage, providers, openDocModal,
+    db, setDb, toast, setPage, providers, openDocModal, requestConfirm,
     docSearch, setDocSearch,
     docFType, setDocFType,
     docFStatus, setDocFStatus,
@@ -27,7 +27,7 @@ export default function Documents() {
         setDocFStatus={setDocFStatus}
         openDocModal={openDocModal}
         handleDeleteDocument={documents.handleDeleteDocument}
-        actions={{ setDb, toast, setPage, editProvider: providers.editProvider, setDocForm: documents.setDocForm }}
+        actions={{ requestConfirm, setDb, toast, setPage, editProvider: providers.editProvider, setDocForm: documents.setDocForm }}
       />
     </>
   )

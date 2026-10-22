@@ -133,8 +133,8 @@ export function Audit({ db, search, setSearch, fType, setFType }) {
           {users.map(u => <option key={u} value={u}>{u}</option>)}
         </select>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--text-4)' }}>
-          From <DateInput value={from} onChange={e => { setFrom(e.target.value); setShown(PAGE) }} style={{ width: 118 }} />
-          To <DateInput value={to} onChange={e => { setTo(e.target.value); setShown(PAGE) }} style={{ width: 118 }} />
+          From <DateInput value={from} onChange={e => { setFrom(e.target.value); setShown(PAGE) }} style={{ width: 150, minWidth: 140 }} />
+          To <DateInput value={to} onChange={e => { setTo(e.target.value); setShown(PAGE) }} style={{ width: 150, minWidth: 140 }} />
         </div>
         {filtered && <button onClick={clearAll} style={{ fontSize: 12, color: 'var(--pr)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>Clear ×</button>}
         <div className="toolbar-right">

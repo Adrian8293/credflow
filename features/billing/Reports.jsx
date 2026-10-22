@@ -10,6 +10,8 @@ import { payName, getProviderAlerts } from '../../lib/helpers.js'
 import { Badge, StageBadge } from '../../components/ui/Badge.jsx'
 import { STATUS_COLOR } from '../../constants/stages.js'
 import { DataQuality } from './DataQuality.jsx'
+import { RosterModal } from './RosterModal.jsx'
+import { RosterFillModal } from './RosterFillModal.jsx'
 import { dataQualityIssues } from '../../lib/dataQuality.js'
 import { PERIODS, inPeriod, inPreviousPeriod, turnaroundStats, monthlySubmissions, complianceStats, caqhOnTime, followupCoverage, toCsv } from '../../lib/reportStats.js'
 
@@ -94,6 +96,8 @@ function MiniDonut({ data, total }) {
 const TABS = ['Overview', 'Applications', 'Providers', 'Payers', 'Turnaround Time', 'Data Quality']
 const EXPORT_CARDS = [
   { id: 'roster',   icon: Icon.users,    title: 'Provider Roster',    desc: 'All providers with license & expiry details (CSV)' },
+  { id: 'payer-roster', icon: Icon.users, title: 'Payer Roster', desc: 'Provider list for a payer’s roster, with what is still missing (CSV)' },
+  { id: 'payer-roster-fill', icon: Icon.file, title: 'Fill a Payer’s Roster File', desc: 'Upload the quarterly Excel form a payer sent; Lacentra fills it in' },
   { id: 'enroll',   icon: Icon.file,     title: 'Enrollment Status',  desc: 'All payer enrollments by current stage (CSV)' },
   { id: 'expiring', icon: Icon.calendar, title: 'Expiration Report',  desc: 'Credentials expiring within 90 days (CSV)' },
   { id: 'tasks',    icon: Icon.bolt,     title: 'Open Tasks',         desc: 'All pending and in-progress tasks (CSV)' },
@@ -103,6 +107,8 @@ const EXPORT_CARDS = [
 export function Reports({ db, exportJSON, onOpenProvider, onOpenEnrollment }) {
   const [activeTab, setActiveTab] = useState('Overview')
   const [periodId, setPeriodId] = useState('365')
+  const [rosterOpen, setRosterOpen] = useState(false)
+  const [rosterFillOpen, setRosterFillOpen] = useState(false)
   const period = PERIODS.find(x => x.id === periodId) || PERIODS[1]
 
   // Feature 9: Excel export
@@ -256,6 +262,8 @@ export function Reports({ db, exportJSON, onOpenProvider, onOpenEnrollment }) {
   const provName = (id) => { const p = db.providers.find(x => x.id === id); return p ? `${p.fname} ${p.lname}`.trim() : '' }
   function runExport(id) {
     if (id === 'backup') return exportJSON()
+    if (id === 'payer-roster') return setRosterOpen(true)
+    if (id === 'payer-roster-fill') return setRosterFillOpen(true)
     if (id === 'roster') return downloadCsv('provider-roster', db.providers.map(p => ({ 'First Name': p.fname, 'Last Name': p.lname, Credential: p.cred, Specialty: p.spec, Status: p.status, NPI: p.npi, CAQH: p.caqh, 'License #': p.license, 'License State': p.licenseState, 'License Exp': p.licenseExp, 'Malpractice Exp': p.malExp, 'DEA Exp': p.deaExp, 'CAQH Due': p.caqhDue })))
     if (id === 'enroll') return downloadCsv('enrollment-status', db.enrollments.map(e => ({ Provider: provName(e.provId), Payer: payName(db.payers, e.payId), Type: e.level, Stage: e.stage, Submitted: e.submitted, 'Credentialing Effective': e.credentialingEffective, Effective: e.effective, 'Follow-up': e.followup })))
     if (id === 'expiring') {
@@ -537,6 +545,8 @@ export function Reports({ db, exportJSON, onOpenProvider, onOpenEnrollment }) {
           </div>
         </div>
       </div>
+      {rosterOpen && <RosterModal db={db} onClose={() => setRosterOpen(false)} />}
+      {rosterFillOpen && <RosterFillModal db={db} onClose={() => setRosterFillOpen(false)} />}
     </div>
   )
 }

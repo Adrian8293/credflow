@@ -332,7 +332,7 @@ function RecentApps({ db, setPage }) {
 }
 
 // ─── MAIN DASHBOARD ───────────────────────────────────────────────────────────
-export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPayerModal, openProvDetail, openTaskModal, onMarkTaskDone, role, orgId }) {
+export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPayerModal, openProvDetail, openTaskModal, onMarkTaskDone, onCaqhAuthorized, role, orgId }) {
   const isEmpty = db.providers.length === 0 && db.enrollments.length === 0
   if (isEmpty) {
     return (
@@ -461,7 +461,7 @@ export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPaye
 
           {/* One inbox for everything that needs a person */}
           <TodayInbox db={db} setPage={setPage} openEnrollModal={openEnrollModal}
-            openProvDetail={openProvDetail} openTaskModal={openTaskModal} onMarkTaskDone={onMarkTaskDone} onDraftEmail={onDraftEmail} />
+            openProvDetail={openProvDetail} openTaskModal={openTaskModal} onMarkTaskDone={onMarkTaskDone} onCaqhAuthorized={onCaqhAuthorized} onDraftEmail={onDraftEmail} />
 
           {/* Application Pipeline */}
           <div className="card">

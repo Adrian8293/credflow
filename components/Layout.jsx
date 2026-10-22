@@ -3,6 +3,7 @@ import { useRouter } from 'next/router'
 import { useGlobalContext } from '../context/AppContext'
 import { Sidebar } from './ui/Sidebar.jsx'
 import { Topbar } from './ui/Topbar.jsx'
+import { LoadingScreen } from './ui/LoadingScreen.jsx'
 import { Modal } from './ui/Modal.jsx'
 import { EnrollModal } from '../features/enrollments/EnrollModal.jsx'
 import { PayerModal } from '../features/payers/PayerModal.jsx'
@@ -17,6 +18,7 @@ import { AiFollowupModal } from './AiFollowupModal.jsx'
 import { GlobalSearch } from './GlobalSearch.jsx'
 import { MfaChallenge } from './MfaChallenge.jsx'
 import { useIdleLogout } from '../hooks/useIdleLogout'
+import { IdleWarning } from './ui/IdleWarning'
 import { getIdleMinutes, clearSeen } from '../lib/idle'
 import { initQueue } from '../lib/offlineQueue'
 import { supabase } from '../lib/supabase'
@@ -111,12 +113,7 @@ export function Layout({ children }) {
   }, [user, orgsLoaded, role, isPortalRole, router])
 
   if (authLoading || (user && mfaState === 'checking') || (user && !orgsLoaded) || (loading && !isPortalRole)) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter,sans-serif', color: '#6B7280', flexDirection: 'column', gap: 12 }}>
-        <div style={{ width: 36, height: 36, border: '3px solid #E5E7EB', borderTopColor: '#1565C0', borderRadius: '50%', animation: 'spin .65s linear infinite' }} />
-        <span style={{ fontSize: 13 }}>Loading Lacentra…</span>
-      </div>
-    )
+    return <LoadingScreen />
   }
 
   if (!user) return null
@@ -124,14 +121,10 @@ export function Layout({ children }) {
   if (mfaState === 'needed') return <MfaChallenge onVerified={() => window.location.reload()} onSignOut={signOut} />
 
   // Portal roles never see the staff chrome (sidebar, modals, staff data).
-  if (isPortalRole) return router.pathname === '/portal' ? <>{idle.secondsLeft !== null && <div role="alert" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, background: '#b54708', color: '#fff', textAlign: 'center', padding: '8px 12px', fontSize: 13, fontWeight: 600 }}>You will be signed out in {idle.secondsLeft}s because of inactivity. Move your mouse or press a key to stay signed in.</div>}{children}</> : null
+  if (isPortalRole) return router.pathname === '/portal' ? <><IdleWarning secondsLeft={idle.secondsLeft} onStay={idle.stay} />{children}</> : null
   if (router.pathname === '/portal') return null
 
-  const idleBanner = idle.secondsLeft !== null && (
-    <div role="alert" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 9999, background: '#b54708', color: '#fff', textAlign: 'center', padding: '8px 12px', fontSize: 13, fontWeight: 600 }}>
-      You will be signed out in {idle.secondsLeft}s because of inactivity. Move your mouse or press a key to stay signed in.
-    </div>
-  )
+  const idleBanner = <IdleWarning secondsLeft={idle.secondsLeft} onStay={idle.stay} />
 
   return (
     <div className="app-root">

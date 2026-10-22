@@ -11,6 +11,8 @@ import {
 } from '../../lib/portalStatus'
 import { DateInput } from '../../components/ui/DateInput.jsx'
 
+// Where providers sign in to CAQH to re-attest and authorize payers. Override with NEXT_PUBLIC_CAQH_URL if CAQH moves it.
+const CAQH_URL = process.env.NEXT_PUBLIC_CAQH_URL || 'https://proview.caqh.org'
 const MAX_BYTES = 10 * 1024 * 1024
 const sizeProblem = (f) => (f && f.size > MAX_BYTES ? 'That file is over 10 MB. Please upload a smaller PDF or photo.' : '')
 
@@ -103,6 +105,10 @@ export default function PortalPage() {
     .sort((a, b) => a.days - b.days)
 
   const soon = expirations.filter(x => x.days <= 90)
+  const isCaqh = (x) => /caqh/i.test(x.label)
+  // Payers that cannot see this provider's CAQH profile until the provider authorizes them.
+  const caqhNeeded = (prov?.enrollments || []).filter(e => e.caqh_status === 'needed' && e.stage !== 'Active' && e.stage !== 'Denied')
+  const needCount = openRequests.length + (caqhNeeded.length ? 1 : 0)
 
   return (
     <div className="pt-root">
@@ -151,10 +157,10 @@ export default function PortalPage() {
             )}
 
             {/* ── The one thing to know right now ── */}
-            {openRequests.length > 0 ? (
-              <a href="#pt-needed" className="pt-status pt-status-action">
+            {needCount > 0 ? (
+              <a href={openRequests.length > 0 ? '#pt-needed' : '#pt-caqh'} className="pt-status pt-status-action">
                 <span className="pt-status-icon" aria-hidden="true">!</span>
-                <span><b>{openRequests.length === 1 ? 'We need 1 thing from you' : `We need ${openRequests.length} things from you`}</b><small>Tap here to see what to send</small></span>
+                <span><b>{needCount === 1 ? 'We need 1 thing from you' : `We need ${needCount} things from you`}</b><small>Tap here to see what to do</small></span>
               </a>
             ) : (
               <div className="pt-status pt-status-ok">
@@ -169,7 +175,9 @@ export default function PortalPage() {
                 {soon.map(x => (
                   <div key={x.label} className={`pt-soon-row pt-tone-${x.days < 0 ? 'bad' : x.days <= 30 ? 'action' : 'wait'}`}>
                     <div><b>{x.label}</b><span>{x.days < 0 ? `Expired ${Math.abs(x.days)} days ago` : x.days === 0 ? 'Expires today' : `Expires in ${x.days} days`} · {fmtDateLong(x.date)}</span></div>
-                    <a href="#pt-send" className="pt-btn pt-btn-small">Send renewal</a>
+                    {isCaqh(x)
+                      ? <a href={CAQH_URL} target="_blank" rel="noopener noreferrer" className="pt-btn pt-btn-small">Open CAQH</a>
+                      : <a href="#pt-send" className="pt-btn pt-btn-small">Send renewal</a>}
                   </div>
                 ))}
               </div>
@@ -183,6 +191,19 @@ export default function PortalPage() {
                   <RequestCard key={r.id} req={r} providerId={prov.id}
                     onDone={msg => { setFlash(msg); load(); window.scrollTo({ top: 0, behavior: 'smooth' }) }} />
                 ))}
+              </section>
+            )}
+
+            {/* ── CAQH: authorize payers ── */}
+            {caqhNeeded.length > 0 && (
+              <section className="pt-card" id="pt-caqh">
+                <h2>Authorize these payers in CAQH <span className="pt-count">{caqhNeeded.length}</span></h2>
+                <p className="pt-muted">A payer cannot read your CAQH profile until you allow it. It only takes a minute. Sign in to CAQH, find the authorization section, and turn on:</p>
+                <ul className="pt-list">
+                  {caqhNeeded.map(e => <li key={e.id}><span><b>{e.payer || 'Payer'}</b></span><span className="pt-pill pt-action">Needs your OK</span></li>)}
+                </ul>
+                <p style={{ marginTop: 14 }}><a href={CAQH_URL} target="_blank" rel="noopener noreferrer" className="pt-btn">Open CAQH</a></p>
+                <p className="pt-muted">Done already? Please let your credentialing team know so they can confirm it.</p>
               </section>
             )}
 

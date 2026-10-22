@@ -107,7 +107,7 @@ export function TasksPage({ db, openTaskModal, openProvDetail, handleMarkDone, h
       <form onSubmit={quickAdd} style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
         <input type="text" value={qaText} onChange={e => setQaText(e.target.value)} placeholder="Quick add: what needs doing?" aria-label="Quick add task"
           style={{ flex: '1 1 260px', minWidth: 200, padding: '8px 12px', border: '1.5px solid var(--border)', borderRadius: 'var(--r)', background: 'var(--card)', color: 'var(--text-1)', fontFamily: 'inherit', fontSize: 13 }} />
-        <DateInput value={qaDue} onChange={e => setQaDue(e.target.value)} style={{ width: 130 }} />
+        <DateInput value={qaDue} onChange={e => setQaDue(e.target.value)} style={{ width: 160, minWidth: 150 }} />
         <button className="btn btn-secondary btn-sm" type="submit" disabled={!qaText.trim() || !qaDue || qaBusy}>{qaBusy ? 'Adding…' : 'Add'}</button>
       </form>
 
@@ -127,7 +127,7 @@ export function TasksPage({ db, openTaskModal, openProvDetail, handleMarkDone, h
           <option value="">All providers</option>
           {provOptions.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
         </select>
-        {filtersOn && <button onClick={() => { setSearch(''); setFProv('') }} style={{ fontSize: 12, color: 'var(--pr)', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>Clear ×</button>}
+        {filtersOn && <button onClick={() => { setSearch(''); setFProv('') }} className="x-link">Clear filters ×</button>}
       </div>
 
       {sorted.length === 0 && (
@@ -153,12 +153,9 @@ export function TasksPage({ db, openTaskModal, openProvDetail, handleMarkDone, h
             const bar = fin ? 'var(--border)' : t.priority === 'Urgent' ? 'var(--red)' : t.priority === 'High' ? 'var(--amber-d)' : 'var(--primary)'
             return (
               <div key={t.id} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 8, background: 'var(--card)', border: '1px solid var(--border)', borderLeft: `3px solid ${bar}`, marginBottom: 7, opacity: busy ? .3 : fin ? .6 : 1, transition: 'opacity .25s' }}>
-                <button type="button" disabled={fin || busy} onClick={() => done(t)} title={fin ? 'Completed' : 'Mark as done'} aria-label={fin ? 'Completed' : `Mark done: ${t.task}`}
-                  style={{ width: 24, height: 24, borderRadius: '50%', border: fin ? '2px solid var(--green)' : '1.5px solid var(--border)', background: fin ? 'var(--green-l)' : 'transparent', color: fin ? 'var(--green-d)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: fin ? 'default' : 'pointer', flexShrink: 0, fontSize: 12, fontWeight: 800, fontFamily: 'inherit', padding: 0 }}>
-                  {(fin || busy) ? '✓' : ''}
-                </button>
+                {(fin || busy) && <span aria-label="Completed" style={{ width: 26, height: 26, borderRadius: '50%', border: '2px solid var(--green)', background: 'var(--green-l)', color: 'var(--green-d, #047857)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, flexShrink: 0 }}>✓</span>}
                 <div style={{ flex: '1 1 180px', minWidth: 0 }}>
-                  <div style={{ fontSize: 13, fontWeight: 500, textDecoration: fin ? 'line-through' : 'none', overflowWrap: 'anywhere' }}>{t.task}</div>
+                  <div style={{ fontSize: 14.5, fontWeight: 600, textDecoration: fin ? 'line-through' : 'none', overflowWrap: 'anywhere' }}>{t.task}</div>
                   <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 2, display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
                     {pn && (openProvDetail
                       ? <button type="button" onClick={() => openProvDetail(t.provId)} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--pr)', cursor: 'pointer', fontFamily: 'inherit', fontSize: 11 }}>{pn}</button>
@@ -170,14 +167,15 @@ export function TasksPage({ db, openTaskModal, openProvDetail, handleMarkDone, h
                   </div>
                   {t.notes && <div style={{ fontSize: 11.5, color: 'var(--text-3)', marginTop: 3, whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{t.notes}</div>}
                 </div>
-                <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0, marginLeft: 'auto', flexWrap: 'wrap' }}>
+                <div className="task-actions" style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0, marginLeft: 'auto', flexWrap: 'wrap' }}>
                   {t.due && <span style={{ fontSize: 11, color: 'var(--text-4)' }}>{fmtDate(t.due)}</span>}
                   {!fin && d !== null && (
                     <span className={`badge ${d <= 0 ? 'b-red' : d <= 3 ? 'b-amber' : 'b-gray'}`}>{d < 0 ? `${Math.abs(d)}d late` : d === 0 ? 'Today' : `${d}d`}</span>
                   )}
                   {fin && <button className="btn btn-xs btn-ghost" onClick={() => handleReopen(t.id)}>Reopen</button>}
-                  <button className="btn btn-xs btn-ghost" onClick={() => openTaskModal(t.id)}>Edit</button>
-                  <button className="btn btn-xs btn-danger" onClick={() => handleDeleteTask(t.id)} aria-label={`Delete ${t.task}`}>✕</button>
+                  {!fin && <button className="btn btn-sm btn-green" disabled={busy} onClick={() => done(t)} aria-label={`Mark done: ${t.task}`}>✓ Done</button>}
+                  <button className="btn btn-sm btn-secondary" onClick={() => openTaskModal(t.id)}>Edit</button>
+                  <button className="btn btn-sm btn-danger" onClick={() => handleDeleteTask(t.id)} aria-label={`Delete ${t.task}`}>Delete</button>
                 </div>
               </div>
             )

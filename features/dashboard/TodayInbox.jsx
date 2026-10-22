@@ -3,9 +3,11 @@
  * Two views: "Needs attention" (everything that needs a person, by urgency) and "Next 7 days" (what is coming, by day).
  * Each row has the one action that moves it forward.
  */
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { buildInbox, inboxFilter, INBOX_FILTERS } from '../../lib/inbox.js'
 import { buildWeek } from '../../lib/week.js'
+import { fetchAllContracts, fetchEntities, markRosterSent } from '../../lib/db'
+import { RosterFillModal } from '../billing/RosterFillModal.jsx'
 
 const SEV_BADGE = {
   expired:  { cls: 'b-red',   dot: 'critical', label: 'Expired' },
@@ -15,23 +17,34 @@ const SEV_BADGE = {
 }
 const KIND_LABEL = {
   credential: 'Credential', 'license-gap': 'License gap', task: 'Task', followup: 'Follow-up', 'enr-recred': 'Re-credential',
-  'enr-term': 'Termination', 'req-review': 'Review upload', 'req-overdue': 'Requested doc',
+  'enr-term': 'Termination', 'caqh-auth': 'CAQH', 'req-review': 'Review upload', 'req-overdue': 'Requested doc', 'roster-due': 'Roster',
 }
 const PAGE = 8
 
-export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openTaskModal, onMarkTaskDone, onDraftEmail }) {
+export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openTaskModal, onMarkTaskDone, onCaqhAuthorized, onDraftEmail }) {
   const [filter, setFilter] = useState('all')
   const [showAll, setShowAll] = useState(false)
   const [view, setView] = useState('inbox')   // 'inbox' | 'week'
   const [doneIds, setDoneIds] = useState([])   // rows finished this visit (hidden at once, even before the save syncs)
 
-  const all = useMemo(() => buildInbox(db), [db])
+  const [contracts, setContracts] = useState([])
+  const [entities, setEntities] = useState([])
+  const [rosterFor, setRosterFor] = useState(null)   // roster-due item whose file is being filled
+  const loadContracts = () => { fetchAllContracts().then(setContracts).catch(() => setContracts([])) }
+  useEffect(() => { loadContracts(); fetchEntities().then(setEntities).catch(() => {}) }, [])
+  async function rosterSent(i) {
+    setContracts(cs => cs.map(c => c.id === i.contractId ? { ...c, lastRosterSent: new Date().toISOString().slice(0, 10) } : c))
+    try { await markRosterSent(i.contractId, undefined, i.title) } catch { loadContracts() }
+  }
+
+  const all = useMemo(() => buildInbox(db, { contracts, entities }), [db, contracts, entities])
   const week = useMemo(() => buildWeek(db), [db])
   const items = inboxFilter(all, filter).filter(i => !(i.type === 'task' && doneIds.includes(i.taskId)))
   const shown = showAll ? items : items.slice(0, PAGE)
   const count = k => inboxFilter(all, k).length
 
   function act(i) {
+    if (i.type === 'roster-due') return setRosterFor(i)
     if (i.type === 'task' && i.taskId) return openTaskModal?.(i.taskId)
     if (i.enrId) return openEnrollModal?.(i.enrId)
     if (i.type === 'req-review' || i.type === 'req-overdue') return setPage('requests')
@@ -42,7 +55,7 @@ export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openT
     setDoneIds(d => [...d, i.taskId])
     try { await onMarkTaskDone(i.taskId, t?.task || i.title) } catch { setDoneIds(d => d.filter(x => x !== i.taskId)) }
   }
-  const actionLabel = i => (i.type === 'req-review' ? 'Review' : i.type === 'task' ? 'Open task' : i.enrId ? 'Open' : i.type === 'req-overdue' ? 'View' : 'Open provider')
+  const actionLabel = i => (i.type === 'req-review' ? 'Review' : i.type === 'roster-due' ? 'Fill roster' : i.type === 'task' ? 'Open task' : i.enrId ? 'Open' : i.type === 'req-overdue' ? 'View' : 'Open provider')
 
   function renderRow(i, idx, last) {
     const b = SEV_BADGE[i.sev] || SEV_BADGE.notice
@@ -60,6 +73,8 @@ export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openT
         <span className={`badge ${b.cls}`} style={{ fontSize: 10, flexShrink: 0 }}>{b.label}</span>
         <div className="inbox-actions" style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
           {i.type === 'task' && i.taskId && onMarkTaskDone && <button className="btn btn-sm btn-green" onClick={() => finishTask(i)} aria-label={`Mark done: ${i.title}`}>✓ Done</button>}
+          {i.type === 'roster-due' && <button className="btn btn-sm btn-green" onClick={() => rosterSent(i)}>✓ Sent</button>}
+          {i.type === 'caqh-auth' && onCaqhAuthorized && <button className="btn btn-sm btn-green" onClick={() => onCaqhAuthorized(i.enrId)}>✓ Authorized</button>}
           {followupEnr && onDraftEmail && <button className="btn btn-sm btn-ghost" onClick={() => onDraftEmail(followupEnr)}>Draft</button>}
           <button className="btn btn-sm btn-secondary" onClick={() => act(i)}>{actionLabel(i)}</button>
         </div>
@@ -137,6 +152,7 @@ export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openT
           )}
         </>
       )}
+      {rosterFor && <RosterFillModal db={db} initial={{ payerId: rosterFor.payerId, entityId: rosterFor.entityId }} onClose={() => { setRosterFor(null); loadContracts() }} />}
     </div>
   )
 }

@@ -1288,3 +1288,16 @@ select.filter-select {
   .drawer-xl .drawer-body { overflow: visible !important; flex: none !important; }
   .drawer-xl { padding-bottom: 72px; }
 }
+
+/* Stage 53 — task rows on phones: the buttons get their own full-width line */
+@media (max-width: 900px) {
+  .task-actions { flex: 1 1 100% !important; margin-left: 0 !important; flex-wrap: wrap !important; gap: 8px !important; }
+  .task-actions .btn { flex: 1 1 90px; min-height: 44px; justify-content: center; }
+  .task-actions > span { flex: 0 0 auto; }
+}
+
+/* Stage 54 — tab rows on phones wrap onto a second line instead of hiding tabs off the side of the screen */
+@media (max-width: 900px) {
+  .tabs { overflow: visible !important; white-space: normal !important; flex-wrap: wrap; gap: 2px 4px; }
+  .tabs .tab { padding: 11px 12px !important; font-size: 14px !important; min-height: 44px; display: inline-flex; align-items: center; }
+}

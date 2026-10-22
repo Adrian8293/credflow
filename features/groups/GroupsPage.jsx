@@ -221,7 +221,7 @@ export function GroupsPage({ db, setDb, toast, openEnrollModal }) {
                           <div style={{ fontWeight: 600, color: 'var(--text-1)' }}>{payer?.name || 'Unknown payer'} <span style={{ fontWeight: 400, color: 'var(--text-4)' }}>{[c.state, c.productLine].filter(Boolean).join(' · ')}</span></div>
                           <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 3 }}>
                             {c.contractNo ? `Contract ${c.contractNo} · ` : ''}{c.contractEffective ? `effective ${fmtDate(c.contractEffective)}` : 'no effective date'}{c.termDate ? ` · term ${fmtDate(c.termDate)}` : ''}
-                            {c.delegated ? ' · delegated credentialing' : ''}{c.rosterCadence ? ` · roster ${c.rosterCadence}` : ''}
+                            {c.delegated ? ' · delegated credentialing' : ''}{c.rosterCadence ? ` · roster ${c.rosterCadence}` : ''}{c.lastRosterSent ? ` (last sent ${fmtDate(c.lastRosterSent)})` : ''}
                           </div>
                           <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>Associates: {c.associatePolicy || 'Unverified'}</div>
                         </div>
@@ -293,7 +293,8 @@ export function GroupsPage({ db, setDb, toast, openEnrollModal }) {
             <div className="fg"><label>Contract #</label><input value={val('contractNo')} onChange={e => set('contractNo', e.target.value)} /></div>
             <div className="fg"><label>Contract effective</label><DateInput  value={val('contractEffective')} onChange={e => set('contractEffective', e.target.value)} /></div>
             <div className="fg"><label>Term date</label><DateInput  value={val('termDate')} onChange={e => set('termDate', e.target.value)} /></div>
-            <div className="fg"><label>Roster cadence</label><input value={val('rosterCadence')} onChange={e => set('rosterCadence', e.target.value)} placeholder="e.g. monthly" /></div>
+            <div className="fg"><label>Roster cadence</label><input value={val('rosterCadence')} onChange={e => set('rosterCadence', e.target.value)} placeholder="e.g. quarterly" /></div>
+            <div className="fg"><label>Last roster sent</label><DateInput value={val('lastRosterSent')} onChange={e => set('lastRosterSent', e.target.value)} /></div>
             <div className="fg"><label>Delegated credentialing</label><select value={contractForm.delegated ? 'yes' : 'no'} onChange={e => set('delegated', e.target.value === 'yes')}><option value="no">No</option><option value="yes">Yes</option></select></div>
             <div className="fg"><label>Associate policy</label><select value={val('associatePolicy') || 'Unverified'} onChange={e => set('associatePolicy', e.target.value)}>{ASSOCIATE_MODES.map(m => <option key={m}>{m}</option>)}</select></div>
             <div className="fg full"><label>Notes</label><textarea value={val('notes')} onChange={e => set('notes', e.target.value)} /></div>
