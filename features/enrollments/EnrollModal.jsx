@@ -10,6 +10,8 @@ import { PAYER_CATALOG } from '../../constants/payerRequirements.js'
 import { DateInput } from '../../components/ui/DateInput.jsx'
 import { suggestFollowup, needsFollowup } from '../../constants/followupCadence.js'
 import { fmtDate } from '../../lib/helpers.js'
+import { todayStr } from '../../lib/matrix.js'
+import { DATE_SOURCES } from '../../constants/enrollmentOptions.js'
 
 export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSaveEnrollment, onClose, saving, onAddPayer }) {
   const f = k => enrollForm[k] ?? ''
@@ -139,7 +141,7 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
   >
     <div className="mb-16">
       <div className="text-xs text-muted mb-8" style={{ fontWeight: 600, letterSpacing: '.6px', textTransform: 'uppercase' }}>Enrollment Stage</div>
-      <div className="workflow-steps">
+      <div className="workflow-steps" tabIndex={0} role="group" aria-label="Enrollment stages">
         {STAGES.filter(s => s !== 'Denied').map((s, i) => (
           <div key={s} className={`ws ${stageIdx > i ? 'done' : stageIdx === i ? 'active' : ''}`}>
             <div className="ws-dot">{stageIdx > i ? '✓' : i + 1}</div>
@@ -290,6 +292,13 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
       </div>
       {level === 'Group' && <div className="fg"><label>Roster / Link Effective</label><DateInput  value={f('rosterEffective')} onChange={e => set('rosterEffective', e.target.value)} /></div>}
       <div className="fg"><label>Termination Date</label><DateInput  value={f('termDate')} onChange={e => set('termDate', e.target.value)} /></div>
+      <div className="fg"><label>Where these dates came from</label>
+        <select value={f('datesSource')} onChange={e => setEnrollForm(prev => ({ ...prev, datesSource: e.target.value, datesVerified: e.target.value && !prev.datesVerified ? todayStr() : prev.datesVerified }))}>
+          <option value="">— Not recorded —</option>{DATE_SOURCES.map(s => <option key={s}>{s}</option>)}
+        </select>
+        <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 4 }}>Payers sometimes change dates later. Recording the source makes disputes easy to settle.</div>
+      </div>
+      <div className="fg"><label>Dates last confirmed</label><DateInput value={f('datesVerified')} onChange={e => set('datesVerified', e.target.value)} /></div>
       <div className="fg"><label>State</label>
         <select value={f('state')} onChange={e => set('state', e.target.value)}><option value="">—</option>{STATES.map(s => <option key={s}>{s}</option>)}</select>
       </div>

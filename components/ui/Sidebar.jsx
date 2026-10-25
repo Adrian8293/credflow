@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import OrgSwitcher from './OrgSwitcher'
 import { useGlobalContext } from '../../context/AppContext'
+import { screeningDue, openFlags } from '../../lib/exclusions.js'
+import { todayStr } from '../../lib/matrix.js'
 
 const I = {
   dashboard:   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>,
@@ -39,6 +41,7 @@ const ROUTE_MAP = {
   '/tasks':       'tasks',
   '/alerts':      'alerts',
   '/requests':    'requests',
+  '/screening':   'screening',
   '/access':      'access',
   '/reports':     'reports',
   '/audit':       'audit',
@@ -51,6 +54,7 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db,
   const router     = useRouter()
   const { activeOrg } = useGlobalContext()
   const canManageAccess = activeOrg?.role === 'owner' || activeOrg?.role === 'admin'
+  const screeningCount = screeningDue(db || {}, todayStr()).length + openFlags(db || {}).length
   const reviewCount = (db?.requests || []).filter(r => r.status === 'submitted').length
   const [collapsedPref, setCollapsed] = useState(false)
   const collapsed = collapsedPref && !mobileOpen   // the phone menu always shows full labels
@@ -75,7 +79,7 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db,
 
   // Warm every page's code in the background so tab switches are instant (no-op in dev).
   useEffect(() => {
-    const pages = ['help', 'dashboard', 'enrollments', 'requests', 'tasks', 'alerts', 'providers', 'payers', 'groups', 'matrix', 'documents', 'reports', 'audit', 'access', 'settings']
+    const pages = ['help', 'dashboard', 'enrollments', 'requests', 'tasks', 'alerts', 'screening', 'providers', 'payers', 'groups', 'matrix', 'documents', 'reports', 'audit', 'access', 'settings']
     const t = setTimeout(() => pages.forEach(pg => { try { router.prefetch(routeOf(pg)) } catch { /* ignore */ } }), 300)
     return () => clearTimeout(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -110,7 +114,7 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db,
 
   function sectionLabel(text) {
     if (collapsed) return <div className="sb-group-divider" style={{ margin: '6px 10px' }} />
-    return <div style={{ padding: '12px 14px 4px', fontSize: 10.5, fontWeight: 700, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--sb-text-3, #8A90A6)' }}>{text}</div>
+    return <div style={{ padding: '12px 14px 4px', fontSize: 10.5, fontWeight: 700, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--sb-text-3, #5B6478)' }}>{text}</div>
   }
 
   return (
@@ -146,7 +150,7 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db,
       <OrgSwitcher collapsed={collapsed} />
 
       {/* ── Navigation ── */}
-      <div className="sb-nav" role="menu">
+      <div className="sb-nav" role="menu" tabIndex={0} aria-label="Main menu">
         {navItem('dashboard',    'Today',        I.dashboard)}
 
         {sectionLabel('Work')}
@@ -154,6 +158,7 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db,
         {navItem('requests',     'Requests',     I.documents, reviewCount, false)}
         {navItem('tasks',        'Tasks',        I.tasks,     taskCount, overdueTaskCount > 0)}
         {navItem('alerts',       'Alerts',       I.alerts,    alertCount, false)}
+        {navItem('screening',    'Screening',    I.audit,     screeningCount, false)}
 
         {sectionLabel('People & payers')}
         {navItem('providers',    'Providers',    I.providers)}

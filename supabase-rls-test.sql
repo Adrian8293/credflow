@@ -16,7 +16,9 @@ DECLARE
   u_owner uuid := gen_random_uuid(); u_admin uuid := gen_random_uuid(); u_cred uuid := gen_random_uuid();
   u_view  uuid := gen_random_uuid(); u_prov  uuid := gen_random_uuid(); u_clin uuid := gen_random_uuid();
   u_out   uuid := gen_random_uuid();
+  u_mfa   uuid := gen_random_uuid();
   pv1 uuid; pv2 uuid; pv3 uuid; py1 uuid; py3 uuid; ent1 uuid;
+  mfa_ready boolean := false; store_ready boolean := false; notes text := '';
   c record; n bigint; err text; uid uuid;
   ok boolean; passes int := 0; fails int := 0; failtxt text := ''; passtxt text := '';
   s text;
@@ -26,7 +28,7 @@ BEGIN
     (u_owner,'authenticated','authenticated','owner@rls.test'), (u_admin,'authenticated','authenticated','admin@rls.test'),
     (u_cred,'authenticated','authenticated','cred@rls.test'),   (u_view,'authenticated','authenticated','view@rls.test'),
     (u_prov,'authenticated','authenticated','prov@rls.test'),   (u_clin,'authenticated','authenticated','clin@rls.test'),
-    (u_out,'authenticated','authenticated','out@rls.test');
+    (u_out,'authenticated','authenticated','out@rls.test'), (u_mfa,'authenticated','authenticated','mfa@rls.test');
   INSERT INTO organizations (id, name) VALUES (o1,'__rls_test_org_1'), (o2,'__rls_test_org_2');
   INSERT INTO providers (fname,lname,org_id) VALUES ('Pat','One',o1) RETURNING id INTO pv1;
   INSERT INTO providers (fname,lname,org_id) VALUES ('Sam','Two',o1) RETURNING id INTO pv2;
@@ -36,7 +38,28 @@ BEGIN
   INSERT INTO legal_entities (name,org_id) VALUES ('Test Group',o1) RETURNING id INTO ent1;
   INSERT INTO organization_members (org_id,user_id,role,provider_id) VALUES
     (o1,u_owner,'owner',NULL), (o1,u_admin,'admin',NULL), (o1,u_cred,'credentialer',NULL), (o1,u_view,'viewer',NULL),
-    (o1,u_prov,'provider',pv1), (o1,u_clin,'clinic_staff',NULL), (o2,u_out,'owner',NULL);
+    (o1,u_prov,'provider',pv1), (o1,u_clin,'clinic_staff',NULL), (o2,u_out,'owner',NULL), (o1,u_mfa,'credentialer',NULL);
+
+  -- more fixtures (each guarded: if one cannot be created here, its checks are skipped and the report says so)
+  INSERT INTO settings (org_id, practice) VALUES (o1,'Test Practice 1'), (o2,'Test Practice 2');
+  INSERT INTO doc_requests (org_id, prov_id, doc_type, title) VALUES (o1,pv1,'W-9','test request'), (o2,pv3,'W-9','test request');
+  INSERT INTO portal_invites (org_id, email, role, token_hash, expires_at) VALUES (o1,'inv@rls.test','viewer','rls-test-hash-1',now()+interval '1 day');
+  INSERT INTO provider_licenses (org_id, provider_id, state) VALUES (o1,pv1,'OR');
+  UPDATE providers SET npi = '1234567893' WHERE id = pv1;
+  INSERT INTO exclusion_checks (org_id, provider_id, source, result) VALUES (o1, pv1, 'OIG LEIE', 'Clear'), (o2, pv3, 'OIG LEIE', 'Clear');
+  BEGIN
+    INSERT INTO storage.buckets (id, name) VALUES ('documents','documents') ON CONFLICT (id) DO NOTHING;
+    INSERT INTO storage.objects (bucket_id, name) VALUES ('documents', pv1 || '/rls-a.pdf'), ('documents', pv1 || '/rls-del.pdf'), ('documents', pv3 || '/rls-b.pdf'),
+      ('provider-photos', pv1 || '/avatar.jpg'), ('provider-photos', pv3 || '/avatar.jpg');
+    store_ready := true;
+  EXCEPTION WHEN OTHERS THEN notes := notes || E'\n  skipped  document storage checks (could not create test files here: ' || left(SQLERRM,80) || ')';
+  END;
+  BEGIN
+    INSERT INTO auth.mfa_factors (id, user_id, factor_type, status, created_at, updated_at)
+      VALUES (gen_random_uuid(), u_mfa, 'totp', 'verified', now(), now());
+    mfa_ready := true;
+  EXCEPTION WHEN OTHERS THEN notes := notes || E'\n  skipped  two-factor checks (could not create a test factor here: ' || left(SQLERRM,80) || ')';
+  END;
 
   -- ── the checks: (label, who, expect, statement) ─────────────────────────────
   -- expect: rows>0 | rows=0 | blocked (error OR no rows) | ok (runs without error) | denied (must raise an error)
@@ -113,7 +136,48 @@ BEGIN
       ('remove member: other organization has no effect on our member','out','ok', format('SELECT remove_member(%L)',u_view)),
       ('delete provider: viewer refused','view','denied', format('SELECT soft_delete_provider(%L)',pv2)),
       ('delete provider: other organization refused','out','denied', format('SELECT soft_delete_provider(%L)',pv2)),
-      ('delete provider: credentialer allowed','cred','ok', format('SELECT soft_delete_provider(%L)',pv2))
+      ('delete provider: credentialer allowed','cred','ok', format('SELECT soft_delete_provider(%L)',pv2)),
+      -- settings
+      ('settings: viewer reads own org','view','rows>0', format('SELECT 1 FROM settings WHERE org_id=%L',o1)),
+      ('settings: clinic staff cannot read','clin','rows=0', format('SELECT 1 FROM settings WHERE org_id=%L',o1)),
+      ('settings: provider account cannot read','prov','rows=0', format('SELECT 1 FROM settings WHERE org_id=%L',o1)),
+      ('settings: other organization cannot read ours','out','rows=0', format('SELECT 1 FROM settings WHERE org_id=%L',o1)),
+      ('settings: viewer cannot change','view','blocked', format('UPDATE settings SET practice=%L WHERE org_id=%L','x',o1)),
+      ('settings: other organization cannot change ours','out','rows=0', format('UPDATE settings SET practice=%L WHERE org_id=%L','x',o1)),
+      -- document requests
+      ('requests: viewer reads','view','rows>0', 'SELECT 1 FROM doc_requests WHERE title=''test request'' AND org_id=' || quote_literal(o1)),
+      ('requests: provider account cannot read the table','prov','rows=0', 'SELECT 1 FROM doc_requests'),
+      ('requests: other organization cannot read','out','rows=0', 'SELECT 1 FROM doc_requests WHERE org_id=' || quote_literal(o1)),
+      ('requests: viewer cannot create','view','denied', format('INSERT INTO doc_requests (prov_id,doc_type,title) VALUES (%L,%L,%L)',pv1,'W-9','x')),
+      ('requests: credentialer can create','cred','ok', format('INSERT INTO doc_requests (prov_id,doc_type,title) VALUES (%L,%L,%L)',pv1,'W-9','x')),
+      ('requests: cannot point at another org''s provider','cred','denied', format('INSERT INTO doc_requests (prov_id,doc_type,title) VALUES (%L,%L,%L)',pv3,'W-9','x')),
+      -- invitations (owner/admin only)
+      ('invites: admin reads','admin','rows>0', 'SELECT 1 FROM portal_invites WHERE org_id=' || quote_literal(o1)),
+      ('invites: credentialer cannot read','cred','rows=0', 'SELECT 1 FROM portal_invites'),
+      ('invites: viewer cannot read','view','rows=0', 'SELECT 1 FROM portal_invites'),
+      ('invites: provider account cannot read','prov','rows=0', 'SELECT 1 FROM portal_invites'),
+      ('invites: other organization cannot read','out','rows=0', 'SELECT 1 FROM portal_invites WHERE org_id=' || quote_literal(o1)),
+      ('invites: credentialer cannot create','cred','denied', format('INSERT INTO portal_invites (email,role,token_hash,expires_at) VALUES (%L,%L,%L,now()+interval %L)','a@b.c','viewer','rls-h2','1 day')),
+      ('invites: admin can create','admin','ok', format('INSERT INTO portal_invites (email,role,token_hash,expires_at) VALUES (%L,%L,%L,now()+interval %L)','a@b.c','viewer','rls-h3','1 day')),
+      -- extra-state licenses
+      ('licenses: viewer reads','view','rows>0', 'SELECT 1 FROM provider_licenses WHERE org_id=' || quote_literal(o1)),
+      ('licenses: provider account cannot read the table','prov','rows=0', 'SELECT 1 FROM provider_licenses'),
+      ('licenses: other organization cannot read','out','rows=0', 'SELECT 1 FROM provider_licenses WHERE org_id=' || quote_literal(o1)),
+      ('licenses: viewer cannot add','view','denied', format('INSERT INTO provider_licenses (provider_id,state) VALUES (%L,%L)',pv1,'WA')),
+      ('npi: same NPI twice in one organization is rejected','cred','denied', format('INSERT INTO providers (fname,lname,npi) VALUES (%L,%L,%L)','dup','npi','1234567893')),
+      ('npi: another organization may use the same NPI','out','ok', format('INSERT INTO providers (fname,lname,npi) VALUES (%L,%L,%L)','dup','npi','1234567893')),
+      ('screening: viewer reads own org''s checks','view','rows>0', format('SELECT 1 FROM exclusion_checks WHERE provider_id=%L',pv1)),
+      ('screening: clinic staff cannot read','clin','rows=0', 'SELECT 1 FROM exclusion_checks'),
+      ('screening: provider account cannot read','prov','rows=0', 'SELECT 1 FROM exclusion_checks'),
+      ('screening: other organization cannot read ours','out','rows=0', format('SELECT 1 FROM exclusion_checks WHERE provider_id=%L',pv1)),
+      ('screening: viewer cannot record a check','view','denied', format('INSERT INTO exclusion_checks (provider_id,source) VALUES (%L,%L)',pv1,'SAM.gov')),
+      ('screening: credentialer can record a check','cred','ok', format('INSERT INTO exclusion_checks (provider_id,source,result) VALUES (%L,%L,%L)',pv1,'SAM.gov','Clear')),
+      ('screening: cannot record against another org''s provider','cred','denied', format('INSERT INTO exclusion_checks (provider_id,source) VALUES (%L,%L)',pv3,'SAM.gov')),
+      ('screening: an unknown result value is rejected','cred','denied', format('INSERT INTO exclusion_checks (provider_id,source,result) VALUES (%L,%L,%L)',pv1,'SAM.gov','Whatever')),
+      ('screening: nobody can edit a recorded check','admin','rows=0', format('UPDATE exclusion_checks SET result=%L WHERE provider_id=%L','Clear',pv1)),
+      ('screening: credentialer cannot delete a check','cred','rows=0', format('DELETE FROM exclusion_checks WHERE provider_id=%L',pv1)),
+      ('screening: admin can delete a mistaken check','admin','rows>0', format('DELETE FROM exclusion_checks WHERE provider_id=%L',pv1)),
+      ('licenses: cannot attach to another org''s provider','cred','denied', format('INSERT INTO provider_licenses (provider_id,state) VALUES (%L,%L)',pv3,'WA'))
     ) AS t(label, who, expect, q)
   LOOP
     uid := CASE c.who WHEN 'owner' THEN u_owner WHEN 'admin' THEN u_admin WHEN 'cred' THEN u_cred WHEN 'view' THEN u_view
@@ -147,6 +211,79 @@ BEGIN
     END IF;
   END LOOP;
 
+  -- ── document storage and two-factor (only when the test fixtures could be created) ──
+  IF store_ready THEN
+    FOR c IN
+      SELECT * FROM (VALUES
+        ('storage: owner reads own org''s file','owner','rows>0', format('SELECT 1 FROM storage.objects WHERE bucket_id=%L AND name=%L','documents',pv1||'/rls-a.pdf')),
+        ('storage: viewer reads own org''s file','view','rows>0', format('SELECT 1 FROM storage.objects WHERE bucket_id=%L AND name=%L','documents',pv1||'/rls-a.pdf')),
+        ('storage: provider account cannot list files','prov','rows=0', format('SELECT 1 FROM storage.objects WHERE bucket_id=%L','documents')),
+        ('storage: clinic staff cannot list files','clin','rows=0', format('SELECT 1 FROM storage.objects WHERE bucket_id=%L','documents')),
+        ('storage: other organization cannot see our files','out','rows=0', format('SELECT 1 FROM storage.objects WHERE bucket_id=%L AND name LIKE %L','documents',pv1||'/%')),
+        ('storage: not signed in cannot see files','anon','blocked', format('SELECT 1 FROM storage.objects WHERE bucket_id=%L','documents')),
+        ('storage: browser cannot upload directly (uploads go through the server)','cred','denied', format('INSERT INTO storage.objects (bucket_id,name) VALUES (%L,%L)','documents',pv1||'/direct.pdf')),
+        ('storage: browser cannot rename or overwrite files','cred','blocked', format('UPDATE storage.objects SET name=%L WHERE bucket_id=%L AND name=%L',pv1||'/renamed.pdf','documents',pv1||'/rls-a.pdf')),
+        ('storage: viewer cannot delete','view','blocked', format('DELETE FROM storage.objects WHERE bucket_id=%L AND name=%L','documents',pv1||'/rls-del.pdf')),
+        ('storage: other organization cannot delete ours','out','rows=0', format('DELETE FROM storage.objects WHERE bucket_id=%L AND name=%L','documents',pv1||'/rls-del.pdf')),
+        ('photos: viewer reads own org''s photo','view','rows>0', format('SELECT 1 FROM storage.objects WHERE bucket_id=%L AND name=%L','provider-photos',pv1||'/avatar.jpg')),
+        ('photos: other organization cannot see our photos','out','rows=0', format('SELECT 1 FROM storage.objects WHERE bucket_id=%L AND name=%L','provider-photos',pv1||'/avatar.jpg')),
+        ('photos: provider account cannot see photos','prov','rows=0', format('SELECT 1 FROM storage.objects WHERE bucket_id=%L','provider-photos')),
+        ('photos: not signed in cannot see photos','anon','blocked', format('SELECT 1 FROM storage.objects WHERE bucket_id=%L','provider-photos')),
+        ('photos: viewer cannot upload','view','denied', format('INSERT INTO storage.objects (bucket_id,name) VALUES (%L,%L)','provider-photos',pv1||'/new.jpg')),
+        ('photos: credentialer can upload for own org''s provider','cred','ok', format('INSERT INTO storage.objects (bucket_id,name) VALUES (%L,%L)','provider-photos',pv1||'/new.jpg')),
+        ('photos: cannot upload for another org''s provider','cred','denied', format('INSERT INTO storage.objects (bucket_id,name) VALUES (%L,%L)','provider-photos',pv3||'/new.jpg')),
+        ('photos: other organization cannot delete ours','out','rows=0', format('DELETE FROM storage.objects WHERE bucket_id=%L AND name=%L','provider-photos',pv1||'/avatar.jpg')),
+        ('storage: credentialer can delete own org''s file','cred','rows>0', format('DELETE FROM storage.objects WHERE bucket_id=%L AND name=%L','documents',pv1||'/rls-del.pdf'))
+      ) AS t(label, who, expect, q)
+    LOOP
+      uid := CASE c.who WHEN 'owner' THEN u_owner WHEN 'cred' THEN u_cred WHEN 'view' THEN u_view WHEN 'prov' THEN u_prov
+                        WHEN 'clin' THEN u_clin WHEN 'out' THEN u_out ELSE NULL END;
+      n := NULL; err := NULL;
+      BEGIN
+        IF uid IS NULL THEN
+          PERFORM set_config('request.jwt.claims','{}',true); PERFORM set_config('request.jwt.claim.sub','',true);
+          EXECUTE 'SET LOCAL ROLE anon';
+        ELSE
+          PERFORM set_config('request.jwt.claims', json_build_object('sub',uid,'role','authenticated')::text, true);
+          PERFORM set_config('request.jwt.claim.sub', uid::text, true);
+          EXECUTE 'SET LOCAL ROLE authenticated';
+        END IF;
+        EXECUTE c.q;
+        GET DIAGNOSTICS n = ROW_COUNT;
+      EXCEPTION WHEN OTHERS THEN n := -1; err := SQLERRM;
+      END;
+      EXECUTE 'RESET ROLE';
+      ok := CASE c.expect WHEN 'rows>0' THEN err IS NULL AND n > 0 WHEN 'rows=0' THEN err IS NOT NULL OR n = 0
+                          WHEN 'blocked' THEN err IS NOT NULL OR n = 0 WHEN 'ok' THEN err IS NULL WHEN 'denied' THEN err IS NOT NULL END;
+      IF ok THEN passes := passes + 1; passtxt := passtxt || E'\n  pass  ' || c.label;
+      ELSE fails := fails + 1; failtxt := failtxt || E'\n  FAIL  ' || c.label || '   [expected ' || c.expect || ', got ' || COALESCE('error: ' || left(err,90), n::text || ' rows') || ']'; END IF;
+    END LOOP;
+  END IF;
+
+  IF mfa_ready THEN
+    -- a user WITH a verified second factor: a password-only session (aal1) must see nothing; a two-factor session (aal2) sees data
+    FOR c IN
+      SELECT * FROM (VALUES
+        ('two-factor: password-only session of an enrolled user is locked out','aal1','rows=0'),
+        ('two-factor: two-factor session of an enrolled user can read','aal2','rows>0')
+      ) AS t(label, aal, expect)
+    LOOP
+      n := NULL; err := NULL;
+      BEGIN
+        PERFORM set_config('request.jwt.claims', json_build_object('sub',u_mfa,'role','authenticated','aal',c.aal)::text, true);
+        PERFORM set_config('request.jwt.claim.sub', u_mfa::text, true);
+        EXECUTE 'SET LOCAL ROLE authenticated';
+        EXECUTE format('SELECT 1 FROM providers WHERE id=%L', pv1);
+        GET DIAGNOSTICS n = ROW_COUNT;
+      EXCEPTION WHEN OTHERS THEN n := -1; err := SQLERRM;
+      END;
+      EXECUTE 'RESET ROLE';
+      ok := CASE c.expect WHEN 'rows>0' THEN err IS NULL AND n > 0 ELSE err IS NOT NULL OR n = 0 END;
+      IF ok THEN passes := passes + 1; passtxt := passtxt || E'\n  pass  ' || c.label;
+      ELSE fails := fails + 1; failtxt := failtxt || E'\n  FAIL  ' || c.label || '   [expected ' || c.expect || ', got ' || COALESCE('error: ' || left(err,90), n::text || ' rows') || ']'; END IF;
+    END LOOP;
+  END IF;
+
   -- ── effects that must have happened (or not) ────────────────────────────────
   SELECT (gender = 'Female' AND languages = 'English, Spanish' AND accepts_new_patients AND telehealth) INTO ok
     FROM providers WHERE id = pv1;
@@ -160,6 +297,11 @@ BEGIN
   IF EXISTS (SELECT 1 FROM audit_log WHERE detail = 'tampered') THEN
     fails := fails + 1; failtxt := failtxt || E'\n  FAIL  an audit log entry was edited';
   ELSE passes := passes + 1; passtxt := passtxt || E'\n  pass  audit log entries are unchanged'; END IF;
+
+  IF store_ready THEN
+    IF EXISTS (SELECT 1 FROM storage.buckets WHERE id = 'provider-photos' AND public IS NOT TRUE) THEN passes := passes + 1; passtxt := passtxt || E'\n  pass  the provider photo bucket is private';
+    ELSE fails := fails + 1; failtxt := failtxt || E'\n  FAIL  the provider photo bucket is public'; END IF;
+  END IF;
 
   -- ── structure checks ────────────────────────────────────────────────────────
   SELECT string_agg(c2.relname, ', ') INTO s FROM pg_class c2 JOIN pg_namespace n2 ON n2.oid = c2.relnamespace
@@ -182,7 +324,7 @@ BEGIN
   IF s IS NULL THEN passes := passes + 1; passtxt := passtxt || E'\n  pass  every privileged function pins its search_path';
   ELSE fails := fails + 1; failtxt := failtxt || E'\n  FAIL  privileged functions without a fixed search_path: ' || s; END IF;
 
-  RAISE EXCEPTION E'LACENTRA RLS TEST REPORT (this error is intentional: it rolls the test data back)\n\n%  passed, %  FAILED%\n%\n\n— passed checks —%',
-    passes, fails, CASE WHEN fails = 0 THEN E'\nEverything checked held.' ELSE E'\n' || failtxt END, '', passtxt;
+  RAISE EXCEPTION E'LACENTRA RLS TEST REPORT (this error is intentional: it rolls the test data back)\n\n% passed, % FAILED%\n\n— passed checks —%',
+    passes, fails, (CASE WHEN fails = 0 THEN E'\nEverything checked held.' ELSE E'\n' || failtxt END) || notes, passtxt;
 END
 $test$;

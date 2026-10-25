@@ -45,17 +45,17 @@
   --text-1: #111827;
   --text-2: #374151;
   --text-3: #5B6478;
-  --text-4: #6B7385;
+  --text-4: #5F677A;
   --text-5: #C5CBDA;
 
   /* ── Semantic status colors (text-safe on white) ── */
-  --success: #059669;
+  --success: #047857;
   --warning: #B45309;
-  --danger:  #DC2626;
+  --danger:  #C62222;
   --info:    #4F46E5;
 
-  --green:    #059669;  --green-l:  rgba(5,150,105,.10);   --green-b:  rgba(5,150,105,.25);
-  --red:      #DC2626;  --red-l:    rgba(220,38,38,.08);   --red-b:    rgba(220,38,38,.22);
+  --green:    #047857;  --green-l:  rgba(5,150,105,.10);   --green-b:  rgba(5,150,105,.25);
+  --red:      #C62222;  --red-l:    rgba(220,38,38,.08);   --red-b:    rgba(220,38,38,.22);
   --amber:    #B45309;  --amber-l:  rgba(217,119,6,.12);   --amber-b:  rgba(217,119,6,.30);
   --teal:     #0F766E;  --teal-l:   rgba(15,118,110,.10);  --teal-b:   rgba(15,118,110,.25);
   --blue:     #2563EB;  --blue-l:   rgba(37,99,235,.09);   --blue-b:   rgba(37,99,235,.24);
@@ -90,7 +90,7 @@
   --ink:    #111827;
   --ink-2:  #374151;
   --ink-3:  #5B6478;
-  --ink-4:  #6B7385;
+  --ink-4:  #5F677A;
   --surface: #FFFFFF;
   --surface-2: #F6F7FB;
   --border-2: #E7E9F1;
@@ -398,7 +398,7 @@ svg { display: block; flex-shrink: 0; }
 .btn-danger { background: var(--red-l); color: var(--red); border-color: var(--red-b); }
 .btn-danger:hover:not(:disabled) { background: rgba(239,68,68,.15); }
 
-.btn-green { background: var(--green-l); color: var(--green); border-color: var(--green-b); }
+.btn-green { background: var(--green-l); color: #065F46; border-color: var(--green-b); }
 .btn-green:hover:not(:disabled) { background: rgba(16,185,129,.15); }
 
 .btn-navy { background: var(--pr); color: white; border-color: var(--pr); }

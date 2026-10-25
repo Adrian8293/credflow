@@ -4,7 +4,7 @@ import { useGlobalContext } from '../context/AppContext'
 import { Reports as ReportsView } from '../features/billing/Reports.jsx'
 
 export default function Reports() {
-  const { db, exportJSON, openProvDetail, openEnrollModal } = useGlobalContext()
+  const { db, exportJSON, openProvDetail, openEnrollModal, toast } = useGlobalContext()
 
   return (
     <>
@@ -14,6 +14,7 @@ export default function Reports() {
       <ReportsView
         db={db}
         exportJSON={exportJSON}
+        toast={toast}
         onOpenProvider={openProvDetail}
         onOpenEnrollment={(id) => openEnrollModal(id)}
       />

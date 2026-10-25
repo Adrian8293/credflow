@@ -376,12 +376,12 @@ export function PayerRequirements({ db, openEnrollModal }) {
           <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search payers, notes, portals…" />
         </div>
 
-        <select className="filter-select" value={fState} onChange={e => setFState(e.target.value)} style={{ minWidth:160 }}>
+        <select aria-label="Filter by state" className="filter-select" value={fState} onChange={e => setFState(e.target.value)} style={{ minWidth:160 }}>
           <option value="">State: All</option>
           {US_STATES.map(([abbr, name]) => <option key={abbr} value={abbr}>{abbr} — {name}</option>)}
         </select>
 
-        <select className="filter-select" value={fType} onChange={e => setFType(e.target.value)}>
+        <select aria-label="Filter by type" className="filter-select" value={fType} onChange={e => setFType(e.target.value)}>
           <option value="">Type: All</option>
           {types.map(t => <option key={t} value={t}>{t}</option>)}
         </select>

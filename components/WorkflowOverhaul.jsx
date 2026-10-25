@@ -17,6 +17,7 @@
 
 import { useState, useCallback } from 'react'
 import { daysUntil } from '../lib/helpers.js'
+import { AvatarImg } from './ui/AvatarImg'
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
 
@@ -457,7 +458,7 @@ export function WorkflowProviderCard({ prov, db, onOpen, onEdit, onEnroll, onTas
         boxShadow: `0 0 0 3px ${specColor}22`,
       }}>
         {prov.avatarUrl
-          ? <img src={prov.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.target.style.display = 'none' }} />
+          ? <AvatarImg src={prov.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.target.style.display = 'none' }} />
           : initials(prov)
         }
       </div>
@@ -641,7 +642,7 @@ export function ProviderCommandCenter({ prov, db, onClose, onEdit, openEnrollMod
           fontSize: 20, fontWeight: 700, color: 'white', overflow: 'hidden'
         }}>
           {prov.avatarUrl
-            ? <img src={prov.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ? <AvatarImg src={prov.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             : initials(prov)}
         </div>
         <div style={{ flex: 1 }}>

@@ -50,6 +50,7 @@ function Toggle({ checked, onChange, label }) {
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border-l)' }}>
       <span style={{ fontSize: 13, color: 'var(--text-2)' }}>{label}</span>
       <button
+        type="button" role="switch" aria-checked={!!checked} aria-label={label}
         onClick={() => onChange(!checked)}
         style={{
           width: 38, height: 22, borderRadius: 11,
@@ -130,12 +131,12 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
               <div className="form-grid">
                 <div className="fg">
                   <label>License / Malpractice alert (days)</label>
-                  <input type="number" value={f('alertDays')} onChange={e => set('alertDays', parseInt(e.target.value) || 90)} min={30} max={365} />
+                  <input type="number" aria-label="License and malpractice alert, days" value={f('alertDays')} onChange={e => set('alertDays', parseInt(e.target.value) || 90)} min={30} max={365} />
                   <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 4 }}>Recommended: 90 days</div>
                 </div>
                 <div className="fg">
                   <label>CAQH attestation alert (days)</label>
-                  <input type="number" value={f('caqhDays')} onChange={e => set('caqhDays', parseInt(e.target.value) || 30)} min={7} max={90} />
+                  <input type="number" aria-label="CAQH attestation alert, days" value={f('caqhDays')} onChange={e => set('caqhDays', parseInt(e.target.value) || 30)} min={7} max={90} />
                   <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 4 }}>Recommended: 30 days</div>
                 </div>
               </div>
@@ -215,13 +216,13 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
             </div>
             <div className="card-body">
               <p style={{ fontSize: 12.5, color: 'var(--text-3)', marginBottom: 14, lineHeight: 1.55 }}>
-                Export a full JSON backup of all providers, enrollments, documents, tasks, payers, and audit logs from Lacentra.
+                Download a backup zip: one spreadsheet (CSV) per table — providers, applications, payers, documents, tasks, groups, contracts, contact log and audit log — plus one JSON copy for moving or restoring.
               </p>
               <button className="btn btn-secondary" onClick={exportJSON} style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
                 {Icon.download} Export Full Backup
               </button>
               <p style={{ fontSize: 11.5, color: 'var(--text-4)', lineHeight: 1.5 }}>
-                Backups include all Lacentra workspace data and are suitable for disaster recovery or migration purposes.
+                Uploaded document files are not included (only their records), so keep copies of important files. The backup contains license, DEA and NPI numbers: store it privately. Supabase’s free plan has no automatic backups, so download one regularly.
               </p>
             </div>
           </div>

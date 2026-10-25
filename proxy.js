@@ -1,5 +1,8 @@
 /**
- * middleware.js — Auth edge guard for Lacentra
+ * proxy.js — Auth edge guard for Lacentra.
+ * NOTE: in Next.js 16 this file MUST be named proxy.js (exporting `proxy`); "middleware.js" is the deprecated
+ * name, and having both files makes the build fail. tests/apiRoutes.test.mjs guards against a rename.
+ *
  *
  * Runs at the edge (Vercel Edge Runtime) on every request before it hits
  * any page or API route. Redirects unauthenticated visitors to /login.

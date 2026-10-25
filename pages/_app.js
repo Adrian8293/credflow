@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import { AppContextProvider } from '../context/AppContext'
 import { Layout } from '../components/Layout'
 import { OfflineBanner } from '../components/ui/OfflineBanner.jsx'
+import { watchLabels } from '../lib/a11yLabels'
 
 // ── Env validation (dev only) ────────────────────────────────────────────────
 // NOTE: Never throw at module scope — it crashes the Next.js SSR build worker
@@ -86,6 +87,7 @@ class ErrorBoundary extends React.Component {
 }
 
 export default function App({ Component, pageProps }) {
+  React.useEffect(() => watchLabels(), [])   // links form labels to their fields for screen readers
   // Installable app: register the service worker (production only; it never caches data).
   React.useEffect(() => {
     if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {

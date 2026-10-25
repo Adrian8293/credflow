@@ -17,6 +17,7 @@ import OpcaUploadPanel from '../../components/OpcaUploadPanel'
 import { LicensesSection } from './LicensesSection.jsx'
 import { RenewCredentialModal } from './RenewCredentialModal.jsx'
 import { openPacketWindow } from '../../lib/packet.js'
+import { AvatarImg } from '../../components/ui/AvatarImg'
 
 // ─── SPECIALTY COLOR MAP ───────────────────────────────────────────────────────
 const SPEC_COLORS = {
@@ -615,7 +616,7 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
             {/* Avatar */}
             <div style={{ width: 54, height: 54, borderRadius: 14, background: sc, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 800, color: '#fff', overflow: 'hidden' }}>
               {prov.avatarUrl
-                ? <img src={prov.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.target.style.display = 'none' }} />
+                ? <AvatarImg src={prov.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.target.style.display = 'none' }} />
                 : ini}
             </div>
 

@@ -49,11 +49,11 @@ function EnrollmentTable({ db, search, setSearch, fStage, setFStage, fProv, setF
             placeholder="Search enrollments…" />
         </div>
         <div style={{ display: 'flex', gap: 8, marginLeft: 'auto', alignItems: 'center' }}>
-          <select className="filter-select" value={fProv} onChange={e => setFProv(e.target.value)}>
+          <select aria-label="Filter by provider" className="filter-select" value={fProv} onChange={e => setFProv(e.target.value)}>
             <option value="">Provider: All</option>
             {db.providers.map(p => <option key={p.id} value={p.id}>{p.fname} {p.lname}</option>)}
           </select>
-          <select className="filter-select" value={fStage} onChange={e => setFStage(e.target.value)}>
+          <select aria-label="Filter by stage" className="filter-select" value={fStage} onChange={e => setFStage(e.target.value)}>
             <option value="">Stage: All</option>
             {STAGES.map(s => <option key={s}>{s}</option>)}
           </select>

@@ -36,6 +36,7 @@ import { enforceRateLimit } from '../../lib/api-middleware'
 import { features } from '../../lib/features'
 import { sendEmail } from '../../lib/mailer'
 import { buildDigest } from '../../lib/digest'
+import { todayIn, daysUntilDate } from '../../lib/tzDate'
 
 // Use service-role key so we bypass RLS (this is a server-only route)
 const supabase = createClient(
@@ -78,13 +79,14 @@ function safeEqual(a, b) {
   return ab.length === bb.length && timingSafeEqual(ab, bb)
 }
 
+// Dates are counted in the practice's own time zone (not the server's UTC), so a manual run in the
+// evening doesn't treat tomorrow as today. See lib/tzDate.js.
 function daysUntil(dateStr) {
-  if (!dateStr) return null
-  return Math.ceil((new Date(dateStr) - new Date()) / 86_400_000)
+  return daysUntilDate(dateStr)
 }
 
 function isoToday() {
-  return new Date().toISOString().slice(0, 10)
+  return todayIn()
 }
 
 // Deduplicate: don't create a task if an open one with this dedup key exists
@@ -440,7 +442,17 @@ async function checkEnrollmentSlaOverdue(alerts) {
 }
 
 
+// One run at a time per server instance: the checks keep the organization being processed in a module-level
+// variable, so two overlapping runs on one instance (cron + manual call) could otherwise mix organizations.
+let running = false
 export default async function handler(req, res) {
+  if (running) return res.status(409).json({ error: 'A watchdog run is already in progress. Try again in a minute.' })
+  running = true
+  try { return await runWatchdog(req, res) }
+  finally { running = false; _orgId = null }
+}
+
+async function runWatchdog(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }

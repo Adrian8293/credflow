@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react'
 import { dataQualityIssues } from '../../lib/dataQuality.js'
 import { toCsv } from '../../lib/reportStats.js'
 import { downloadCsv } from '../../lib/csv.js'
+import { todayStr } from '../../lib/matrix.js'
 
 export function DataQuality({ db, onOpenProvider, onOpenEnrollment }) {
   const issues = useMemo(() => dataQualityIssues(db), [db])
@@ -13,7 +14,7 @@ export function DataQuality({ db, onOpenProvider, onOpenEnrollment }) {
   const shown = issues.filter(i => scope === 'all' || i.scope === scope)
 
   function exportCsv() {
-    downloadCsv(`data-quality-${new Date().toISOString().split('T')[0]}.csv`, toCsv(shown.map(i => ({ Type: i.scope, Name: i.who, Issue: i.issue, Priority: i.sev === 'high' ? 'High' : 'Medium' }))))
+    downloadCsv(`data-quality-${todayStr()}.csv`, toCsv(shown.map(i => ({ Type: i.scope, Name: i.who, Issue: i.issue, Priority: i.sev === 'high' ? 'High' : 'Medium' }))))
   }
 
   if (issues.length === 0) {

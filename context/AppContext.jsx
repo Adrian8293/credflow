@@ -27,6 +27,7 @@ import { useDocumentActions } from '../hooks/useDocumentActions'
 import { useTaskActions } from '../hooks/useTaskActions'
 import { saveSettings as saveSettingsDB, clearAuditLog as clearAuditLogDB } from '../lib/db'
 import { daysUntil } from '../lib/helpers'
+import { todayStr } from '../lib/matrix.js'
 
 const AppContext = createContext(null)
 
@@ -129,13 +130,24 @@ export function AppContextProvider({ children }) {
     } catch (err) { toast(err.message, 'error') }
   }, [requestConfirm, toast])
 
-  const exportJSON = useCallback(() => {
-    const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' })
-    const a = document.createElement('a')
-    a.href = URL.createObjectURL(blob)
-    a.download = `lacentra-backup-${new Date().toISOString().split('T')[0]}.json`
-    a.click()
-    toast('Backup exported!', 'success')
+  // Complete backup: a zip with one CSV per table, one JSON copy of everything, and a README (see lib/backup.js).
+  const exportJSON = useCallback(async () => {
+    try {
+      const [{ buildBackup }, { fetchBackupExtras }, { default: JSZip }] = await Promise.all([
+        import('../lib/backup.js'), import('../lib/db'), import('jszip'),
+      ])
+      const extras = await fetchBackupExtras()
+      const { files, notes } = buildBackup({ ...db, ...extras })
+      const zip = new JSZip()
+      Object.entries(files).forEach(([name, text]) => zip.file(name, text))
+      const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE' })
+      const a = document.createElement('a')
+      a.href = URL.createObjectURL(blob)
+      a.download = `lacentra-backup-${todayStr()}.zip`
+      a.click()
+      setTimeout(() => URL.revokeObjectURL(a.href), 10000)
+      toast(notes.length ? notes[0] : 'Backup downloaded. Keep it somewhere private.', notes.length ? 'error' : 'success')
+    } catch (e) { toast('Backup failed: ' + (e.message || e), 'error') }
   }, [db, toast])
 
 

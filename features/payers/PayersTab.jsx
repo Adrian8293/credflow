@@ -250,7 +250,7 @@ export function PayersTab({ db, search, setSearch, fType, setFType, openPayerMod
           <input type="text" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search payers, IDs…" />
         </div>
 
-        <select className="filter-select" value={fType} onChange={e=>setFType(e.target.value)}>
+        <select aria-label="Filter by type" className="filter-select" value={fType} onChange={e=>setFType(e.target.value)}>
           <option value="">Type: All</option>
           {typeOptions.map(t => <option key={t}>{t}</option>)}
         </select>

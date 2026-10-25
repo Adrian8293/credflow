@@ -16,7 +16,7 @@ import { todayStr } from '../../lib/matrix.js'
 
 const sel = { width: '100%' }
 
-export function RosterFillModal({ db, onClose, initial }) {
+export function RosterFillModal({ db, onClose, initial, onSwitch }) {
   const [X, setX] = useState(null)                       // lib/xlsxPatch, loaded on demand (keeps the main bundle small)
   const [entities, setEntities] = useState(null)
   const [entityId, setEntityId] = useState(initial?.entityId || '')
@@ -172,6 +172,12 @@ export function RosterFillModal({ db, onClose, initial }) {
           : <button className="btn btn-primary" disabled={!canRun} onClick={run}>{busy ? 'Working…' : 'Fill the file'}</button>}
       </>}>
 
+      {onSwitch && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', padding: '9px 12px', marginBottom: 14, background: 'var(--elevated)', border: '1px solid var(--border)', borderRadius: 'var(--r)', fontSize: 13, color: 'var(--text-2)' }}>
+          <span>No form from the payer? You only need a plain provider list.</span>
+          <button type="button" className="btn btn-sm btn-secondary" onClick={onSwitch}>Get a plain list (CSV)</button>
+        </div>
+      )}
       <div className="form-grid">
         <div className="fg">
           <label>Group</label>

@@ -19,6 +19,7 @@ const SEV_BADGE = {
 const KIND_LABEL = {
   credential: 'Credential', 'license-gap': 'License gap', task: 'Task', followup: 'Follow-up', 'enr-recred': 'Re-credential',
   'enr-term': 'Termination', 'caqh-auth': 'CAQH', 'req-review': 'Review upload', 'req-overdue': 'Requested doc', 'roster-due': 'Roster',
+  'screening-due': 'Screening', 'screening-flag': 'Screening',
 }
 const PAGE = 8
 
@@ -45,6 +46,7 @@ export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openT
   const count = k => inboxFilter(all, k).length
 
   function act(i) {
+    if (i.type === 'screening-due' || i.type === 'screening-flag') return setPage('screening')
     if (i.type === 'roster-due') return setRosterFor(i)
     if (i.type === 'task' && i.taskId) return openTaskModal?.(i.taskId)
     if (i.enrId) return openEnrollModal?.(i.enrId)
@@ -56,7 +58,7 @@ export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openT
     setDoneIds(d => [...d, i.taskId])
     try { await onMarkTaskDone(i.taskId, t?.task || i.title) } catch { setDoneIds(d => d.filter(x => x !== i.taskId)) }
   }
-  const actionLabel = i => (i.type === 'req-review' ? 'Review' : i.type === 'roster-due' ? 'Fill roster' : i.type === 'task' ? 'Open task' : i.enrId ? 'Open' : i.type === 'req-overdue' ? 'View' : 'Open provider')
+  const actionLabel = i => (i.type === 'req-review' ? 'Review' : i.type === 'roster-due' ? 'Fill roster' : (i.type === 'screening-due' || i.type === 'screening-flag') ? 'Open screening' : i.type === 'task' ? 'Open task' : i.enrId ? 'Open' : i.type === 'req-overdue' ? 'View' : 'Open provider')
 
   function renderRow(i, idx, last) {
     const b = SEV_BADGE[i.sev] || SEV_BADGE.notice

@@ -19,6 +19,7 @@
 
 import { createClient } from '@supabase/supabase-js'
 import { requireAuth, createSessionClient } from '../../lib/supabase-server'
+import { enforceRateLimit } from '../../lib/api-middleware'
 
 function getServiceClient() {
   return createClient(
@@ -36,6 +37,8 @@ export default async function handler(req, res) {
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
+
+  if (!enforceRateLimit(req, res, { max: 120, windowMs: 60_000, keyPrefix: 'doc-url:' })) return
 
   // Auth guard — document URLs must only be served to authenticated users
   const user = await requireAuth(req, res)

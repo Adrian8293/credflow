@@ -1,5 +1,6 @@
 import { requireAuth } from '../../lib/supabase-server'
 import { enforceRateLimit } from '../../lib/api-middleware'
+import { validNpi } from '../../lib/providerImport'
 
 function formatPhone(raw = '') {
   const digits = (raw || '').replace(/\D/g, '')
@@ -28,6 +29,9 @@ export default async function handler(req, res) {
     const cleanNpi = number.replace(/\D/g, '')
     if (cleanNpi.length !== 10) {
       return res.status(400).json({ error: 'NPI number must be exactly 10 digits.' })
+    }
+    if (!validNpi(cleanNpi)) {
+      return res.status(400).json({ error: 'That NPI is not valid (the last digit is a check digit). Re-check the number for a typo.' })
     }
   }
 

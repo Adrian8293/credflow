@@ -12,6 +12,9 @@ alter table storage.objects enable row level security;
 create or replace function storage.foldername(name text) returns text[] language sql as $$ select string_to_array(name,'/') $$;
 create publication supabase_realtime;
 grant usage on schema auth, storage, public to anon, authenticated;
+-- Supabase gives the API roles table privileges on storage tables (row-level policies then decide)
+grant select, insert, update, delete on storage.objects to anon, authenticated, service_role;
+grant select on storage.buckets to anon, authenticated, service_role;
 grant execute on function auth.uid(), auth.jwt() to anon, authenticated;
 create extension if not exists "uuid-ossp";
 -- mirror Supabase: new objects in public are granted to the API roles by default
@@ -19,4 +22,4 @@ alter default privileges in schema public grant all on tables to anon, authentic
 alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
 alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
 
-create table auth.mfa_factors (id uuid primary key default gen_random_uuid(), user_id uuid, status text, factor_type text);
+create table auth.mfa_factors (id uuid primary key default gen_random_uuid(), user_id uuid, status text, factor_type text, created_at timestamptz not null default now(), updated_at timestamptz not null default now());

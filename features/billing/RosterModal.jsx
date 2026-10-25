@@ -8,7 +8,7 @@ import { fetchEntities, fetchLocations, fetchContracts } from '../../lib/db'
 import { buildRoster, rosterCsv } from '../../lib/roster.js'
 import { downloadCsv } from '../../lib/csv.js'
 
-export function RosterModal({ db, onClose }) {
+export function RosterModal({ db, onClose, onSwitch }) {
   const [entities, setEntities] = useState(null)       // null = loading
   const [entityId, setEntityId] = useState('')
   const [payerId, setPayerId] = useState('')
@@ -51,6 +51,12 @@ export function RosterModal({ db, onClose }) {
           Download CSV{roster?.rows.length ? ` (${roster.rows.length})` : ''}
         </button>
       </>}>
+      {onSwitch && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', padding: '9px 12px', marginBottom: 14, background: 'var(--elevated)', border: '1px solid var(--border)', borderRadius: 'var(--r)', fontSize: 13, color: 'var(--text-2)' }}>
+          <span>Did the payer send an Excel form to complete?</span>
+          <button type="button" className="btn btn-sm btn-secondary" onClick={onSwitch}>Fill their form instead</button>
+        </div>
+      )}
       <div className="form-grid">
         <div className="fg">
           <label>Group</label>

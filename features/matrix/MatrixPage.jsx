@@ -55,9 +55,9 @@ export function MatrixPage({ db, openEnrollModal }) {
       </div>
 
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 14 }}>
-        <select className="filter-select" value={fState} onChange={e => setFState(e.target.value)}><option value="">All states</option>{STATES.map(s => <option key={s}>{s}</option>)}</select>
-        <select className="filter-select" value={fProduct} onChange={e => setFProduct(e.target.value)}><option value="">All products</option>{PRODUCT_LINES.map(s => <option key={s}>{s}</option>)}</select>
-        <select className="filter-select" value={fLevel} onChange={e => setFLevel(e.target.value)}><option value="">Individual + Group</option><option value="Individual">Individual only</option><option value="Group">Group only</option></select>
+        <select aria-label="Filter by state" className="filter-select" value={fState} onChange={e => setFState(e.target.value)}><option value="">All states</option>{STATES.map(s => <option key={s}>{s}</option>)}</select>
+        <select aria-label="Filter by product line" className="filter-select" value={fProduct} onChange={e => setFProduct(e.target.value)}><option value="">All products</option>{PRODUCT_LINES.map(s => <option key={s}>{s}</option>)}</select>
+        <select aria-label="Filter by level" className="filter-select" value={fLevel} onChange={e => setFLevel(e.target.value)}><option value="">Individual + Group</option><option value="Individual">Individual only</option><option value="Group">Group only</option></select>
         <label style={{ fontSize: 12.5, color: 'var(--text-3)', display: 'flex', gap: 6, alignItems: 'center' }}><input type="checkbox" checked={onlyBillable} onChange={e => setOnlyBillable(e.target.checked)} /> Billable providers only</label>
         <label style={{ fontSize: 12.5, color: 'var(--text-3)', display: 'flex', gap: 6, alignItems: 'center' }}><input type="checkbox" checked={allPayers} onChange={e => setAllPayers(e.target.checked)} /> Show all payers</label>
         <label style={{ fontSize: 12.5, color: 'var(--text-3)', display: 'flex', gap: 6, alignItems: 'center' }}><input type="checkbox" checked={showInactive} onChange={e => setShowInactive(e.target.checked)} /> Show inactive providers</label>
@@ -113,7 +113,7 @@ export function MatrixPage({ db, openEnrollModal }) {
                               <button key={e.id} onClick={() => openEnrollModal(e.id)} title={[e.stage, note, e.state, e.productLine, e.associateMode && `Associate: ${e.associateMode}`].filter(Boolean).join(' · ')}
                                 style={{ width: '100%', textAlign: 'left', background: mm.bg, color: mm.color, border: 'none', borderRadius: 'var(--r)', padding: '5px 8px', cursor: 'pointer', fontFamily: 'inherit' }}>
                                 <div style={{ fontSize: 11.5, fontWeight: 700 }}>{mm.label}</div>
-                                <div style={{ fontSize: 10.5, opacity: .85 }}>{(e.level === 'Group' ? 'Group' : 'Indiv')}{e.state ? ` · ${e.state}` : ''}{e.productLine ? ` · ${e.productLine}` : ''}</div>
+                                <div style={{ fontSize: 11 }}>{(e.level === 'Group' ? 'Group' : 'Indiv')}{e.state ? ` · ${e.state}` : ''}{e.productLine ? ` · ${e.productLine}` : ''}</div>
                               </button>
                             )
                           })}

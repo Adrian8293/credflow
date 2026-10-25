@@ -16,6 +16,7 @@ import { fmtDate, daysUntil } from '../../lib/helpers.js'
 import { providerReadiness } from '../../components/WorkflowOverhaul.jsx'
 import { useSorted } from '../../hooks/useSorted.js'
 import { usePagination } from '../../hooks/usePagination.js'
+import { AvatarImg } from '../../components/ui/AvatarImg'
 
 const PAGE_SIZE = 10
 
@@ -341,7 +342,7 @@ export function Providers({
                         overflow: 'hidden',
                       }}>
                         {p.avatarUrl
-                          ? <img src={p.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.target.style.display = 'none' }} />
+                          ? <AvatarImg src={p.avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={e => { e.target.style.display = 'none' }} />
                           : ini}
                       </div>
                       <div>

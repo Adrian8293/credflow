@@ -16,3 +16,12 @@ test('after migration 023 the answers round-trip, and clearing one really clears
   const db = providerToDb({ ...p, gender: '', acceptsNew: '' })
   assert.equal(db.gender, null); assert.equal(db.accepts_new_patients, null); assert.equal(db.telehealth, false)
 })
+
+test('enrollment date source: only sent once the row carries it, and round-trips', async () => {
+  const { enrollmentToDb, enrollmentFromDb } = await import('../lib/mappers.js')
+  assert.equal('dates_source' in enrollmentToDb({ id: '1', stage: 'Active' }), false)
+  const row = enrollmentToDb({ id: '1', stage: 'Active', datesSource: 'Phone call', datesVerified: '2026-10-24' })
+  assert.equal(row.dates_source, 'Phone call'); assert.equal(row.dates_verified_on, '2026-10-24')
+  assert.equal(enrollmentFromDb({ id: '1', dates_source: 'Phone call', dates_verified_on: '2026-10-24' }).datesSource, 'Phone call')
+  assert.equal('datesSource' in enrollmentFromDb({ id: '1' }), false)
+})

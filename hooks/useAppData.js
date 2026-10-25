@@ -18,7 +18,7 @@ import { loadAll, subscribeToAll, mergeRealtimeChange } from '../lib/db'
 export function useAppData(user, toast) {
   const [db, setDb] = useState({
     providers: [], payers: [], enrollments: [], documents: [],
-    tasks: [], auditLog: [], settings: {}, requests: [], licenses: [],
+    tasks: [], auditLog: [], settings: {}, requests: [], licenses: [], exclusions: null,
     providersMeta: { truncated: false, total: 0 },
   })
   const [loading, setLoading]           = useState(true)

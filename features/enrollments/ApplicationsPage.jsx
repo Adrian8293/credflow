@@ -215,16 +215,16 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
           <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by provider, payer, ID…" />
         </div>
         <div style={{ display: 'flex', gap: 8, marginLeft: 'auto', alignItems: 'center' }}>
-          <select className="filter-select" value={fProv} onChange={e => setFProv(e.target.value)}>
+          <select aria-label="Filter by provider" className="filter-select" value={fProv} onChange={e => setFProv(e.target.value)}>
             <option value="">All Providers</option>
             {db.providers.map(p => <option key={p.id} value={p.id}>{p.fname} {p.lname}</option>)}
           </select>
-          <select className="filter-select" value={fLevel} onChange={e => setFLevel(e.target.value)}>
+          <select aria-label="Filter by level" className="filter-select" value={fLevel} onChange={e => setFLevel(e.target.value)}>
             <option value="">Individual + Group</option>
             <option value="Individual">Individual only</option>
             <option value="Group">Group only</option>
           </select>
-          <select className="filter-select" value={fStage} onChange={e => setFStage(e.target.value)}>
+          <select aria-label="Filter by stage" className="filter-select" value={fStage} onChange={e => setFStage(e.target.value)}>
             <option value="">All Stages</option>
             {STAGES.map(s => <option key={s}>{s}</option>)}
           </select>
@@ -285,7 +285,7 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
           <thead>
             <tr>
               <th style={{ width: 36, paddingLeft: 12 }}>
-                <input type="checkbox" checked={allSelected} ref={el => { if (el) el.indeterminate = someSelected && !allSelected }} onChange={toggleAll} style={{ cursor: 'pointer' }} />
+                <input type="checkbox" aria-label="Select all applications" checked={allSelected} ref={el => { if (el) el.indeterminate = someSelected && !allSelected }} onChange={toggleAll} style={{ cursor: 'pointer' }} />
               </th>
               <th {...thProps('appId', 'App ID')} />
               <th {...thProps('provId', 'Provider')} />
@@ -322,7 +322,7 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
               return (
                 <tr key={e.id} style={{ cursor: 'pointer', background: isChecked ? 'rgba(21,101,192,.04)' : undefined }} onClick={() => openEnrollModal(e.id)}>
                   <td onClick={ev => ev.stopPropagation()} style={{ paddingLeft: 12 }}>
-                    <input type="checkbox" checked={isChecked} onChange={() => toggleOne(e.id)} style={{ cursor: 'pointer' }} />
+                    <input type="checkbox" aria-label="Select this application" checked={isChecked} onChange={() => toggleOne(e.id)} style={{ cursor: 'pointer' }} />
                   </td>
                   <td onClick={ev => ev.stopPropagation()}>
                     <button onClick={() => openEnrollModal(e.id)} style={{ fontFamily: 'var(--fn-mono)', fontSize: 11.5, color: 'var(--pr)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 600 }}>
