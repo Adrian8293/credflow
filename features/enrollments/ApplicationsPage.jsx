@@ -20,6 +20,26 @@ import { Pagination } from '../../components/ui/Pagination.jsx'
 import { DateInput } from '../../components/ui/DateInput.jsx'
 import { ImportEnrollmentsModal } from './ImportEnrollmentsModal.jsx'
 import { csvFromRows, downloadCsv } from '../../lib/csv.js'
+import { TableViews } from '../../components/ui/TableViews.jsx'
+import { useTableViews } from '../../hooks/useTableViews.js'
+
+const APP_COLUMNS = [
+  { id: 'appId', label: 'App ID' },
+  { id: 'provId', label: 'Provider', locked: true },
+  { id: 'payId', label: 'Payer' },
+  { id: 'stage', label: 'Status' },
+  { id: 'submitted', label: 'Submitted' },
+  { id: 'updated', label: 'Last updated' },
+  { id: 'followup', label: 'Follow-up' },
+  { id: 'effective', label: 'Effective date', hiddenByDefault: true },
+  { id: 'billable', label: 'Billable from', hiddenByDefault: true },
+]
+const APP_VIEWS = [
+  { name: 'All fields', columns: APP_COLUMNS.map(c => c.id), filters: { subtab: 'All Applications' } },
+  { name: 'Follow-ups', columns: ['payId', 'stage', 'updated', 'followup'], filters: { subtab: 'In Progress' } },
+  { name: 'Billing view', columns: ['payId', 'stage', 'effective', 'billable'], filters: { subtab: 'Approved' } },
+  { name: 'Needs action', columns: ['payId', 'stage', 'updated', 'followup'], filters: { subtab: 'Returned' } },
+]
 
 const SearchIcon = <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
 const MailIcon   = <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
@@ -81,6 +101,15 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
   const [fLevel, setFLevel]     = usePersistedState('lc_pref_apps_level', '', v => ['', 'Individual', 'Group'].includes(v))
   const [advancing, setAdvancing] = useState(null)
   const menuRef = useRef(null)
+  const tv = useTableViews('applications', APP_COLUMNS)
+  const getFilters = () => ({ search, fProv, fLevel, fStage, subtab })
+  const setFilters = f => {
+    if ('search' in f) setSearch(f.search ?? '')
+    if ('fProv' in f) setFProv(f.fProv ?? '')
+    if ('fLevel' in f) setFLevel(f.fLevel ?? '')
+    if ('fStage' in f) setFStage(f.fStage ?? '')
+    if ('subtab' in f && SUBTABS.includes(f.subtab)) { setSubtab(f.subtab); setSelected(new Set()) }
+  }
 
   useEffect(() => {
     if (!menuOpen) return
@@ -214,7 +243,8 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
           <span className="si">{SearchIcon}</span>
           <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by provider, payer, ID…" />
         </div>
-        <div style={{ display: 'flex', gap: 8, marginLeft: 'auto', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 8, marginLeft: 'auto', alignItems: 'center', flexWrap: 'wrap' }}>
+          <TableViews tv={tv} builtIns={APP_VIEWS} getFilters={getFilters} setFilters={setFilters} />
           <select aria-label="Filter by provider" className="filter-select" value={fProv} onChange={e => setFProv(e.target.value)}>
             <option value="">All Providers</option>
             {db.providers.map(p => <option key={p.id} value={p.id}>{p.fname} {p.lname}</option>)}
@@ -287,19 +317,21 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
               <th style={{ width: 36, paddingLeft: 12 }}>
                 <input type="checkbox" aria-label="Select all applications" checked={allSelected} ref={el => { if (el) el.indeterminate = someSelected && !allSelected }} onChange={toggleAll} style={{ cursor: 'pointer' }} />
               </th>
-              <th {...thProps('appId', 'App ID')} />
+              {tv.isOn('appId') && <th {...thProps('appId', 'App ID')} />}
               <th {...thProps('provId', 'Provider')} />
-              <th {...thProps('payId', 'Payer')} />
-              <th {...thProps('stage', 'Status')} />
-              <th {...thProps('submitted', 'Submitted')} />
-              <th {...thProps('updated', 'Last Updated')} />
-              <th {...thProps('followup', 'Follow-up')} />
+              {tv.isOn('payId') && <th {...thProps('payId', 'Payer')} />}
+              {tv.isOn('stage') && <th {...thProps('stage', 'Status')} />}
+              {tv.isOn('submitted') && <th {...thProps('submitted', 'Submitted')} />}
+              {tv.isOn('updated') && <th {...thProps('updated', 'Last Updated')} />}
+              {tv.isOn('followup') && <th {...thProps('followup', 'Follow-up')} />}
+              {tv.isOn('effective') && <th {...thProps('effective', 'Effective')} />}
+              {tv.isOn('billable') && <th {...thProps('billableFrom', 'Billable from')} />}
               <th style={{ width: 170 }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {!pagedList.length ? (
-              <tr><td colSpan={9}>
+              <tr><td colSpan={tv.visibleCount + 2}>
                 <div className="empty-state">
                   <div className="ei">📋</div>
                   <h4>No applications found</h4>
@@ -324,32 +356,34 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
                   <td onClick={ev => ev.stopPropagation()} style={{ paddingLeft: 12 }}>
                     <input type="checkbox" aria-label="Select this application" checked={isChecked} onChange={() => toggleOne(e.id)} style={{ cursor: 'pointer' }} />
                   </td>
-                  <td onClick={ev => ev.stopPropagation()}>
+                  {tv.isOn('appId') && <td onClick={ev => ev.stopPropagation()}>
                     <button onClick={() => openEnrollModal(e.id)} style={{ fontFamily: 'var(--fn-mono)', fontSize: 11.5, color: 'var(--pr)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 600 }}>
                       {appId(e)}
                     </button>
-                  </td>
+                  </td>}
                   <td>
                     <div style={{ fontWeight: 600, fontSize: 13, color: 'var(--text-1)' }}>{pNameShort(db.providers, e.provId)}</div>
                     <div style={{ fontSize: 11, color: 'var(--text-4)' }}>{db.providers.find(x => x.id === e.provId)?.cred || ''}</div>
                   </td>
-                  <td style={{ fontSize: 13, color: 'var(--text-2)' }}>
+                  {tv.isOn('payId') && <td style={{ fontSize: 13, color: 'var(--text-2)' }}>
                     {payName(db.payers, e.payId)}
                     <div style={{ fontSize: 11, color: e.level === 'Group' ? 'var(--pr)' : 'var(--text-4)', fontWeight: e.level === 'Group' ? 600 : 400 }}>
                       {e.level === 'Group' ? `Group${e.groupName ? ' · ' + e.groupName : ''}` : 'Individual'}
                     </div>
-                  </td>
-                  <td><StageBadge stage={e.stage} /></td>
-                  <td style={{ fontSize: 12.5, color: 'var(--text-3)', whiteSpace: 'nowrap' }}>{fmtDate(e.submitted)}</td>
-                  <td style={{ fontSize: 12.5, color: 'var(--text-4)', whiteSpace: 'nowrap' }}>{fmtDate(e.updated || e.submitted)}</td>
-                  <td style={{ whiteSpace: 'nowrap' }}>
+                  </td>}
+                  {tv.isOn('stage') && <td><StageBadge stage={e.stage} /></td>}
+                  {tv.isOn('submitted') && <td style={{ fontSize: 12.5, color: 'var(--text-3)', whiteSpace: 'nowrap' }}>{fmtDate(e.submitted)}</td>}
+                  {tv.isOn('updated') && <td style={{ fontSize: 12.5, color: 'var(--text-4)', whiteSpace: 'nowrap' }}>{fmtDate(e.updated || e.submitted)}</td>}
+                  {tv.isOn('followup') && <td style={{ whiteSpace: 'nowrap' }}>
                     {e.followup ? (
                       <span style={{ fontSize: 12, fontWeight: fuD !== null && fuD <= 7 ? 700 : 400, color: fuCol }}>
                         {fmtDate(e.followup)}
                         {fuD !== null && fuD <= 0 && <span style={{ fontSize: 10, marginLeft: 4 }}>overdue</span>}
                       </span>
                     ) : '—'}
-                  </td>
+                  </td>}
+                  {tv.isOn('effective') && <td style={{ fontSize: 12.5, color: 'var(--text-3)', whiteSpace: 'nowrap' }}>{e.effective ? fmtDate(e.effective) : '—'}</td>}
+                  {tv.isOn('billable') && <td style={{ fontSize: 12.5, color: 'var(--text-3)', whiteSpace: 'nowrap' }}>{e.billableFrom ? fmtDate(e.billableFrom) : '—'}</td>}
                   <td onClick={ev => ev.stopPropagation()} style={{ position: 'relative', whiteSpace: 'nowrap' }}>
                     <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                       {next && (

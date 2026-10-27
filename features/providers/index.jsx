@@ -17,6 +17,28 @@ import { providerReadiness } from '../../components/WorkflowOverhaul.jsx'
 import { useSorted } from '../../hooks/useSorted.js'
 import { usePagination } from '../../hooks/usePagination.js'
 import { AvatarImg } from '../../components/ui/AvatarImg'
+import { TableViews } from '../../components/ui/TableViews.jsx'
+import { useTableViews } from '../../hooks/useTableViews.js'
+
+// Columns the table can show. Provider is always shown; the extra credential columns start hidden.
+const PROV_COLUMNS = [
+  { id: 'provider', label: 'Provider', locked: true },
+  { id: 'npi', label: 'NPI' }, { id: 'caqh', label: 'CAQH' }, { id: 'spec', label: 'Specialty' },
+  { id: 'status', label: 'Status' }, { id: 'next', label: 'Next expiry' }, { id: 'ready', label: 'Readiness' },
+  { id: 'payers', label: 'Active payers', hiddenByDefault: true },
+  { id: 'license', label: 'License expires', hiddenByDefault: true },
+  { id: 'malpractice', label: 'Malpractice expires', hiddenByDefault: true },
+  { id: 'dea', label: 'DEA expires', hiddenByDefault: true },
+  { id: 'caqhDue', label: 'CAQH re-attest due', hiddenByDefault: true },
+]
+const PROV_VIEWS = [
+  { name: 'Credentialing view', columns: ['npi', 'caqh', 'spec', 'status', 'next', 'ready'], filters: { quick: '' } },
+  { name: 'Compliance view', columns: ['status', 'license', 'malpractice', 'dea', 'caqhDue', 'next'], filters: { quick: '' } },
+  { name: 'Enrollment view', columns: ['status', 'payers', 'ready'], filters: { quick: '' } },
+  { name: 'Expiring in 30 days', filters: { quick: 'soon', search: '', fStatus: '', fSpec: '' } },
+  { name: 'Already expired', filters: { quick: 'expired', search: '', fStatus: '', fSpec: '' } },
+  { name: 'Needs work (under 60%)', filters: { quick: 'low', search: '', fStatus: '', fSpec: '' } },
+]
 
 const PAGE_SIZE = 10
 
@@ -194,6 +216,14 @@ export function Providers({
 }) {
   const [menuOpen, setMenuOpen] = useState(null)
   const [quick, setQuick] = useState('')   // '' | 'expired' | 'soon' | 'low'
+  const tv = useTableViews('providers', PROV_COLUMNS)
+  const getFilters = () => ({ search, fStatus, fSpec, quick })
+  const setFilters = (f) => {
+    if ('search' in f) setSearch(f.search ?? '')
+    if ('fStatus' in f) setFStatus(f.fStatus ?? '')
+    if ('fSpec' in f) setFSpec(f.fSpec ?? '')
+    if ('quick' in f) setQuick(f.quick ?? '')
+  }
   const specs = [...new Set(db.providers.map(p => p.spec).filter(Boolean))].sort()
 
   const withNext = db.providers.map(p => ({ ...p, _next: nextDays(p), _ready: providerReadiness(p) }))
@@ -268,7 +298,8 @@ export function Providers({
           </button>
         )}
 
-        <span style={{ fontSize: 12, color: 'var(--text-4)', whiteSpace: 'nowrap', marginLeft: hasFilters ? 0 : 'auto' }}>
+        <span style={{ marginLeft: hasFilters ? 0 : 'auto' }}><TableViews tv={tv} builtIns={PROV_VIEWS} getFilters={getFilters} setFilters={setFilters} /></span>
+        <span style={{ fontSize: 12, color: 'var(--text-4)', whiteSpace: 'nowrap' }}>
           {list.length} provider{list.length !== 1 ? 's' : ''}
         </span>
       </div>
@@ -293,19 +324,24 @@ export function Providers({
           <thead>
             <tr>
               <th {...thProps('lname', 'Provider')} />
-              <th {...thProps('npi', 'NPI')} />
-              <th {...thProps('caqh', 'CAQH')} />
-              <th {...thProps('spec', 'Specialty')} />
-              <th {...thProps('status', 'Status')} />
-              <th {...thProps('_next', 'Next Expiry')} />
-              <th {...thProps('_ready', 'Readiness')} style={{ width: 130, cursor: 'pointer' }} />
+              {tv.isOn('npi') && <th {...thProps('npi', 'NPI')} />}
+              {tv.isOn('caqh') && <th {...thProps('caqh', 'CAQH')} />}
+              {tv.isOn('spec') && <th {...thProps('spec', 'Specialty')} />}
+              {tv.isOn('status') && <th {...thProps('status', 'Status')} />}
+              {tv.isOn('next') && <th {...thProps('_next', 'Next Expiry')} />}
+              {tv.isOn('ready') && <th {...thProps('_ready', 'Readiness')} style={{ width: 130, cursor: 'pointer' }} />}
+              {tv.isOn('payers') && <th className="no-sort">Active payers</th>}
+              {tv.isOn('license') && <th {...thProps('licenseExp', 'License expires')} />}
+              {tv.isOn('malpractice') && <th {...thProps('malExp', 'Malpractice expires')} />}
+              {tv.isOn('dea') && <th {...thProps('deaExp', 'DEA expires')} />}
+              {tv.isOn('caqhDue') && <th {...thProps('caqhDue', 'CAQH due')} />}
               <th className="no-sort" style={{ width: 52, textAlign: 'center' }}>⋯</th>
             </tr>
           </thead>
           <tbody>
             {!list.length ? (
               <tr>
-                <td colSpan={8}>
+                <td colSpan={tv.visibleCount + 1}>
                   <div className="empty-state">
                     <div className="ei">👥</div>
                     <h4>{hasFilters ? 'No providers match your filters' : 'No providers yet'}</h4>
@@ -371,12 +407,15 @@ export function Providers({
                   </td>
 
                   {/* NPI */}
-                  <td>
+                  {tv.isOn('npi') && (
+                    <td>
                     <span className="mono">{p.npi || '—'}</span>
                   </td>
+                  )}
 
                   {/* CAQH */}
-                  <td>
+                  {tv.isOn('caqh') && (
+                    <td>
                     <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
                       <span className="mono">{p.caqh || '—'}</span>
                       <CaqhAttestBadge caqhAttest={p.caqhAttest} />
@@ -387,23 +426,28 @@ export function Providers({
                       </div>
                     )}
                   </td>
+                  )}
 
                   {/* Specialty */}
-                  <td>
+                  {tv.isOn('spec') && (
+                    <td>
                     <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                       <span style={{ width: 8, height: 8, borderRadius: 2, background: sc, display: 'inline-block', flexShrink: 0 }} />
                       <span style={{ fontSize: 12.5, color: 'var(--text-2)' }}>{p.spec || '—'}</span>
                     </span>
                   </td>
+                  )}
 
                   {/* Status */}
-                  <td><StatusBadge status={p.status} /></td>
+                  {tv.isOn('status') && (
+                    <td><StatusBadge status={p.status} /></td>
+                  )}
 
                   {/* Next Expiry — replaces Medicaid ID (moved to action menu) */}
-                  <td><NextExpiryCell prov={p} /></td>
+                  {tv.isOn('next') && <td><NextExpiryCell prov={p} /></td>}
 
                   {/* Readiness */}
-                  <td>
+                  {tv.isOn('ready') && <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                       <div style={{ flex: 1, height: 4, borderRadius: 4, background: 'var(--border)', overflow: 'hidden', minWidth: 50 }}>
                         <div style={{ height: '100%', width: `${readiness}%`, background: rdColor, borderRadius: 4, transition: 'width .3s' }} />
@@ -412,7 +456,21 @@ export function Providers({
                         {readiness}% <span style={{ fontWeight: 600 }}>{readinessWord(readiness)}</span>
                       </span>
                     </div>
-                  </td>
+                  </td>}
+
+                  {tv.isOn('payers') && (
+                    <td style={{ fontSize: 13 }}>
+                      {(() => {
+                        const names = db.enrollments.filter(e => e.provId === p.id && e.stage === 'Active')
+                          .map(e => (db.payers.find(x => x.id === e.payId) || {}).name).filter(Boolean)
+                        return names.length ? names.join(', ') : <span style={{ color: 'var(--text-muted)' }}>None active</span>
+                      })()}
+                    </td>
+                  )}
+                  {tv.isOn('license') && <td>{p.licenseExp ? fmtDate(p.licenseExp) : '—'}</td>}
+                  {tv.isOn('malpractice') && <td>{p.malExp ? fmtDate(p.malExp) : '—'}</td>}
+                  {tv.isOn('dea') && <td>{p.deaExp ? fmtDate(p.deaExp) : '—'}</td>}
+                  {tv.isOn('caqhDue') && <td>{p.caqhDue ? fmtDate(p.caqhDue) : '—'}</td>}
 
                   {/* Actions */}
                   <td onClick={e => e.stopPropagation()} style={{ position: 'relative', textAlign: 'center' }}>
