@@ -25,3 +25,13 @@ test('enrollment date source: only sent once the row carries it, and round-trips
   assert.equal(enrollmentFromDb({ id: '1', dates_source: 'Phone call', dates_verified_on: '2026-10-24' }).datesSource, 'Phone call')
   assert.equal('datesSource' in enrollmentFromDb({ id: '1' }), false)
 })
+
+test('task owner is carried only when the column exists (safe before migration 030)', async () => {
+  const { taskFromDb, taskToDb } = await import('../lib/mappers.js')
+  assert.equal('assigneeId' in taskFromDb({ id: 't1', task: 'x' }), false)
+  assert.equal(taskFromDb({ id: 't1', task: 'x', assignee_id: null }).assigneeId, '')
+  assert.equal(taskFromDb({ id: 't1', task: 'x', assignee_id: 'u1' }).assigneeId, 'u1')
+  assert.equal('assignee_id' in taskToDb({ id: 't1', task: 'x' }), false)
+  assert.equal(taskToDb({ id: 't1', task: 'x', assigneeId: '' }).assignee_id, null)
+  assert.equal(taskToDb({ id: 't1', task: 'x', assigneeId: 'u1' }).assignee_id, 'u1')
+})

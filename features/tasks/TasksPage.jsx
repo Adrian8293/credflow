@@ -9,7 +9,7 @@ import { DateInput } from '../../components/ui/DateInput.jsx'
 import { usePersistedState } from '../../hooks/usePersistedState.js'
 
 const PRI_RANK = { Urgent: 0, High: 1, Medium: 2, Low: 3 }
-const FILTERS = ['open', 'overdue', 'week', 'urgent', 'done', 'all']
+const FILTERS = ['open', 'mine', 'overdue', 'week', 'urgent', 'done', 'all']
 const isDone = (t) => t.status === 'Done'
 const today = () => { const d = new Date(), p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}` }
 const pname = (providers, id) => { const p = providers.find(x => x.id === id); return p ? `${p.fname} ${p.lname}`.trim() : '' }
@@ -25,8 +25,15 @@ function sectionOf(t) {
 const SECTION_LABEL = { overdue: 'Overdue', today: 'Due today', week: 'Next 7 days', later: 'Later', nodate: 'No due date' }
 const SECTION_ORDER = ['overdue', 'today', 'week', 'later', 'nodate']
 
-export function TasksPage({ db, openTaskModal, openProvDetail, handleMarkDone, handleReopen, handleDeleteTask, handleQuickAdd }) {
-  const [filter, setFilter] = usePersistedState('lc_pref_tasks_filter', 'open', v => FILTERS.includes(v))
+const ownerName = (s) => (s?.email || '').split('@')[0] || 'Team member'
+
+export function TasksPage({ db, userId, openTaskModal, openProvDetail, handleMarkDone, handleReopen, handleDeleteTask, handleQuickAdd, handleAssign }) {
+  const [savedFilter, setFilter] = usePersistedState('lc_pref_tasks_filter', 'open', v => FILTERS.includes(v))
+  const staff = db.staff                       // null until migration 030 is run: assignment is then hidden
+  const canAssign = !!staff?.length
+  const iAmStaff = canAssign && staff.some(s => s.id === userId)
+  const filter = savedFilter === 'mine' && !iAmStaff ? 'open' : savedFilter
+  const [fOwner, setFOwner] = useState('')       // '' anyone | 'none' unassigned | a person
   const [search, setSearch] = useState('')
   const [fProv, setFProv]   = useState('')
   const [completing, setCompleting] = useState(new Set())
@@ -38,13 +45,14 @@ export function TasksPage({ db, openTaskModal, openProvDetail, handleMarkDone, h
   const open = tasks.filter(t => !isDone(t))
   const counts = {
     open: open.length,
+    mine: open.filter(t => t.assigneeId === userId).length,
     overdue: open.filter(t => { const d = daysUntil(t.due); return d !== null && d < 0 }).length,
     week: open.filter(t => { const d = daysUntil(t.due); return d !== null && d >= 0 && d <= 7 }).length,
     urgent: open.filter(t => t.priority === 'Urgent').length,
     done: tasks.length - open.length,
     all: tasks.length,
   }
-  const LABEL = { open: 'Open', overdue: 'Overdue', week: 'Next 7 days', urgent: 'Urgent', done: 'Done', all: 'All' }
+  const LABEL = { open: 'Open', mine: 'My tasks', overdue: 'Overdue', week: 'Next 7 days', urgent: 'Urgent', done: 'Done', all: 'All' }
 
   const provOptions = useMemo(() => {
     const ids = [...new Set(tasks.map(t => t.provId).filter(Boolean))]
@@ -55,6 +63,9 @@ export function TasksPage({ db, openTaskModal, openProvDetail, handleMarkDone, h
   const filtered = tasks.filter(t => {
     const d = daysUntil(t.due)
     if (filter === 'open' && isDone(t)) return false
+    if (filter === 'mine' && (isDone(t) || t.assigneeId !== userId)) return false
+    if (fOwner === 'none' && t.assigneeId) return false
+    if (fOwner && fOwner !== 'none' && t.assigneeId !== fOwner) return false
     if (filter === 'overdue' && (isDone(t) || d === null || d >= 0)) return false
     if (filter === 'week' && (isDone(t) || d === null || d < 0 || d > 7)) return false
     if (filter === 'urgent' && (isDone(t) || t.priority !== 'Urgent')) return false
@@ -92,7 +103,7 @@ export function TasksPage({ db, openTaskModal, openProvDetail, handleMarkDone, h
     if (ok) setQaText('')
   }
 
-  const filtersOn = !!(search || fProv)
+  const filtersOn = !!(search || fProv || fOwner)
 
   return (
     <div className="page">
@@ -113,7 +124,7 @@ export function TasksPage({ db, openTaskModal, openProvDetail, handleMarkDone, h
 
       <div className="toolbar" style={{ flexWrap: 'wrap', gap: 8 }}>
         <div style={{ display: 'flex', gap: 4, background: 'var(--elevated)', border: '1px solid var(--border)', borderRadius: 22, padding: 4, flexWrap: 'wrap' }}>
-          {FILTERS.map(k => (
+          {FILTERS.filter(k => k !== 'mine' || iAmStaff).map(k => (
             <button key={k} className={`btn btn-sm ${filter === k ? 'btn-primary' : 'btn-ghost'}`} style={{ padding: '5px 12px', fontSize: 12, borderRadius: 999 }} onClick={() => setFilter(k)}>
               {LABEL[k]} ({counts[k]})
             </button>
@@ -127,7 +138,14 @@ export function TasksPage({ db, openTaskModal, openProvDetail, handleMarkDone, h
           <option value="">All providers</option>
           {provOptions.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
         </select>
-        {filtersOn && <button onClick={() => { setSearch(''); setFProv('') }} className="x-link">Clear filters ×</button>}
+        {canAssign && (
+          <select aria-label="Filter by owner" className="filter-select" value={fOwner} onChange={e => setFOwner(e.target.value)}>
+            <option value="">Anyone</option>
+            <option value="none">Unassigned</option>
+            {staff.map(s => <option key={s.id} value={s.id}>{s.id === userId ? 'Me' : ownerName(s)}</option>)}
+          </select>
+        )}
+        {filtersOn && <button onClick={() => { setSearch(''); setFProv(''); setFOwner('') }} className="x-link">Clear filters ×</button>}
       </div>
 
       {sorted.length === 0 && (
@@ -162,6 +180,9 @@ export function TasksPage({ db, openTaskModal, openProvDetail, handleMarkDone, h
                       : <span style={{ color: 'var(--pr)' }}>{pn}</span>)}
                     {payer && <span>{payer}</span>}
                     <span>{t.cat}</span>
+                    {canAssign && 'assigneeId' in t && (t.assigneeId
+                      ? <span style={{ fontWeight: 600, color: t.assigneeId === userId ? 'var(--pr)' : 'var(--text-3)' }}>{t.assigneeId === userId ? 'Mine' : `Owner: ${ownerName(staff.find(s => s.id === t.assigneeId)) === 'Team member' ? 'former team member' : ownerName(staff.find(s => s.id === t.assigneeId))}`}</span>
+                      : <span style={{ fontStyle: 'italic' }}>Unassigned</span>)}
                     <span className={`badge ${t.priority === 'Urgent' ? 'b-red' : t.priority === 'High' ? 'b-amber' : 'b-gray'}`} style={{ fontSize: 10 }}>{t.priority}</span>
                     {!fin && t.status && t.status !== 'Open' && <span className="badge b-blue" style={{ fontSize: 10 }}>{t.status}</span>}
                   </div>
@@ -173,6 +194,9 @@ export function TasksPage({ db, openTaskModal, openProvDetail, handleMarkDone, h
                     <span className={`badge ${d <= 0 ? 'b-red' : d <= 3 ? 'b-amber' : 'b-gray'}`}>{d < 0 ? `${Math.abs(d)}d late` : d === 0 ? 'Today' : `${d}d`}</span>
                   )}
                   {fin && <button className="btn btn-xs btn-ghost" onClick={() => handleReopen(t.id)}>Reopen</button>}
+                  {!fin && iAmStaff && 'assigneeId' in t && t.assigneeId !== userId && handleAssign && (
+                    <button className="btn btn-sm btn-secondary" onClick={() => handleAssign(t.id, userId)} aria-label={`Take over: ${t.task}`}>Take it</button>
+                  )}
                   {!fin && <button className="btn btn-sm btn-green" disabled={busy} onClick={() => done(t)} aria-label={`Mark done: ${t.task}`}>✓ Done</button>}
                   <button className="btn btn-sm btn-secondary" onClick={() => openTaskModal(t.id)}>Edit</button>
                   <button className="btn btn-sm btn-danger" onClick={() => handleDeleteTask(t.id)} aria-label={`Delete ${t.task}`}>Delete</button>

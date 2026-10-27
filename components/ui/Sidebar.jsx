@@ -88,13 +88,15 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db,
   function navItem(pg, label, icon, badge, badgeDanger) {
     const active = activePage === pg
     return (
-      <div
+      <button
+        type="button"
         key={pg}
         className={`sb-item${active ? ' active' : ''}`}
         onClick={() => nav(pg)}
         onMouseEnter={() => { try { router.prefetch(routeOf(pg)) } catch { /* ignore */ } }}
+        onFocus={() => { try { router.prefetch(routeOf(pg)) } catch { /* ignore */ } }}
         title={collapsed ? label : undefined}
-        role="menuitem"
+        aria-label={collapsed ? label : undefined}
         aria-current={active ? 'page' : undefined}
       >
         <span className="sb-item-icon">{icon}</span>
@@ -108,7 +110,7 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db,
         {collapsed && badge > 0 && (
           <span className="sb-badge-dot" style={badgeDanger ? { background: 'var(--red)' } : undefined} />
         )}
-      </div>
+      </button>
     )
   }
 
@@ -150,7 +152,7 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db,
       <OrgSwitcher collapsed={collapsed} />
 
       {/* ── Navigation ── */}
-      <div className="sb-nav" role="menu" tabIndex={0} aria-label="Main menu">
+      <div className="sb-nav">
         {navItem('dashboard',    'Today',        I.dashboard)}
 
         {sectionLabel('Work')}
@@ -177,27 +179,24 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db,
       {/* ── Footer ── */}
       <div className="sb-footer">
         {!collapsed && (
-          <div
-            className="sb-support"
-            onClick={() => nav('help')}
-            role="button"
-            tabIndex={0}
-          >
+          <button type="button" className="sb-support" onClick={() => nav('help')}>
             <div className="sb-support-title">{I.support} Need help?</div>
             <div className="sb-support-sub">Open the guide</div>
-          </div>
+          </button>
         )}
 
         {!collapsed && (
-          <div className="sb-user" onClick={() => nav('settings')}>
-            <div className="sb-avatar">{initial}</div>
-            <div className="sb-user-info">
-              <div className="sb-user-name">{displayName}</div>
-              <div className="sb-user-email">{user?.email}</div>
-            </div>
+          <div className="sb-user">
+            <button type="button" className="sb-user-main" onClick={() => nav('settings')} aria-label="Open settings">
+              <div className="sb-avatar">{initial}</div>
+              <div className="sb-user-info">
+                <div className="sb-user-name">{displayName}</div>
+                <div className="sb-user-email">{user?.email}</div>
+              </div>
+            </button>
             <button
               className="sb-signout-icon"
-              onClick={e => { e.stopPropagation(); signOut?.() }}
+              onClick={() => signOut?.()}
               title="Sign out"
               aria-label="Sign out"
             >

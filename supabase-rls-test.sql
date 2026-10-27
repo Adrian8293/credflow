@@ -16,7 +16,7 @@ DECLARE
   u_owner uuid := gen_random_uuid(); u_admin uuid := gen_random_uuid(); u_cred uuid := gen_random_uuid();
   u_view  uuid := gen_random_uuid(); u_prov  uuid := gen_random_uuid(); u_clin uuid := gen_random_uuid();
   u_out   uuid := gen_random_uuid();
-  u_mfa   uuid := gen_random_uuid();
+  u_mfa   uuid := gen_random_uuid(); u_gone uuid := gen_random_uuid();
   pv1 uuid; pv2 uuid; pv3 uuid; py1 uuid; py3 uuid; ent1 uuid;
   mfa_ready boolean := false; store_ready boolean := false; notes text := '';
   c record; n bigint; err text; uid uuid;
@@ -28,7 +28,8 @@ BEGIN
     (u_owner,'authenticated','authenticated','owner@rls.test'), (u_admin,'authenticated','authenticated','admin@rls.test'),
     (u_cred,'authenticated','authenticated','cred@rls.test'),   (u_view,'authenticated','authenticated','view@rls.test'),
     (u_prov,'authenticated','authenticated','prov@rls.test'),   (u_clin,'authenticated','authenticated','clin@rls.test'),
-    (u_out,'authenticated','authenticated','out@rls.test'), (u_mfa,'authenticated','authenticated','mfa@rls.test');
+    (u_out,'authenticated','authenticated','out@rls.test'), (u_mfa,'authenticated','authenticated','mfa@rls.test'),
+    (u_gone,'authenticated','authenticated','gone@rls.test');
   INSERT INTO organizations (id, name) VALUES (o1,'__rls_test_org_1'), (o2,'__rls_test_org_2');
   INSERT INTO providers (fname,lname,org_id) VALUES ('Pat','One',o1) RETURNING id INTO pv1;
   INSERT INTO providers (fname,lname,org_id) VALUES ('Sam','Two',o1) RETURNING id INTO pv2;
@@ -38,7 +39,7 @@ BEGIN
   INSERT INTO legal_entities (name,org_id) VALUES ('Test Group',o1) RETURNING id INTO ent1;
   INSERT INTO organization_members (org_id,user_id,role,provider_id) VALUES
     (o1,u_owner,'owner',NULL), (o1,u_admin,'admin',NULL), (o1,u_cred,'credentialer',NULL), (o1,u_view,'viewer',NULL),
-    (o1,u_prov,'provider',pv1), (o1,u_clin,'clinic_staff',NULL), (o2,u_out,'owner',NULL), (o1,u_mfa,'credentialer',NULL);
+    (o1,u_prov,'provider',pv1), (o1,u_clin,'clinic_staff',NULL), (o2,u_out,'owner',NULL), (o1,u_mfa,'credentialer',NULL), (o1,u_gone,'credentialer',NULL);
 
   -- more fixtures (each guarded: if one cannot be created here, its checks are skipped and the report says so)
   INSERT INTO settings (org_id, practice) VALUES (o1,'Test Practice 1'), (o2,'Test Practice 2');
@@ -46,6 +47,9 @@ BEGIN
   INSERT INTO portal_invites (org_id, email, role, token_hash, expires_at) VALUES (o1,'inv@rls.test','viewer','rls-test-hash-1',now()+interval '1 day');
   INSERT INTO provider_licenses (org_id, provider_id, state) VALUES (o1,pv1,'OR');
   UPDATE providers SET npi = '1234567893' WHERE id = pv1;
+  -- task ownership (migration 030): a task owned by someone who is then removed must fall back to unassigned
+  INSERT INTO tasks (org_id, task, assignee_id) VALUES (o1,'rls-release',u_gone), (o1,'rls-mine',u_cred), (o2,'rls-other-org',u_out);
+  DELETE FROM organization_members WHERE org_id = o1 AND user_id = u_gone;
   INSERT INTO exclusion_checks (org_id, provider_id, source, result) VALUES (o1, pv1, 'OIG LEIE', 'Clear'), (o2, pv3, 'OIG LEIE', 'Clear');
   BEGIN
     INSERT INTO storage.buckets (id, name) VALUES ('documents','documents') ON CONFLICT (id) DO NOTHING;
@@ -65,6 +69,22 @@ BEGIN
   -- expect: rows>0 | rows=0 | blocked (error OR no rows) | ok (runs without error) | denied (must raise an error)
   FOR c IN
     SELECT * FROM (VALUES
+      -- task ownership (migration 030)
+      ('tasks: a removed member''s tasks become unassigned','owner','rows>0', 'SELECT 1 FROM tasks WHERE task=''rls-release'' AND assignee_id IS NULL'),
+      ('tasks: credentialer can assign to a colleague','cred','ok', format('UPDATE tasks SET assignee_id=%L WHERE task=%L',u_admin,'rls-mine')),
+      ('tasks: cannot assign to a view-only account','cred','denied', format('UPDATE tasks SET assignee_id=%L WHERE task=%L',u_view,'rls-mine')),
+      ('tasks: cannot assign to clinic staff (they cannot see tasks)','cred','denied', format('UPDATE tasks SET assignee_id=%L WHERE task=%L',u_clin,'rls-mine')),
+      ('tasks: cannot assign to a provider account','cred','denied', format('UPDATE tasks SET assignee_id=%L WHERE task=%L',u_prov,'rls-mine')),
+      ('tasks: cannot assign to a person in another organization','cred','denied', format('UPDATE tasks SET assignee_id=%L WHERE task=%L',u_out,'rls-mine')),
+      ('tasks: a new task can be created already assigned','admin','ok', format('INSERT INTO tasks (task,assignee_id) VALUES (%L,%L)','rls-new',u_cred)),
+      ('tasks: a new task cannot be created for an outsider','admin','denied', format('INSERT INTO tasks (task,assignee_id) VALUES (%L,%L)','rls-new2',u_out)),
+      ('tasks: other organization cannot read ours','out','rows=0', 'SELECT 1 FROM tasks WHERE task=''rls-mine'''),
+      ('tasks: staff list shows colleagues','cred','rows>0', format('SELECT 1 FROM org_staff_list() WHERE user_id=%L',u_admin)),
+      ('tasks: staff list leaves out view-only and portal accounts','cred','rows=0', format('SELECT 1 FROM org_staff_list() WHERE user_id IN (%L,%L,%L)',u_view,u_prov,u_clin)),
+      ('tasks: staff list never shows another organization','cred','rows=0', format('SELECT 1 FROM org_staff_list() WHERE user_id=%L',u_out)),
+      ('tasks: viewer cannot open the staff list','view','denied', 'SELECT * FROM org_staff_list()'),
+      ('tasks: provider account cannot open the staff list','prov','denied', 'SELECT * FROM org_staff_list()'),
+      ('tasks: not signed in cannot open the staff list','anon','denied', 'SELECT * FROM org_staff_list()'),
       -- providers: who can read
       ('providers: owner reads own org','owner','rows>0', format('SELECT 1 FROM providers WHERE id=%L',pv1)),
       ('providers: admin reads own org','admin','rows>0', format('SELECT 1 FROM providers WHERE id=%L',pv1)),

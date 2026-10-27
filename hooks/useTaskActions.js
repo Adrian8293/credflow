@@ -1,7 +1,10 @@
 import { useState } from 'react'
 import { upsertTask, deleteTask, markTaskDone } from '../lib/db'
 
-export function useTaskActions({ db, setDb, toast, requestConfirm }) {
+export function useTaskActions({ db, setDb, toast, requestConfirm, userId }) {
+  // New tasks start with you as the owner, when assignment is available and you are on the staff list.
+  const mineId = db.staff?.some(s => s.id === userId) ? userId : ''
+  const ownerField = db.staff ? { assigneeId: mineId } : {}
   const [taskForm, setTaskForm]         = useState({})
   const [editingTaskId, setEditingTaskId] = useState(null)
   const [saving, setSaving]             = useState(false)
@@ -51,11 +54,22 @@ export function useTaskActions({ db, setDb, toast, requestConfirm }) {
   async function handleQuickAdd({ task, due, provId }) {
     if (!task?.trim() || !due) { toast('Task description and due date required.', 'error'); return false }
     try {
-      const saved = await upsertTask({ task: task.trim(), due, priority: 'Medium', status: 'Open', cat: 'Follow-up', provId: provId || '' })
+      const saved = await upsertTask({ task: task.trim(), due, priority: 'Medium', status: 'Open', cat: 'Follow-up', provId: provId || '', ...ownerField })
       setDb(prev => prev.tasks.some(x => x.id === saved.id) ? prev : { ...prev, tasks: [...prev.tasks, saved] })
       toast('Task added.', 'success')
       return true
     } catch(err) { toast(err.message, 'error'); return false }
+  }
+
+  // One-click ownership change from the list ('' = unassigned). Saves through the normal task save so it is audited and queued offline.
+  async function handleAssign(id, assigneeId) {
+    const t = db.tasks.find(x => x.id === id)
+    if (!t) return
+    try {
+      const saved = await upsertTask({ ...t, assigneeId })
+      setDb(prev => ({ ...prev, tasks: prev.tasks.map(x => x.id === id ? saved : x) }))
+      toast(assigneeId ? 'Task assigned.' : 'Task unassigned.', 'success')
+    } catch (err) { toast(err.message, 'error') }
   }
 
   async function handleDeleteTask(id) {
@@ -78,7 +92,7 @@ export function useTaskActions({ db, setDb, toast, requestConfirm }) {
       const t = db.tasks.find(x => x.id === id)
       if (t) setTaskForm({ ...t })
     } else {
-      setTaskForm({ priority: 'Medium', status: 'Open', cat: 'Follow-up' })
+      setTaskForm({ priority: 'Medium', status: 'Open', cat: 'Follow-up', ...ownerField })
     }
   }
 
@@ -86,7 +100,7 @@ export function useTaskActions({ db, setDb, toast, requestConfirm }) {
     taskForm, setTaskForm,
     editingTaskId,
     saving,
-    handleSaveTask, handleMarkDone, handleReopen, handleQuickAdd, handleDeleteTask,
+    handleSaveTask, handleMarkDone, handleReopen, handleQuickAdd, handleDeleteTask, handleAssign,
     openTaskModal,
   }
 }

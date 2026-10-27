@@ -22,6 +22,7 @@ import { IdleWarning } from './ui/IdleWarning'
 import { getIdleMinutes, clearSeen } from '../lib/idle'
 import { initQueue } from '../lib/offlineQueue'
 import { supabase } from '../lib/supabase'
+import { RouteErrorBoundary } from './ui/RouteErrorBoundary.jsx'
 
 export function Layout({ children }) {
   const router = useRouter()
@@ -163,7 +164,7 @@ export function Layout({ children }) {
         />
 
         <div className="pages">
-          {children}
+          <RouteErrorBoundary resetKey={router.asPath}>{children}</RouteErrorBoundary>
         </div>
       </div>
       <MobileTabBar

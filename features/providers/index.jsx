@@ -13,7 +13,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { fmtDate, daysUntil } from '../../lib/helpers.js'
-import { providerReadiness } from '../../components/WorkflowOverhaul.jsx'
+import { providerReadiness } from '../../lib/readiness.js'
 import { useSorted } from '../../hooks/useSorted.js'
 import { usePagination } from '../../hooks/usePagination.js'
 import { AvatarImg } from '../../components/ui/AvatarImg'

@@ -10,6 +10,8 @@ function code rather than a separate test. ✓ = allowed, ✗ = refused, "own" =
 |---|:-:|:-:|:-:|:-:|:-:|:-:|
 | Read providers, enrollments, payers, groups, tasks, audit log | ✓ | ✓ | ✓ | ✓ | ✗ | ✗ |
 | Add / edit / delete those records | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
+| Assign a task to a colleague (owner, admin or credentialer only; the database refuses anyone else, or anyone from another organization) | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
+| See the list of people tasks can be assigned to | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
 | Add an audit log entry | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
 | Edit or delete an audit log entry | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
 | Delete a provider (soft delete, with its enrollments and documents) | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |

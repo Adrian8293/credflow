@@ -4,7 +4,7 @@ import { useGlobalContext } from '../context/AppContext'
 import { TasksPage } from '../features/tasks/TasksPage.jsx'
 
 export default function Tasks() {
-  const { db, openTaskModal, openProvDetail, tasks } = useGlobalContext()
+  const { db, openTaskModal, openProvDetail, tasks, user } = useGlobalContext()
 
   return (
     <>
@@ -13,12 +13,14 @@ export default function Tasks() {
       </Head>
       <TasksPage
         db={db}
+        userId={user?.id}
         openTaskModal={openTaskModal}
         openProvDetail={openProvDetail}
         handleMarkDone={tasks.handleMarkDone}
         handleReopen={tasks.handleReopen}
         handleQuickAdd={tasks.handleQuickAdd}
         handleDeleteTask={tasks.handleDeleteTask}
+        handleAssign={tasks.handleAssign}
       />
     </>
   )

@@ -96,6 +96,17 @@ export function TaskModal({ db, taskForm, setTaskForm, editingId, handleSaveTask
           </select>
         </div>
 
+        {db.staff?.length > 0 && (
+          <div className="fg">
+            <label htmlFor="task-owner">Owner</label>
+            <select id="task-owner" value={f('assigneeId')} onChange={e => set('assigneeId', e.target.value)}>
+              <option value="">Unassigned</option>
+              {db.staff.map(s => <option key={s.id} value={s.id}>{s.email}</option>)}
+              {f('assigneeId') && !db.staff.some(s => s.id === f('assigneeId')) && <option value={f('assigneeId')}>Former team member</option>}
+            </select>
+          </div>
+        )}
+
         <div className="fg">
           <label>Provider <span style={{ fontSize: 10.5, color: 'var(--text-4)', fontWeight: 400 }}>(optional)</span></label>
           <select value={f('provId')} onChange={e => set('provId', e.target.value)}>

@@ -56,7 +56,7 @@ export function AppContextProvider({ children }) {
   const enrollments = useEnrollmentActions({ db, setDb, toast, requestConfirm })
   const payers     = usePayerActions({ db, setDb, toast, requestConfirm })
   const documents  = useDocumentActions({ db, setDb, toast, requestConfirm })
-  const tasks      = useTaskActions({ db, setDb, toast, requestConfirm })
+  const tasks      = useTaskActions({ db, setDb, toast, requestConfirm, userId: user?.id })
 
   // ── Modal state (UI-layer only, does not affect data) ─────────────────────
   const [modal,             setModal]             = useState(null)

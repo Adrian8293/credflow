@@ -65,7 +65,7 @@ class ErrorBoundary extends React.Component {
           </svg>
           <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>Something went wrong</h2>
           <p style={{ margin: 0, color: '#64748B', fontSize: 14, maxWidth: 400 }}>
-            {this.state.error.message || 'An unexpected error occurred.'}
+            Lacentra could not display this screen. Reloading usually fixes it.
           </p>
           <p style={{ margin: 0, color: '#94A3B8', fontSize: 12 }}>
             Your data is safe. Reload to continue working.
