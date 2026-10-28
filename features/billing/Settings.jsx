@@ -134,6 +134,18 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
                   <input type="number" aria-label="License and malpractice alert, days" value={f('alertDays')} onChange={e => set('alertDays', parseInt(e.target.value) || 90)} min={30} max={365} />
                   <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 4 }}>Recommended: 90 days</div>
                 </div>
+                {settingsForm?.stallSaved && (<>
+                  <div className="fg">
+                    <label>Application is stalled after (days, payer has it)</label>
+                    <input type="number" aria-label="Stalled application, days, payer has it" value={f('stallDaysPayer')} onChange={e => set('stallDaysPayer', Math.min(120, Math.max(7, parseInt(e.target.value) || 30)))} min={7} max={120} />
+                    <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 4 }}>No change for this long raises an alert. Recommended: 30 days</div>
+                  </div>
+                  <div className="fg">
+                    <label>Application is stalled after (days, waiting on us)</label>
+                    <input type="number" aria-label="Stalled application, days, waiting on us" value={f('stallDaysUs')} onChange={e => set('stallDaysUs', Math.min(120, Math.max(7, parseInt(e.target.value) || 14)))} min={7} max={120} />
+                    <div style={{ fontSize: 11, color: 'var(--text-4)', marginTop: 4 }}>When the payer asked us for something. Recommended: 14 days</div>
+                  </div>
+                </>)}
                 <div className="fg">
                   <label>CAQH attestation alert (days)</label>
                   <input type="number" aria-label="CAQH attestation alert, days" value={f('caqhDays')} onChange={e => set('caqhDays', parseInt(e.target.value) || 30)} min={7} max={90} />

@@ -35,3 +35,14 @@ test('task owner is carried only when the column exists (safe before migration 0
   assert.equal(taskToDb({ id: 't1', task: 'x', assigneeId: '' }).assignee_id, null)
   assert.equal(taskToDb({ id: 't1', task: 'x', assigneeId: 'u1' }).assignee_id, 'u1')
 })
+
+test('provider owner and stall settings are safe before migration 032', async () => {
+  const { providerFromDb, providerToDb, settingsFromDb } = await import('../lib/mappers.js')
+  assert.equal('assigneeId' in providerFromDb({ id: '1' }), false)
+  assert.equal(providerFromDb({ id: '1', assignee_id: 'u1' }).assigneeId, 'u1')
+  assert.equal('assignee_id' in providerToDb({ id: '1', fname: 'A' }), false)
+  assert.equal(providerToDb({ id: '1', assigneeId: '' }).assignee_id, null)
+  const before = settingsFromDb({})
+  assert.equal(before.stallSaved, false); assert.equal(before.stallDaysPayer, 30); assert.equal(before.stallDaysUs, 14)
+  assert.equal(settingsFromDb({ stall_days_payer: 45, stall_days_us: 10 }).stallSaved, true)
+})

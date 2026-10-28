@@ -59,7 +59,7 @@ function AlertRow({ a, renew, setRenew, onOpenProvider, onDraftEmail, onMarkDone
             {a.p.fname} {a.p.lname}{a.p.cred ? `, ${a.p.cred}` : ''} — {a.label}
           </span>
           {isExpired && <span className="badge b-red">Expired</span>}
-          {!isExpired && isCritical && <span className="badge b-red">Critical</span>}
+          {!isExpired && isCritical && <span className="badge b-red">{a.days <= 7 ? 'Within 7 days' : 'Critical'}</span>}
           {isWarning && <span className="badge b-amber">Warning</span>}
           {!isExpired && !isCritical && !isWarning && <span className="badge b-blue">Notice</span>}
         </div>
@@ -124,7 +124,7 @@ export function Alerts({ db, onOpenProvider, onDraftEmail, onMarkDone, onOpenEnr
   const info     = items.filter(a => a.days > 60)
 
   // Enrollment deadlines (follow-ups, payer recredentialing, terminations) and data gaps.
-  const enrItems = buildAlertFeed(db).filter(i => ['followup', 'enr-recred', 'enr-term', 'license-gap', 'req-review', 'req-overdue'].includes(i.type))
+  const enrItems = buildAlertFeed(db).filter(i => ['stalled', 'followup', 'enr-recred', 'enr-term', 'license-gap', 'req-review', 'req-overdue'].includes(i.type))
   const gaps = []
   db.enrollments.forEach(e => {
     const stage = e.stage || ''

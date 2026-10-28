@@ -19,12 +19,17 @@ import { usePagination } from '../../hooks/usePagination.js'
 import { AvatarImg } from '../../components/ui/AvatarImg'
 import { TableViews } from '../../components/ui/TableViews.jsx'
 import { useTableViews } from '../../hooks/useTableViews.js'
+import { lifecycleOf, LIFECYCLE } from '../../lib/lifecycle.js'
+import { useGlobalContext } from '../../context/AppContext'
 
 // Columns the table can show. Provider is always shown; the extra credential columns start hidden.
 const PROV_COLUMNS = [
   { id: 'provider', label: 'Provider', locked: true },
   { id: 'npi', label: 'NPI' }, { id: 'caqh', label: 'CAQH' }, { id: 'spec', label: 'Specialty' },
   { id: 'status', label: 'Status' }, { id: 'next', label: 'Next expiry' }, { id: 'ready', label: 'Readiness' },
+  { id: 'owner', label: 'Assigned to', hiddenByDefault: true },
+  { id: 'life', label: 'Journey stage', hiddenByDefault: true },
+  { id: 'nextStep', label: 'Next step', hiddenByDefault: true },
   { id: 'payers', label: 'Active payers', hiddenByDefault: true },
   { id: 'license', label: 'License expires', hiddenByDefault: true },
   { id: 'malpractice', label: 'Malpractice expires', hiddenByDefault: true },
@@ -33,6 +38,11 @@ const PROV_COLUMNS = [
 ]
 const PROV_VIEWS = [
   { name: 'Credentialing view', columns: ['npi', 'caqh', 'spec', 'status', 'next', 'ready'], filters: { quick: '' } },
+  { name: 'My providers', columns: ['status', 'life', 'nextStep', 'owner'], filters: { fOwner: 'me', quick: '' } },
+  { name: 'Unassigned', columns: ['status', 'life', 'nextStep', 'owner'], filters: { fOwner: 'none', quick: '' } },
+  { name: 'Pipeline view', columns: ['status', 'life', 'nextStep', 'ready'], filters: { quick: '' } },
+  { name: 'Needs documents', columns: ['status', 'life', 'nextStep', 'next'], filters: { fLife: 'Documents Collecting', quick: '' } },
+  { name: 'Ready to enroll', columns: ['status', 'life', 'nextStep', 'ready'], filters: { fLife: 'CAQH Active', quick: '' } },
   { name: 'Compliance view', columns: ['status', 'license', 'malpractice', 'dea', 'caqhDue', 'next'], filters: { quick: '' } },
   { name: 'Enrollment view', columns: ['status', 'payers', 'ready'], filters: { quick: '' } },
   { name: 'Expiring in 30 days', filters: { quick: 'soon', search: '', fStatus: '', fSpec: '' } },
@@ -217,16 +227,26 @@ export function Providers({
   const [menuOpen, setMenuOpen] = useState(null)
   const [quick, setQuick] = useState('')   // '' | 'expired' | 'soon' | 'low'
   const tv = useTableViews('providers', PROV_COLUMNS)
-  const getFilters = () => ({ search, fStatus, fSpec, quick })
+  const { user } = useGlobalContext()
+  const userId = user?.id
+  const staff = db.staff
+  const canAssign = !!staff?.length
+  const ownerName = id => { if (!id) return 'Unassigned'; if (id === userId) return 'Me'; const s = staff?.find(x => x.id === id); return s ? (s.email || '').split('@')[0] : 'Former team member' }
+  const [fOwner, setFOwner] = useState('')    // '' anyone | 'me' | 'none' | a person's id
+  const [fLife, setFLife] = useState('')   // '' or a journey stage
+  const getFilters = () => ({ search, fStatus, fSpec, quick, fLife, fOwner })
   const setFilters = (f) => {
     if ('search' in f) setSearch(f.search ?? '')
     if ('fStatus' in f) setFStatus(f.fStatus ?? '')
     if ('fSpec' in f) setFSpec(f.fSpec ?? '')
     if ('quick' in f) setQuick(f.quick ?? '')
+    if ('fLife' in f) setFLife(f.fLife ?? '')
+    if ('fOwner' in f) setFOwner(f.fOwner ?? '')
   }
   const specs = [...new Set(db.providers.map(p => p.spec).filter(Boolean))].sort()
 
-  const withNext = db.providers.map(p => ({ ...p, _next: nextDays(p), _ready: providerReadiness(p) }))
+  const ownerNameFor = p => (p.assigneeId ? ownerName(p.assigneeId) : '')
+  const withNext = db.providers.map(p => { const lc = lifecycleOf(p, db); return { ...p, _next: nextDays(p), _ready: providerReadiness(p), _life: lc.state, _lifeIdx: lc.index, _step: lc.next.label, _owner: ownerNameFor(p) } })
   const quickCount = {
     expired: withNext.filter(p => p._next < 0).length,
     soon:    withNext.filter(p => p._next >= 0 && p._next <= 30).length,
@@ -243,6 +263,8 @@ export function Providers({
     return (!search || txt.includes(search.toLowerCase()))
       && (!fStatus || (p.status || '').trim() === fStatus)
       && (!quick || quickTest[quick](p))
+      && (!fLife || p._life === fLife)
+      && (!fOwner || (fOwner === 'none' ? !p.assigneeId : fOwner === 'me' ? p.assigneeId === userId : p.assigneeId === fOwner))
       && (!fSpec   || (p.spec   || '').trim().toLowerCase() === fSpec.toLowerCase())
   })
 
@@ -251,8 +273,8 @@ export function Providers({
     paginated, page, totalPages, nextPage, prevPage, setPage: goToPage, totalItems,
   } = usePagination(list, { pageSize: PAGE_SIZE })
 
-  const hasFilters = !!(search || fStatus || fSpec || quick)
-  const clearAll = () => { setSearch(''); setFStatus(''); setFSpec(''); setQuick('') }
+  const hasFilters = !!(search || fStatus || fSpec || quick || fLife || fOwner)
+  const clearAll = () => { setSearch(''); setFStatus(''); setFSpec(''); setQuick(''); setFLife(''); setFOwner('') }
 
   return (
     <div>
@@ -279,6 +301,20 @@ export function Providers({
           <option value="">Specialty: All</option>
           {specs.map(s => <option key={s}>{s}</option>)}
         </select>
+
+        <select className="filter-select" value={fLife} onChange={e => setFLife(e.target.value)} aria-label="Filter by journey stage">
+          <option value="">Stage: All</option>
+          {[...LIFECYCLE, 'Inactive'].map(s => <option key={s}>{s}</option>)}
+        </select>
+
+        {canAssign && (
+          <select className="filter-select" value={fOwner} onChange={e => setFOwner(e.target.value)} aria-label="Filter by owner">
+            <option value="">Owner: Anyone</option>
+            <option value="me">Mine</option>
+            <option value="none">Unassigned</option>
+            {staff.filter(s => s.id !== userId).map(s => <option key={s.id} value={s.id}>{(s.email || '').split('@')[0]}</option>)}
+          </select>
+        )}
 
         <select className="filter-select show-on-phone" aria-label="Sort providers"
           value={`${sortKey}`} onChange={e => { if (e.target.value !== sortKey) toggleSort(e.target.value) }}>
@@ -330,6 +366,9 @@ export function Providers({
               {tv.isOn('status') && <th {...thProps('status', 'Status')} />}
               {tv.isOn('next') && <th {...thProps('_next', 'Next Expiry')} />}
               {tv.isOn('ready') && <th {...thProps('_ready', 'Readiness')} style={{ width: 130, cursor: 'pointer' }} />}
+              {tv.isOn('owner') && <th {...thProps('_owner', 'Assigned to')} />}
+              {tv.isOn('life') && <th {...thProps('_lifeIdx', 'Journey stage')} />}
+              {tv.isOn('nextStep') && <th className="no-sort">Next step</th>}
               {tv.isOn('payers') && <th className="no-sort">Active payers</th>}
               {tv.isOn('license') && <th {...thProps('licenseExp', 'License expires')} />}
               {tv.isOn('malpractice') && <th {...thProps('malExp', 'Malpractice expires')} />}
@@ -458,6 +497,9 @@ export function Providers({
                     </div>
                   </td>}
 
+                  {tv.isOn('owner') && <td style={{ fontSize: 13 }}>{canAssign && 'assigneeId' in p ? ownerName(p.assigneeId) : <span style={{ color: 'var(--text-muted)' }}>—</span>}</td>}
+                  {tv.isOn('life') && <td style={{ fontSize: 13, fontWeight: 600 }}>{p._life}</td>}
+                  {tv.isOn('nextStep') && <td style={{ fontSize: 13 }}>{p._step}</td>}
                   {tv.isOn('payers') && (
                     <td style={{ fontSize: 13 }}>
                       {(() => {

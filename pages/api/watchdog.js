@@ -37,6 +37,7 @@ import { features } from '../../lib/features'
 import { sendEmail } from '../../lib/mailer'
 import { buildDigest } from '../../lib/digest'
 import { todayIn, daysUntilDate } from '../../lib/tzDate'
+import { ladderStep, ladderKey, ladderPriority, stalledEnrollment, isInProgress } from '../../lib/alertLadder'
 
 // Use service-role key so we bypass RLS (this is a server-only route)
 const supabase = createClient(
@@ -116,6 +117,23 @@ async function createTask({ task, due, priority, cat, provId, payId, dedupKey })
   return true
 }
 
+// A reminder that fires once per step of the 90/60/30/7-day ladder.
+//  - Same step again tomorrow: nothing (even if the earlier task was finished or deleted), so nobody is re-nagged.
+//  - A tighter step: one fresh, more urgent task, and the older still-open reminder for the same item is retired
+//    (soft-deleted, so it stays in the audit history). `base` is the old per-item key, which also retires tasks made
+//    before the ladder existed.
+async function createLadderTask({ base, step, task, due, priority, cat, provId }) {
+  const key = ladderKey(base, step)
+  const { data: already } = await orgFrom('tasks').select('id').eq('dedup_key', key).limit(1)
+  if (already?.length) return false
+  let retire = supabase.from('tasks').update({ deleted_at: new Date().toISOString() })
+    .or(`dedup_key.eq.${base},dedup_key.like.${base}:s*`).neq('dedup_key', key)
+    .in('status', ['Open', 'In Progress']).is('deleted_at', null)
+  if (_orgId) retire = retire.eq('org_id', _orgId)
+  await retire
+  return createTask({ task, due, priority, cat, provId, dedupKey: key })
+}
+
 // ─── Phase 2.4: org_id added to every audit_log insert ───────────────────────
 async function audit(action, detail, entity) {
   await supabase.from('audit_log').insert([{
@@ -140,22 +158,23 @@ async function checkProviderExpiries(alertDays, alerts) {
     const name = `${prov.lname}, ${prov.fname}${prov.cred ? ` ${prov.cred}` : ''}`
     for (const [field, label] of Object.entries(PROVIDER_EXP_FIELDS)) {
       const days = daysUntil(prov[field])
-      if (days === null || days > alertDays) continue
+      const step = ladderStep(days, alertDays)
+      if (step === null) continue
 
-      const severity = days <= 0 ? 'EXPIRED' : days <= 14 ? 'CRITICAL' : days <= 30 ? 'HIGH' : 'WARNING'
-      const priority = days <= 0 ? 'Urgent' : days <= 14 ? 'High' : days <= 30 ? 'High' : 'Medium'
+      const severity = days <= 0 ? 'EXPIRED' : days <= 7 ? 'CRITICAL' : days <= 30 ? 'HIGH' : 'WARNING'
+      const priority = ladderPriority(step)
       const taskText = days <= 0
         ? `⚠️ EXPIRED: ${label} for ${name} expired ${Math.abs(days)}d ago`
         : `🔔 ${label} expiring in ${days}d — ${name}`
 
-      const dedupKey = `watchdog:provider:${prov.id}:${field}:${prov[field]}`
-      const created = await createTask({
+      const created = await createLadderTask({
+        base:    `watchdog:provider:${prov.id}:${field}:${prov[field]}`,
+        step,
         task:    taskText,
         due:     prov[field],
         priority,
         cat:     'Credential Expiry',
         provId:  prov.id,
-        dedupKey,
       })
 
       if (created) {
@@ -188,19 +207,20 @@ async function checkStateLicenseExpiries(alertDays, alerts) {
     const prov = provMap[l.provider_id]
     if (!prov) continue
     const days = daysUntil(l.expires)
-    if (days === null || days > alertDays) continue
+    const step = ladderStep(days, alertDays)
+    if (step === null) continue
     const name  = `${prov.lname}, ${prov.fname}${prov.cred ? ` ${prov.cred}` : ''}`
     const label = `${l.state} License${l.license_type ? ` (${l.license_type})` : ''}`
-    const priority = days <= 0 ? 'Urgent' : days <= 30 ? 'High' : 'Medium'
+    const priority = ladderPriority(step)
     const taskText = days <= 0
       ? `⚠️ EXPIRED: ${label} for ${name} expired ${Math.abs(days)}d ago`
       : `🔔 ${label} expiring in ${days}d — ${name}`
-    const created = await createTask({
+    const created = await createLadderTask({
+      base: `watchdog:license:${l.id}:${l.expires}`, step,
       task: taskText, due: l.expires, priority, cat: 'Credential Expiry', provId: prov.id,
-      dedupKey: `watchdog:license:${l.id}:${l.expires}`,
     })
     if (created) await audit('Task Created', taskText, prov.id)
-    alerts.push({ type: 'license', severity: days <= 0 ? 'EXPIRED' : days <= 14 ? 'CRITICAL' : days <= 30 ? 'HIGH' : 'WARNING', provId: prov.id, provName: name, label, days, created })
+    alerts.push({ type: 'license', severity: days <= 0 ? 'EXPIRED' : days <= 7 ? 'CRITICAL' : days <= 30 ? 'HIGH' : 'WARNING', provId: prov.id, provName: name, label, days, created })
   }
 }
 
@@ -272,24 +292,24 @@ async function checkDocumentExpiries(alertDays, alerts) {
 
   for (const doc of docs) {
     const days = daysUntil(doc.exp)
-    if (days === null || days > alertDays) continue
+    const step = ladderStep(days, alertDays)
+    if (step === null) continue
 
     const prov = provMap[doc.prov_id]
     const provName = prov ? `${prov.lname}, ${prov.fname}` : 'Unknown Provider'
     const label = [doc.type, doc.issuer].filter(Boolean).join(' — ')
-    const priority = days <= 0 ? 'Urgent' : days <= 14 ? 'High' : 'Medium'
+    const priority = ladderPriority(step)
     const taskText = days <= 0
       ? `⚠️ EXPIRED Document: ${label} for ${provName}`
       : `📄 Document expiring in ${days}d: ${label} — ${provName}`
 
-    const dedupKey = `watchdog:doc:${doc.id}:${doc.exp}`
-    const created = await createTask({
+    const created = await createLadderTask({
+      base: `watchdog:doc:${doc.id}:${doc.exp}`, step,
       task: taskText,
       due: doc.exp,
       priority,
       cat: 'Document Expiry',
       provId: doc.prov_id,
-      dedupKey,
     })
 
     if (created) await audit('Task Created', taskText, doc.prov_id)
@@ -442,6 +462,45 @@ async function checkEnrollmentSlaOverdue(alerts) {
 }
 
 
+// ─── Check: applications nobody has touched for weeks ────────────────────────
+// One task per idle stretch: the key includes the last-change date, so a new task only appears after the application
+// changes again and then goes quiet again. A scheduled follow-up date keeps an application off this list.
+async function checkStalledEnrollments(alerts, settings) {
+  const cfg = { payer: settings?.stall_days_payer, us: settings?.stall_days_us }
+  const { data: enrollments, error } = await orgFrom('enrollments')
+    .select('id, prov_id, pay_id, stage, submitted, followup, term_date, updated_at')
+    .is('deleted_at', null)
+  if (error) throw error
+  const today = isoToday()
+  const stalledRows = []
+  for (const enr of enrollments ?? []) {
+    if (!isInProgress(enr.stage)) continue
+    const last = enr.updated_at ? todayIn(undefined, new Date(enr.updated_at)) : ''   // the practice's calendar day
+    const st = stalledEnrollment({ stage: enr.stage, followup: enr.followup, termDate: enr.term_date, updated: last, submitted: enr.submitted }, today, cfg)
+    if (st) stalledRows.push({ enr, st, last })
+  }
+  if (!stalledRows.length) return
+  const { data: providers } = await orgFrom('providers').select('id, fname, lname').is('deleted_at', null)
+  const { data: payers } = await orgFrom('payers').select('id, name')
+  const provMap  = Object.fromEntries((providers ?? []).map(p => [p.id, p]))
+  const payerMap = Object.fromEntries((payers    ?? []).map(p => [p.id, p]))
+  for (const { enr, st, last } of stalledRows) {
+    const prov = provMap[enr.prov_id]
+    if (!prov) continue
+    const provName = `${prov.lname}, ${prov.fname}`
+    const payerName = payerMap[enr.pay_id]?.name ?? 'Unknown Payer'
+    const taskText = `⏳ No movement for ${st.days}d: ${provName} @ ${payerName} (${enr.stage}). Follow up with the payer or set a follow-up date.`
+    const dedupKey = `watchdog:stalled:${enr.id}:${last}`
+    const { data: seen } = await orgFrom('tasks').select('id').eq('dedup_key', dedupKey).limit(1)   // any status
+    let created = false
+    if (!seen?.length) {
+      created = await createTask({ task: taskText, due: today, priority: st.days >= st.threshold * 2 ? 'High' : 'Medium', cat: 'Follow-up', provId: enr.prov_id, payId: enr.pay_id, dedupKey })
+      if (created) await audit('Task Created', taskText, enr.id)
+    }
+    alerts.push({ type: 'stalled', days: st.days, provName, payerName, enrollmentId: enr.id, created })
+  }
+}
+
 // One run at a time per server instance: the checks keep the organization being processed in a module-level
 // variable, so two overlapping runs on one instance (cron + manual call) could otherwise mix organizations.
 let running = false
@@ -507,6 +566,7 @@ async function runWatchdog(req, res) {
       ['enrollmentFollowups', () => checkEnrollmentFollowups(orgAlerts)],
       ['caqhStaleness',       () => checkCaqhStaleness(orgAlerts)],
       ['enrollmentSlaOverdue',() => checkEnrollmentSlaOverdue(orgAlerts)],
+      ['stalledEnrollments',  () => checkStalledEnrollments(orgAlerts, settings)],
       ['emailDigest',          async () => { digests.push({ org_id: _orgId, ...(await sendOrgDigest(org, alertDays, settings, req.query.digest === 'now')) }) }],
     ]
     for (const [name, fn] of checks) {

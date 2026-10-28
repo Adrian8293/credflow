@@ -18,6 +18,7 @@ import { LicensesSection } from './LicensesSection.jsx'
 import { RenewCredentialModal } from './RenewCredentialModal.jsx'
 import { openPacketWindow } from '../../lib/packet.js'
 import { AvatarImg } from '../../components/ui/AvatarImg'
+import { lifecycleOf } from '../../lib/lifecycle.js'
 
 // ─── SPECIALTY COLOR MAP ───────────────────────────────────────────────────────
 const SPEC_COLORS = {
@@ -219,7 +220,7 @@ function TaskRow({ t }) {
         <div style={{ fontSize: 11.5, fontWeight: 700, color: overdue ? 'var(--danger)' : urgent ? 'var(--warning)' : 'var(--text-4)' }}>
           {dueLabel}
         </div>
-        <div style={{ fontSize: 10.5, color: 'var(--text-5)', marginTop: 2 }}>
+        <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>
           {t.status || 'Open'}
         </div>
       </div>
@@ -562,8 +563,40 @@ function DocumentsTab({ prov, db, onAddDocument }) {
   )
 }
 
+// ─── JOURNEY: where the provider is, and the one thing to do next ──────────────
+function JourneyPanel({ lc, onNext }) {
+  const { steps, index, state, next, done } = lc
+  return (
+    <div style={{ width: '100%', paddingBottom: 12 }}>
+      <ol aria-label="Credentialing journey" tabIndex={0} style={{ listStyle: 'none', display: 'flex', gap: 4, margin: 0, padding: 0, overflowX: 'auto' }}>
+        {steps.map((s, i) => {
+          const here = s === state, past = index >= 0 && i < index
+          return (
+            <li key={s} aria-current={here ? 'step' : undefined}
+              style={{ flex: '1 0 auto', fontSize: 12, padding: '5px 9px', borderRadius: 6, whiteSpace: 'nowrap',
+                fontWeight: here ? 700 : 500, color: here ? '#fff' : past ? 'var(--text-2)' : 'var(--text-4)',
+                background: here ? 'var(--pr)' : 'var(--elevated)', border: `1px solid ${here ? 'var(--pr)' : 'var(--border)'}` }}>
+              {past ? '✓ ' : ''}{s}
+            </li>
+          )
+        })}
+      </ol>
+      {state === 'Inactive' && <div style={{ fontSize: 12.5, color: 'var(--text-3)', marginTop: 6 }}>This provider is inactive, so the journey is paused.</div>}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginTop: 8, padding: '9px 12px', borderRadius: 8, background: done ? 'var(--green-l)' : 'var(--elevated)', border: `1px solid ${done ? 'var(--green-b, var(--border))' : 'var(--border)'}` }}>
+        <div style={{ flex: '1 1 220px', minWidth: 0 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--text-3)' }}>{done ? 'All caught up' : 'Next step'}</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-1)' }}>{next.label}</div>
+          {next.detail && <div style={{ fontSize: 12.5, color: 'var(--text-3)' }}>{next.detail}</div>}
+        </div>
+        {next.kind !== 'none' && <button type="button" className="btn btn-primary btn-sm" onClick={onNext}>{NEXT_BUTTON[next.kind]}</button>}
+      </div>
+    </div>
+  )
+}
+const NEXT_BUTTON = { edit: 'Edit provider', renew: 'Record renewal', enroll: 'New application', enrollment: 'Open application' }
+
 // ─── MAIN MODAL ───────────────────────────────────────────────────────────────
-export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollModal, toast, syncFromNPPES, onSaveLicense, onDeleteLicense, onRenewCredential, onSyncRenewalDocument, onAddDocument }) {
+export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollModal, toast, syncFromNPPES, onSaveLicense, onDeleteLicense, onRenewCredential, onSyncRenewalDocument, onAddDocument, staff, userId, onAssign }) {
   const [renew, setRenew] = useState(null)   // { kind, license? } — which credential is being renewed
   const [tab, setTab] = useState('overview')
 
@@ -579,6 +612,14 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
   const documents   = (db.documents  || []).filter(d => d.provId === prov.id)
 
   // ── Build credential alerts ─────────────────────────────────────────────────
+  const lifecycle = lifecycleOf(prov, db)
+  function doNext() {
+    const n = lifecycle.next
+    if (n.kind === 'edit') editProvider?.(prov.id)
+    else if (n.kind === 'renew') setRenew({ kind: n.target })
+    else if (n.kind === 'enroll') openEnrollModal(null, prov.id)
+    else if (n.kind === 'enrollment') openEnrollModal(n.enrId)
+  }
   const credAlerts = []
   const CRED_FIELDS = [
     { field: prov.licenseExp, label: `State License${prov.licenseState ? ` (${prov.licenseState})` : ''}`, target: { kind: 'license' } },
@@ -635,6 +676,16 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
                 {prov.npi      && <span className="info-chip">NPI {prov.npi}</span>}
                 {prov.caqh     && <span className="info-chip">CAQH {prov.caqh}</span>}
                 {prov.ptan     && <span className="info-chip">PTAN {prov.ptan}</span>}
+                {staff?.length > 0 && 'assigneeId' in prov && onAssign && (
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, color: 'var(--text-3)' }}>
+                    Owner
+                    <select className="filter-select" style={{ height: 28, fontSize: 12.5 }} value={prov.assigneeId} onChange={e => onAssign(prov.id, e.target.value)}>
+                      <option value="">Unassigned</option>
+                      {staff.map(s => <option key={s.id} value={s.id}>{s.id === userId ? 'Me' : (s.email || '').split('@')[0]}</option>)}
+                      {prov.assigneeId && !staff.some(s => s.id === prov.assigneeId) && <option value={prov.assigneeId}>Former team member</option>}
+                    </select>
+                  </label>
+                )}
                 {tasks.length > 0 && <span className="badge b-red">{tasks.length} open task{tasks.length !== 1 ? 's' : ''}</span>}
                 {credAlerts.filter(a => a.sev === 'error').length > 0 && (
                   <span className="badge b-red">{credAlerts.filter(a => a.sev === 'error').length} expired</span>
@@ -665,6 +716,8 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
             </div>
           </div>
 
+          <JourneyPanel lc={lifecycle} onNext={doNext} />
+
           {/* Alert strip */}
           {credAlerts.length > 0 && (
             <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 5, paddingBottom: 12 }}>
@@ -676,7 +729,7 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
                   </div>
                   <button
                     className="btn btn-sm"
-                    style={{ fontSize: 11, padding: '4px 10px', flexShrink: 0, background: a.sev === 'error' ? 'rgba(239,68,68,.1)' : 'rgba(245,158,11,.1)', color: a.sev === 'error' ? 'var(--danger)' : 'var(--warning)', borderColor: a.sev === 'error' ? 'rgba(239,68,68,.3)' : 'rgba(245,158,11,.3)' }}
+                    style={{ fontSize: 12, padding: '4px 10px', flexShrink: 0, background: a.sev === 'error' ? 'rgba(239,68,68,.1)' : 'rgba(245,158,11,.1)', color: a.sev === 'error' ? 'var(--danger)' : 'var(--amber-d)', borderColor: a.sev === 'error' ? 'rgba(239,68,68,.3)' : 'rgba(245,158,11,.3)' }}
                     onClick={() => (a.target ? setRenew(a.target) : editProvider?.(prov.id))}
                   >
                     Renew →

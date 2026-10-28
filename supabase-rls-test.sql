@@ -49,6 +49,7 @@ BEGIN
   UPDATE providers SET npi = '1234567893' WHERE id = pv1;
   -- task ownership (migration 030): a task owned by someone who is then removed must fall back to unassigned
   INSERT INTO tasks (org_id, task, assignee_id) VALUES (o1,'rls-release',u_gone), (o1,'rls-mine',u_cred), (o2,'rls-other-org',u_out);
+  UPDATE providers SET assignee_id = u_gone WHERE id = pv2;
   DELETE FROM organization_members WHERE org_id = o1 AND user_id = u_gone;
   INSERT INTO exclusion_checks (org_id, provider_id, source, result) VALUES (o1, pv1, 'OIG LEIE', 'Clear'), (o2, pv3, 'OIG LEIE', 'Clear');
   BEGIN
@@ -85,6 +86,18 @@ BEGIN
       ('tasks: viewer cannot open the staff list','view','denied', 'SELECT * FROM org_staff_list()'),
       ('tasks: provider account cannot open the staff list','prov','denied', 'SELECT * FROM org_staff_list()'),
       ('tasks: not signed in cannot open the staff list','anon','denied', 'SELECT * FROM org_staff_list()'),
+      -- provider owner + stall settings (migration 032)
+      ('provider owner: a removed member''s providers become unassigned','owner','rows>0', format('SELECT 1 FROM providers WHERE id=%L AND assignee_id IS NULL',pv2)),
+      ('provider owner: credentialer can assign a colleague','cred','ok', format('UPDATE providers SET assignee_id=%L WHERE id=%L',u_admin,pv1)),
+      ('provider owner: cannot assign a view-only account','cred','denied', format('UPDATE providers SET assignee_id=%L WHERE id=%L',u_view,pv1)),
+      ('provider owner: cannot assign clinic staff','cred','denied', format('UPDATE providers SET assignee_id=%L WHERE id=%L',u_clin,pv1)),
+      ('provider owner: cannot assign a provider account','cred','denied', format('UPDATE providers SET assignee_id=%L WHERE id=%L',u_prov,pv1)),
+      ('provider owner: cannot assign someone from another organization','cred','denied', format('UPDATE providers SET assignee_id=%L WHERE id=%L',u_out,pv1)),
+      ('provider owner: viewer cannot change it','view','blocked', format('UPDATE providers SET assignee_id=%L WHERE id=%L',u_cred,pv1)),
+      ('provider owner: other organization cannot change ours','out','rows=0', format('UPDATE providers SET assignee_id=%L WHERE id=%L',u_out,pv1)),
+      ('stall settings: default to 30 and 14 days','owner','rows>0', 'SELECT 1 FROM settings WHERE stall_days_payer=30 AND stall_days_us=14'),
+      ('stall settings: admin can change them','admin','rows>0', 'UPDATE settings SET stall_days_payer=45 WHERE stall_days_us=14'),
+      ('stall settings: an out-of-range value is rejected','admin','denied', 'UPDATE settings SET stall_days_us=3'),
       -- providers: who can read
       ('providers: owner reads own org','owner','rows>0', format('SELECT 1 FROM providers WHERE id=%L',pv1)),
       ('providers: admin reads own org','admin','rows>0', format('SELECT 1 FROM providers WHERE id=%L',pv1)),
@@ -253,7 +266,7 @@ BEGIN
         ('photos: credentialer can upload for own org''s provider','cred','ok', format('INSERT INTO storage.objects (bucket_id,name) VALUES (%L,%L)','provider-photos',pv1||'/new.jpg')),
         ('photos: cannot upload for another org''s provider','cred','denied', format('INSERT INTO storage.objects (bucket_id,name) VALUES (%L,%L)','provider-photos',pv3||'/new.jpg')),
         ('photos: other organization cannot delete ours','out','rows=0', format('DELETE FROM storage.objects WHERE bucket_id=%L AND name=%L','provider-photos',pv1||'/avatar.jpg')),
-        ('storage: credentialer can delete own org''s file','cred','rows>0', format('DELETE FROM storage.objects WHERE bucket_id=%L AND name=%L','documents',pv1||'/rls-del.pdf'))
+        ('storage: credentialer can delete own org''s file','cred','rows>0|guard', format('DELETE FROM storage.objects WHERE bucket_id=%L AND name=%L','documents',pv1||'/rls-del.pdf'))
       ) AS t(label, who, expect, q)
     LOOP
       uid := CASE c.who WHEN 'owner' THEN u_owner WHEN 'cred' THEN u_cred WHEN 'view' THEN u_view WHEN 'prov' THEN u_prov
@@ -273,7 +286,7 @@ BEGIN
       EXCEPTION WHEN OTHERS THEN n := -1; err := SQLERRM;
       END;
       EXECUTE 'RESET ROLE';
-      ok := CASE c.expect WHEN 'rows>0' THEN err IS NULL AND n > 0 WHEN 'rows=0' THEN err IS NOT NULL OR n = 0
+      ok := CASE c.expect WHEN 'rows>0' THEN err IS NULL AND n > 0 WHEN 'rows>0|guard' THEN (err IS NULL AND n > 0) OR err LIKE 'Direct deletion from storage tables%' WHEN 'rows=0' THEN err IS NOT NULL OR n = 0
                           WHEN 'blocked' THEN err IS NOT NULL OR n = 0 WHEN 'ok' THEN err IS NULL WHEN 'denied' THEN err IS NOT NULL END;
       IF ok THEN passes := passes + 1; passtxt := passtxt || E'\n  pass  ' || c.label;
       ELSE fails := fails + 1; failtxt := failtxt || E'\n  FAIL  ' || c.label || '   [expected ' || c.expect || ', got ' || COALESCE('error: ' || left(err,90), n::text || ' rows') || ']'; END IF;
@@ -321,6 +334,15 @@ BEGIN
   IF store_ready THEN
     IF EXISTS (SELECT 1 FROM storage.buckets WHERE id = 'provider-photos' AND public IS NOT TRUE) THEN passes := passes + 1; passtxt := passtxt || E'\n  pass  the provider photo bucket is private';
     ELSE fails := fails + 1; failtxt := failtxt || E'\n  FAIL  the provider photo bucket is public'; END IF;
+  END IF;
+
+  -- Supabase refuses a direct SQL DELETE on storage tables (the app deletes through the Storage API), so the delete
+  -- cases above cannot prove who may delete. This checks the delete policy itself: staff only, own organization only.
+  IF store_ready THEN
+    IF EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='storage' AND tablename='objects' AND cmd='DELETE' AND policyname='documents_org_delete'
+                 AND qual ILIKE '%is_org_staff%' AND qual ILIKE '%current_org_id%') THEN
+      passes := passes + 1; passtxt := passtxt || E'\n  pass  storage: the delete policy requires staff and the caller''s own organization';
+    ELSE fails := fails + 1; failtxt := failtxt || E'\n  FAIL  storage: documents delete policy is missing or not limited to staff in their own organization'; END IF;
   END IF;
 
   -- ── structure checks ────────────────────────────────────────────────────────

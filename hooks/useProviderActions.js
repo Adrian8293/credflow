@@ -160,6 +160,18 @@ export function useProviderActions({ db, setDb, toast, requestConfirm, setPage }
     } catch(err) { toast(err.message, 'error'); return false }
   }
 
+  // Change who owns a provider ('' = unassigned). Saves through the normal provider save, so it is queued offline too.
+  async function handleAssignProvider(providerId, assigneeId) {
+    const prov = db.providers.find(p => p.id === providerId)
+    if (!prov) return
+    try {
+      const saved = await upsertProvider({ ...prov, assigneeId })
+      setDb(prev => ({ ...prev, providers: prev.providers.map(p => p.id === saved.id ? saved : p) }))
+      await addAudit('Provider', assigneeId ? 'Owner assigned' : 'Owner cleared', `${prov.fname} ${prov.lname}`, prov.id)
+      toast(assigneeId ? 'Owner updated.' : 'Provider is now unassigned.', 'success')
+    } catch (err) { toast(err.message, 'error') }
+  }
+
   // Focused renewal from the profile: saves only the changed credential fields and records who renewed what.
   async function handleRenewCredential(providerId, patch, label) {
     const prov = db.providers.find(p => p.id === providerId)
@@ -342,7 +354,7 @@ export function useProviderActions({ db, setDb, toast, requestConfirm, setPage }
     handlePhotoUpload, handleDeletePhoto,
     handleSaveProvider, handleDeleteProvider,
     handleSaveLicense, handleDeleteLicense,
-    handleAlertMarkDone, handleRenewCredential, syncRenewalDocument,
+    handleAlertMarkDone, handleRenewCredential, syncRenewalDocument, handleAssignProvider,
     lookupNPI, syncFromNPPES, applyNpiSync,
     editProvider,
     pendingEdit, setPendingEdit,

@@ -229,6 +229,9 @@ export function Layout({ children }) {
           toast={toast}
           syncFromNPPES={providers.syncFromNPPES}
           onRenewCredential={providers.handleRenewCredential}
+          staff={db.staff}
+          userId={user?.id}
+          onAssign={providers.handleAssignProvider}
           onAddDocument={(provId) => { openDocModal(); documents.setDocForm({ type: 'License', provId }) }}
           onSyncRenewalDocument={providers.syncRenewalDocument}
           onSaveLicense={providers.handleSaveLicense}
