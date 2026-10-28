@@ -45,7 +45,7 @@ export function MfaChallenge({ onVerified, onSignOut }) {
         <button type="submit" className="btn btn-primary" disabled={busy || code.length !== 6 || !factorId} style={{ width: '100%', marginTop: 18, height: 58, fontSize: 19, borderRadius: 12 }}>
           {busy ? 'Checking…' : 'Verify'}
         </button>
-        <button type="button" onClick={onSignOut} style={{ display: 'block', margin: '16px auto 0', background: 'none', border: 'none', color: '#4338CA', fontWeight: 700, textDecoration: 'underline', fontSize: 17, padding: '10px 14px', cursor: 'pointer' }}>
+        <button type="button" onClick={onSignOut} style={{ display: 'block', margin: '16px auto 0', background: 'none', border: 'none', color: '#085563', fontWeight: 700, textDecoration: 'underline', fontSize: 17, padding: '10px 14px', cursor: 'pointer' }}>
           Sign out
         </button>
       </form>

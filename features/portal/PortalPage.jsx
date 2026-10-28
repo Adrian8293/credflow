@@ -455,10 +455,10 @@ function SendForm({ providerId, onDone }) {
 const CSS = `
 .pt-root{min-height:100vh;background:#F6F7FB;font-family:Inter,system-ui,sans-serif;color:#111827;font-size:17px;line-height:1.5}
 .pt-top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 18px;background:#fff;border-bottom:1px solid #E5E7EF}
-.pt-brand{font-size:21px;font-weight:800;letter-spacing:-.02em}.pt-brand span{color:#4F46E5}
+.pt-brand{font-size:21px;font-weight:800;letter-spacing:-.02em}.pt-brand span{color:#0B6B7A}
 .pt-top-r{display:flex;align-items:center;gap:12px;font-size:15px;color:#6B7280}
 .pt-org{font-weight:600;color:#111827;display:none}
-.pt-signout{background:#fff;border:2px solid #4F46E5;color:#4F46E5;font-weight:700;font-size:15px;border-radius:10px;padding:9px 16px;min-height:44px;cursor:pointer}
+.pt-signout{background:#fff;border:2px solid #0B6B7A;color:#0B6B7A;font-weight:700;font-size:15px;border-radius:10px;padding:9px 16px;min-height:44px;cursor:pointer}
 .pt-main{max-width:760px;margin:0 auto;padding:20px 16px 70px}
 .pt-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:16px}
 h1{margin:0 0 2px;font-size:32px;letter-spacing:-.02em;line-height:1.15}
@@ -466,7 +466,7 @@ h2{margin:0 0 12px;font-size:21px;display:flex;align-items:center;gap:10px}
 .pt-muted{color:#4B5563;font-size:16px;margin:0 0 10px}
 .pt-sub{color:#4B5563;font-size:14.5px;margin-top:2px}
 .pt-card{background:#fff;border:1.5px solid #E5E7EF;border-radius:16px;padding:20px;margin-bottom:16px}
-.pt-count{background:#EEF2FF;color:#4338CA;border-radius:999px;font-size:15px;padding:1px 12px}
+.pt-count{background:#EEF2FF;color:#085563;border-radius:999px;font-size:15px;padding:1px 12px}
 .pt-pick{font-size:15px;font-weight:700;color:#374151;display:block}
 .pt-pick select{display:block;margin-top:4px;padding:12px;border:2px solid #9CA3AF;border-radius:10px;font-size:17px;min-width:240px;min-height:48px;background:#fff}
 .pt-pill{display:inline-block;border-radius:999px;font-size:14.5px;font-weight:700;padding:3px 12px}
@@ -504,23 +504,23 @@ span.pt-muted.pt-pill{background:#F3F4F6;color:#4B5563}
 .pt-exp input,.pt-send input,.pt-send select{display:block;margin-top:6px;padding:12px;border:2px solid #9CA3AF;border-radius:10px;font-size:17px;font-family:inherit;box-sizing:border-box;min-height:50px;background:#fff}
 .pt-send{display:grid;gap:16px;max-width:520px}.pt-send input,.pt-send select{width:100%}
 
-.pt-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#4F46E5;color:#fff;border:2px solid #4F46E5;border-radius:12px;padding:12px 20px;font-size:18px;font-weight:700;cursor:pointer;min-height:54px;text-decoration:none;font-family:inherit}
+.pt-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#0B6B7A;color:#fff;border:2px solid #0B6B7A;border-radius:12px;padding:12px 20px;font-size:18px;font-weight:700;cursor:pointer;min-height:54px;text-decoration:none;font-family:inherit}
 .pt-btn:disabled{opacity:.6;cursor:default}
 .pt-btn-go{background:#059669;border-color:#059669;width:100%}
-.pt-btn-outline{background:#fff;color:#4338CA}
+.pt-btn-outline{background:#fff;color:#085563}
 .pt-btn-quiet{background:#fff;color:#065F46;border-color:#059669;min-height:48px}
 .pt-btn-small{min-height:46px;font-size:16px;padding:8px 16px}
 .pt-file-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
 .pt-file{position:relative}
 .pt-file-btn{width:100%;border-style:dashed}.pt-file-btn.has-file{border-style:solid;color:#047857;border-color:#059669;background:#ECFDF5}
-.pt-file-input:focus-visible + .pt-file-btn{outline:3px solid #4F46E5;outline-offset:2px}
+.pt-file-input:focus-visible + .pt-file-btn{outline:3px solid #0B6B7A;outline-offset:2px}
 .pt-file-name{margin-top:8px;font-size:16px;font-weight:600;word-break:break-all}
 .pt-err{color:#B91C1C;font-size:16px;font-weight:600;margin-top:8px}
 .pt-welcome-back{position:fixed;inset:0;background:rgba(17,24,39,.6);z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
 .pt-welcome{background:#fff;border-radius:18px;padding:24px;max-width:480px;width:100%}
 .pt-welcome h2{font-size:26px;margin-bottom:16px}
 .pt-step{display:flex;gap:14px;margin-bottom:18px}.pt-step b{font-size:19px;display:block}.pt-step p{margin:4px 0 0;font-size:17px;color:#374151}
-.pt-step-n{flex:0 0 40px;height:40px;border-radius:50%;background:#4F46E5;color:#fff;font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center}
+.pt-step-n{flex:0 0 40px;height:40px;border-radius:50%;background:#0B6B7A;color:#fff;font-weight:800;font-size:20px;display:flex;align-items:center;justify-content:center}
 .pt-help{text-align:center;color:#4B5563;font-size:16px;margin-top:24px}
 @media(min-width:700px){.pt-org{display:inline}.pt-btn-go{width:auto}.pt-file-btn{width:auto}}
 @media(max-width:640px){

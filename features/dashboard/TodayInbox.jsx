@@ -9,6 +9,9 @@ import { buildWeek } from '../../lib/week.js'
 import { todayStr } from '../../lib/matrix.js'
 import { fetchAllContracts, fetchEntities, markRosterSent } from '../../lib/db'
 import { RosterFillModal } from '../billing/RosterFillModal.jsx'
+import { useGlobalContext } from '../../context/AppContext.jsx'
+import { saveFollowUp } from '../../hooks/useCompletion.js'
+import { completionContext } from '../../lib/completion.js'
 
 const SEV_BADGE = {
   expired:  { cls: 'b-red',   dot: 'critical', label: 'Expired' },
@@ -24,6 +27,9 @@ const KIND_LABEL = {
 const PAGE = 8
 
 export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openTaskModal, onMarkTaskDone, onCaqhAuthorized, onDraftEmail }) {
+  const { requestCompletion, setDb, toast, user } = useGlobalContext()
+  const ownerCtx = { db, userId: user?.id }
+  const filters = db.staff?.some(s => s.id === user?.id) ? [...INBOX_FILTERS.slice(0, 2), ['mine', 'Mine'], ...INBOX_FILTERS.slice(2)] : INBOX_FILTERS
   const [filter, setFilter] = useState('all')
   const [showAll, setShowAll] = useState(false)
   const [view, setView] = useState('inbox')   // 'inbox' | 'week'
@@ -35,15 +41,24 @@ export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openT
   const loadContracts = () => { fetchAllContracts().then(setContracts).catch(() => setContracts([])) }
   useEffect(() => { loadContracts(); fetchEntities().then(setEntities).catch(() => {}) }, [])
   async function rosterSent(i) {
+    const completion = await requestCompletion({
+      title: 'Before you mark the roster as sent',
+      subject: i.title,
+      noteLabel: 'How was it sent?',
+      notePlaceholder: 'e.g. Uploaded to the payer portal and received the confirmation email.',
+      confirmText: 'Mark as sent',
+      context: completionContext({ db, provId: i.provId }),
+    })
+    if (!completion) return
     setContracts(cs => cs.map(c => c.id === i.contractId ? { ...c, lastRosterSent: todayStr() } : c))
-    try { await markRosterSent(i.contractId, undefined, i.title) } catch { loadContracts() }
+    try { await markRosterSent(i.contractId, undefined, `${i.title} — ${completion.note}`); await saveFollowUp(completion, { task: i.title }, { setDb, toast }) } catch { loadContracts() }
   }
 
   const all = useMemo(() => buildInbox(db, { contracts, entities }), [db, contracts, entities])
   const week = useMemo(() => buildWeek(db), [db])
-  const items = inboxFilter(all, filter).filter(i => !(i.type === 'task' && doneIds.includes(i.taskId)))
+  const items = inboxFilter(all, filter, ownerCtx).filter(i => !(i.type === 'task' && doneIds.includes(i.taskId)))
   const shown = showAll ? items : items.slice(0, PAGE)
-  const count = k => inboxFilter(all, k).length
+  const count = k => inboxFilter(all, k, ownerCtx).length
 
   function act(i) {
     if (i.type === 'screening-due' || i.type === 'screening-flag') return setPage('screening')
@@ -55,8 +70,9 @@ export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openT
   }
   async function finishTask(i) {
     const t = db.tasks.find(x => x.id === i.taskId)
-    setDoneIds(d => [...d, i.taskId])
-    try { await onMarkTaskDone(i.taskId, t?.task || i.title) } catch { setDoneIds(d => d.filter(x => x !== i.taskId)) }
+    // The row only disappears once the completion check was answered and the save went through.
+    const ok = await onMarkTaskDone(i.taskId, t?.task || i.title)
+    if (ok) setDoneIds(d => [...d, i.taskId])
   }
   const actionLabel = i => (i.type === 'req-review' ? 'Review' : i.type === 'roster-due' ? 'Fill roster' : (i.type === 'screening-due' || i.type === 'screening-flag') ? 'Open screening' : i.type === 'task' ? 'Open task' : i.enrId ? 'Open' : i.type === 'req-overdue' ? 'View' : 'Open provider')
 
@@ -126,7 +142,7 @@ export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openT
       ) : (
         <>
           <div style={{ display: 'flex', gap: 6, padding: '10px 16px', flexWrap: 'wrap', borderBottom: '1px solid var(--border-l)' }}>
-            {INBOX_FILTERS.map(([k, l]) => {
+            {filters.map(([k, l]) => {
               const n = k === 'all' ? all.length : count(k)
               if (k !== 'all' && n === 0) return null
               const active = filter === k

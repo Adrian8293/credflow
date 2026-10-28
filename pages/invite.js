@@ -146,19 +146,19 @@ export default function InvitePage() {
 const CSS = `
 .iv-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px;background:#F6F7FB;font-family:Inter,system-ui,sans-serif;color:#111827}
 .iv-card{width:100%;max-width:440px;background:#fff;border:1px solid #E5E7EF;border-radius:14px;padding:28px 24px;box-shadow:0 8px 30px rgba(17,24,39,.06)}
-.iv-brand{font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:14px}.iv-brand span{color:#4F46E5}
+.iv-brand{font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:14px}.iv-brand span{color:#0B6B7A}
 h1{font-size:21px;margin:0 0 6px;letter-spacing:-.01em}
 .iv-muted{color:#6B7280;font-size:14px;line-height:1.5;margin:0 0 14px}
 label{display:block;font-size:12.5px;font-weight:600;color:#374151;margin-bottom:12px}
 input[type=text],input[type=password],input:not([type]){display:block;width:100%;box-sizing:border-box;margin-top:5px;padding:10px 11px;border:1px solid #D1D5DB;border-radius:8px;font-size:14px;font-family:inherit}
 input[readonly]{background:#F3F4F6;color:#6B7280}
-input:focus{outline:2px solid #C7D2FE;border-color:#4F46E5}
+input:focus{outline:2px solid #C7D2FE;border-color:#0B6B7A}
 .iv-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .iv-check{display:flex;align-items:center;gap:7px;font-weight:500}.iv-check input{margin:0}
 .iv-hint{font-size:12px;color:#6B7280;margin:0 0 12px}
 .iv-error{background:#FEF2F2;color:#B91C1C;border:1px solid #FECACA;border-radius:8px;padding:9px 11px;font-size:13px;margin-bottom:12px}
-.iv-btn{display:block;width:100%;text-align:center;box-sizing:border-box;background:#4F46E5;color:#fff;border:none;border-radius:9px;padding:11px 14px;font-size:14.5px;font-weight:600;cursor:pointer;text-decoration:none}
+.iv-btn{display:block;width:100%;text-align:center;box-sizing:border-box;background:#0B6B7A;color:#fff;border:none;border-radius:9px;padding:11px 14px;font-size:14.5px;font-weight:600;cursor:pointer;text-decoration:none}
 .iv-btn:disabled{opacity:.6;cursor:default}
-.iv-link{display:inline-block;margin:0 0 12px;color:#4F46E5;font-weight:600;font-size:14px}
+.iv-link{display:inline-block;margin:0 0 12px;color:#0B6B7A;font-weight:600;font-size:14px}
 @media(max-width:420px){.iv-row{grid-template-columns:1fr}}
 `

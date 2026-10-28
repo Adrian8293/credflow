@@ -116,7 +116,7 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db,
 
   function sectionLabel(text) {
     if (collapsed) return <div className="sb-group-divider" style={{ margin: '6px 10px' }} />
-    return <div style={{ padding: '12px 14px 4px', fontSize: 10.5, fontWeight: 700, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--sb-text-3, #5B6478)' }}>{text}</div>
+    return <div style={{ padding: '14px 14px 4px', fontSize: 11.5, fontWeight: 700, letterSpacing: '.07em', textTransform: 'uppercase', color: 'var(--nav-dim, #8FA0B5)' }}>{text}</div>
   }
 
   return (

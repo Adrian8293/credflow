@@ -46,3 +46,12 @@ test('provider owner and stall settings are safe before migration 032', async ()
   assert.equal(before.stallSaved, false); assert.equal(before.stallDaysPayer, 30); assert.equal(before.stallDaysUs, 14)
   assert.equal(settingsFromDb({ stall_days_payer: 45, stall_days_us: 10 }).stallSaved, true)
 })
+
+test('application owner: not sent before migration 034, round-trips after, and clearing really clears', async () => {
+  const { enrollmentFromDb, enrollmentToDb } = await import('../lib/mappers.js')
+  const old = enrollmentFromDb({ id: '1' })
+  assert.ok(!('assigneeId' in old)); assert.ok(!('assignee_id' in enrollmentToDb(old)))
+  const now = enrollmentFromDb({ id: '1', assignee_id: 'u1' })
+  assert.equal(now.assigneeId, 'u1'); assert.equal(enrollmentToDb(now).assignee_id, 'u1')
+  assert.equal(enrollmentToDb({ ...now, assigneeId: '' }).assignee_id, null)
+})

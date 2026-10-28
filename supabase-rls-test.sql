@@ -48,7 +48,8 @@ BEGIN
   INSERT INTO provider_licenses (org_id, provider_id, state) VALUES (o1,pv1,'OR');
   UPDATE providers SET npi = '1234567893' WHERE id = pv1;
   -- task ownership (migration 030): a task owned by someone who is then removed must fall back to unassigned
-  INSERT INTO tasks (org_id, task, assignee_id) VALUES (o1,'rls-release',u_gone), (o1,'rls-mine',u_cred), (o2,'rls-other-org',u_out);
+  INSERT INTO tasks (org_id, task, assignee_id) VALUES (o1,'rls-release',u_gone), (o1,'rls-mine',u_cred), (o2,'rls-other-org',u_out), (o1,'rls-complete',NULL);
+  INSERT INTO enrollments (org_id, prov_id, stage, assignee_id) VALUES (o1,pv1,'rls-enr-release',u_gone), (o1,pv1,'rls-enr-mine',u_cred);
   UPDATE providers SET assignee_id = u_gone WHERE id = pv2;
   DELETE FROM organization_members WHERE org_id = o1 AND user_id = u_gone;
   INSERT INTO exclusion_checks (org_id, provider_id, source, result) VALUES (o1, pv1, 'OIG LEIE', 'Clear'), (o2, pv3, 'OIG LEIE', 'Clear');
@@ -86,6 +87,22 @@ BEGIN
       ('tasks: viewer cannot open the staff list','view','denied', 'SELECT * FROM org_staff_list()'),
       ('tasks: provider account cannot open the staff list','prov','denied', 'SELECT * FROM org_staff_list()'),
       ('tasks: not signed in cannot open the staff list','anon','denied', 'SELECT * FROM org_staff_list()'),
+      -- mandatory completion check (migration 033). Cases run in order and build on each other.
+      ('completion: marking done without a note is refused','cred','denied', 'UPDATE tasks SET status=''Done'' WHERE task=''rls-complete'''),
+      ('completion: a too-short note is refused','cred','denied', 'UPDATE tasks SET status=''Done'', completion_note=''ok'' WHERE task=''rls-complete'''),
+      ('completion: a blank note is refused','cred','denied', 'UPDATE tasks SET status=''Done'', completion_note=''      '' WHERE task=''rls-complete'''),
+      ('completion: viewer cannot complete a task','view','blocked', 'UPDATE tasks SET status=''Done'', completion_note=''Called the payer'' WHERE task=''rls-complete'''),
+      ('completion: other organization cannot complete ours','out','blocked', 'UPDATE tasks SET status=''Done'', completion_note=''Called the payer'' WHERE task=''rls-complete'''),
+      ('completion: a new task cannot be created already done without a note','admin','denied', 'INSERT INTO tasks (task,status) VALUES (''rls-new3'',''Done'')'),
+      ('completion: a new task can be created done with a note','admin','ok', 'INSERT INTO tasks (task,status,completion_note) VALUES (''rls-new4'',''Done'',''Handled by phone today'')'),
+      ('completion: credentialer can complete with a note','cred','ok', 'UPDATE tasks SET status=''Done'', completion_note=''Called the payer, confirmed receipt'' WHERE task=''rls-complete'''),
+      ('completion: who, when and what are recorded','owner','rows>0', format('SELECT 1 FROM tasks WHERE task=%L AND completed_at IS NOT NULL AND completed_by=%L AND completion_note LIKE %L','rls-complete',u_cred,'Called the payer%')),
+      ('completion: a finished task can still be edited without a new note','cred','ok', 'UPDATE tasks SET priority=''Low'' WHERE task=''rls-complete'''),
+      ('completion: the original completion record survives such an edit','owner','rows>0', format('SELECT 1 FROM tasks WHERE task=%L AND completed_by=%L AND completion_note LIKE %L','rls-complete',u_cred,'Called the payer%')),
+      ('completion: the note cannot be blanked on a finished task','cred','denied', 'UPDATE tasks SET completion_note='''' WHERE task=''rls-complete'''),
+      ('completion: a finished task can be reopened','cred','ok', 'UPDATE tasks SET status=''Open'' WHERE task=''rls-complete'''),
+      ('completion: reopening clears the completion record','owner','rows>0', 'SELECT 1 FROM tasks WHERE task=''rls-complete'' AND completed_at IS NULL AND completed_by IS NULL AND completion_note IS NULL'),
+      ('completion: finishing it again needs a fresh note','cred','denied', 'UPDATE tasks SET status=''Done'' WHERE task=''rls-complete'''),
       -- provider owner + stall settings (migration 032)
       ('provider owner: a removed member''s providers become unassigned','owner','rows>0', format('SELECT 1 FROM providers WHERE id=%L AND assignee_id IS NULL',pv2)),
       ('provider owner: credentialer can assign a colleague','cred','ok', format('UPDATE providers SET assignee_id=%L WHERE id=%L',u_admin,pv1)),
@@ -95,6 +112,16 @@ BEGIN
       ('provider owner: cannot assign someone from another organization','cred','denied', format('UPDATE providers SET assignee_id=%L WHERE id=%L',u_out,pv1)),
       ('provider owner: viewer cannot change it','view','blocked', format('UPDATE providers SET assignee_id=%L WHERE id=%L',u_cred,pv1)),
       ('provider owner: other organization cannot change ours','out','rows=0', format('UPDATE providers SET assignee_id=%L WHERE id=%L',u_out,pv1)),
+      -- application owner (migration 034)
+      ('application owner: a removed member''s applications become unassigned','owner','rows>0', 'SELECT 1 FROM enrollments WHERE stage=''rls-enr-release'' AND assignee_id IS NULL'),
+      ('application owner: credentialer can assign a colleague','cred','ok', format('UPDATE enrollments SET assignee_id=%L WHERE stage=%L',u_admin,'rls-enr-mine')),
+      ('application owner: cannot assign a view-only account','cred','denied', format('UPDATE enrollments SET assignee_id=%L WHERE stage=%L',u_view,'rls-enr-mine')),
+      ('application owner: cannot assign clinic staff','cred','denied', format('UPDATE enrollments SET assignee_id=%L WHERE stage=%L',u_clin,'rls-enr-mine')),
+      ('application owner: cannot assign a provider account','cred','denied', format('UPDATE enrollments SET assignee_id=%L WHERE stage=%L',u_prov,'rls-enr-mine')),
+      ('application owner: cannot assign someone from another organization','cred','denied', format('UPDATE enrollments SET assignee_id=%L WHERE stage=%L',u_out,'rls-enr-mine')),
+      ('application owner: viewer cannot change it','view','blocked', format('UPDATE enrollments SET assignee_id=%L WHERE stage=%L',u_cred,'rls-enr-mine')),
+      ('application owner: other organization cannot change ours','out','rows=0', format('UPDATE enrollments SET assignee_id=%L WHERE stage=%L',u_out,'rls-enr-mine')),
+      ('application owner: a new application cannot be created for an outsider','cred','denied', format('INSERT INTO enrollments (prov_id,stage,assignee_id) VALUES (%L,%L,%L)',pv1,'rls-enr-new',u_out)),
       ('stall settings: default to 30 and 14 days','owner','rows>0', 'SELECT 1 FROM settings WHERE stall_days_payer=30 AND stall_days_us=14'),
       ('stall settings: admin can change them','admin','rows>0', 'UPDATE settings SET stall_days_payer=45 WHERE stall_days_us=14'),
       ('stall settings: an out-of-range value is rejected','admin','denied', 'UPDATE settings SET stall_days_us=3'),

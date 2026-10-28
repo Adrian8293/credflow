@@ -22,6 +22,7 @@ import { ImportEnrollmentsModal } from './ImportEnrollmentsModal.jsx'
 import { csvFromRows, downloadCsv } from '../../lib/csv.js'
 import { TableViews } from '../../components/ui/TableViews.jsx'
 import { useTableViews } from '../../hooks/useTableViews.js'
+import { useGlobalContext } from '../../context/AppContext.jsx'
 
 const APP_COLUMNS = [
   { id: 'appId', label: 'App ID' },
@@ -33,12 +34,15 @@ const APP_COLUMNS = [
   { id: 'followup', label: 'Follow-up' },
   { id: 'effective', label: 'Effective date', hiddenByDefault: true },
   { id: 'billable', label: 'Billable from', hiddenByDefault: true },
+  { id: 'owner', label: 'Assigned to', hiddenByDefault: true },
 ]
 const APP_VIEWS = [
   { name: 'All fields', columns: APP_COLUMNS.map(c => c.id), filters: { subtab: 'All Applications' } },
   { name: 'Follow-ups', columns: ['payId', 'stage', 'updated', 'followup'], filters: { subtab: 'In Progress' } },
   { name: 'Billing view', columns: ['payId', 'stage', 'effective', 'billable'], filters: { subtab: 'Approved' } },
   { name: 'Needs action', columns: ['payId', 'stage', 'updated', 'followup'], filters: { subtab: 'Returned' } },
+  { name: 'My applications', columns: ['payId', 'stage', 'updated', 'followup', 'owner'], filters: { subtab: 'In Progress', fOwner: 'me' } },
+  { name: 'Unassigned', columns: ['payId', 'stage', 'updated', 'owner'], filters: { subtab: 'All Applications', fOwner: 'none' } },
 ]
 
 const SearchIcon = <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -100,14 +104,21 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
   const [bulkBusy, setBulkBusy]   = useState(false)
   const [fLevel, setFLevel]     = usePersistedState('lc_pref_apps_level', '', v => ['', 'Individual', 'Group'].includes(v))
   const [advancing, setAdvancing] = useState(null)
+  const { user } = useGlobalContext()
+  const userId = user?.id
+  const staff = db.staff
+  const canAssign = !!staff?.length
+  const ownerName = id => { if (!id) return 'Unassigned'; if (id === userId) return 'Me'; const s = staff?.find(x => x.id === id); return s ? (s.email || '').split('@')[0] : 'Former team member' }
+  const [fOwner, setFOwner] = useState('')    // '' anyone | 'me' | 'none' | a person's id
   const menuRef = useRef(null)
   const tv = useTableViews('applications', APP_COLUMNS)
-  const getFilters = () => ({ search, fProv, fLevel, fStage, subtab })
+  const getFilters = () => ({ search, fProv, fLevel, fStage, subtab, fOwner })
   const setFilters = f => {
     if ('search' in f) setSearch(f.search ?? '')
     if ('fProv' in f) setFProv(f.fProv ?? '')
     if ('fLevel' in f) setFLevel(f.fLevel ?? '')
     if ('fStage' in f) setFStage(f.fStage ?? '')
+    if ('fOwner' in f) setFOwner(f.fOwner ?? '')
     if ('subtab' in f && SUBTABS.includes(f.subtab)) { setSubtab(f.subtab); setSelected(new Set()) }
   }
 
@@ -134,8 +145,9 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
     const matchProv   = !fProv   || e.provId === fProv
     const matchLevel  = !fLevel  || (e.level || 'Individual') === fLevel
     const matchTab    = !allowedStages || allowedStages.some(s => (e.stage||'').toLowerCase().includes(s.toLowerCase()))
-    return matchSearch && matchStage && matchProv && matchTab && matchLevel
-  })
+    const matchOwner  = !fOwner  || (fOwner === 'none' ? !e.assigneeId : fOwner === 'me' ? e.assigneeId === userId : e.assigneeId === fOwner)
+    return matchSearch && matchStage && matchProv && matchTab && matchLevel && matchOwner
+  }).map(e => ('assigneeId' in e ? { ...e, owner: ownerName(e.assigneeId) } : e))
 
   const { sorted: list, thProps } = useSorted(filtered, 'submitted', 'asc', 'lc_pref_apps_sort')
 
@@ -144,10 +156,10 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
   const pagedList  = pagination.paginated
 
   // Reset to page 1 when filters change
-  useEffect(() => { pagination.setPage(1) }, [search, fStage, fProv, subtab]) // pagination.setPage is stable (from usePagination)
+  useEffect(() => { pagination.setPage(1) }, [search, fStage, fProv, subtab, fOwner]) // pagination.setPage is stable (from usePagination)
   // Selection never outlives the view it was made in: changing a filter clears it, so a bulk action can
   // never touch rows the user cannot see.
-  useEffect(() => { setSelected(new Set()) }, [search, fStage, fProv, fLevel, subtab])
+  useEffect(() => { setSelected(new Set()) }, [search, fStage, fProv, fLevel, subtab, fOwner])
   const visibleIds = new Set(list.map(e => e.id))
   const selectedIds = [...selected].filter(id => visibleIds.has(id))
 
@@ -249,6 +261,14 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
             <option value="">All Providers</option>
             {db.providers.map(p => <option key={p.id} value={p.id}>{p.fname} {p.lname}</option>)}
           </select>
+          {canAssign && (
+            <select aria-label="Filter by owner" className="filter-select" value={fOwner} onChange={e => setFOwner(e.target.value)}>
+              <option value="">Owner: Anyone</option>
+              <option value="me">Mine</option>
+              <option value="none">Unassigned</option>
+              {staff.filter(s => s.id !== userId).map(s => <option key={s.id} value={s.id}>{(s.email || '').split('@')[0]}</option>)}
+            </select>
+          )}
           <select aria-label="Filter by level" className="filter-select" value={fLevel} onChange={e => setFLevel(e.target.value)}>
             <option value="">Individual + Group</option>
             <option value="Individual">Individual only</option>
@@ -326,6 +346,7 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
               {tv.isOn('followup') && <th {...thProps('followup', 'Follow-up')} />}
               {tv.isOn('effective') && <th {...thProps('effective', 'Effective')} />}
               {tv.isOn('billable') && <th {...thProps('billableFrom', 'Billable from')} />}
+              {tv.isOn('owner') && <th {...thProps('owner', 'Assigned to')} />}
               <th style={{ width: 170 }}>Actions</th>
             </tr>
           </thead>
@@ -384,6 +405,7 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
                   </td>}
                   {tv.isOn('effective') && <td style={{ fontSize: 12.5, color: 'var(--text-3)', whiteSpace: 'nowrap' }}>{e.effective ? fmtDate(e.effective) : '—'}</td>}
                   {tv.isOn('billable') && <td style={{ fontSize: 12.5, color: 'var(--text-3)', whiteSpace: 'nowrap' }}>{e.billableFrom ? fmtDate(e.billableFrom) : '—'}</td>}
+                  {tv.isOn('owner') && <td style={{ fontSize: 13 }}>{canAssign && 'assigneeId' in e ? e.owner : <span style={{ color: 'var(--text-3)' }}>—</span>}</td>}
                   <td onClick={ev => ev.stopPropagation()} style={{ position: 'relative', whiteSpace: 'nowrap' }}>
                     <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                       {next && (

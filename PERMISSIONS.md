@@ -12,7 +12,9 @@ function code rather than a separate test. ✓ = allowed, ✗ = refused, "own" =
 | Add / edit / delete those records | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
 | Assign a task to a colleague (owner, admin or credentialer only; the database refuses anyone else, or anyone from another organization) | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
 | Assign a provider to a colleague (same rule as tasks; enforced by the database) | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
+| Assign an application to a colleague (same rule; enforced by the database) | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
 | See the list of people tasks can be assigned to | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
+| Mark a task done (needs a written completion note; the database refuses it without one) | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
 | Add an audit log entry | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |
 | Edit or delete an audit log entry | ✗ | ✗ | ✗ | ✗ | ✗ | ✗ |
 | Delete a provider (soft delete, with its enrollments and documents) | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ |

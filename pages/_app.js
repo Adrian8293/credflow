@@ -1,5 +1,6 @@
 import '../styles/globals.css'
 import '../styles/credflow.css'
+import '../styles/redesign.css'
 import React from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -73,7 +74,7 @@ class ErrorBoundary extends React.Component {
           <button
             onClick={() => this.handleReset()}
             style={{
-              marginTop: 8, padding: '10px 24px', background: '#1565C0', color: '#fff',
+              marginTop: 8, padding: '10px 24px', background: '#0F1C2E', color: '#fff',
               border: 'none', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer',
             }}
           >
@@ -117,7 +118,7 @@ export default function App({ Component, pageProps }) {
         />
         <title>Lacentra</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-        <meta name="theme-color" content="#1565C0" />
+        <meta name="theme-color" content="#0F1C2E" />
         <link rel="manifest" href="/manifest.webmanifest" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

@@ -84,7 +84,7 @@ export default function OrgSwitcher({ collapsed }) {
               style={{
                 width: '100%', textAlign: 'left', background: 'transparent', border: 'none',
                 borderTop: '1px solid var(--border, #E5E7EF)', marginTop: 4, padding: '8px 8px 4px',
-                cursor: 'pointer', fontFamily: 'var(--fn)', fontSize: 12.5, color: 'var(--pr, #4F46E5)', fontWeight: 600,
+                cursor: 'pointer', fontFamily: 'var(--fn)', fontSize: 12.5, color: 'var(--pr, #0B6B7A)', fontWeight: 600,
               }}
             >
               + New organization
@@ -106,7 +106,7 @@ export default function OrgSwitcher({ collapsed }) {
               />
               <div style={{ display: 'flex', gap: 6, marginTop: 6 }}>
                 <button type="submit" disabled={!name.trim()} style={{
-                  flex: 1, background: 'var(--pr, #4F46E5)', color: '#fff', border: 'none', borderRadius: 6,
+                  flex: 1, background: 'var(--pr, #0B6B7A)', color: '#fff', border: 'none', borderRadius: 6,
                   padding: '6px 8px', fontSize: 12, fontWeight: 600, cursor: 'pointer', opacity: name.trim() ? 1 : .5,
                 }}>Create</button>
                 <button type="button" onClick={() => { setAdding(false); setName('') }} style={{

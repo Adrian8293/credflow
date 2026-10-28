@@ -197,12 +197,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;}
 input{font-family:inherit;}
 .pc-root{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;background:#F6F7FB;overflow-y:auto;}
 .blob{position:fixed;border-radius:50%;pointer-events:none;filter:blur(100px);}
-.blob-teal{width:600px;height:600px;top:-200px;left:-200px;background:radial-gradient(circle,rgba(79,70,229,.08) 0%,transparent 70%);}
-.blob-blue{width:500px;height:500px;bottom:-150px;right:-100px;background:radial-gradient(circle,rgba(79,70,229,.07) 0%,transparent 70%);}
+.blob-teal{width:600px;height:600px;top:-200px;left:-200px;background:radial-gradient(circle,rgba(11,107,122,.08) 0%,transparent 70%);}
+.blob-blue{width:500px;height:500px;bottom:-150px;right:-100px;background:radial-gradient(circle,rgba(11,107,122,.07) 0%,transparent 70%);}
 .pc-box{position:relative;z-index:1;width:100%;max-width:440px;background:#fff;border:1px solid #E7E9F1;border-radius:20px;padding:40px 36px 32px;box-shadow:0 16px 40px rgba(16,24,40,.10),0 4px 12px rgba(16,24,40,.05);}
 .pc-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
 .pc-logo-text{display:flex;align-items:baseline;}
-.pc-prime{font-size:18px;font-weight:700;color:#4F46E5;letter-spacing:-.4px;}
+.pc-prime{font-size:18px;font-weight:700;color:#0B6B7A;letter-spacing:-.4px;}
 .pc-credential{font-size:18px;font-weight:600;color:#111827;letter-spacing:-.2px;}
 .pc-heading{font-size:22px;font-weight:700;color:#111827;letter-spacing:-.5px;margin-bottom:6px;}
 .pc-sub{font-size:13px;color:#5B6478;margin-bottom:24px;line-height:1.5;}
@@ -213,7 +213,7 @@ input{font-family:inherit;}
 .pc-label{font-size:11px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:#5B6478;}
 .pc-input-wrap{position:relative;display:flex;align-items:center;}
 .pc-input-wrap input{width:100%;padding:10px 40px 10px 38px;border:1.5px solid #D6DAE6;border-radius:8px;font-size:13.5px;color:#111827;background:#fff;outline:none;transition:border-color .15s,box-shadow .15s;}
-.pc-input-wrap input:focus{border-color:#4F46E5;box-shadow:0 0 0 3px rgba(79,70,229,.12);}
+.pc-input-wrap input:focus{border-color:#0B6B7A;box-shadow:0 0 0 3px rgba(11,107,122,.12);}
 .pc-input-wrap input::placeholder{color:#8A93A6;}
 .pc-input-icon{position:absolute;left:12px;color:#6B7385;display:flex;align-items:center;pointer-events:none;z-index:1;}
 .pc-input-right{position:absolute;right:12px;display:flex;align-items:center;z-index:1;}
@@ -231,8 +231,8 @@ input{font-family:inherit;}
 .pc-msg{display:flex;align-items:flex-start;gap:10px;border-radius:8px;padding:11px 14px;font-size:12.5px;line-height:1.5;margin-bottom:4px;}
 .pc-msg--err{background:rgba(220,38,38,.07);border:1px solid rgba(220,38,38,.22);color:#B91C1C;}
 .pc-msg-icon{width:20px;height:20px;border-radius:50%;background:currentColor;color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;}
-.pc-submit{display:flex;align-items:center;justify-content:center;gap:9px;padding:12px 20px;width:100%;background:#4F46E5;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;transition:background .15s,transform .15s;box-shadow:0 1px 2px rgba(79,70,229,.25),0 4px 12px rgba(79,70,229,.18);margin-top:4px;cursor:pointer;}
-.pc-submit:hover:not(:disabled){background:#4338CA;transform:translateY(-1px);}
+.pc-submit{display:flex;align-items:center;justify-content:center;gap:9px;padding:12px 20px;width:100%;background:#0B6B7A;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;transition:background .15s,transform .15s;box-shadow:0 1px 2px rgba(11,107,122,.25),0 4px 12px rgba(11,107,122,.18);margin-top:4px;cursor:pointer;}
+.pc-submit:hover:not(:disabled){background:#085563;transform:translateY(-1px);}
 .pc-submit:disabled{opacity:.5;cursor:not-allowed;transform:none;}
 .pc-spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
 @keyframes spin{to{transform:rotate(360deg);}}

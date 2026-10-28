@@ -5,12 +5,15 @@ import {
   uploadProviderPhoto, deleteProviderPhoto,
   addAudit, saveLicense, deleteLicense,
 } from '../lib/db'
+import { ALERT_FIELDS, fmtDate } from '../lib/helpers'
+import { saveFollowUp } from './useCompletion'
+import { completionContext } from '../lib/completion'
 
 /**
  * All provider-related state and handlers.
  * Extracted from pages/index.js to keep the God component manageable.
  */
-export function useProviderActions({ db, setDb, toast, requestConfirm, setPage }) {
+export function useProviderActions({ db, setDb, toast, requestConfirm, requestCompletion, setPage }) {
   const [provForm, setProvForm]           = useState({})
   const [editingProviderId, setEditingProviderId] = useState(null)
   const [saving, setSaving]               = useState(false)
@@ -149,6 +152,17 @@ export function useProviderActions({ db, setDb, toast, requestConfirm, setPage }
   async function handleAlertMarkDone(providerId, field, newDate) {
     const prov = db.providers.find(p => p.id === providerId)
     if (!prov || !field || !/^\d{4}-\d{2}-\d{2}$/.test(newDate || '')) return false
+    // An alert is only cleared after the completion check: what was done, and whether anything is still pending.
+    const label = (ALERT_FIELDS.find(a => a.f === field)?.l) || 'credential'
+    const completion = await requestCompletion({
+      title: 'Before you clear this alert',
+      subject: `${prov.fname} ${prov.lname} — ${label} renewed, new expiration ${fmtDate(newDate)}`,
+      noteLabel: 'What was done to renew it?',
+      notePlaceholder: 'e.g. Renewal confirmed on the board website; new certificate saved in Documents.',
+      confirmText: 'Save renewal',
+      context: completionContext({ db, provId: providerId }),
+    })
+    if (!completion) return false
     try {
       const saved = await upsertProvider({ ...prov, [field]: newDate })
       setDb(prev => ({
@@ -156,6 +170,8 @@ export function useProviderActions({ db, setDb, toast, requestConfirm, setPage }
         providers: prev.providers.map(p => p.id === saved.id ? saved : p),
       }))
       toast('Renewal recorded — new expiration saved.', 'success')
+      await addAudit('Provider', 'Renewal recorded', `${prov.fname} ${prov.lname}: ${label} → ${newDate} — ${completion.note}`, prov.id).catch(() => {})
+      await saveFollowUp(completion, { provId: prov.id, task: `${label} renewal`, ...(db.staff && 'assigneeId' in prov ? { assigneeId: prov.assigneeId } : {}) }, { setDb, toast })
       return true
     } catch(err) { toast(err.message, 'error'); return false }
   }

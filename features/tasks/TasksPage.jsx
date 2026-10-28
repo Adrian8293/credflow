@@ -89,8 +89,7 @@ export function TasksPage({ db, userId, openTaskModal, openProvDetail, handleMar
 
   async function done(t) {
     setCompleting(prev => new Set([...prev, t.id]))
-    await new Promise(r => setTimeout(r, 250))
-    await handleMarkDone(t.id, t.task)
+    await handleMarkDone(t.id, t.task)   // opens the completion check; resolves false if cancelled
     setCompleting(prev => { const s = new Set(prev); s.delete(t.id); return s })
   }
 

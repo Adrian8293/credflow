@@ -2,8 +2,12 @@ import { useState } from 'react'
 import { upsertEnrollment, deleteEnrollment, addAudit, bulkSetStage, bulkSetFollowup, bulkDeleteEnrollments } from '../lib/db'
 import { pNameShort, payName, fmtDate } from '../lib/helpers'
 import { suggestFollowup, needsFollowup } from '../constants/followupCadence'
+import { saveFollowUp } from './useCompletion'
+import { completionContext } from '../lib/completion'
 
-export function useEnrollmentActions({ db, setDb, toast, requestConfirm }) {
+const CLOSING_STAGES = ['Active', 'Approved', 'Denied']
+
+export function useEnrollmentActions({ db, setDb, toast, requestConfirm, requestCompletion }) {
   const [enrollForm, setEnrollForm]               = useState({})
   const [editingEnrollmentId, setEditingEnrollmentId] = useState(null)
   const [saving, setSaving]                       = useState(false)
@@ -16,8 +20,11 @@ export function useEnrollmentActions({ db, setDb, toast, requestConfirm }) {
     try {
       const provN = pNameShort(db.providers, enrollForm.provId)
       const payN  = payName(db.payers, enrollForm.payId)
+      // A new application with no owner picked starts with its provider's owner (when ownership is available).
+      const ownerless = !editingEnrollmentId && db.staff && !enrollForm.assigneeId
+      const form = ownerless ? { ...enrollForm, assigneeId: db.providers.find(p => p.id === enrollForm.provId)?.assigneeId || '' } : enrollForm
       const saved = await upsertEnrollment(
-        { ...enrollForm, id: editingEnrollmentId || undefined },
+        { ...form, id: editingEnrollmentId || undefined },
         provN, payN
       )
       setDb(prev => ({
@@ -59,6 +66,20 @@ export function useEnrollmentActions({ db, setDb, toast, requestConfirm }) {
     const enr = db.enrollments.find(e => e.id === enrollmentId)
     if (!enr) return
     const prevStage = enr.stage
+    // Closing an application (approved, active or denied) goes through the completion check, so a pending
+    // document, contract page or appeal cannot be forgotten.
+    let completion = null
+    if (CLOSING_STAGES.includes(newStage) && newStage !== prevStage) {
+      completion = await requestCompletion({
+        title: `Before you move this to ${newStage}`,
+        subject: `${pNameShort(db.providers, enr.provId)} — ${payName(db.payers, enr.payId)}`,
+        noteLabel: newStage === 'Denied' ? 'What did the payer say?' : 'How was this confirmed?',
+        notePlaceholder: newStage === 'Denied' ? 'e.g. Denial letter received; reason: missing malpractice certificate.' : 'e.g. Approval letter received and saved in Documents.',
+        confirmText: `Move to ${newStage}`,
+        context: completionContext({ db, provId: enr.provId }),
+      })
+      if (!completion) return false
+    }
     try {
       const prov    = db.providers.find(p => p.id === enr.provId)
       const payer   = db.payers.find(p => p.id === enr.payId)
@@ -83,13 +104,15 @@ export function useEnrollmentActions({ db, setDb, toast, requestConfirm }) {
         await addAudit(
           'Enrollment',
           'Stage Changed',
-          `${provName} / ${payerName}: "${prevStage}" → "${newStage}"`,
+          `${provName} / ${payerName}: "${prevStage}" → "${newStage}"${completion ? ` — ${completion.note}` : ''}`,
           enrollmentId
         )
       } catch (_) { /* audit failure should not block stage transition */ }
 
       toast(followup && followup !== enr.followup ? `Moved to ${newStage}. Follow-up set for ${fmtDate(followup)}.` : `Moved to ${newStage}`, 'success')
-    } catch(err) { toast('Stage update failed: ' + err.message, 'error') }
+      if (completion) await saveFollowUp(completion, { provId: enr.provId, payId: enr.payId, task: `${newStage}: ${provName} / ${payerName}`, ...('assigneeId' in enr ? { assigneeId: enr.assigneeId } : {}) }, { setDb, toast })
+      return true
+    } catch(err) { toast('Stage update failed: ' + err.message, 'error'); return false }
   }
 
   // ── Bulk actions: one confirmation, batched requests, per-enrollment audit entries ──────────
@@ -104,10 +127,21 @@ export function useEnrollmentActions({ db, setDb, toast, requestConfirm }) {
   async function handleCaqhAuthorized(id) {
     const enr = db.enrollments.find(e => e.id === id)
     if (!enr) return false
+    const completion = await requestCompletion({
+      title: 'Before you mark CAQH as authorized',
+      subject: `${pNameShort(db.providers, enr.provId)} — ${payName(db.payers, enr.payId)}`,
+      noteLabel: 'How did you confirm the authorization?',
+      notePlaceholder: 'e.g. Payer shows as authorized in the CAQH ProView list.',
+      confirmText: 'Mark authorized',
+      context: completionContext({ db, provId: enr.provId }),
+    })
+    if (!completion) return false
     try {
       const saved = await upsertEnrollment({ ...enr, caqhStatus: 'authorized' }, pNameShort(db.providers, enr.provId), payName(db.payers, enr.payId))
       setDb(prev => ({ ...prev, enrollments: prev.enrollments.map(e => e.id === saved.id ? saved : e) }))
       toast('Marked as authorized in CAQH.', 'success')
+      addAudit('Enrollment', 'CAQH authorized', `${pNameShort(db.providers, enr.provId)} / ${payName(db.payers, enr.payId)} — ${completion.note}`, enr.id).catch(() => {})
+      await saveFollowUp(completion, { provId: enr.provId, payId: enr.payId, task: 'CAQH authorization' }, { setDb, toast })
       return true
     } catch (err) { toast(err.message, 'error'); return false }
   }
@@ -170,7 +204,7 @@ export function useEnrollmentActions({ db, setDb, toast, requestConfirm }) {
       const en = db.enrollments.find(x => x.id === id)
       if (en) setEnrollForm({ ...en })
     } else {
-      setEnrollForm({ stage: 'Not Started', eft: 'Not Set Up', era: 'Not Set Up', contract: 'No', level: 'Individual', provId: preProvId || '', payId: prePayId || '' })
+      setEnrollForm({ stage: 'Not Started', eft: 'Not Set Up', era: 'Not Set Up', contract: 'No', level: 'Individual', provId: preProvId || '', payId: prePayId || '', ...(db.staff ? { assigneeId: db.providers.find(p => p.id === preProvId)?.assigneeId || '' } : {}) })
     }
     // Note: setModal('enroll') is called by the wrapper in index.js — do NOT call it here
   }

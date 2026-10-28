@@ -229,6 +229,16 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
         </div>
       )}
 
+      {db.staff?.length > 0 && (
+        <div className="fg"><label>Assigned to</label>
+          <select value={f('assigneeId')} onChange={e => set('assigneeId', e.target.value)}>
+            <option value="">Unassigned</option>
+            {db.staff.map(s => <option key={s.id} value={s.id}>{(s.email || '').split('@')[0]}</option>)}
+            {f('assigneeId') && !db.staff.some(s => s.id === f('assigneeId')) && <option value={f('assigneeId')}>Former team member</option>}
+          </select>
+        </div>
+      )}
+
       <div className="fg"><label>Enrollment Type</label>
         <select value={level} disabled={!groupAllowed || groupForced} onChange={e => set('level', e.target.value)}>
           <option value="Individual">Individual (Type 1 NPI)</option>

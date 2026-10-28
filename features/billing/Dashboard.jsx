@@ -73,7 +73,7 @@ function OnboardingChecklist({ db, setPage, openEnrollModal, openPayerModal }) {
   return (
     <div style={{ maxWidth: 520, margin: '60px auto', padding: '0 20px' }}>
       <div style={{ marginBottom: 28, textAlign: 'center' }}>
-        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--pr)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px', boxShadow: '0 8px 24px rgba(79,70,229,.2)', color: '#fff' }}>
+        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--pr)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px', boxShadow: '0 8px 24px rgba(11,107,122,.2)', color: '#fff' }}>
           {I.prov}
         </div>
         <h2 style={{ fontFamily: 'var(--fn-display)', fontSize: 22, fontWeight: 800, color: 'var(--text-1)', letterSpacing: '-.04em', margin: '0 0 6px' }}>Welcome to LACentra</h2>
@@ -398,7 +398,7 @@ export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPaye
           <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--text-4)', marginBottom: 5 }}>
             {todayLabel()}
           </div>
-          <h2 style={{ fontFamily: 'var(--fn-display)', fontSize: 22, fontWeight: 800, color: 'var(--text-1)', letterSpacing: '-.04em', margin: '0 0 5px', lineHeight: 1.1 }}>
+          <h2 className="dash-greeting" style={{ fontFamily: 'var(--fn-display)', fontSize: 22, fontWeight: 800, color: 'var(--text-1)', letterSpacing: '-.04em', margin: '0 0 5px', lineHeight: 1.1 }}>
             {greeting()}
           </h2>
           <p style={{ fontSize: 12.5, color: expired > 0 || overdueTasks > 0 ? 'var(--red)' : critical > 0 ? 'var(--amber)' : 'var(--text-4)', margin: 0, display: 'flex', alignItems: 'center', gap: 5 }}>

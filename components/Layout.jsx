@@ -23,6 +23,7 @@ import { getIdleMinutes, clearSeen } from '../lib/idle'
 import { initQueue } from '../lib/offlineQueue'
 import { supabase } from '../lib/supabase'
 import { RouteErrorBoundary } from './ui/RouteErrorBoundary.jsx'
+import { CompletionCheck } from './ui/CompletionCheck.jsx'
 
 export function Layout({ children }) {
   const router = useRouter()
@@ -30,6 +31,7 @@ export function Layout({ children }) {
     user, authLoading, signOut, db, loading, setPage, activeOrg, orgsLoaded,
     toasts, toast,
     confirmDialog, settleConfirm,
+    completionDialog, settleCompletion,
     modal, setModal,
     provDetailId, setProvDetailId,
     globalSearchOpen, setGlobalSearchOpen,
@@ -266,6 +268,8 @@ export function Layout({ children }) {
           openEnrollModal={openEnrollModal}
         />
       )}
+
+      {completionDialog && <CompletionCheck config={completionDialog} onSettle={settleCompletion} />}
 
       {confirmDialog && (
         <Modal

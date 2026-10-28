@@ -20,6 +20,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useToast } from '../hooks/useToast'
 import { useAppData } from '../hooks/useAppData'
 import { useConfirm } from '../hooks/useConfirm'
+import { useCompletion } from '../hooks/useCompletion'
 import { useProviderActions } from '../hooks/useProviderActions'
 import { useEnrollmentActions } from '../hooks/useEnrollmentActions'
 import { usePayerActions } from '../hooks/usePayerActions'
@@ -45,6 +46,8 @@ export function AppContextProvider({ children }) {
 
   // ── Confirm dialog ────────────────────────────────────────────────────────
   const { confirmDialog, requestConfirm, settleConfirm } = useConfirm()
+  // Completion check: nothing is marked done until the person answers it (see components/ui/CompletionCheck.jsx).
+  const { completionDialog, requestCompletion, settleCompletion } = useCompletion()
 
   // ── Stable navigation helper ──────────────────────────────────────────────
   const setPage = useCallback((p) => {
@@ -52,11 +55,11 @@ export function AppContextProvider({ children }) {
   }, [router])
 
   // ── Feature action hooks (namespaced objects) ─────────────────────────────
-  const providers  = useProviderActions({ db, setDb, toast, requestConfirm, setPage })
-  const enrollments = useEnrollmentActions({ db, setDb, toast, requestConfirm })
+  const providers  = useProviderActions({ db, setDb, toast, requestConfirm, requestCompletion, setPage })
+  const enrollments = useEnrollmentActions({ db, setDb, toast, requestConfirm, requestCompletion })
   const payers     = usePayerActions({ db, setDb, toast, requestConfirm })
   const documents  = useDocumentActions({ db, setDb, toast, requestConfirm })
-  const tasks      = useTaskActions({ db, setDb, toast, requestConfirm, userId: user?.id })
+  const tasks      = useTaskActions({ db, setDb, toast, requestConfirm, requestCompletion, userId: user?.id })
 
   // ── Modal state (UI-layer only, does not affect data) ─────────────────────
   const [modal,             setModal]             = useState(null)
@@ -196,6 +199,7 @@ export function AppContextProvider({ children }) {
     // UI
     toasts, toast,
     confirmDialog, requestConfirm, settleConfirm,
+    completionDialog, requestCompletion, settleCompletion,
 
     // Data
     db, setDb, loading, settingsForm, setSettingsForm,
@@ -229,6 +233,7 @@ export function AppContextProvider({ children }) {
     user, authLoading, signOut,
     toasts, toast,
     confirmDialog, requestConfirm, settleConfirm,
+    completionDialog, requestCompletion, settleCompletion,
     db, setDb, loading, settingsForm, setSettingsForm,
     orgs, orgsLoaded, activeOrg, switchOrg, createOrg,
     providers, enrollments, payers, documents, tasks,
