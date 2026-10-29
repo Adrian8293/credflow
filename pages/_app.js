@@ -8,6 +8,7 @@ import { AppContextProvider } from '../context/AppContext'
 import { Layout } from '../components/Layout'
 import { OfflineBanner } from '../components/ui/OfflineBanner.jsx'
 import { watchLabels } from '../lib/a11yLabels'
+import { applyTheme, readStoredTheme, themeForPath, systemPrefersDark } from '../lib/theme'
 
 // ── Env validation (dev only) ────────────────────────────────────────────────
 // NOTE: Never throw at module scope — it crashes the Next.js SSR build worker
@@ -96,6 +97,8 @@ export default function App({ Component, pageProps }) {
     }
   }, [])
   const router = useRouter()
+  // Sign-in pages stay light; every other page uses the saved/system theme (also after sign-out navigation).
+  React.useEffect(() => { applyTheme(themeForPath(router.pathname, readStoredTheme(), systemPrefersDark())) }, [router.pathname])
   
   // Define routes that shouldn't render the layout
   const isGuestOrSpecialPage = 

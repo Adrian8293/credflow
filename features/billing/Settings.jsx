@@ -13,6 +13,7 @@ const Icon = {
   plug:     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>,
 }
 
+import { AppearanceControls } from '../../components/ui/AppearanceControls.jsx'
 import { MfaSetup } from '../security/MfaSetup.jsx'
 import { useState } from 'react'
 import { StorageCard } from './StorageCard.jsx'
@@ -96,6 +97,10 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
 
       {activeTab === 'General' && (
         <div className="grid-2">
+          <div className="card" style={{ gridColumn: '1 / -1' }}>
+            <div className="card-header"><h3 style={{ fontSize: 13.5, fontWeight: 700, margin: 0, color: 'var(--text-1)' }}>Appearance</h3></div>
+            <div className="card-body"><AppearanceControls /></div>
+          </div>
           <div className="card">
             <div className="card-header">
               <SectionHeader icon={Icon.building} title="Organization Information" subtitle="Your practice details used across Lacentra." />

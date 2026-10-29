@@ -48,9 +48,9 @@ function FollowupBadge({ followup }) {
   return (
     <span style={{
       fontSize: 9, fontWeight: 700, padding: '1px 5px', borderRadius: 4,
-      background: urgent ? '#FEE2E2' : '#FEF3C7',
-      color: urgent ? '#DC2626' : '#B45309',
-      border: `1px solid ${urgent ? '#FCA5A5' : '#FCD34D'}`,
+      background: urgent ? 'var(--red-l)' : 'var(--amber-l)',
+      color: urgent ? 'var(--red)' : 'var(--amber)',
+      border: `1px solid ${urgent ? 'var(--red-b)' : 'var(--amber-b)'}`,
       whiteSpace: 'nowrap',
     }}>
       {days < 0 ? `${Math.abs(days)}d overdue` : days === 0 ? 'Due today' : `${days}d`}
@@ -66,8 +66,8 @@ function EnrollmentCard({ enrollment, provider, payer, onOpen, onDragStart, isDr
       onDragStart={(e) => onDragStart(e, enrollment.id)}
       onClick={() => onOpen(enrollment)}
       style={{
-        background: '#FFFFFF',
-        border: '1px solid #E2E8F0',
+        background: 'var(--card)',
+        border: '1px solid var(--border)',
         borderLeft: `3px solid ${stage.color}`,
         borderRadius: 8,
         padding: '8px 10px',
@@ -88,15 +88,15 @@ function EnrollmentCard({ enrollment, provider, payer, onOpen, onDragStart, isDr
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4, gap: 6 }}>
         <div style={{ minWidth: 0, flex: 1 }}>
-          <div style={{ fontWeight: 600, fontSize: 12, color: '#0D1B3D', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div style={{ fontWeight: 600, fontSize: 12, color: 'var(--text-1)', lineHeight: 1.3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {provider ? `${provider.lname}, ${provider.fname}` : 'Unknown Provider'}
           </div>
-          {provider?.cred && <div style={{ fontSize: 9, color: '#94A3B8', marginTop: 1 }}>{provider.cred}</div>}
+          {provider?.cred && <div style={{ fontSize: 9, color: 'var(--text-4)', marginTop: 1 }}>{provider.cred}</div>}
         </div>
         <FollowupBadge followup={enrollment.followup} />
       </div>
-      <div style={{ fontSize: 10, color: '#64748B', marginBottom: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{payer?.name || '—'}</div>
-      <div style={{ display: 'flex', gap: 8, fontSize: 9, color: '#94A3B8', flexWrap: 'wrap' }}>
+      <div style={{ fontSize: 10, color: 'var(--text-3)', marginBottom: 6, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{payer?.name || '—'}</div>
+      <div style={{ display: 'flex', gap: 8, fontSize: 9, color: 'var(--text-4)', flexWrap: 'wrap' }}>
         {enrollment.submitted && <span>Sub: {enrollment.submitted}</span>}
         {enrollment.effective && <span>· Eff: {enrollment.effective}</span>}
         {enrollment.eft && enrollment.eft !== 'Not Set Up' && <span style={{ color: '#10B981', fontWeight: 600 }}>· EFT ✓</span>}
@@ -110,8 +110,8 @@ function KanbanColumn({ stage, cards, providers, payers, onOpen, onDrop, onDragO
     <div
       style={{
         minWidth: 220, maxWidth: 240, flex: '0 0 220px',
-        background: isDragOver ? '#EBF1FF' : '#F8FAFC',
-        border: `1px solid ${isDragOver ? stage.color : '#E2E8F0'}`,
+        background: isDragOver ? 'var(--pr-l)' : 'var(--bg-2)',
+        border: `1px solid ${isDragOver ? stage.color : 'var(--border)'}`,
         borderRadius: 10,
         transition: 'border-color 0.12s, background 0.12s',
         display: 'flex', flexDirection: 'column',
@@ -123,12 +123,12 @@ function KanbanColumn({ stage, cards, providers, payers, onOpen, onDrop, onDragO
     >
       <div style={{
         padding: '10px 12px',
-        borderBottom: `1px solid ${isDragOver ? stage.color + '55' : '#E2E8F0'}`,
+        borderBottom: `1px solid ${isDragOver ? stage.color + '55' : 'var(--border)'}`,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0, flex: 1 }}>
           <div style={{ width: 7, height: 7, borderRadius: '50%', background: stage.color, flexShrink: 0 }} />
-          <span style={{ fontWeight: 700, fontSize: 10.5, color: '#0D1B3D', letterSpacing: '0.03em', textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <span style={{ fontWeight: 700, fontSize: 10.5, color: 'var(--text-1)', letterSpacing: '0.03em', textTransform: 'uppercase', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {stage.label}
           </span>
         </div>
@@ -141,8 +141,8 @@ function KanbanColumn({ stage, cards, providers, payers, onOpen, onDrop, onDragO
         {cards.length === 0 ? (
           <div style={{
             flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            color: isDragOver ? stage.color : '#CBD5E1', fontSize: 10,
-            border: `1px dashed ${isDragOver ? stage.color : '#E2E8F0'}`,
+            color: isDragOver ? stage.color : 'var(--text-4)', fontSize: 10,
+            border: `1px dashed ${isDragOver ? stage.color : 'var(--border)'}`,
             borderRadius: 6, padding: 14, transition: 'all 0.12s',
           }}>
             {isDragOver ? 'Release to move here' : 'Drop here'}
@@ -177,13 +177,13 @@ function FilterBar({ providers, payers, filter, setFilter }) {
         <option value="">All Payers</option>
         {payers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
       </select>
-      <label style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#64748B', fontSize: 12, cursor: 'pointer' }}>
+      <label style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-3)', fontSize: 12, cursor: 'pointer' }}>
         <input type="checkbox" checked={filter.followupOnly} onChange={e => setFilter(f => ({ ...f, followupOnly: e.target.checked }))} style={{ accentColor: '#1565C0' }} />
         Follow-up due
       </label>
       {active && (
         <button onClick={() => setFilter({ search: '', provId: '', payId: '', followupOnly: false })}
-          style={{ background: 'transparent', border: '1px solid #E2E8F0', borderRadius: 6, color: '#64748B', fontSize: 11, padding: '5px 10px', cursor: 'pointer' }}>
+          style={{ background: 'transparent', border: '1px solid var(--border)', borderRadius: 6, color: 'var(--text-3)', fontSize: 11, padding: '5px 10px', cursor: 'pointer' }}>
           Clear
         </button>
       )}
@@ -258,7 +258,7 @@ export default function EnrollmentKanban({ enrollments = [], providers = [], pay
   }
 
   return (
-    <div style={{ fontFamily: "var(--fn, 'Inter', system-ui, sans-serif)", color: '#0D1B3D' }} onDragEnd={handleDragEnd}>
+    <div style={{ fontFamily: "var(--fn, 'Inter', system-ui, sans-serif)", color: 'var(--text-1)' }} onDragEnd={handleDragEnd}>
 
       {/* Stats */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
@@ -269,9 +269,9 @@ export default function EnrollmentKanban({ enrollments = [], providers = [], pay
           { label: 'Urgent Follow-up', value: stats.followup, color: '#EF4444' },
           { label: 'Denied',           value: stats.denied,   color: '#94A3B8' },
         ].map(s => (
-          <div key={s.label} style={{ background: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 8, padding: '8px 14px', display: 'flex', flexDirection: 'column', gap: 2, boxShadow: '0 1px 2px rgba(13,27,61,.03)' }}>
+          <div key={s.label} style={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 8, padding: '8px 14px', display: 'flex', flexDirection: 'column', gap: 2, boxShadow: '0 1px 2px rgba(13,27,61,.03)' }}>
             <span style={{ fontSize: 18, fontWeight: 700, color: s.color }}>{s.value}</span>
-            <span style={{ fontSize: 9.5, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>{s.label}</span>
+            <span style={{ fontSize: 9.5, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>{s.label}</span>
           </div>
         ))}
       </div>

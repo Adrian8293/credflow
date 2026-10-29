@@ -10,7 +10,7 @@ const hiddenKey = (orgId) => `lc_setup_hidden_${orgId || 'x'}`
 const openKey = (orgId) => `lc_setup_open_${orgId || 'x'}`
 const readHidden = (orgId) => { try { return localStorage.getItem(hiddenKey(orgId)) === '1' } catch { return false } }
 
-export function SetupChecklist({ db, role, orgId, setPage, openEnrollModal }) {
+export function SetupChecklist({ db, role, orgId, setPage, openEnrollModal, compact = false }) {
   const isAdmin = role === 'owner' || role === 'admin'
   const [hidden, setHidden] = useState(() => readHidden(orgId))
   const [open, setOpen] = useState(false)
@@ -56,13 +56,45 @@ export function SetupChecklist({ db, role, orgId, setPage, openEnrollModal }) {
   const hide = () => { try { localStorage.setItem(hiddenKey(orgId), '1') } catch { /* storage unavailable */ } setHidden(true) }
   const firstOpen = steps.find(s => s.done !== true)
 
+  // Compact form (Today sidebar): one quiet card with the next step and a thin progress line.
+  if (compact) {
+    return (
+      <div className="card setup-compact">
+        <div className="setup-compact-head">
+          <span className="setup-compact-title">Setup</span>
+          <span className="setup-compact-count">{doneCount} of {steps.length}</span>
+          <button onClick={hide} className="x-hide" aria-label="Hide the setup card">Hide</button>
+        </div>
+        <div className="setup-compact-bar" aria-hidden="true"><div style={{ width: `${(doneCount / steps.length) * 100}%` }} /></div>
+        {firstOpen && (
+          <div className="setup-compact-next">
+            <div><span className="setup-compact-label">Next</span><div className="setup-compact-step">{firstOpen.title}</div></div>
+            <button className="btn btn-sm btn-secondary" onClick={firstOpen.go}>{firstOpen.cta}</button>
+          </div>
+        )}
+        <button onClick={toggle} className="x-link setup-compact-toggle" aria-expanded={open}>{open ? 'Hide all steps' : 'See all steps'}</button>
+        {open && (
+          <ul className="setup-compact-list">
+            {steps.map(s => (
+              <li key={s.key} className={s.done === true ? 'is-done' : ''}>
+                <span aria-hidden="true" className="setup-dot">{s.done === true ? '✓' : ''}</span>
+                <span className="setup-li-text">{s.title}</span>
+                {s.done !== true && <button className="x-link" onClick={s.go}>{s.cta}</button>}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="card" style={{ marginBottom: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '13px 16px 10px', flexWrap: 'wrap' }}>
         <span style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--text-1)' }}>Get set up</span>
         <span className="badge b-gray">{doneCount} of {steps.length} done</span>
         <div style={{ flex: 1, minWidth: 80, height: 6, background: 'var(--elevated)', borderRadius: 99, overflow: 'hidden' }} aria-hidden="true">
-          <div style={{ width: `${(doneCount / steps.length) * 100}%`, height: '100%', background: 'var(--pr)', transition: 'width .3s' }} />
+          <div style={{ width: `${(doneCount / steps.length) * 100}%`, height: '100%', background: 'var(--pr-solid)', transition: 'width .3s' }} />
         </div>
         <button onClick={toggle} className="x-link" aria-expanded={open}>{open ? 'Close list' : 'Show steps'}</button>
         <button onClick={hide} className="x-hide" aria-label="Hide the setup card">Hide</button>

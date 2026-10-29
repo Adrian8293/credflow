@@ -51,13 +51,13 @@ export default function OrgSwitcher({ collapsed }) {
 
       {open && (
         <div
-          role="listbox"
           style={{
             position: 'absolute', left: 10, right: 10, top: 'calc(100% - 2px)', zIndex: 50,
             background: 'var(--surface, #fff)', border: '1px solid var(--border, #E5E7EF)',
             borderRadius: 'var(--r)', boxShadow: '0 8px 24px rgba(17,24,39,.12)', padding: 6,
           }}
         >
+          <div role="listbox" aria-label="Switch organization">
           {orgs.map(o => (
             <button
               key={o.org_id}
@@ -76,6 +76,7 @@ export default function OrgSwitcher({ collapsed }) {
               <span style={{ fontSize: 10.5, opacity: .6, textTransform: 'capitalize' }}>{o.role}</span>
             </button>
           ))}
+          </div>
 
           {canCreate && !adding && (
             <button

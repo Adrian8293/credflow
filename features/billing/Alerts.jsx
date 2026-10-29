@@ -152,23 +152,18 @@ export function Alerts({ db, onOpenProvider, onDraftEmail, onMarkDone, onOpenEnr
 
       {/* Summary KPIs */}
       {items.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+        <div className="kpi-strip" style={{ marginBottom: 20 }}>
           {[
-            { label: 'Expired', count: expired.length, color: 'var(--danger)', bg: 'rgba(239,68,68,.08)', tab: 'Critical' },
-            { label: 'Critical (≤30d)', count: critical.length, color: 'var(--danger)', bg: 'rgba(239,68,68,.08)', tab: 'Critical' },
-            { label: 'Warnings (31–60d)', count: warning.length, color: 'var(--warning)', bg: 'rgba(245,158,11,.08)', tab: 'Warnings' },
-            { label: 'Notices (61–90d)', count: info.length, color: 'var(--pr)', bg: 'rgba(21,101,192,.08)', tab: 'Information' },
+            { label: 'Expired', count: expired.length, cls: 'kpi-red', tab: 'Critical', sub: 'Already past due' },
+            { label: 'Critical', count: critical.length, cls: 'kpi-red', tab: 'Critical', sub: 'Expire within 30 days' },
+            { label: 'Warnings', count: warning.length, cls: 'kpi-amber', tab: 'Warnings', sub: 'Expire in 31–60 days' },
+            { label: 'Notices', count: info.length, cls: '', tab: 'Information', sub: 'Expire in 61–90 days' },
           ].map((kpi, i) => (
-            <div
-              key={i}
-              onClick={() => setActiveTab(kpi.tab)}
-              style={{ background: 'var(--card)', border: '1.5px solid var(--border)', borderRadius: 'var(--r-lg)', padding: '14px 16px', textAlign: 'center', cursor: 'pointer', transition: 'border-color .15s' }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = kpi.color}
-              onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
-            >
-              <div style={{ fontSize: 28, fontWeight: 800, color: kpi.color, marginBottom: 4 }}>{kpi.count}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-4)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.04em' }}>{kpi.label}</div>
-            </div>
+            <button key={i} type="button" className={`kpi kpi-btn ${kpi.cls}`} onClick={() => setActiveTab(kpi.tab)} aria-label={`${kpi.label}: ${kpi.count}. Show ${kpi.tab}`}>
+              <div className="kpi-label">{kpi.label}</div>
+              <div className="kpi-value">{kpi.count}</div>
+              <div className="kpi-sub">{kpi.sub}</div>
+            </button>
           ))}
         </div>
       )}

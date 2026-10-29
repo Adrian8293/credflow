@@ -15,6 +15,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { useGlobalContext } from '../../context/AppContext'
 import { buildAlertFeed } from '../../lib/alerts.js'
+import { ThemeToggle } from './ThemeToggle.jsx'
+import { TextSizeQuick } from './AppearanceControls.jsx'
 
 // ─── ICONS ────────────────────────────────────────────────────────────────────
 const I = {
@@ -373,6 +375,8 @@ export function Topbar({
               ))}
 
               <div className="tb-dd-divider" />
+              <div className="tb-dd-row" role="group" aria-label="Text size"><span aria-hidden="true">Text size</span><TextSizeQuick inMenu /></div>
+              <div className="tb-dd-divider" />
 
               <button
                 className="tb-dd-item danger"
@@ -385,6 +389,9 @@ export function Topbar({
             </div>
           )}
         </div>
+
+        {/* ── Theme: sun = light, moon = dark ─────────────────────────── */}
+        <ThemeToggle />
       </div>
     </div>
   )

@@ -295,7 +295,7 @@ function OverviewTab({ prov, db, openEnrollModal }) {
           <SectionEyebrow label={`In Progress (${inProgress.length})`} />
           {inProgress.slice(0, 4).map(e => (
             <div key={e.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', background: 'var(--elevated)', border: '1.5px solid var(--border)', borderRadius: 'var(--r)', marginBottom: 6 }}>
-              <div style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--pr)', flexShrink: 0 }} />
+              <div style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--pr-solid)', flexShrink: 0 }} />
               <div style={{ flex: 1, fontSize: 12.5, fontWeight: 600, color: 'var(--text-1)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {payers.find(p => p.id === (e.payId || e.payerId))?.name || '—'}
               </div>
@@ -568,15 +568,17 @@ function JourneyPanel({ lc, onNext }) {
   const { steps, index, state, next, done } = lc
   return (
     <div style={{ width: '100%', paddingBottom: 12 }}>
-      <ol aria-label="Credentialing journey" tabIndex={0} style={{ listStyle: 'none', display: 'flex', gap: 4, margin: 0, padding: 0, overflowX: 'auto' }}>
+      <div className="journey-head">
+        <span className="journey-now">{state === 'Inactive' ? 'Inactive' : state}</span>
+        {index >= 0 && <span className="journey-count">Step {index + 1} of {steps.length}</span>}
+      </div>
+      <ol className="journey-bar" aria-label="Credentialing journey" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {steps.map((s, i) => {
           const here = s === state, past = index >= 0 && i < index
           return (
-            <li key={s} aria-current={here ? 'step' : undefined}
-              style={{ flex: '1 0 auto', fontSize: 12, padding: '5px 9px', borderRadius: 6, whiteSpace: 'nowrap',
-                fontWeight: here ? 700 : 500, color: here ? '#fff' : past ? 'var(--text-2)' : 'var(--text-4)',
-                background: here ? 'var(--pr)' : 'var(--elevated)', border: `1px solid ${here ? 'var(--pr)' : 'var(--border)'}` }}>
-              {past ? '✓ ' : ''}{s}
+            <li key={s} aria-current={here ? 'step' : undefined} title={s}
+              className={`journey-seg${here ? ' is-here' : past ? ' is-past' : ''}`}>
+              <span className="sr-only">{s}{here ? ' (current)' : past ? ' (done)' : ''}</span>
             </li>
           )
         })}

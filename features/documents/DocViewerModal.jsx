@@ -214,7 +214,7 @@ export function DocViewerModal({ doc, db, onClose, onEdit }) {
                 rel="noopener noreferrer"
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 6,
-                  padding: '9px 20px', background: 'var(--pr)', color: '#fff',
+                  padding: '9px 20px', background: 'var(--pr-solid)', color: '#fff',
                   borderRadius: 'var(--r)', textDecoration: 'none', fontSize: 13, fontWeight: 600,
                 }}
               >

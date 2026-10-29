@@ -129,6 +129,7 @@ export function TasksPage({ db, userId, openTaskModal, openProvDetail, handleMar
             </button>
           ))}
         </div>
+        <div className="toolbar-filters" style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
         <div className="search-box" style={{ maxWidth: 240 }}>
           <span className="si"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
           <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search tasks…" />
@@ -145,6 +146,7 @@ export function TasksPage({ db, userId, openTaskModal, openProvDetail, handleMar
           </select>
         )}
         {filtersOn && <button onClick={() => { setSearch(''); setFProv(''); setFOwner('') }} className="x-link">Clear filters ×</button>}
+        </div>
       </div>
 
       {sorted.length === 0 && (

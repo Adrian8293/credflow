@@ -177,7 +177,7 @@ export function Audit({ db, search, setSearch, fType, setFType }) {
                     </td>
                     <td style={{ fontSize: 12, color: 'var(--text-4)' }} title={a.userEmail || 'Recorded by the system'}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                        <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--pr)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9.5, fontWeight: 700, color: '#fff', flexShrink: 0 }}>{u.letter}</div>
+                        <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--pr-solid)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9.5, fontWeight: 700, color: '#fff', flexShrink: 0 }}>{u.letter}</div>
                         <span>{u.name}</span>
                       </div>
                     </td>

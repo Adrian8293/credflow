@@ -20,12 +20,12 @@ const EditIcon   = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="n
 const TrashIcon  = () => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
 
 const TYPE_META = {
-  'Commercial':        { color: '#1565C0', bg: 'rgba(21,101,192,.08)',   label: 'Commercial' },
-  'Medicaid':          { color: '#059669', bg: 'rgba(5,150,105,.08)',   label: 'Medicaid' },
-  'Medicare':          { color: '#7c3aed', bg: 'rgba(124,58,237,.08)',  label: 'Medicare' },
-  'Medicare Advantage':{ color: '#6d28d9', bg: 'rgba(109,40,217,.08)', label: 'MA' },
-  'EAP':               { color: '#d97706', bg: 'rgba(217,119,6,.08)',   label: 'EAP' },
-  'Other':             { color: '#6b7280', bg: 'rgba(107,114,128,.08)', label: 'Other' },
+  'Commercial':        { color: 'var(--blue)', bg: 'var(--blue-l)',   label: 'Commercial' },
+  'Medicaid':          { color: 'var(--green)', bg: 'var(--green-l)',   label: 'Medicaid' },
+  'Medicare':          { color: 'var(--purple)', bg: 'var(--purple-l)',  label: 'Medicare' },
+  'Medicare Advantage':{ color: 'var(--purple)', bg: 'var(--purple-l)', label: 'MA' },
+  'EAP':               { color: 'var(--amber)', bg: 'var(--amber-l)',   label: 'EAP' },
+  'Other':             { color: 'var(--text-3)', bg: 'var(--elevated)', label: 'Other' },
 }
 
 const PAYER_COLORS = [
@@ -163,7 +163,7 @@ function PayerLogo({ name, color, size = 28 }) {
       width: size, height: size, borderRadius: radius, flexShrink: 0,
       background: `${color}18`, border: `1.5px solid ${color}35`,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontSize, fontWeight: 800, color,
+      fontSize, fontWeight: 800, color: `color-mix(in srgb, ${color} 62%, var(--text-1))`,   // brand hue, but always readable in light and dark
       letterSpacing: '-.02em', fontFamily: 'var(--fn)', userSelect: 'none',
     }}>
       {payerInitials(name)}
@@ -232,7 +232,7 @@ export function PayersTab({ db, search, setSearch, fType, setFType, openPayerMod
       <div style={{ display:'flex', gap:10, marginBottom:16, flexWrap:'wrap' }}>
         {[
           { label:'Total Payers',   val: totalCount },
-          { label:'Commercial',     val: db.payers.filter(p=>p.type==='Commercial').length,  color:'#1565C0' },
+          { label:'Commercial',     val: db.payers.filter(p=>p.type==='Commercial').length,  color:'var(--blue)' },
           { label:'Government',     val: db.payers.filter(p=>['Medicaid','Medicare','Medicare Advantage'].includes(p.type)).length, color:'#7c3aed' },
           { label:'With Active Enrollments', val: db.payers.filter(p => db.enrollments.some(e => e.payId===p.id && ['Active','Approved'].includes(e.stage))).length, color:'var(--success)' },
         ].map(s => (
@@ -272,9 +272,6 @@ export function PayersTab({ db, search, setSearch, fType, setFType, openPayerMod
               }}>{lbl}</button>
             ))}
           </div>
-          <button className="btn btn-primary btn-sm" onClick={()=>openPayerModal()} style={{ display:'flex', alignItems:'center', gap:5 }}>
-            <PlusIcon /> Add Payer
-          </button>
         </div>
       </div>
 
@@ -297,7 +294,7 @@ export function PayersTab({ db, search, setSearch, fType, setFType, openPayerMod
       {/* Empty state */}
       {!list.length && (
         <div className="empty-state">
-          <div className="empty-state-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1565C0" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+          <div className="empty-state-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
           <div className="empty-state-title">No payers found</div>
           <div className="empty-state-desc">{search||fType ? 'Try clearing filters.' : 'Add your first payer to get started.'}</div>
           {!search && !fType && <button className="btn btn-primary btn-sm" onClick={()=>openPayerModal()}>+ Add Payer</button>}
@@ -326,7 +323,7 @@ export function PayersTab({ db, search, setSearch, fType, setFType, openPayerMod
                     <div style={{ flex:1, minWidth:0 }}>
                       <div style={{ fontSize:13.5, fontWeight:800, color:'var(--text-1)', letterSpacing:'-.025em', marginBottom:3, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{p.name}</div>
                       <div style={{ display:'flex', gap:5, flexWrap:'wrap', alignItems:'center' }}>
-                        {p.type && <span style={{ fontSize:10.5, fontWeight:700, padding:'1px 7px', borderRadius:99, background:meta.bg, color:meta.color, border:`1px solid ${meta.color}25` }}>{p.type}</span>}
+                        {p.type && <span style={{ fontSize:10.5, fontWeight:700, padding:'1px 7px', borderRadius:99, background:meta.bg, color:meta.color, border:'1px solid var(--border-mid)' }}>{p.type}</span>}
                         {p.payerId && <span style={{ fontFamily:'var(--fn-mono)', fontSize:10.5, color:'var(--text-4)', background:'var(--elevated)', padding:'1px 6px', borderRadius:4 }}>{p.payerId}</span>}
                       </div>
                     </div>

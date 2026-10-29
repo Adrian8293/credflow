@@ -25,12 +25,12 @@ import { useTableViews } from '../../hooks/useTableViews.js'
 import { useGlobalContext } from '../../context/AppContext.jsx'
 
 const APP_COLUMNS = [
-  { id: 'appId', label: 'App ID' },
+  { id: 'appId', label: 'App ID', hiddenByDefault: true },
   { id: 'provId', label: 'Provider', locked: true },
   { id: 'payId', label: 'Payer' },
   { id: 'stage', label: 'Status' },
   { id: 'submitted', label: 'Submitted' },
-  { id: 'updated', label: 'Last updated' },
+  { id: 'updated', label: 'Last updated', hiddenByDefault: true },
   { id: 'followup', label: 'Follow-up' },
   { id: 'effective', label: 'Effective date', hiddenByDefault: true },
   { id: 'billable', label: 'Billable from', hiddenByDefault: true },
@@ -98,6 +98,7 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
   const [subtab, setSubtab]       = usePersistedState('lc_pref_apps_tab', 'All Applications', v => SUBTABS.includes(v))
   const [importOpen, setImportOpen] = useState(false)
   const [menuOpen, setMenuOpen]   = useState(null)
+  const [menuPos, setMenuPos]     = useState(null)   // { top, right } viewport coords so the menu is never clipped by the table
   const [selected, setSelected]   = useState(new Set())
   const [bulkStage, setBulkStage] = useState('')
   const [bulkDate, setBulkDate]   = useState('')
@@ -127,8 +128,15 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
     function handler(e) {
       if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(null)
     }
+    const close = () => setMenuOpen(null)
     document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    window.addEventListener('scroll', close, true)
+    window.addEventListener('resize', close)
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      window.removeEventListener('scroll', close, true)
+      window.removeEventListener('resize', close)
+    }
   }, [menuOpen])
 
   const total     = db.enrollments.length
@@ -206,10 +214,10 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
   return (
     <div className="page">
       {/* Page header */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+      <div style={{ marginBottom: 16 }}>
+        <div className="page-head-row" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
           <div>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-1)', letterSpacing: '-.04em', margin: 0, marginBottom: 4 }}>Applications</h2>
+            <h2 className="page-title" style={{ fontSize: 20, fontWeight: 800, color: 'var(--text-1)', letterSpacing: '-.04em', margin: 0, marginBottom: 4 }}>Applications</h2>
             <p style={{ fontSize: 12.5, color: 'var(--text-4)', margin: 0 }}>Track and manage all credentialing applications.</p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -224,7 +232,7 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
       </div>
 
       {/* KPI row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 10, marginBottom: 18 }}>
+      <div className="kpi-strip" style={{ marginBottom: 16 }}>
         {[
           { label: 'Total',        val: total,     accent: 'kpi-blue',   sub: 'All applications' },
           { label: 'Active Panels',val: active,    accent: 'kpi-green',  sub: 'Credentialed & active' },
@@ -255,8 +263,7 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
           <span className="si">{SearchIcon}</span>
           <input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by provider, payer, ID…" />
         </div>
-        <div style={{ display: 'flex', gap: 8, marginLeft: 'auto', alignItems: 'center', flexWrap: 'wrap' }}>
-          <TableViews tv={tv} builtIns={APP_VIEWS} getFilters={getFilters} setFilters={setFilters} />
+        <div className="toolbar-filters" style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
           <select aria-label="Filter by provider" className="filter-select" value={fProv} onChange={e => setFProv(e.target.value)}>
             <option value="">All Providers</option>
             {db.providers.map(p => <option key={p.id} value={p.id}>{p.fname} {p.lname}</option>)}
@@ -284,6 +291,9 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
               Clear ×
             </button>
           )}
+        </div>
+        <div className="toolbar-views" style={{ marginLeft: 'auto' }}>
+          <TableViews tv={tv} builtIns={APP_VIEWS} getFilters={getFilters} setFilters={setFilters} />
         </div>
       </div>
 
@@ -347,7 +357,7 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
               {tv.isOn('effective') && <th {...thProps('effective', 'Effective')} />}
               {tv.isOn('billable') && <th {...thProps('billableFrom', 'Billable from')} />}
               {tv.isOn('owner') && <th {...thProps('owner', 'Assigned to')} />}
-              <th style={{ width: 170 }}>Actions</th>
+              <th className="col-actions" style={{ width: 170 }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -406,7 +416,7 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
                   {tv.isOn('effective') && <td style={{ fontSize: 12.5, color: 'var(--text-3)', whiteSpace: 'nowrap' }}>{e.effective ? fmtDate(e.effective) : '—'}</td>}
                   {tv.isOn('billable') && <td style={{ fontSize: 12.5, color: 'var(--text-3)', whiteSpace: 'nowrap' }}>{e.billableFrom ? fmtDate(e.billableFrom) : '—'}</td>}
                   {tv.isOn('owner') && <td style={{ fontSize: 13 }}>{canAssign && 'assigneeId' in e ? e.owner : <span style={{ color: 'var(--text-3)' }}>—</span>}</td>}
-                  <td onClick={ev => ev.stopPropagation()} style={{ position: 'relative', whiteSpace: 'nowrap' }}>
+                  <td className="col-actions" onClick={ev => ev.stopPropagation()} style={{ whiteSpace: 'nowrap' }}>
                     <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
                       {next && (
                         <button
@@ -429,9 +439,16 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
                         </button>
                       )}
                       <div ref={isOpen ? menuRef : null} style={{ position: 'relative' }}>
-                        <button className="btn btn-secondary btn-sm" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => setMenuOpen(isOpen ? null : e.id)}>···</button>
+                        <button className="btn btn-secondary btn-sm" style={{ padding: '4px 10px', fontSize: 12 }} aria-label="More actions" aria-haspopup="menu" aria-expanded={isOpen}
+                          onClick={ev => {
+                            if (isOpen) { setMenuOpen(null); return }
+                            const r = ev.currentTarget.getBoundingClientRect()
+                            const below = window.innerHeight - r.bottom
+                            setMenuPos(below < 300 ? { bottom: window.innerHeight - r.top + 4, right: window.innerWidth - r.right } : { top: r.bottom + 4, right: window.innerWidth - r.right })
+                            setMenuOpen(e.id)
+                          }}>···</button>
                         {isOpen && (
-                          <div style={{ position: 'absolute', top: '100%', right: 0, zIndex: 50, background: 'var(--card)', border: '1.5px solid var(--border)', borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-lg)', minWidth: 190, overflow: 'hidden' }}>
+                          <div role="menu" style={{ position: 'fixed', ...(menuPos || { top: 0, right: 0 }), zIndex: 300, background: 'var(--card)', border: '1.5px solid var(--border)', borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-lg)', minWidth: 190, overflow: 'hidden' }}>
                             <button className="dropdown-item" onClick={() => { openEnrollModal(e.id); setMenuOpen(null) }}>✏ Edit Application</button>
                             {onDraftEmail && <button className="dropdown-item" onClick={() => { onDraftEmail(e); setMenuOpen(null) }}>{MailIcon} Draft Follow-up Email</button>}
                             <div style={{ height: 1, background: 'var(--border-l)', margin: '3px 0' }} />

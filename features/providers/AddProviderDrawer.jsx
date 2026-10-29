@@ -220,7 +220,7 @@ export function AddProviderDrawer({
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: npiExpanded ? 14 : 0, cursor: 'pointer' }}
                 onClick={() => setNpiExpanded(e => !e)}>
-                <div style={{ width: 28, height: 28, borderRadius: 8, background: 'var(--pr)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div style={{ width: 28, height: 28, borderRadius: 8, background: 'var(--pr-solid)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 </div>
                 <div style={{ flex: 1 }}>
@@ -415,7 +415,7 @@ export function AddProviderDrawer({
             }}>
               <div style={{
                 width: 44, height: 44, borderRadius: 12, flexShrink: 0,
-                background: 'var(--pr)', display: 'flex', alignItems: 'center',
+                background: 'var(--pr-solid)', display: 'flex', alignItems: 'center',
                 justifyContent: 'center', fontSize: 15, fontWeight: 800, color: '#fff',
               }}>
                 {(f('fname')[0] || '?').toUpperCase()}{(f('lname')[0] || '').toUpperCase()}
@@ -487,7 +487,7 @@ export function AddProviderDrawer({
           padding: '16px 24px', borderBottom: '1.5px solid var(--border)',
           flexShrink: 0, background: 'var(--card)',
         }}>
-          <div style={{ width: 32, height: 32, borderRadius: 9, background: 'var(--pr)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ width: 32, height: 32, borderRadius: 9, background: 'var(--pr-solid)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
           </div>
           <div style={{ flex: 1 }}>

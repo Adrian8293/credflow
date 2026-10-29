@@ -173,18 +173,25 @@ function NextExpiryCell({ prov }) {
 }
 
 // ─── ROW DROPDOWN ─────────────────────────────────────────────────────────────
-function RowMenu({ prov, onClose, openProvDetail, editProvider, syncFromNPPES }) {
+function RowMenu({ prov, pos, onClose, openProvDetail, editProvider, syncFromNPPES }) {
   const ref = useRef(null)
 
   useEffect(() => {
     function handler(e) { if (ref.current && !ref.current.contains(e.target)) onClose() }
     document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
+    // fixed-position menu: close if the page moves underneath it
+    window.addEventListener('scroll', onClose, true)
+    window.addEventListener('resize', onClose)
+    return () => {
+      document.removeEventListener('mousedown', handler)
+      window.removeEventListener('scroll', onClose, true)
+      window.removeEventListener('resize', onClose)
+    }
   }, [onClose])
 
   return (
     <div ref={ref} style={{
-      position: 'absolute', top: 'calc(100% + 4px)', right: 0, zIndex: 200,
+      position: 'fixed', ...(pos || { top: 0, right: 0 }), zIndex: 300,
       background: 'var(--card)', border: '1.5px solid var(--border-mid)',
       borderRadius: 'var(--r-lg)', boxShadow: 'var(--shadow-lg)',
       minWidth: 172, overflow: 'hidden',
@@ -224,6 +231,7 @@ export function Providers({
   openProvDetail, editProvider, setPage, setProvForm, setEditingId,
   setNpiInput, setNpiResult, syncFromNPPES, onAddProvider,
 }) {
+  const [menuPos, setMenuPos] = useState(null)
   const [menuOpen, setMenuOpen] = useState(null)
   const [quick, setQuick] = useState('')   // '' | 'expired' | 'soon' | 'low'
   const tv = useTableViews('providers', PROV_COLUMNS)
@@ -290,6 +298,7 @@ export function Providers({
           />
         </div>
 
+        <div className="toolbar-filters" style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
         <select className="filter-select" value={fStatus} onChange={e => setFStatus(e.target.value)} aria-label="Filter by status">
           <option value="">Status: All</option>
           <option>Active</option>
@@ -334,10 +343,14 @@ export function Providers({
           </button>
         )}
 
-        <span style={{ marginLeft: hasFilters ? 0 : 'auto' }}><TableViews tv={tv} builtIns={PROV_VIEWS} getFilters={getFilters} setFilters={setFilters} /></span>
-        <span style={{ fontSize: 12, color: 'var(--text-4)', whiteSpace: 'nowrap' }}>
-          {list.length} provider{list.length !== 1 ? 's' : ''}
-        </span>
+        </div>
+
+        <div className="toolbar-views" style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 12.5, color: 'var(--text-3)', whiteSpace: 'nowrap' }}>
+            {list.length} provider{list.length !== 1 ? 's' : ''}
+          </span>
+          <TableViews tv={tv} builtIns={PROV_VIEWS} getFilters={getFilters} setFilters={setFilters} />
+        </div>
       </div>
 
       {/* ── Quick filters ───────────────────────────────────────────────── */}
@@ -374,7 +387,7 @@ export function Providers({
               {tv.isOn('malpractice') && <th {...thProps('malExp', 'Malpractice expires')} />}
               {tv.isOn('dea') && <th {...thProps('deaExp', 'DEA expires')} />}
               {tv.isOn('caqhDue') && <th {...thProps('caqhDue', 'CAQH due')} />}
-              <th className="no-sort" style={{ width: 52, textAlign: 'center' }}>⋯</th>
+              <th className="no-sort col-actions" style={{ width: 52, textAlign: "center" }}><span className="sr-only">Actions</span>⋯</th>
             </tr>
           </thead>
           <tbody>
@@ -515,10 +528,16 @@ export function Providers({
                   {tv.isOn('caqhDue') && <td>{p.caqhDue ? fmtDate(p.caqhDue) : '—'}</td>}
 
                   {/* Actions */}
-                  <td onClick={e => e.stopPropagation()} style={{ position: 'relative', textAlign: 'center' }}>
+                  <td className="col-actions" onClick={e => e.stopPropagation()} style={{ textAlign: 'center' }}>
                     <button
                       className="btn btn-secondary btn-sm btn-icon"
-                      onClick={() => setMenuOpen(isMenuOpen ? null : p.id)}
+                      onClick={ev => {
+                        if (isMenuOpen) { setMenuOpen(null); return }
+                        const r = ev.currentTarget.getBoundingClientRect()
+                        const below = window.innerHeight - r.bottom
+                        setMenuPos(below < 260 ? { bottom: window.innerHeight - r.top + 4, right: window.innerWidth - r.right } : { top: r.bottom + 4, right: window.innerWidth - r.right })
+                        setMenuOpen(p.id)
+                      }}
                       aria-label={`Actions for ${p.fname} ${p.lname}`}
                       aria-expanded={isMenuOpen}
                       aria-haspopup="menu"
@@ -528,6 +547,7 @@ export function Providers({
                     {isMenuOpen && (
                       <RowMenu
                         prov={p}
+                        pos={menuPos}
                         onClose={() => setMenuOpen(null)}
                         openProvDetail={openProvDetail}
                         editProvider={editProvider}

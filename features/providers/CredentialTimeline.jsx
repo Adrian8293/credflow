@@ -62,7 +62,7 @@ export function CredentialTimeline({ providers, onOpenProvider }) {
           </div>
         ))}
         <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-          <div style={{ width: 2, height: 14, background: 'var(--pr)', borderRadius: 1 }} />
+          <div style={{ width: 2, height: 14, background: 'var(--pr-solid)', borderRadius: 1 }} />
           <span style={{ fontSize: 11.5, color: 'var(--text-3)' }}>Today</span>
         </div>
       </div>
@@ -118,7 +118,7 @@ export function CredentialTimeline({ providers, onOpenProvider }) {
                 {/* Today line */}
                 <div style={{
                   position: 'absolute', left: `${todayPct * 100}%`, top: 0, bottom: 0,
-                  width: 2, background: 'var(--pr)', borderRadius: 1, zIndex: 2,
+                  width: 2, background: 'var(--pr-solid)', borderRadius: 1, zIndex: 2,
                   boxShadow: '0 0 4px rgba(21,101,192,.4)',
                 }} />
 

@@ -131,11 +131,11 @@ export function Sidebar({ page, setPage, alertCount, expDocs, user, signOut, db,
                 <span className="brand-prime">LAC</span><span className="brand-credential">entra</span>
               </h1>
               <div className="sb-logo-sub">Credentialing Intelligence</div>
-              <div style={{ width: 32, height: 2, background: 'var(--pr)', borderRadius: 2, marginTop: 5, opacity: .6 }} />
+              <div style={{ width: 32, height: 2, background: 'var(--pr-solid)', borderRadius: 2, marginTop: 5, opacity: .6 }} />
             </div>
           ) : (
             <div style={{
-              width: 32, height: 32, background: 'var(--pr)', borderRadius: '4px 10px 4px 4px',
+              width: 32, height: 32, background: 'var(--pr-solid)', borderRadius: '4px 10px 4px 4px',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               color: '#fff', fontWeight: 800, fontSize: 13, letterSpacing: '-.01em',
               fontFamily: 'var(--fn-display)',

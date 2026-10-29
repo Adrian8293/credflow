@@ -73,7 +73,7 @@ function OnboardingChecklist({ db, setPage, openEnrollModal, openPayerModal }) {
   return (
     <div style={{ maxWidth: 520, margin: '60px auto', padding: '0 20px' }}>
       <div style={{ marginBottom: 28, textAlign: 'center' }}>
-        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--pr)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px', boxShadow: '0 8px 24px rgba(11,107,122,.2)', color: '#fff' }}>
+        <div style={{ width: 48, height: 48, borderRadius: 12, background: 'var(--pr-solid)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px', boxShadow: '0 8px 24px rgba(11,107,122,.2)', color: '#fff' }}>
           {I.prov}
         </div>
         <h2 style={{ fontFamily: 'var(--fn-display)', fontSize: 22, fontWeight: 800, color: 'var(--text-1)', letterSpacing: '-.04em', margin: '0 0 6px' }}>Welcome to LACentra</h2>
@@ -401,8 +401,8 @@ export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPaye
           <h2 className="dash-greeting" style={{ fontFamily: 'var(--fn-display)', fontSize: 22, fontWeight: 800, color: 'var(--text-1)', letterSpacing: '-.04em', margin: '0 0 5px', lineHeight: 1.1 }}>
             {greeting()}
           </h2>
-          <p style={{ fontSize: 12.5, color: expired > 0 || overdueTasks > 0 ? 'var(--red)' : critical > 0 ? 'var(--amber)' : 'var(--text-4)', margin: 0, display: 'flex', alignItems: 'center', gap: 5 }}>
-            {(expired > 0 || overdueTasks > 0) && <span style={{ display: 'inline-flex' }}>{I.alert}</span>}
+          <p className={`dash-status ${expired > 0 || overdueTasks > 0 ? 'is-red' : critical > 0 ? 'is-amber' : 'is-ok'}`} role="status">
+            {(expired > 0 || overdueTasks > 0 || critical > 0) && <span style={{ display: 'inline-flex' }}>{I.alert}</span>}
             {statusSummary}
           </p>
         </div>
@@ -412,8 +412,6 @@ export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPaye
           </button>
         </div>
       </div>
-
-      <SetupChecklist db={db} role={role} orgId={orgId} setPage={setPage} openEnrollModal={openEnrollModal} />
 
       {/* ── KPI Strip ───────────────────────────────────────────────────────── */}
       <div className="kpi-grid dash-kpis" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 22 }}>
@@ -479,6 +477,9 @@ export function Dashboard({ db, setPage, openEnrollModal, onDraftEmail, openPaye
 
         {/* ASIDE COLUMN */}
         <div className="dash-aside">
+
+          {/* First-run setup: a quiet one-line card, not the headline */}
+          <SetupChecklist compact db={db} role={role} orgId={orgId} setPage={setPage} openEnrollModal={openEnrollModal} />
 
           {/* Provider Breakdown */}
           <div className="card">
