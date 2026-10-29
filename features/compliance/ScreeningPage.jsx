@@ -4,6 +4,7 @@
  * compliance expectation). This page keeps the evidence: who was checked, on which list, when, and the result.
  * The OIG file is matched inside the browser; it is never uploaded.
  */
+import { CountUp } from '../../components/ui/CountUp.jsx'
 import { useMemo, useRef, useState } from 'react'
 import { Modal } from '../../components/ui/Modal.jsx'
 import { DateInput } from '../../components/ui/DateInput.jsx'
@@ -97,11 +98,11 @@ export function ScreeningPage({ db, setDb, toast, role, onOpenProvider }) {
 
       {!ready && <div style={{ ...card, borderColor: 'var(--amber)', background: 'rgba(180,83,9,.06)', fontSize: 13 }}>{MIGRATION_MSG}</div>}
 
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 14 }}>
+      <div className="kpi-strip" style={{ marginBottom: 14 }}>
         {[['Providers to screen', providers.length, ''], ['Need a check this month', dueCount, dueCount ? 'var(--amber)' : 'var(--green)'], ['Possible matches to review', flags.length, flags.length ? 'var(--red)' : 'var(--green)']].map(([l, n, c]) => (
-          <div key={l} style={{ ...card, marginBottom: 0, flex: '1 1 180px' }}>
-            <div style={{ fontSize: 26, fontWeight: 800, color: c || 'var(--text-1)' }}>{n}</div>
-            <div style={{ fontSize: 12.5, color: 'var(--text-3)' }}>{l}</div>
+          <div key={l} className="kpi">
+            <div className="kpi-label">{l}</div>
+            <div className="kpi-value" style={c ? { color: c } : undefined}><CountUp value={n} /></div>
           </div>
         ))}
       </div>

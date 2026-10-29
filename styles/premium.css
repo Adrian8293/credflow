@@ -44,9 +44,9 @@ html[data-theme="dark"] {
 body::before {
   content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
   background:
-    radial-gradient(900px 540px at 88% -10%, var(--glow-1), transparent 62%),
-    radial-gradient(780px 520px at 6% 110%, var(--glow-2), transparent 64%),
-    radial-gradient(560px 380px at 52% 42%, var(--glow-3), transparent 72%);
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(1100px 640px at 90% -12%, var(--glow-1), transparent 70%),
+    radial-gradient(900px 600px at 4% 112%, var(--glow-2), transparent 72%);
   animation: auroraDrift 28s ease-in-out infinite alternate;
 }
 @keyframes auroraDrift { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(-2%, 1.5%, 0) scale(1.06); } }

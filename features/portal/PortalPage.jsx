@@ -506,7 +506,7 @@ span.pt-muted.pt-pill{background:#F3F4F6;color:#4B5563}
 
 .pt-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#0B6B7A;color:#fff;border:2px solid #0B6B7A;border-radius:12px;padding:12px 20px;font-size:18px;font-weight:700;cursor:pointer;min-height:54px;text-decoration:none;font-family:inherit}
 .pt-btn:disabled{opacity:.6;cursor:default}
-.pt-btn-go{background:#059669;border-color:#059669;width:100%}
+.pt-btn-go{background:#047857;border-color:#047857;width:100%}
 .pt-btn-outline{background:#fff;color:#085563}
 .pt-btn-quiet{background:#fff;color:#065F46;border-color:#059669;min-height:48px}
 .pt-btn-small{min-height:46px;font-size:16px;padding:8px 16px}

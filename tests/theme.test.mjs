@@ -16,9 +16,9 @@ test('toggle flips between the two themes', () => {
   assert.equal(nextTheme('dark'), 'light')
   assert.equal(nextTheme(undefined), 'dark')
 })
-test('sign-in, invite and reset pages stay light', () => {
-  for (const p of ['/login', '/invite', '/invite/abc', '/reset-password']) assert.equal(themeForPath(p, 'dark', true), 'light', p)
-  for (const p of ['/', '/providers', '/loginhelp', '/settings']) assert.equal(themeForPath(p, 'dark', false), 'dark', p)
+test('sign-in, invite, reset and portal pages stay light', () => {
+  for (const p of ['/login', '/invite', '/invite/abc', '/reset-password', '/portal']) assert.equal(themeForPath(p, 'dark', true), 'light', p)
+  for (const p of ['/', '/providers', '/loginhelp', '/settings', '/portalx']) assert.equal(themeForPath(p, 'dark', false), 'dark', p)
   assert.equal(isAuthPath('/login'), true); assert.equal(isAuthPath('/logins'), false)
 })
 test('boot script is plain ES5 that sets data-theme and cannot throw', () => {
