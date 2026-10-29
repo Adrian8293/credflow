@@ -22,10 +22,10 @@ function Segmented({ legend, value, options, onChange }) {
 export function AppearanceControls() {
   const { choice, text, chooseTheme, chooseText } = useAppearance()
   return (
-    <div style={{ display: 'grid', gap: 18 }}>
+    <div style={{ display: 'grid', gap: 18, gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
       <Segmented legend="Theme" value={choice} options={THEMES} onChange={chooseTheme} />
       <Segmented legend="Text size" value={text} options={TEXT_SIZES.map(t => [t.id, t.label])} onChange={chooseText} />
-      <p style={{ fontSize: 13, color: 'var(--text-3)', margin: 0 }}>Saved on this device only. Sign-in pages always use the standard light design.</p>
+      <p style={{ fontSize: 13, color: 'var(--text-3)', margin: 0, gridColumn: '1 / -1' }}>Saved on this device only. Sign-in pages always use the standard light design.</p>
     </div>
   )
 }

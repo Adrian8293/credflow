@@ -378,3 +378,19 @@ html[data-text="xlarge"] { zoom: 1.25; }
 
 .kpi-btn { text-align: left; font: inherit; width: 100%; cursor: pointer; display: flex; flex-direction: column; justify-content: flex-start; color: inherit; }
 .kpi-btn:focus-visible { outline-offset: -3px; }
+
+/* ═══ Stage 83 — KPI strip for any count, empty states, spacing ═════════════ */
+.kpi-strip { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--border); }
+.kpi-strip > .kpi { background: var(--card); border-right: 0 !important; border-bottom: 0 !important; }
+.kpi-strip > .kpi:hover { background: var(--pr-ll); }
+.kpi-strip .kpi-green .kpi-value { color: var(--green); }
+.kpi-strip .kpi-label { text-align: left; }
+.kpi-strip .kpi-value { text-align: left; }
+
+.grid-2 + .grid-2, .grid-2 + .card, .card + .grid-2 { margin-top: 16px; }
+
+.empty-state { padding: 48px 20px; }
+.empty-state-icon, .empty-state .ei { width: 56px; height: 56px; margin: 0 auto 14px; display: grid; place-items: center; border-radius: 16px; background: var(--pr-ll); border: 1px solid var(--border); color: var(--pr); font-size: 26px; opacity: 1; }
+.empty-state-icon svg { width: 26px; height: 26px; }
+.empty-state-title, .empty-state h4 { font-size: 16px; font-weight: 700; color: var(--text-1); }
+.empty-state-desc { font-size: 14px; color: var(--text-3); max-width: 46ch; margin-left: auto; margin-right: auto; }

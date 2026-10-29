@@ -4,6 +4,7 @@
  * Layout: KPI strip → (main: pipeline + tasks) | (aside: alerts + queue)
  */
 
+import { CountUp } from '../../components/ui/CountUp.jsx'
 import { useState } from 'react'
 import { daysUntil, fmtDate, pNameShort, payName } from '../../lib/helpers.js'
 import { TodayInbox } from '../dashboard/TodayInbox.jsx'
@@ -144,7 +145,7 @@ function KpiCard({ label, value, sub, type = 'blue', icon, onClick, urgent }) {
         {urgent && <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--red)', boxShadow: '0 0 0 3px rgba(239,68,68,.2)', display: 'inline-block' }} />}
       </div>
       <div className="kpi-label">{label}</div>
-      <div className="kpi-value">{value}</div>
+      <div className="kpi-value"><CountUp value={value} /></div>
       {sub && <div className="kpi-sub">{sub}</div>}
     </div>
   )

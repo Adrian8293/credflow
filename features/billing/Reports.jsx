@@ -34,7 +34,7 @@ const Icon = {
   trend:    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>,
 }
 
-const COLORS = ['#1565C0','#10B981','#F59E0B','#7C3AED','#EF4444','#0891B2','#E11D48','#0D9488']
+const COLORS = ['var(--pr)','var(--green)','var(--amber)','var(--purple)','var(--red)','var(--cyan)','var(--rose)','var(--teal)']   // theme tokens so charts read in light and dark
 
 function SH({ icon, title }) {
   return (
@@ -317,16 +317,16 @@ export function Reports({ db, exportJSON, toast, onOpenProvider, onOpenEnrollmen
       {activeTab === 'Overview' && (
         <>
           {/* Summary KPIs */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 18 }}>
+          <div className="kpi-strip" style={{ marginBottom: 18 }}>
             {[
               { label: 'Total Applications', val: totalEnr, note: delta === null ? null : `${delta >= 0 ? '↑' : '↓'} ${Math.abs(delta)}% vs previous ${period.label.toLowerCase().replace('last ', '')}`, up: delta === null || delta >= 0, color: 'var(--pr)' },
               { label: 'Active', val: approvedEnr, note: totalEnr ? `${Math.round(approvedEnr / totalEnr * 100)}% of applications` : null, up: true, color: 'var(--success)' },
               { label: 'Avg Days to Effective', val: tat.avgDays === null ? '—' : `${tat.avgDays}d`, note: tat.n ? `from ${tat.n} application${tat.n === 1 ? '' : 's'} with both dates` : 'needs Submitted + Effective dates', up: true, color: 'var(--warning)' },
               { label: 'Denial Rate', val: denialRate === null ? '—' : `${denialRate}%`, note: totalEnr ? `${deniedEnr} of ${totalEnr}` : null, up: true, color: denialRate > 15 ? 'var(--danger)' : 'var(--success)' },
             ].map((k, i) => (
-              <div key={i} className="kpi" style={{ [`--kpi-accent`]: k.color }}>
+              <div key={i} className="kpi">
                 <div className="kpi-label">{k.label}</div>
-                <div className="kpi-value">{k.val}</div>
+                <div className="kpi-value" style={k.color && k.val !== '—' ? { color: k.color } : undefined}>{k.val}</div>
                 {k.note && <div style={{ fontSize: 11, fontWeight: 600, color: k.up ? 'var(--text-4)' : 'var(--danger)', marginTop: 4 }}>{k.note}</div>}
               </div>
             ))}
@@ -403,10 +403,10 @@ export function Reports({ db, exportJSON, toast, onOpenProvider, onOpenEnrollmen
 
       {activeTab === 'Applications' && (
         <div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10, marginBottom: 18 }}>
+          <div className="kpi-strip" style={{ marginBottom: 18 }}>
             {Object.entries(stages).map(([stage, count], i) => (
-              <div key={stage} className="kpi" style={{ textAlign: 'center' }}>
-                <div className="kpi-value" style={{ textAlign: 'center' }}>{count}</div>
+              <div key={stage} className="kpi">
+                <div className="kpi-value">{count}</div>
                 <div className="kpi-label">{stage}</div>
               </div>
             ))}

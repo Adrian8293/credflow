@@ -1,0 +1,175 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Lacentra — Premium layer (Stage 84): atmosphere, glass, gradients, motion.
+   Loaded after redesign.css. To roll back, remove its import in pages/_app.js.
+   Rules of the road:
+   - glass (backdrop-filter) only on small floating/summary surfaces, never on a
+     table or on anything that contains a position:fixed menu (it would trap it)
+   - text sits on opaque-enough surfaces (>=.72 light / >=.62 dark) so contrast holds
+   - all motion is transform/opacity, and is switched off for reduced-motion
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --glass: rgba(255,255,255,.74);
+  --glass-strong: rgba(255,255,255,.90);
+  --glass-edge: rgba(15,28,46,.08);
+  --glass-hi: rgba(255,255,255,.85);                    /* top inner highlight */
+  --glass-blur: saturate(1.5) blur(16px);
+  --glow-1: rgba(11,107,122,.14);
+  --glow-2: rgba(99,102,241,.075);
+  --glow-3: rgba(16,185,129,.05);
+  --btn-grad: linear-gradient(180deg, #0F8497 0%, #0A6575 100%);
+  --btn-grad-h: linear-gradient(180deg, #0D7789 0%, #085563 100%);
+  --btn-glow: 0 1px 0 rgba(255,255,255,.22) inset, 0 6px 16px -4px rgba(11,107,122,.45), 0 1px 2px rgba(15,28,46,.18);
+  --text-grad: linear-gradient(100deg, #0F1C2E 10%, #0B6B7A 90%);
+  --edge-grad: linear-gradient(135deg, rgba(11,107,122,.55), rgba(99,102,241,.25) 45%, rgba(15,28,46,.08) 100%);
+  --spring: cubic-bezier(.2, .9, .3, 1.15);
+}
+html[data-theme="dark"] {
+  --glass: rgba(19,27,41,.66);
+  --glass-strong: rgba(19,27,41,.92);
+  --glass-edge: rgba(255,255,255,.08);
+  --glass-hi: rgba(255,255,255,.07);
+  --glow-1: rgba(45,200,220,.16);
+  --glow-2: rgba(124,108,246,.13);
+  --glow-3: rgba(52,211,153,.06);
+  --btn-grad: linear-gradient(180deg, #0E8193 0%, #0A6272 100%);
+  --btn-grad-h: linear-gradient(180deg, #0C7384 0%, #095563 100%);
+  --btn-glow: 0 1px 0 rgba(255,255,255,.16) inset, 0 8px 22px -6px rgba(45,200,220,.38), 0 1px 2px rgba(0,0,0,.4);
+  --text-grad: linear-gradient(100deg, #F2F6FA 10%, #7FDCE9 95%);
+  --edge-grad: linear-gradient(135deg, rgba(85,201,218,.6), rgba(124,108,246,.35) 45%, rgba(255,255,255,.07) 100%);
+}
+
+/* ── Atmosphere: soft aurora behind everything ───────────────────────────── */
+.main { background: transparent; }
+body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(900px 540px at 88% -10%, var(--glow-1), transparent 62%),
+    radial-gradient(780px 520px at 6% 110%, var(--glow-2), transparent 64%),
+    radial-gradient(560px 380px at 52% 42%, var(--glow-3), transparent 72%);
+  animation: auroraDrift 28s ease-in-out infinite alternate;
+}
+@keyframes auroraDrift { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(-2%, 1.5%, 0) scale(1.06); } }
+
+/* ── Sidebar: gradient depth + animated active glow ───────────────────────── */
+.sidebar { background-image: linear-gradient(180deg, transparent 0%, var(--nav-active-bg) 140%); }
+.sb-logo h1 .brand-prime { background-image: var(--btn-grad); color: #fff; box-shadow: 0 4px 12px -3px rgba(11,107,122,.5); }
+html[data-theme="dark"] .sb-logo h1 .brand-prime { background-image: linear-gradient(135deg, #7FDCE9, #3FB8C9); color: #08222A; box-shadow: 0 4px 14px -3px rgba(85,201,218,.5); }
+.sb-item { position: relative; transition: background var(--dur-2) var(--ease-out), color var(--dur-2) var(--ease-out), transform var(--dur-2) var(--ease-out); }
+.sb-item svg { transition: transform var(--dur-2) var(--spring), opacity var(--dur-2) var(--ease-out); }
+.sb-item:hover svg { transform: translateX(2px) scale(1.08); opacity: 1; }
+.sb-item.active { background-image: linear-gradient(90deg, var(--nav-active-bg), transparent 120%); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--nav-accent) 22%, transparent); }
+.sb-item.active::before { box-shadow: 0 0 12px var(--nav-accent); }
+
+/* ── Glass: top bar, menus, dialogs, summary surfaces ─────────────────────── */
+.topbar { background: var(--glass); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); box-shadow: 0 1px 0 var(--glass-hi) inset, 0 8px 24px -16px rgba(15,28,46,.25); }
+.tb-dropdown, [role="menu"] {
+  background: var(--glass-strong) !important; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-edge) !important; box-shadow: 0 1px 0 var(--glass-hi) inset, var(--shadow-lg) !important;
+  animation: popIn var(--dur-2) var(--spring);
+}
+@keyframes popIn { from { opacity: 0; transform: translateY(-6px) scale(.97); } to { opacity: 1; transform: none; } }
+
+.overlay, .drawer-overlay { backdrop-filter: blur(6px) saturate(1.2); -webkit-backdrop-filter: blur(6px) saturate(1.2); }
+.modal, .drawer, .drawer-xl { background: var(--glass-strong); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); box-shadow: 0 1px 0 var(--glass-hi) inset, var(--shadow-xl); }
+.modal { animation: modalSpring var(--dur-3) var(--spring); }
+@keyframes modalSpring { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: none; } }
+.modal-header, .modal-footer { background: transparent; backdrop-filter: none; }
+
+/* KPI strips and the Today side cards: frosted panel with a gradient hairline edge */
+.dash-kpis, .kpi-strip {
+  position: relative; background: var(--glass) !important; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-edge); box-shadow: 0 1px 0 var(--glass-hi) inset, var(--shadow);
+}
+.dash-kpis::before, .kpi-strip::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 2px; z-index: 1; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--pr) 30%, #7C6CF6 70%, transparent); opacity: .85;
+}
+.kpi-strip { gap: 0; }
+.kpi-strip > .kpi { background: transparent !important; border-right: 1px solid var(--glass-edge) !important; }
+.kpi-strip > .kpi:last-child { border-right: 0 !important; }
+.dash-kpis > .kpi, .kpi-strip > .kpi { transition: background var(--dur-2) var(--ease-out); }
+.dash-kpis > .kpi:hover, .kpi-strip > .kpi:hover { background: linear-gradient(180deg, var(--pr-l), transparent) !important; }
+.kpi-value { background: var(--text-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: var(--text-1); }
+.kpi-red .kpi-value, .kpi-amber .kpi-value, .kpi-green .kpi-value, .kpi-value[style*="color"] { background: none; -webkit-text-fill-color: currentColor; }
+.dash-aside > .card { background: var(--glass); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border-color: var(--glass-edge); box-shadow: 0 1px 0 var(--glass-hi) inset, var(--shadow); }
+@media (max-width: 640px) { .kpi-strip > .kpi:nth-child(2n) { border-right: 0 !important; } }
+
+/* The lead card on Today gets a gradient edge */
+.dash-main > .card:first-child {
+  border: 1px solid transparent;
+  background: linear-gradient(var(--card), var(--card)) padding-box, var(--edge-grad) border-box;
+}
+
+/* ── Gradients on controls and accents ───────────────────────────────────── */
+.btn-primary { background: var(--btn-grad); border-color: transparent; box-shadow: var(--btn-glow); position: relative; overflow: hidden; }
+.btn-primary:hover:not(:disabled) { background: var(--btn-grad-h); border-color: transparent; transform: translateY(-1px); box-shadow: var(--btn-glow), 0 10px 24px -8px rgba(11,107,122,.5); }
+.btn-primary:active:not(:disabled) { transform: translateY(0) scale(.98); }
+.btn-primary::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.28) 50%, transparent 65%); transform: translateX(-120%); transition: transform .7s var(--ease-out); pointer-events: none; }
+.btn-primary:hover:not(:disabled)::after { transform: translateX(120%); }
+.btn-secondary { transition: background var(--dur-2) var(--ease-out), border-color var(--dur-2) var(--ease-out), transform var(--dur-2) var(--spring), box-shadow var(--dur-2) var(--ease-out); }
+.btn-secondary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-secondary:active:not(:disabled) { transform: scale(.98); }
+
+.progress-fill, .setup-compact-bar > div { background-image: linear-gradient(90deg, var(--pr-solid), #3FB8C9 70%, #7C6CF6); transform-origin: left; animation: growX .9s var(--ease-out) backwards; }
+@keyframes growX { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.tab.active { border-image: linear-gradient(90deg, var(--pr), #7C6CF6) 1; }
+.sb-avatar, .tb-avatar { background-image: linear-gradient(135deg, #3FB8C9, #0B6B7A); color: #fff; }
+.page-header h2, .dash-greeting, .page-title { background: var(--text-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: var(--text-1); }
+.dash-status { backdrop-filter: blur(8px); }
+.dash-header { position: relative; padding: 4px 0 2px; }
+
+/* ── Motion ──────────────────────────────────────────────────────────────── */
+/* Page content cascades in. fill-mode is "backwards" so nothing lingers (no stray stacking contexts) once done. */
+.page > *, .dash-main > *, .dash-aside > * { animation: cascade .55s var(--ease-out) backwards; }
+.page > *:nth-child(2), .dash-main > *:nth-child(2), .dash-aside > *:nth-child(2) { animation-delay: 60ms; }
+.page > *:nth-child(3), .dash-main > *:nth-child(3), .dash-aside > *:nth-child(3) { animation-delay: 120ms; }
+.page > *:nth-child(4), .dash-main > *:nth-child(4), .dash-aside > *:nth-child(4) { animation-delay: 180ms; }
+.page > *:nth-child(5) { animation-delay: 240ms; }
+.page > *:nth-child(n+6) { animation-delay: 300ms; }
+@keyframes cascade { from { opacity: 0; transform: translateY(14px); filter: blur(4px); } to { opacity: 1; transform: none; filter: none; } }
+/* the KPI cells of a strip step in one after another */
+.dash-kpis > .kpi, .kpi-strip > .kpi { animation: cellIn .5s var(--ease-out) backwards; }
+.dash-kpis > .kpi:nth-child(2), .kpi-strip > .kpi:nth-child(2) { animation-delay: 90ms; }
+.dash-kpis > .kpi:nth-child(3), .kpi-strip > .kpi:nth-child(3) { animation-delay: 160ms; }
+.dash-kpis > .kpi:nth-child(4), .kpi-strip > .kpi:nth-child(4) { animation-delay: 230ms; }
+.dash-kpis > .kpi:nth-child(5), .kpi-strip > .kpi:nth-child(5) { animation-delay: 300ms; }
+@keyframes cellIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* table rows and list rows ripple in */
+tbody tr { animation: rowIn .45s var(--ease-out) backwards; transition: background var(--dur-1) var(--ease-out); }
+tbody tr:nth-child(2) { animation-delay: 30ms; } tbody tr:nth-child(3) { animation-delay: 60ms; } tbody tr:nth-child(4) { animation-delay: 90ms; }
+tbody tr:nth-child(5) { animation-delay: 120ms; } tbody tr:nth-child(6) { animation-delay: 150ms; } tbody tr:nth-child(7) { animation-delay: 180ms; }
+tbody tr:nth-child(8) { animation-delay: 210ms; } tbody tr:nth-child(n+9) { animation-delay: 240ms; }
+@keyframes rowIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+tbody tr:hover { background: linear-gradient(90deg, var(--pr-ll), transparent 85%); }
+.alert-feed-item, .alert-item, .task-row { transition: transform var(--dur-2) var(--ease-out), background var(--dur-2) var(--ease-out), box-shadow var(--dur-2) var(--ease-out); }
+.alert-feed-item:hover { transform: translateX(3px); }
+.alert-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+/* live indicators */
+.alert-severity.critical, .tb-badge { animation: livePulse 2.4s ease-in-out infinite; }
+@keyframes livePulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(220,60,60,.45); } 55% { box-shadow: 0 0 0 7px rgba(220,60,60,0); } }
+.skeleton { background: linear-gradient(90deg, var(--elevated), var(--bg-2), var(--elevated)); }
+
+/* chips and badges respond to touch/hover */
+.badge, .pill, .sort-pill { transition: transform var(--dur-2) var(--spring), box-shadow var(--dur-2) var(--ease-out); }
+.sort-pill:hover { transform: translateY(-1px); }
+.card { transition: box-shadow var(--dur-3) var(--ease-out), border-color var(--dur-3) var(--ease-out); }
+.card:hover { box-shadow: var(--shadow-md); }
+.tbl-wrap, .dash-main > .card { transition: box-shadow var(--dur-3) var(--ease-out); }
+
+/* ── Reduced motion + low-power: keep the look, drop the movement and blur ─ */
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
+  .page > *, .dash-main > *, .dash-aside > *, .dash-kpis > .kpi, .kpi-strip > .kpi, tbody tr, .modal, .tb-dropdown, [role="menu"], .progress-fill, .setup-compact-bar > div { animation: none !important; }
+  .btn-primary::after { display: none; }
+  .alert-severity.critical, .tb-badge { animation: none; }
+  .btn-primary:hover:not(:disabled), .btn-secondary:hover:not(:disabled), .alert-feed-item:hover, .alert-item:hover, .sb-item:hover svg { transform: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .topbar, .tb-dropdown, [role="menu"], .modal, .drawer, .drawer-xl, .dash-kpis, .kpi-strip, .dash-aside > .card { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--card) !important; }
+}
+@media (forced-colors: active) {
+  .kpi-value, .page-header h2, .dash-greeting, .page-title { background: none; -webkit-text-fill-color: currentColor; }
+}

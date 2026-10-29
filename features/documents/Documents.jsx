@@ -4,6 +4,7 @@
  * provider avatars, and visual status system.
  */
 
+import { CountUp } from '../../components/ui/CountUp.jsx'
 import { useState } from 'react'
 import { useSorted } from '../../hooks/useSorted.js'
 import { NO_EXPIRY_TYPES } from '../../hooks/useDocumentActions.js'
@@ -121,22 +122,17 @@ export function Documents({ db, search, setSearch, fType, setFType, fStatus, set
     <div className="page">
 
       {/* Summary strip */}
-      <div style={{ display: 'flex', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
+      <div className="kpi-strip" style={{ marginBottom: 16 }}>
         {[
-          { label: 'Total Docs',   val: db.documents.length, color: 'var(--text-1)' },
-          { label: 'Expired',      val: expired,   color: '#dc2626',        active: expired > 0 },
-          { label: 'Critical ≤30d',val: critical,  color: '#ef4444',        active: critical > 0 },
-          { label: 'Expiring ≤90d',val: warning,   color: '#d97706',        active: warning > 0 },
-          { label: 'Files Attached', val: withFile, color: 'var(--success)' },
+          { label: 'Total documents', val: db.documents.length, cls: '' },
+          { label: 'Expired',         val: expired,  cls: 'kpi-red' },
+          { label: 'Critical (30 days)', val: critical, cls: 'kpi-red' },
+          { label: 'Expiring (90 days)', val: warning,  cls: 'kpi-amber' },
+          { label: 'Files attached',  val: withFile, cls: 'kpi-green' },
         ].map(s => (
-          <div key={s.label} style={{
-            padding: '8px 14px', background: 'var(--card)',
-            border: `1.5px solid ${s.active ? `${s.color}40` : 'var(--border)'}`,
-            borderRadius: 10, display: 'flex', flexDirection: 'column', gap: 1,
-            boxShadow: s.active ? `0 0 0 3px ${s.color}10` : 'none',
-          }}>
-            <span style={{ fontSize: 18, fontWeight: 900, color: s.color, letterSpacing: '-.04em' }}>{s.val}</span>
-            <span style={{ fontSize: 10.5, color: 'var(--text-4)', fontWeight: 600 }}>{s.label}</span>
+          <div key={s.label} className={`kpi ${s.cls}`}>
+            <div className="kpi-label">{s.label}</div>
+            <div className="kpi-value"><CountUp value={s.val} /></div>
           </div>
         ))}
       </div>

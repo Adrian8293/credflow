@@ -3,6 +3,7 @@
  * Credential expiration alerts with categorized urgency levels and action buttons.
  */
 
+import { CountUp } from '../../components/ui/CountUp.jsx'
 import { useState } from 'react'
 import { fmtDate, daysUntil, getProviderAlerts, pNameShort, payName } from '../../lib/helpers.js'
 import { DateInput } from '../../components/ui/DateInput.jsx'
@@ -161,7 +162,7 @@ export function Alerts({ db, onOpenProvider, onDraftEmail, onMarkDone, onOpenEnr
           ].map((kpi, i) => (
             <button key={i} type="button" className={`kpi kpi-btn ${kpi.cls}`} onClick={() => setActiveTab(kpi.tab)} aria-label={`${kpi.label}: ${kpi.count}. Show ${kpi.tab}`}>
               <div className="kpi-label">{kpi.label}</div>
-              <div className="kpi-value">{kpi.count}</div>
+              <div className="kpi-value"><CountUp value={kpi.count} /></div>
               <div className="kpi-sub">{kpi.sub}</div>
             </button>
           ))}

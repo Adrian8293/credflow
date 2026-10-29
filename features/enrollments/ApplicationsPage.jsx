@@ -8,6 +8,7 @@
  *  4. Pagination via usePagination hook (25 per page)
  */
 
+import { CountUp } from '../../components/ui/CountUp.jsx'
 import { useState, useEffect, useRef } from 'react'
 import { STAGES } from '../../constants/stages.js'
 import { StageBadge } from '../../components/ui/Badge.jsx'
@@ -241,7 +242,7 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
         ].map(k => (
           <div key={k.label} className={`kpi ${k.accent}`}>
             <div className="kpi-label">{k.label}</div>
-            <div className="kpi-value">{k.val}</div>
+            <div className="kpi-value"><CountUp value={k.val} /></div>
             <div className="kpi-sub">{k.sub}</div>
           </div>
         ))}
