@@ -423,3 +423,5 @@ html[data-text="xlarge"] { zoom: 1.25; }
 @media (prefers-reduced-motion: reduce) {
   .skeleton, .skeleton::after { animation: none !important; }
 }
+
+[role="dialog"]:focus { outline: none; }

@@ -11,7 +11,8 @@
 
 import { EmptyIcon } from '../../components/ui/EmptyIcon.jsx'
 import { safeUrl } from '../../lib/safeUrl.js'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { useDialog } from '../../hooks/useDialog.js'
 import { DocViewerModal } from '../documents/DocViewerModal.jsx'
 import { daysUntil, fmtDate, fmtTS } from '../../lib/helpers.js'
 import OpcaUploadPanel from '../../components/OpcaUploadPanel'
@@ -602,6 +603,8 @@ const NEXT_BUTTON = { edit: 'Edit provider', renew: 'Record renewal', enroll: 'N
 export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollModal, toast, syncFromNPPES, onSaveLicense, onDeleteLicense, onRenewCredential, onSyncRenewalDocument, onAddDocument, staff, userId, onAssign }) {
   const [renew, setRenew] = useState(null)   // { kind, license? } — which credential is being renewed
   const [tab, setTab] = useState('overview')
+  const dialogRef = useRef(null)
+  useDialog(dialogRef, onClose, { active: !!prov })
 
   if (!prov) return null
 
@@ -650,7 +653,7 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
   return (
     <>
       <div className="drawer-overlay open" onClick={onClose} aria-hidden="true" />
-      <div className="drawer-xl" role="dialog" aria-modal="true" aria-label={`Provider profile: ${prov.fname} ${prov.lname}`}>
+      <div ref={dialogRef} className="drawer-xl" role="dialog" aria-modal="true" aria-label={`Provider profile: ${prov.fname} ${prov.lname}`}>
 
         {/* ── Sticky header ─────────────────────────────────────────────── */}
         <div className="drawer-header" style={{ paddingBottom: 0, borderBottom: 'none', flexDirection: 'column', gap: 0 }}>

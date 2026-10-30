@@ -1,7 +1,10 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { useDialog } from '../../hooks/useDialog.js'
 
 export function NpiSyncModal({ data, onApply, onClose, saving }) {
   const { prov, diffs, card } = data
+  const dialogRef = useRef(null)
+  useDialog(dialogRef, onClose)
   const [selected, setSelected] = useState(() => new Set(diffs.map(d => d.field)))
 
   function toggle(field) {
@@ -14,7 +17,7 @@ export function NpiSyncModal({ data, onApply, onClose, saving }) {
 
   return (
     <div className="overlay open" onClick={e => { if (e.target === e.currentTarget) onClose() }}>
-      <div className="modal" style={{ maxWidth: 560 }}>
+      <div ref={dialogRef} className="modal" role="dialog" aria-modal="true" aria-label="Sync from NPPES" style={{ maxWidth: 560 }}>
         <div className="modal-header">
           <div>
             <h3>↻ Sync from NPPES</h3>

@@ -18,7 +18,8 @@
  */
 
 import { US_STATES } from '../../constants/usStates.js'
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { useDialog } from '../../hooks/useDialog.js'
 import { NpiLookupPanel } from './NpiLookupPanel.jsx'
 import { DateInput } from '../../components/ui/DateInput.jsx'
 
@@ -149,6 +150,9 @@ export function AddProviderDrawer({
   useEffect(() => {
     if (open) { setStep('basic'); setCompleted([]); setErrors({}) }
   }, [open])
+
+  const dialogRef = useRef(null)
+  useDialog(dialogRef, onClose, { active: open, escape: false })   // focus + Tab trap + focus return (Escape handled below)
 
   // Close on Escape
   useEffect(() => {
@@ -473,7 +477,7 @@ export function AddProviderDrawer({
       }} />
 
       {/* Drawer panel */}
-      <div style={{
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={isEdit ? 'Edit provider' : 'Add new provider'} style={{
         position: 'fixed', top: 0, right: 0, bottom: 0,
         width: 'min(580px, 100vw)', background: 'var(--card)',
         boxShadow: '-12px 0 48px rgba(0,0,0,.18)',
