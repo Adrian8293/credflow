@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useRouter } from 'next/router'
 import { useGlobalContext } from '../context/AppContext'
 import { Sidebar } from './ui/Sidebar.jsx'
@@ -88,6 +88,13 @@ export function Layout({ children }) {
   // Phone/tablet: the sidebar slides in over the page; it closes when you pick a page.
   const [navOpen, setNavOpen] = React.useState(false)
   useEffect(() => { setNavOpen(false) }, [router.asPath])
+  // After navigating to a different page, move keyboard/screen-reader focus to the content (not on first load).
+  const lastPath = useRef(router.pathname)
+  useEffect(() => {
+    if (lastPath.current === router.pathname) return
+    lastPath.current = router.pathname
+    document.getElementById('main-content')?.focus({ preventScroll: true })
+  }, [router.pathname])
   useEffect(() => {
     if (!navOpen) return
     const onKey = (e) => { if (e.key === 'Escape') setNavOpen(false) }
@@ -131,6 +138,7 @@ export function Layout({ children }) {
 
   return (
     <div className="app-root">
+      <a href="#main-content" className="skip-link">Skip to main content</a>
       {idleBanner}
       {navOpen && <div className="sb-backdrop" onClick={() => setNavOpen(false)} aria-hidden="true" />}
       <Sidebar
@@ -165,9 +173,9 @@ export function Layout({ children }) {
           openProvDetail={openProvDetail}
         />
 
-        <div className="pages">
+        <main className="pages" id="main-content" tabIndex={-1}>
           <RouteErrorBoundary resetKey={router.asPath}>{children}</RouteErrorBoundary>
-        </div>
+        </main>
       </div>
       <MobileTabBar
         menuOpen={navOpen}

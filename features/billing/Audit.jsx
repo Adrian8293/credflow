@@ -124,11 +124,11 @@ export function Audit({ db, search, setSearch, fType, setFType }) {
           </span>
           <input type="text" value={search} onChange={e => { setSearch(e.target.value); setShown(PAGE) }} placeholder="Search audit log…" />
         </div>
-        <select className="filter-select" value={fType} onChange={e => { setFType(e.target.value); setShown(PAGE) }}>
+        <select className="filter-select" aria-label="Filter by event type" value={fType} onChange={e => { setFType(e.target.value); setShown(PAGE) }}>
           <option value="">All types</option>
           {types.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
-        <select className="filter-select" value={fUser} onChange={e => { setFUser(e.target.value); setShown(PAGE) }}>
+        <select className="filter-select" aria-label="Filter by user" value={fUser} onChange={e => { setFUser(e.target.value); setShown(PAGE) }}>
           <option value="">All users</option>
           {users.map(u => <option key={u} value={u}>{u}</option>)}
         </select>

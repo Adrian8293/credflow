@@ -212,13 +212,13 @@ export function DocumentsPage({ db, docSearch, setDocSearch, docFType, setDocFTy
           </button>
         </div>
       </div>
-      <div className="tabs">
+      <div className="tabs" role="tablist">
         {TABS.map(t => (
-          <div key={t.id} className={`tab${tab === t.id ? ' active' : ''}`} onClick={() => setTab(t.id)}>
+          <button type="button" role="tab" aria-selected={tab === t.id} key={t.id} className={`tab${tab === t.id ? ' active' : ''}`} onClick={() => setTab(t.id)}>
             {t.label}
             {t.id === 'expiring' && expCount > 0 && <span style={{ marginLeft: 5, background: 'rgba(245,158,11,.15)', color: 'var(--amber-d)', border: '1px solid rgba(245,158,11,.3)', borderRadius: 9, padding: '1px 6px', fontSize: 10, fontWeight: 700 }}>{expCount}</span>}
             {t.id === 'missing'  && <span style={{ marginLeft: 5, background: 'rgba(239,68,68,.1)', color: '#991B1B', border: '1px solid rgba(239,68,68,.22)', borderRadius: 9, padding: '1px 6px', fontSize: 10, fontWeight: 700 }}>{missCount}</span>}
-          </div>
+          </button>
         ))}
       </div>
 

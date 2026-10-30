@@ -170,9 +170,9 @@ export function GroupsPage({ db, setDb, toast, openEnrollModal }) {
             <div><button className="btn btn-secondary" onClick={() => setEntityForm({ ...entity })}>Edit group</button></div>
           </div>
 
-          <div className="tabs">
+          <div className="tabs" role="tablist">
             {[['roster', `Roster (${roster.length})`], ['contracts', `Contracts (${contracts.length})`], ['locations', `Locations (${locations.length})`]].map(([k, l]) => (
-              <div key={k} className={`tab${tab === k ? ' active' : ''}`} onClick={() => setTab(k)}>{l}</div>
+              <button type="button" role="tab" aria-selected={tab === k} key={k} className={`tab${tab === k ? ' active' : ''}`} onClick={() => setTab(k)}>{l}</button>
             ))}
           </div>
 

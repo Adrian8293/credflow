@@ -162,9 +162,9 @@ export function ProvidersPage({
       {view === 'table' && (
         <>
           {/* Subtabs with counts */}
-          <div className="tabs" style={{ marginBottom: 14 }}>
+          <div className="tabs" role="tablist" style={{ marginBottom: 14 }}>
             {TABLE_TABS.map(t => (
-              <div key={t.id} className={`tab${tableTab===t.id ? ' active':''}`} onClick={() => setTableTab(t.id)}>
+              <button type="button" role="tab" aria-selected={tableTab===t.id} key={t.id} className={`tab${tableTab===t.id ? ' active':''}`} onClick={() => setTableTab(t.id)}>
                 {t.label}
                 <span style={{
                   marginLeft:5, background:'var(--elevated)', border:'1px solid var(--border)',
@@ -174,7 +174,7 @@ export function ProvidersPage({
                 }}>
                   {tabCount(t.id)}
                 </span>
-              </div>
+              </button>
             ))}
           </div>
 

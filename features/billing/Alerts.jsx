@@ -169,14 +169,14 @@ export function Alerts({ db, onOpenProvider, onDraftEmail, onMarkDone, onOpenEnr
         </div>
       )}
 
-      <div className="tabs">
+      <div className="tabs" role="tablist">
         {TABS.map(t => (
-          <div key={t} className={`tab${activeTab === t ? ' active' : ''}`} onClick={() => setActiveTab(t)}>
+          <button type="button" role="tab" aria-selected={activeTab === t} key={t} className={`tab${activeTab === t ? ' active' : ''}`} onClick={() => setActiveTab(t)}>
             {t}
             {t === 'Critical' && (expired.length + critical.length) > 0 && (
               <span style={{ marginLeft: 6, background: 'var(--danger)', color: '#fff', fontSize: 9.5, fontWeight: 700, padding: '1px 6px', borderRadius: 20 }}>{expired.length + critical.length}</span>
             )}
-          </div>
+          </button>
         ))}
       </div>
 

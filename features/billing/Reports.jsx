@@ -310,8 +310,8 @@ export function Reports({ db, exportJSON, toast, onOpenProvider, onOpenEnrollmen
         <span style={{ fontSize: 11.5, color: 'var(--text-4)' }}>Provider, compliance and active-panel numbers always show today’s state.</span>
       </div>
 
-      <div className="tabs">
-        {TABS.map(t => <div key={t} className={`tab${activeTab === t ? ' active' : ''}`} onClick={() => setActiveTab(t)}>{t}{t === 'Data Quality' && dqCount > 0 && <span style={{ marginLeft: 6, background: 'var(--danger)', color: '#fff', fontSize: 9.5, fontWeight: 700, padding: '1px 6px', borderRadius: 20 }}>{dqCount}</span>}</div>)}
+      <div className="tabs" role="tablist">
+        {TABS.map(t => <button type="button" role="tab" aria-selected={activeTab === t} key={t} className={`tab${activeTab === t ? ' active' : ''}`} onClick={() => setActiveTab(t)}>{t}{t === 'Data Quality' && dqCount > 0 && <span style={{ marginLeft: 6, background: 'var(--danger)', color: '#fff', fontSize: 9.5, fontWeight: 700, padding: '1px 6px', borderRadius: 20 }}>{dqCount}</span>}</button>)}
       </div>
 
       {activeTab === 'Overview' && (

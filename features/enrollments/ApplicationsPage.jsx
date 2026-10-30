@@ -249,12 +249,12 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
       </div>
 
       {/* Subtabs */}
-      <div className="tabs" style={{ marginBottom: 14 }}>
+      <div className="tabs" role="tablist" style={{ marginBottom: 14 }}>
         {SUBTABS.map(t => (
-          <div key={t} className={`tab${subtab === t ? ' active' : ''}`} onClick={() => { setSubtab(t); setSelected(new Set()) }}>
+          <button type="button" role="tab" aria-selected={subtab === t} key={t} className={`tab${subtab === t ? ' active' : ''}`} onClick={() => { setSubtab(t); setSelected(new Set()) }}>
             {t}
             <span style={{ marginLeft: 5, fontSize: 10, fontWeight: 700, background: subtab === t ? 'rgba(21,101,192,.12)' : 'var(--elevated)', color: subtab === t ? 'var(--pr)' : 'var(--text-4)', border: '1px solid var(--border)', borderRadius: 9, padding: '1px 6px' }}>{tabCount(t)}</span>
-          </div>
+          </button>
         ))}
       </div>
 

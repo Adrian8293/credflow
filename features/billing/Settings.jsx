@@ -89,9 +89,9 @@ export function Settings({ settingsForm, setSettingsForm, handleSaveSettings, ex
         </div>
       </div>
 
-      <div className="tabs" style={{ marginBottom: 24 }}>
+      <div className="tabs" role="tablist" style={{ marginBottom: 24 }}>
         {TABS.map(t => (
-          <div key={t} className={`tab${activeTab === t ? ' active' : ''}`} onClick={() => setActiveTab(t)}>{t}</div>
+          <button type="button" role="tab" aria-selected={activeTab === t} key={t} className={`tab${activeTab === t ? ' active' : ''}`} onClick={() => setActiveTab(t)}>{t}</button>
         ))}
       </div>
 

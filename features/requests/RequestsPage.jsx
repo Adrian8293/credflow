@@ -118,11 +118,11 @@ export function RequestsPage({ db, setDb, toast }) {
         <button className="btn btn-primary" onClick={() => setForm({ provIds: [], docType: 'W-9', title: '', note: '', due: (() => { const d = new Date(); d.setDate(d.getDate() + 14); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}` })() })}>+ New request</button>
       </div>
 
-      <div className="tabs" style={{ marginBottom: 14 }}>
+      <div className="tabs" role="tablist" style={{ marginBottom: 14 }}>
         {TABS.map(([k, l]) => (
-          <div key={k} className={`tab${tab === k ? ' active' : ''}`} onClick={() => setTab(k)}>
+          <button type="button" role="tab" aria-selected={tab === k} key={k} className={`tab${tab === k ? ' active' : ''}`} onClick={() => setTab(k)}>
             {l}{counts[k] > 0 && k !== 'all' ? ` (${counts[k]})` : ''}
-          </div>
+          </button>
         ))}
       </div>
 

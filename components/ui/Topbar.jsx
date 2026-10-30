@@ -263,7 +263,7 @@ export function Topbar({
   ]
 
   return (
-    <div className="topbar">
+    <header className="topbar">
       <button className="topbar-menu" onClick={onMenu} aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
       </button>
@@ -393,7 +393,7 @@ export function Topbar({
         {/* ── Theme: sun = light, moon = dark ─────────────────────────── */}
         <ThemeToggle />
       </div>
-    </div>
+    </header>
   )
 }
 
