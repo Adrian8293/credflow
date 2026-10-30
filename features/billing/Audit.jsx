@@ -3,6 +3,7 @@
  * Full audit trail with search, type filtering, and compliance export.
  */
 
+import { PrintButton } from '../../components/ui/PrintButton.jsx'
 import { useMemo, useState } from 'react'
 import { fmtTS } from '../../lib/helpers.js'
 import { DateInput } from '../../components/ui/DateInput.jsx'
@@ -92,6 +93,7 @@ export function Audit({ db, search, setSearch, fType, setFType }) {
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
             Append-only
           </div>
+          <PrintButton />
           <button className="btn btn-secondary btn-sm" onClick={() => exportAuditCSV(list)} disabled={!list.length} title="Download the entries currently shown as CSV">↓ Export CSV</button>
         </div>
       </div>

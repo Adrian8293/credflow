@@ -4,6 +4,8 @@
  * application breakdowns, provider stats, payer analysis, turnaround time.
  */
 
+import { EmptyIcon } from '../../components/ui/EmptyIcon.jsx'
+import { PrintButton } from '../../components/ui/PrintButton.jsx'
 import { downloadCsv as saveCsv } from '../../lib/csv.js'
 import { useState } from 'react'
 import { payName, getProviderAlerts } from '../../lib/helpers.js'
@@ -291,7 +293,8 @@ export function Reports({ db, exportJSON, toast, onOpenProvider, onOpenEnrollmen
           <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-.03em', marginBottom: 3 }}>Reports</h2>
           <p style={{ fontSize: 13, color: 'var(--text-4)' }}>Analyze performance and credentialing metrics across Lacentra.</p>
         </div>
-        <div className="hide-on-phone" style={{ display: 'flex', gap: 8 }}>
+        <div className="hide-on-phone no-print" style={{ display: 'flex', gap: 8 }}>
+          <PrintButton />
           <button className="btn btn-secondary btn-sm" onClick={exportXLSX} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {Icon.download} Export Excel (.xlsx)
           </button>
@@ -503,7 +506,7 @@ export function Reports({ db, exportJSON, toast, onOpenProvider, onOpenEnrollmen
             <div className="card-header"><SH icon={Icon.clock} title="Avg Days from Submitted to Effective, by Payer" /></div>
             <div className="card-body">
               {tat.byPayer.length === 0 ? (
-                <div className="empty-state"><div className="empty-state-title">Not enough data yet</div>
+                <div className="empty-state"><EmptyIcon name="chart" /><div className="empty-state-title">Not enough data yet</div>
                   <div className="empty-state-desc">Fill in Submitted and Credentialing Effective (or Effective) dates on applications and this fills in by itself.</div></div>
               ) : tat.byPayer.map(p => (
                 <div key={p.name} style={{ marginBottom: 12 }}>

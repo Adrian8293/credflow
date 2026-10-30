@@ -9,6 +9,7 @@
  * Header: Avatar · Name · Status · Readiness ring · Action buttons
  */
 
+import { EmptyIcon } from '../../components/ui/EmptyIcon.jsx'
 import { safeUrl } from '../../lib/safeUrl.js'
 import { useState } from 'react'
 import { DocViewerModal } from '../documents/DocViewerModal.jsx'
@@ -431,7 +432,7 @@ function EnrollmentsTab({ prov, db, openEnrollModal }) {
 
   if (all.length === 0) return (
     <div className="empty-state">
-      <div className="ei">📋</div>
+      <EmptyIcon name="file" />
       <h4>No enrollments yet</h4>
       <p style={{ fontSize: 12.5, color: 'var(--text-4)', margin: '4px 0 14px' }}>Create the first enrollment for this provider.</p>
       <button className="btn btn-primary btn-sm" onClick={() => openEnrollModal(null, prov.id)}>{I.plus} New Enrollment</button>
@@ -469,7 +470,7 @@ function TasksTab({ prov, db }) {
 
   if (tasks.length === 0) return (
     <div className="empty-state">
-      <div className="ei">✓</div>
+      <EmptyIcon name="check" />
       <h4>No tasks</h4>
       <p style={{ fontSize: 12.5, color: 'var(--text-4)', margin: 0 }}>All clear for this provider.</p>
     </div>
@@ -509,7 +510,7 @@ function DocumentsTab({ prov, db, onAddDocument }) {
 
   if (docs.length === 0) return (
     <div className="empty-state">
-      <div className="ei">📁</div>
+      <EmptyIcon name="file" />
       <h4>No documents on file</h4>
       <p style={{ fontSize: 12.5, color: 'var(--text-4)', margin: '4px 0 14px' }}>Add a license, malpractice policy, W-9 or any other file for this provider.</p>
       {onAddDocument && <button type="button" className="btn btn-primary" onClick={() => onAddDocument(prov.id)}>+ Add document</button>}

@@ -1,3 +1,4 @@
+import { EmptyIcon } from '../../components/ui/EmptyIcon.jsx'
 import { useEffect, useMemo, useState, useCallback } from 'react'
 import { DrawerModal } from '../../components/ui/Modal.jsx'
 import { fmtDate, pNameShort, payName } from '../../lib/helpers.js'
@@ -148,6 +149,7 @@ export function GroupsPage({ db, setDb, toast, openEnrollModal }) {
 
       {!entity && !error && (
         <div className="empty-state">
+          <EmptyIcon name="building" />
           <div className="empty-state-title">No group yet</div>
           <div className="empty-state-desc">Add your practice entity (for example Positive Inner Self, LLC) to track its payer contracts and roster.</div>
         </div>
@@ -178,7 +180,7 @@ export function GroupsPage({ db, setDb, toast, openEnrollModal }) {
 
           {tab === 'roster' && (
             roster.length === 0 ? (
-              <div className="empty-state"><div className="empty-state-title">No providers linked yet</div>
+              <div className="empty-state"><EmptyIcon name="users" /><div className="empty-state-title">No providers linked yet</div>
                 <div className="empty-state-desc">Open the Contracts tab and use “Add providers” on a payer contract, or choose this group when editing a group enrollment.</div></div>
             ) : (
               <div style={{ ...card, padding: 0, overflow: 'hidden' }}>
@@ -211,7 +213,7 @@ export function GroupsPage({ db, setDb, toast, openEnrollModal }) {
           {tab === 'contracts' && (
             <>
               <div style={{ marginBottom: 12 }}><button className="btn btn-secondary" onClick={() => setContractForm({ payerId: '', state: 'OR', productLine: '', delegated: false, associatePolicy: 'Unverified' })}>+ Add payer contract</button></div>
-              {contracts.length === 0 ? <div className="empty-state"><div className="empty-state-title">No contracts yet</div><div className="empty-state-desc">Add one per payer, state and product. Not every payer contracts with groups, so only add the ones that do.</div></div> : (
+              {contracts.length === 0 ? <div className="empty-state"><EmptyIcon name="file" /><div className="empty-state-title">No contracts yet</div><div className="empty-state-desc">Add one per payer, state and product. Not every payer contracts with groups, so only add the ones that do.</div></div> : (
                 <div style={{ display: 'grid', gap: 10 }}>
                   {contracts.map(c => {
                     const payer = db.payers.find(p => p.id === c.payerId)
@@ -241,7 +243,7 @@ export function GroupsPage({ db, setDb, toast, openEnrollModal }) {
           {tab === 'locations' && (
             <>
               <div style={{ marginBottom: 12 }}><button className="btn btn-secondary" onClick={() => setLocForm({ name: '', state: 'OR' })}>+ Add location</button></div>
-              {locations.length === 0 ? <div className="empty-state"><div className="empty-state-title">No locations yet</div><div className="empty-state-desc">Add each service location. Its address and taxonomy must match what is on file with NPPES and each payer.</div></div> : (
+              {locations.length === 0 ? <div className="empty-state"><EmptyIcon name="pin" /><div className="empty-state-title">No locations yet</div><div className="empty-state-desc">Add each service location. Its address and taxonomy must match what is on file with NPPES and each payer.</div></div> : (
                 <div style={{ display: 'grid', gap: 10 }}>
                   {locations.map(l => (
                     <div key={l.id} style={{ ...card, display: 'flex', justifyContent: 'space-between', gap: 12 }}>

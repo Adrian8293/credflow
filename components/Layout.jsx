@@ -4,6 +4,10 @@ import { useGlobalContext } from '../context/AppContext'
 import { Sidebar } from './ui/Sidebar.jsx'
 import { Topbar } from './ui/Topbar.jsx'
 import { LoadingScreen } from './ui/LoadingScreen.jsx'
+import { PageSkeleton } from './ui/Skeletons.jsx'
+import { applyTheme, currentTheme } from '../lib/theme.js'
+
+const PAGE_TITLES = { '/': 'Today', '/enrollments': 'Applications', '/providers': 'Providers', '/tasks': 'Tasks', '/alerts': 'Alerts', '/requests': 'Requests', '/screening': 'Exclusion Screening', '/payers': 'Payers', '/groups': 'Groups', '/matrix': 'Billing Matrix', '/documents': 'Documents', '/reports': 'Reports', '/audit': 'Audit Trail', '/settings': 'Settings', '/access': 'Access' }
 import { Modal } from './ui/Modal.jsx'
 import { EnrollModal } from '../features/enrollments/EnrollModal.jsx'
 import { PayerModal } from '../features/payers/PayerModal.jsx'
@@ -88,6 +92,30 @@ export function Layout({ children }) {
   // Phone/tablet: the sidebar slides in over the page; it closes when you pick a page.
   const [navOpen, setNavOpen] = React.useState(false)
   useEffect(() => { setNavOpen(false) }, [router.asPath])
+  // Paper is always light: switch to the light theme while the print dialog is open, then restore.
+  useEffect(() => {
+    let prev = null
+    const before = () => { prev = currentTheme(); if (prev !== 'light') applyTheme('light') }
+    const after = () => { if (prev && prev !== 'light') applyTheme(prev); prev = null }
+    window.addEventListener('beforeprint', before)
+    window.addEventListener('afterprint', after)
+    return () => { window.removeEventListener('beforeprint', before); window.removeEventListener('afterprint', after) }
+  }, [])
+  // Arrow keys / Home / End move between tabs in any tab bar (standard tab-widget keyboard behaviour).
+  useEffect(() => {
+    const onKey = e => {
+      const t = e.target
+      if (!t || t.getAttribute?.('role') !== 'tab') return
+      const keys = { ArrowRight: 1, ArrowLeft: -1, Home: 'first', End: 'last' }
+      if (!(e.key in keys)) return
+      const tabs = [...t.parentElement.querySelectorAll('[role="tab"]')]
+      const i = tabs.indexOf(t)
+      const next = keys[e.key] === 'first' ? tabs[0] : keys[e.key] === 'last' ? tabs[tabs.length - 1] : tabs[(i + keys[e.key] + tabs.length) % tabs.length]
+      if (next) { e.preventDefault(); next.focus(); next.click() }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [])
   // After navigating to a different page, move keyboard/screen-reader focus to the content (not on first load).
   const lastPath = useRef(router.pathname)
   useEffect(() => {
@@ -122,7 +150,7 @@ export function Layout({ children }) {
     if (!isPortalRole && router.pathname === '/portal') router.replace('/')
   }, [user, orgsLoaded, role, isPortalRole, router])
 
-  if (authLoading || (user && mfaState === 'checking') || (user && !orgsLoaded) || (loading && !isPortalRole)) {
+  if (authLoading || (user && mfaState === 'checking') || (user && !orgsLoaded)) {
     return <LoadingScreen />
   }
 
@@ -174,7 +202,12 @@ export function Layout({ children }) {
         />
 
         <main className="pages" id="main-content" tabIndex={-1}>
-          <RouteErrorBoundary resetKey={router.asPath}>{children}</RouteErrorBoundary>
+          <div className="print-only print-header">
+            <strong>Lacentra</strong> — {activeOrg?.name || 'Credentialing'} · {PAGE_TITLES[router.pathname] || ''} · Printed {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+          </div>
+          {loading && !isPortalRole
+            ? <PageSkeleton />
+            : <RouteErrorBoundary resetKey={router.asPath}>{children}</RouteErrorBoundary>}
         </main>
       </div>
       <MobileTabBar

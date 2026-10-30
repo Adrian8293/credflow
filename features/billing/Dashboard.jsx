@@ -128,7 +128,7 @@ function SH({ icon, title, count, action, actionLabel = 'View all' }) {
       <span style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--text-1)', flex: 1 }}>{title}</span>
       {count > 0 && <span className="badge b-red" style={{ fontSize: 10 }}>{count}</span>}
       {action && (
-        <button onClick={action} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'var(--pr)', fontWeight: 600, cursor: 'pointer', border: 'none', background: 'none', fontFamily: 'inherit' }}>
+        <button className="sh-action" onClick={action} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: 'var(--pr)', fontWeight: 600, cursor: 'pointer', border: 'none', background: 'none', fontFamily: 'inherit' }}>
           {actionLabel} {I.ext}
         </button>
       )}
@@ -234,7 +234,7 @@ function PipelineSnapshot({ enrollments, setPage }) {
 
       <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border-l)', display: 'flex', justifyContent: 'space-between', fontSize: 11.5 }}>
         <span style={{ color: 'var(--text-4)' }}>{total} total applications</span>
-        <button onClick={() => setPage('applications')} style={{ color: 'var(--pr)', fontWeight: 600, cursor: 'pointer', border: 'none', background: 'none', fontFamily: 'inherit', fontSize: 11.5, display: 'flex', alignItems: 'center', gap: 4 }}>
+        <button className="tap-link" onClick={() => setPage('applications')} style={{ color: 'var(--pr)', fontWeight: 600, cursor: 'pointer', border: 'none', background: 'none', fontFamily: 'inherit', fontSize: 11.5, display: 'flex', alignItems: 'center', gap: 4 }}>
           Full pipeline {I.ext}
         </button>
       </div>

@@ -1,6 +1,7 @@
 import '../styles/globals.css'
 import '../styles/credflow.css'
 import '../styles/redesign.css'
+import '../styles/print.css'     // Stage 89 print layer; remove this line to roll back
 import '../styles/premium.css'   // Stage 84 glass/gradient/motion layer; remove this line to roll back
 import React from 'react'
 import Head from 'next/head'

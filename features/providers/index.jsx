@@ -11,6 +11,7 @@
  *  - Medicaid ID still visible in the action menu hover tooltip.
  */
 
+import { EmptyIcon } from '../../components/ui/EmptyIcon.jsx'
 import { useState, useEffect, useRef } from 'react'
 import { fmtDate, daysUntil } from '../../lib/helpers.js'
 import { providerReadiness } from '../../lib/readiness.js'
@@ -395,7 +396,7 @@ export function Providers({
               <tr>
                 <td colSpan={tv.visibleCount + 1}>
                   <div className="empty-state">
-                    <div className="ei">👥</div>
+                    <EmptyIcon name="users" />
                     <h4>{hasFilters ? 'No providers match your filters' : 'No providers yet'}</h4>
                     <p style={{ fontSize: 12.5, color: 'var(--text-4)', margin: '4px 0 14px' }}>
                       {hasFilters
@@ -434,7 +435,7 @@ export function Providers({
                           : ini}
                       </div>
                       <div>
-                        <button
+                        <button className="prov-name-btn"
                           onClick={() => openProvDetail(p.id)}
                           style={{
                             fontWeight: 600, fontSize: 13, color: 'var(--pr)',

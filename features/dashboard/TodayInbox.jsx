@@ -102,7 +102,7 @@ export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openT
   }
 
   const tab = (k, label, n) => (
-    <button key={k} type="button" onClick={() => setView(k)} aria-pressed={view === k}
+    <button key={k} type="button" className="tap-link" onClick={() => setView(k)} aria-pressed={view === k}
       style={{ fontSize: 13.5, fontWeight: 700, border: 'none', background: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: '2px 0',
         color: view === k ? 'var(--text-1)' : 'var(--text-4)', borderBottom: view === k ? '2px solid var(--pr)' : '2px solid transparent' }}>
       {label} {n > 0 && <span className="badge b-gray" style={{ marginLeft: 4 }}>{n}</span>}
@@ -115,7 +115,7 @@ export function TodayInbox({ db, setPage, openEnrollModal, openProvDetail, openT
         {tab('inbox', 'Needs attention', all.length)}
         {tab('week', 'Next 7 days', week.total)}
         <span style={{ flex: 1 }} />
-        <button onClick={() => setPage('alerts')} style={{ fontSize: 11, color: 'var(--pr)', fontWeight: 600, border: 'none', background: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+        <button className="tap-link" onClick={() => setPage('alerts')} style={{ fontSize: 11, color: 'var(--pr)', fontWeight: 600, border: 'none', background: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
           All alerts
         </button>
       </div>

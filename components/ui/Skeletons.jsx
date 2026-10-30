@@ -145,3 +145,18 @@ export function ApplicationsTableSkeleton({ rows = 7 }) {
     </div>
   )
 }
+
+/**
+ * PageSkeleton — shown inside the app shell (sidebar + top bar already visible) while workspace data loads.
+ * Mimics a typical page: title, a KPI strip, then a list. Announced once to screen readers.
+ */
+export function PageSkeleton() {
+  return (
+    <div className="page" role="status" aria-busy="true" aria-label="Loading your workspace">
+      <div className="skeleton" style={{ width: 220, height: 26, marginBottom: 10 }} />
+      <div className="skeleton skeleton-text sm" style={{ width: 340, maxWidth: '80%', marginBottom: 22 }} />
+      <div className="skeleton" style={{ height: 78, borderRadius: 16, marginBottom: 18 }} />
+      <TableSkeleton rows={6} />
+    </div>
+  )
+}

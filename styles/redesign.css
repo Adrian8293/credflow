@@ -399,3 +399,27 @@ html[data-text="xlarge"] { zoom: 1.25; }
 .skip-link { position: absolute; left: 12px; top: -48px; z-index: 1000; padding: 10px 16px; border-radius: 10px; background: var(--pr-solid); color: #fff; font-weight: 700; font-size: 14px; text-decoration: none; transition: top .15s; }
 .skip-link:focus { top: 10px; outline: 2px solid #fff; outline-offset: 2px; box-shadow: 0 0 0 4px var(--pr-solid-d); }
 .pages:focus { outline: none; }
+
+/* Touch targets: 44px minimum on phones/tablets (older providers, gloved or unsteady hands) */
+@media (max-width: 900px), (pointer: coarse) {
+  .tb-icon-btn, .tb-user-btn, .sb-signout-icon { min-width: 44px; min-height: 44px; }
+  .sb-item { min-height: 46px; }
+  .sb-user-main { min-height: 44px; }
+  .seg-btn { min-height: 44px; padding: 8px 14px !important; font-size: 13px !important; }
+  .sh-action { min-height: 44px; padding: 0 6px !important; font-size: 13px !important; }
+  .prov-name-btn { min-height: 44px; font-size: 14.5px !important; }
+  .setup-compact .x-hide, .setup-compact .x-link { min-height: 44px; }
+  .btn { min-height: 44px; min-width: 44px; }
+  .tab { min-height: 44px; }
+}
+
+@media (max-width: 900px), (pointer: coarse) {
+  .tap-link { min-height: 44px; display: inline-flex !important; align-items: center; padding: 0 6px !important; font-size: 13.5px !important; }
+  .tap-chip { min-height: 44px; min-width: 44px; font-size: 13px !important; padding-left: 14px !important; padding-right: 14px !important; }
+  button[role="switch"] { position: relative; }
+  button[role="switch"]::before { content: ''; position: absolute; inset: -12px -6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton, .skeleton::after { animation: none !important; }
+}

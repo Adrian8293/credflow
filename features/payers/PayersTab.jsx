@@ -263,7 +263,7 @@ export function PayersTab({ db, search, setSearch, fType, setFType, openPayerMod
           {/* View toggle */}
           <div style={{ display:'flex', background:'var(--elevated)', border:'1.5px solid var(--border)', borderRadius:'var(--r)', padding:3, gap:3 }}>
             {[['cards','⊞'],['table','≡']].map(([v,lbl]) => (
-              <button key={v} onClick={()=>setViewMode(v)} style={{
+              <button key={v} className="tap-chip" aria-label={v==='cards' ? 'Card view' : 'Table view'} onClick={()=>setViewMode(v)} style={{
                 width:28, height:26, border:'none', borderRadius:'var(--r)', cursor:'pointer', fontFamily:'inherit',
                 fontSize:14, display:'flex', alignItems:'center', justifyContent:'center',
                 background: viewMode===v ? 'var(--pr)' : 'transparent',
@@ -277,14 +277,14 @@ export function PayersTab({ db, search, setSearch, fType, setFType, openPayerMod
 
       {/* Type filter pills */}
       <div style={{ display:'flex', gap:5, flexWrap:'wrap', marginBottom:16 }}>
-        <button onClick={()=>setFType('')} style={{ fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:99, cursor:'pointer', border:'1.5px solid', fontFamily:'inherit', transition:'all .12s', background:!fType?'var(--navy)':'transparent', borderColor:!fType?'var(--navy)':'var(--border)', color:!fType?'#fff':'var(--text-3)' }}>
+        <button className="tap-chip" onClick={()=>setFType('')} style={{ fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:99, cursor:'pointer', border:'1.5px solid', fontFamily:'inherit', transition:'all .12s', background:!fType?'var(--navy)':'transparent', borderColor:!fType?'var(--navy)':'var(--border)', color:!fType?'#fff':'var(--text-3)' }}>
           All ({totalCount})
         </button>
         {typeOptions.filter(t => db.payers.some(p=>p.type===t)).map(t => {
           const m = TYPE_META[t]||{}
           const count = db.payers.filter(p=>p.type===t).length
           return (
-            <button key={t} onClick={()=>setFType(fType===t?'':t)} style={{ fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:99, cursor:'pointer', border:'1.5px solid', fontFamily:'inherit', transition:'all .12s', background:fType===t?(m.color||'var(--pr)'):'transparent', borderColor:fType===t?(m.color||'var(--pr)'):'var(--border)', color:fType===t?'#fff':(m.color||'var(--text-3)') }}>
+            <button key={t} className="tap-chip" onClick={()=>setFType(fType===t?'':t)} style={{ fontSize:11, fontWeight:600, padding:'3px 10px', borderRadius:99, cursor:'pointer', border:'1.5px solid', fontFamily:'inherit', transition:'all .12s', background:fType===t?(m.color||'var(--pr)'):'transparent', borderColor:fType===t?(m.color||'var(--pr)'):'var(--border)', color:fType===t?'#fff':(m.color||'var(--text-3)') }}>
               {t} ({count})
             </button>
           )

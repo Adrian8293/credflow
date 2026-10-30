@@ -4,6 +4,8 @@
  * compliance expectation). This page keeps the evidence: who was checked, on which list, when, and the result.
  * The OIG file is matched inside the browser; it is never uploaded.
  */
+import { EmptyIcon } from '../../components/ui/EmptyIcon.jsx'
+import { PrintButton } from '../../components/ui/PrintButton.jsx'
 import { CountUp } from '../../components/ui/CountUp.jsx'
 import { useMemo, useRef, useState } from 'react'
 import { Modal } from '../../components/ui/Modal.jsx'
@@ -89,7 +91,8 @@ export function ScreeningPage({ db, setDb, toast, role, onOpenProvider }) {
 
   return (
     <div className="page">
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ marginBottom: 16, position: 'relative' }}>
+        <div className="no-print" style={{ position: 'absolute', right: 0, top: 0 }}><PrintButton /></div>
         <h2 style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-.03em', marginBottom: 3 }}>Exclusion Screening</h2>
         <p style={{ fontSize: 13, color: 'var(--text-4)', maxWidth: 760 }}>
           Payers expect every provider to be checked against the federal exclusion lists on a regular schedule — monthly is the usual standard. Record each check here so you have proof. No patient information is involved.
@@ -154,11 +157,11 @@ export function ScreeningPage({ db, setDb, toast, role, onOpenProvider }) {
               <th className="no-sort">Action</th>
             </tr></thead>
             <tbody>
-              {providers.length === 0 && <tr><td colSpan={6} style={{ textAlign: 'center', color: 'var(--text-4)', padding: 20 }}>No active providers yet.</td></tr>}
+              {providers.length === 0 && <tr><td colSpan={6}><div className="empty-state"><EmptyIcon name="users" /><div className="empty-state-title">No active providers to screen</div><div className="empty-state-desc">Once a provider is added and active, they appear here for monthly exclusion checks.</div></div></td></tr>}
               {providers.map(p => (
                 <tr key={p.id}>
                   {canWrite && <td><input type="checkbox" aria-label={`Select ${p.fname} ${p.lname}`} checked={selected.includes(p.id)} onChange={() => toggle(p.id)} /></td>}
-                  <td><button type="button" onClick={() => onOpenProvider?.(p.id)} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--pr)', font: 'inherit', fontWeight: 600, cursor: 'pointer', textAlign: 'left' }}>{p.fname} {p.lname}{p.cred ? `, ${p.cred}` : ''}</button></td>
+                  <td><button type="button" className="tap-link" onClick={() => onOpenProvider?.(p.id)} style={{ background: 'none', border: 'none', padding: 0, color: 'var(--pr)', font: 'inherit', fontWeight: 600, cursor: 'pointer', textAlign: 'left' }}>{p.fname} {p.lname}{p.cred ? `, ${p.cred}` : ''}</button></td>
                   <td>{p.npi || '—'}</td>
                   {SOURCES.map(s => <td key={s.id}><StatusCell st={sourceStatus(latest, p.id, s.id, today)} /></td>)}
                   <td>{canWrite && <button className="btn btn-sm btn-secondary" onClick={() => setForm({ provId: p.id, source: SOURCES[1].id, result: 'Clear', checkedOn: today, note: '' })}>Record…</button>}</td>

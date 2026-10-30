@@ -1,3 +1,4 @@
+import { EmptyIcon } from '../../components/ui/EmptyIcon.jsx'
 import { useMemo, useState } from 'react'
 import { pNameShort, daysUntil } from '../../lib/helpers.js'
 import { usePersistedState } from '../../hooks/usePersistedState.js'
@@ -72,7 +73,7 @@ export function MatrixPage({ db, openEnrollModal }) {
       </div>
 
       {payers.length === 0 || rows.length === 0 ? (
-        <div className="empty-state"><div className="empty-state-title">Nothing to show</div><div className="empty-state-desc">No enrollments match these filters.</div></div>
+        <div className="empty-state"><EmptyIcon name="grid" /><div className="empty-state-title">Nothing to show</div><div className="empty-state-desc">No enrollments match these filters.</div></div>
       ) : (
         <div data-no-cards style={{ overflowX: 'auto', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 'var(--r-lg)' }}>
           <table style={{ borderCollapse: 'separate', borderSpacing: 0, minWidth: '100%' }}>

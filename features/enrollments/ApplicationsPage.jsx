@@ -8,6 +8,7 @@
  *  4. Pagination via usePagination hook (25 per page)
  */
 
+import { EmptyIcon } from '../../components/ui/EmptyIcon.jsx'
 import { CountUp } from '../../components/ui/CountUp.jsx'
 import { useState, useEffect, useRef } from 'react'
 import { STAGES } from '../../constants/stages.js'
@@ -365,7 +366,7 @@ export function ApplicationsPage({ db, setDb, openEnrollModal, search, setSearch
             {!pagedList.length ? (
               <tr><td colSpan={tv.visibleCount + 2}>
                 <div className="empty-state">
-                  <div className="ei">📋</div>
+                  <EmptyIcon name="file" />
                   <h4>No applications found</h4>
                   <p style={{ fontSize: 12.5, color: 'var(--text-4)', margin: '4px 0 14px' }}>
                     {search || fProv || fStage ? 'Try adjusting your filters.' : 'Create your first application to get started.'}

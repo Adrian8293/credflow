@@ -1,0 +1,26 @@
+/* Stage 89 — print layer. Prints just the page content on plain white paper; remove the import in _app.js to roll back. */
+.print-only { display: none; }
+@media print {
+  @page { margin: 14mm 12mm; }
+  html, body, .app-root, .main { background: #fff !important; color: #111 !important; height: auto !important; overflow: visible !important; }
+  body::before, body::after { display: none !important; }
+  .sidebar, .topbar, .tab-bar, .mtb, .mobile-tabbar, .sb-backdrop, .skip-link, .no-print, .toast-wrap, [role="dialog"] .modal-close,
+  .tabs, .filter-select, .btn, button[role="switch"], .pagination, .empty-state-icon { display: none !important; }
+  .main { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+  .pages, .page { padding: 0 !important; max-width: none !important; animation: none !important; }
+  .print-only { display: block !important; }
+  .print-header { font-size: 11pt; color: #444; border-bottom: 1.5px solid #333; padding-bottom: 6pt; margin-bottom: 12pt; }
+  * { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; box-shadow: none !important; animation: none !important; transition: none !important; text-shadow: none !important; }
+  .card, .kpi-strip, .kpi, .tbl-wrap, .dash-card { background: #fff !important; border: 1px solid #bbb !important; border-radius: 6px !important; }
+  .kpi-strip, .kpi, .card { background-image: none !important; }
+  .kpi-strip::before, .kpi-strip::after { display: none !important; }
+  .card, .kpi, tr, .alert-item { break-inside: avoid; }
+  thead { display: table-header-group; }
+  table { width: 100% !important; border-collapse: collapse; }
+  th, td { color: #111 !important; background: transparent !important; border-bottom: 1px solid #ddd !important; font-size: 10pt !important; }
+  .kpi-value, h1, h2, h3, h4 { color: #111 !important; -webkit-text-fill-color: #111 !important; background: none !important; }
+  .badge, .dash-status { border: 1px solid #777 !important; background: #fff !important; color: #111 !important; }
+  a { color: #111 !important; text-decoration: none !important; }
+  .grid-2 { display: block !important; }
+  .grid-2 > * { margin-bottom: 10pt; }
+}

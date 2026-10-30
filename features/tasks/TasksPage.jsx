@@ -3,6 +3,7 @@
  * Task list grouped by urgency, with search, provider filter, quick add and reopen.
  * Credentialing tasks only; do not put patient information in task text.
  */
+import { EmptyIcon } from '../../components/ui/EmptyIcon.jsx'
 import { useMemo, useState } from 'react'
 import { daysUntil, fmtDate } from '../../lib/helpers.js'
 import { DateInput } from '../../components/ui/DateInput.jsx'
@@ -151,6 +152,7 @@ export function TasksPage({ db, userId, openTaskModal, openProvDetail, handleMar
 
       {sorted.length === 0 && (
         <div className="empty-state">
+          <EmptyIcon name={filtersOn ? 'search' : 'check'} />
           <div className="empty-state-title">{filtersOn ? 'No matching tasks' : filter === 'open' ? 'No open tasks' : 'Nothing here'}</div>
           <div className="empty-state-desc">{filtersOn ? 'Try clearing the search or provider filter.' : filter === 'open' ? 'You’re all caught up.' : 'Nothing in this view.'}</div>
         </div>
