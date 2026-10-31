@@ -20,14 +20,18 @@ export function useTheme() {
       if (e.key !== THEME_KEY) return
       const t = resolveTheme(e.newValue, systemPrefersDark()); applyTheme(t); setTheme(t)
     }
+    // Another control on this same page (e.g. the search palette) changed the theme.
+    const onLocal = () => setTheme(currentTheme())
     mq?.addEventListener?.('change', onSystem)
     window.addEventListener('storage', onStorage)
-    return () => { mq?.removeEventListener?.('change', onSystem); window.removeEventListener('storage', onStorage) }
+    window.addEventListener('lc-theme', onLocal)
+    return () => { mq?.removeEventListener?.('change', onSystem); window.removeEventListener('storage', onStorage); window.removeEventListener('lc-theme', onLocal) }
   }, [])
 
   const toggle = useCallback(() => {
     const t = nextTheme(currentTheme())
     storeTheme(t); applyTheme(t); setTheme(t)
+    window.dispatchEvent(new Event('lc-theme'))
   }, [])
 
   return { theme, toggle }

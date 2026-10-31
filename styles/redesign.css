@@ -425,3 +425,68 @@ html[data-text="xlarge"] { zoom: 1.25; }
 }
 
 [role="dialog"]:focus { outline: none; }
+
+/* Toasts: readable size, dismiss button, glass look, clear of the phone tab bar */
+.toast-wrap { pointer-events: none; }
+.toast { pointer-events: auto; font-size: 14px; line-height: 1.4; padding: 12px 12px 12px 14px; min-width: 280px; max-width: min(440px, calc(100vw - 32px)); background: var(--glass-strong); backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur); border: 1px solid var(--glass-edge); box-shadow: 0 12px 32px -12px rgba(15,28,46,.35); border-left-width: 4px; }
+.toast.t-success { border-left-color: var(--green); } .toast.t-error { border-left-color: var(--red); } .toast.t-warn { border-left-color: var(--amber); } .toast.t-info { border-left-color: var(--pr-solid); }
+.toast-icon { width: 24px; height: 24px; }
+.toast-msg { flex: 1; min-width: 0; }
+.toast-x { flex-shrink: 0; width: 32px; height: 32px; margin: -4px -2px -4px 0; border: 0; background: transparent; color: var(--text-3); font-size: 22px; line-height: 1; border-radius: 8px; cursor: pointer; }
+.toast-x:hover { background: var(--elevated); color: var(--text-1); }
+.toast-x:focus-visible { outline: 2px solid var(--pr); outline-offset: 1px; }
+@media (max-width: 900px) {
+  .toast-wrap { left: 12px; right: 12px; bottom: calc(76px + env(safe-area-inset-bottom)); align-items: stretch; }
+  .toast { max-width: none; min-width: 0; }
+  .toast-x { width: 44px; height: 44px; margin: -8px -6px -8px 0; }
+}
+
+/* Form field errors: readable size, icon, clear colour (shared FieldError component) */
+.field-error { display: flex; align-items: flex-start; gap: 6px; margin-top: 5px; font-size: 12.5px; font-weight: 600; color: var(--danger); line-height: 1.35; }
+.field-error svg { flex-shrink: 0; margin-top: 1px; }
+
+/* Keyboard shortcut cheat sheet */
+.kb-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 28px; }
+@media (max-width: 700px) { .kb-grid { grid-template-columns: 1fr; } }
+.kb-grid h4 { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-3); margin: 0 0 8px; }
+.kb-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--border-l); font-size: 14px; color: var(--text-2); }
+.kb-keys { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+.kb-then { font-size: 11px; color: var(--text-4); margin: 0 5px; }
+.kb-row kbd, .gs-wrap kbd { display: inline-block; min-width: 24px; padding: 2px 7px; text-align: center; font: 600 12px/1.5 var(--fn, inherit); color: var(--text-2); background: var(--elevated); border: 1px solid var(--border-mid); border-bottom-width: 2px; border-radius: 6px; }
+.kb-note { margin: 14px 0 0; font-size: 12.5px; color: var(--text-4); }
+.gs-row-kb { display: inline-flex; gap: 3px; margin-left: 8px; }
+.gs-home-hint { padding: 10px 16px 4px; font-size: 12px; color: var(--text-4); }
+
+/* Compact density (desktop only): tighter rows and spacing; phones/tablets always keep the roomy layout and 44px touch targets */
+@media (min-width: 901px) {
+  html[data-density="compact"] .pages { padding: 18px 24px 32px; }
+  html[data-density="compact"] tbody td { padding-top: 8px; padding-bottom: 8px; font-size: 13.5px; }
+  html[data-density="compact"] thead th { padding-top: 8px; padding-bottom: 8px; }
+  html[data-density="compact"] .card-header { padding-top: 10px; padding-bottom: 10px; }
+  html[data-density="compact"] .card-body { padding: 12px 16px; }
+  html[data-density="compact"] .btn:not(.btn-xs) { min-height: 32px; padding-top: 5px; padding-bottom: 5px; }
+  html[data-density="compact"] .filter-select, html[data-density="compact"] .pages select, html[data-density="compact"] .pages input:not([type="checkbox"]):not([type="radio"]) { min-height: 34px; padding-top: 5px; padding-bottom: 5px; }
+  html[data-density="compact"] .sb-item { min-height: 34px; padding-top: 5px; padding-bottom: 5px; }
+  html[data-density="compact"] .kpi { padding-top: 10px; padding-bottom: 10px; }
+  html[data-density="compact"] .kpi-value { font-size: 26px; }
+  html[data-density="compact"] .page > * + * { margin-top: 0; }
+  html[data-density="compact"] .tab { padding-top: 8px; padding-bottom: 8px; min-height: 0; }
+  html[data-density="compact"] .empty-state { padding-top: 24px; padding-bottom: 24px; }
+}
+
+/* ── Master–detail: on wide screens the provider profile docks beside the list instead of covering it ── */
+tbody tr.is-selected { background: var(--pr-l); box-shadow: inset 3px 0 0 var(--pr); }
+tbody tr.row-click { cursor: pointer; }
+@media (min-width: 1500px) {
+  :root { --dock-w: clamp(500px, 36vw, 640px); }
+  .drawer-xl.docked {
+    top: var(--topbar-h); height: calc(100vh - var(--topbar-h)); width: var(--dock-w);
+    box-shadow: none; border-left: 1px solid var(--border); animation: none; z-index: 40; backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
+  body:has(.drawer-xl.docked) .pages { margin-right: var(--dock-w); max-width: none; }
+  /* Narrow pane: identity on top, readiness ring beside it, actions on their own row */
+  .drawer-xl.docked .drawer-header > div:first-child { flex-wrap: wrap; }
+  .drawer-xl.docked .drawer-header > div:first-child > div:nth-child(2) { flex: 1 1 180px; min-width: 180px; }
+  .drawer-xl.docked .drawer-header > div:first-child > .prof-actions { flex: 1 1 100%; order: 10; justify-content: flex-start !important; }
+  .drawer-xl.docked .drawer-header > div:first-child > .prof-actions .modal-close { margin-left: auto; }
+}

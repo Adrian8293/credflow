@@ -5,7 +5,7 @@ import { ProvidersPage } from '../features/providers/ProvidersPage.jsx'
 
 export default function Providers() {
   const {
-    db, setDb, setPage, openProvDetail, openEnrollModal,
+    db, setDb, setPage, openProvDetail, openEnrollModal, provDetailId,
     provSearch, setProvSearch,
     provFStatus, setProvFStatus,
     provFSpec, setProvFSpec,
@@ -27,6 +27,7 @@ export default function Providers() {
         provFSpec={provFSpec}
         setProvFSpec={setProvFSpec}
         openProvDetail={openProvDetail}
+        selectedProvId={provDetailId}
         editProvider={providers.editProvider}
         pendingEdit={providers.pendingEdit}
         clearPendingEdit={() => providers.setPendingEdit(false)}

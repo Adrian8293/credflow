@@ -5,6 +5,7 @@
  *   3. Escape closes it — only the top-most one when pop-ups are stacked, never while a dropdown is open,
  *      and with a "discard what you typed?" check if the person has typed in it.
  *   4. When it closes, focus returns to the button that opened it.
+ * `trap: false` is for a panel docked beside the page (not covering it): Tab may leave it.
  * Usage: const ref = useRef(null); useDialog(ref, onClose, { active: open })  then  <div ref={ref} role="dialog" aria-modal="true">
  */
 import { useEffect, useRef } from 'react'
@@ -12,7 +13,7 @@ import { useEffect, useRef } from 'react'
 const stack = []
 const FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]):not([type="hidden"]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])'
 
-export function useDialog(ref, onClose, { active = true, escape = true } = {}) {
+export function useDialog(ref, onClose, { active = true, escape = true, trap = true } = {}) {
   const closeRef = useRef(onClose)
   useEffect(() => { closeRef.current = onClose })   // always call the latest onClose without re-running the main effect
 
@@ -42,6 +43,7 @@ export function useDialog(ref, onClose, { active = true, escape = true } = {}) {
     const onKey = e => {
       if (stack[stack.length - 1] !== token) return          // only the top-most pop-up reacts
       if (e.key === 'Tab') {
+        if (!trap) return                                    // docked side panel: Tab may move to the page beside it
         const list = items()
         if (!list.length) { e.preventDefault(); el.focus(); return }
         const first = list[0]; const last = list[list.length - 1]
@@ -51,6 +53,7 @@ export function useDialog(ref, onClose, { active = true, escape = true } = {}) {
       } else if (e.key === 'Escape' && escape) {
         const t = e.target
         if (e.defaultPrevented || t?.tagName === 'SELECT' || t?.getAttribute?.('aria-expanded') === 'true') return
+        if (t?.closest?.('.gs-panel')) return                 // the search palette handles its own Escape
         if (dirty && !window.confirm('Close without saving? What you typed here will be lost.')) return
         closeRef.current?.()
       }
@@ -63,5 +66,5 @@ export function useDialog(ref, onClose, { active = true, escape = true } = {}) {
       const i = stack.indexOf(token); if (i >= 0) stack.splice(i, 1)
       if (opener && opener !== document.body && document.contains(opener)) opener.focus?.({ preventScroll: true })
     }
-  }, [active, escape, ref])
+  }, [active, escape, trap, ref])
 }

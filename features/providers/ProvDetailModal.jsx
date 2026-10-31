@@ -13,6 +13,7 @@ import { EmptyIcon } from '../../components/ui/EmptyIcon.jsx'
 import { safeUrl } from '../../lib/safeUrl.js'
 import { useState, useRef } from 'react'
 import { useDialog } from '../../hooks/useDialog.js'
+import { useMediaQuery } from '../../hooks/useMediaQuery.js'
 import { DocViewerModal } from '../documents/DocViewerModal.jsx'
 import { daysUntil, fmtDate, fmtTS } from '../../lib/helpers.js'
 import OpcaUploadPanel from '../../components/OpcaUploadPanel'
@@ -604,7 +605,9 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
   const [renew, setRenew] = useState(null)   // { kind, license? } — which credential is being renewed
   const [tab, setTab] = useState('overview')
   const dialogRef = useRef(null)
-  useDialog(dialogRef, onClose, { active: !!prov })
+  // On wide screens the profile docks beside the list (master–detail) instead of covering it.
+  const docked = useMediaQuery('(min-width: 1500px)')
+  useDialog(dialogRef, onClose, { active: !!prov, trap: !docked })
 
   if (!prov) return null
 
@@ -652,8 +655,8 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
 
   return (
     <>
-      <div className="drawer-overlay open" onClick={onClose} aria-hidden="true" />
-      <div ref={dialogRef} className="drawer-xl" role="dialog" aria-modal="true" aria-label={`Provider profile: ${prov.fname} ${prov.lname}`}>
+      {!docked && <div className="drawer-overlay open" onClick={onClose} aria-hidden="true" />}
+      <div ref={dialogRef} className={`drawer-xl${docked ? ' docked' : ''}`} role="dialog" aria-modal={docked ? 'false' : 'true'} aria-label={`Provider profile: ${prov.fname} ${prov.lname}`}>
 
         {/* ── Sticky header ─────────────────────────────────────────────── */}
         <div className="drawer-header" style={{ paddingBottom: 0, borderBottom: 'none', flexDirection: 'column', gap: 0 }}>

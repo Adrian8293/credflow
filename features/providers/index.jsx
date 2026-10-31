@@ -229,7 +229,7 @@ function RowMenu({ prov, pos, onClose, openProvDetail, editProvider, syncFromNPP
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
 export function Providers({
   db, search, setSearch, fStatus, setFStatus, fSpec, setFSpec,
-  openProvDetail, editProvider, setPage, setProvForm, setEditingId,
+  openProvDetail, selectedProvId, editProvider, setPage, setProvForm, setEditingId,
   setNpiInput, setNpiResult, syncFromNPPES, onAddProvider,
 }) {
   const [menuPos, setMenuPos] = useState(null)
@@ -419,7 +419,9 @@ export function Providers({
               const rdColor    = readiness >= 80 ? 'var(--success)' : readiness >= 60 ? 'var(--warning)' : 'var(--danger)'
 
               return (
-                <tr key={p.id}>
+                <tr key={p.id}
+                  className={`row-click${selectedProvId === p.id ? ' is-selected' : ''}`}
+                  onClick={e => { if (!e.target.closest('button, a, input, select, label, [role="menu"]')) openProvDetail(p.id) }}>
 
                   {/* Provider */}
                   <td>

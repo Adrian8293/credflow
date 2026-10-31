@@ -18,7 +18,7 @@
  */
 
 import { US_STATES } from '../../constants/usStates.js'
-import { useState, useCallback, useEffect, useRef } from 'react'
+import { useState, useCallback, useEffect, useRef, useId, isValidElement, cloneElement, Fragment } from 'react'
 import { useDialog } from '../../hooks/useDialog.js'
 import { NpiLookupPanel } from './NpiLookupPanel.jsx'
 import { DateInput } from '../../components/ui/DateInput.jsx'
@@ -40,18 +40,30 @@ const REQUIRED = {
 
 // ─── FIELD PRIMITIVES ─────────────────────────────────────────────────────────
 function Field({ label, required, hint, full, error, children }) {
+  const uid = useId()
+  const hintId = `${uid}-hint`
+  const errId = `${uid}-err`
+  const control = isValidElement(children) && children.type !== Fragment
+    ? cloneElement(children, {
+        id: children.props.id || uid,
+        'aria-invalid': error ? true : undefined,
+        'aria-required': required || undefined,
+        'aria-describedby': [error ? errId : null, hint ? hintId : null].filter(Boolean).join(' ') || undefined,
+      })
+    : children
   return (
     <div style={{ gridColumn: full ? '1 / -1' : undefined }}>
-      <label style={{
-        display: 'block', fontSize: 11, fontWeight: 700,
+      <label htmlFor={isValidElement(children) ? (children.props.id || uid) : undefined} style={{
+        display: 'block', fontSize: 12, fontWeight: 700,
         textTransform: 'uppercase', letterSpacing: '.05em',
         color: 'var(--text-3)', marginBottom: 4,
       }}>
-        {label}{required && <span style={{ color: 'var(--danger)', marginLeft: 2 }}>*</span>}
+        {label}{required && <span style={{ color: 'var(--danger)', marginLeft: 2 }} aria-hidden="true">*</span>}
+        {required && <span className="sr-only"> (required)</span>}
       </label>
-      {children}
-      {hint  && <div style={{ fontSize: 10.5, color: 'var(--text-4)', marginTop: 3 }}>{hint}</div>}
-      {error && <div style={{ fontSize: 10.5, color: 'var(--danger)', marginTop: 3 }}>⚠ {error}</div>}
+      {control}
+      {hint  && <div id={hintId} style={{ fontSize: 12, color: 'var(--text-4)', marginTop: 3 }}>{hint}</div>}
+      {error && <div id={errId} role="alert" style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--danger)', marginTop: 3 }}>⚠ {error}</div>}
     </div>
   )
 }
@@ -187,6 +199,8 @@ export function AddProviderDrawer({
     const errs = {}
     req.forEach(k => { if (!provForm[k]) errs[k] = 'Required' })
     setErrors(errs)
+    // Send keyboard / screen-reader focus to the first field that needs attention.
+    if (Object.keys(errs).length) setTimeout(() => dialogRef.current?.querySelector('[aria-invalid="true"]')?.focus(), 0)
     return Object.keys(errs).length === 0
   }
 

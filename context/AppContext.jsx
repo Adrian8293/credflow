@@ -39,7 +39,7 @@ export function AppContextProvider({ children }) {
   const { user, authLoading, signOut } = useAuth()
 
   // ── Toast ────────────────────────────────────────────────────────────────
-  const { toasts, toast } = useToast()
+  const { toasts, toast, dismiss: dismissToast, pause: pauseToast, resume: resumeToast } = useToast()
 
   // ── Core data ────────────────────────────────────────────────────────────
   const { db, setDb, loading, settingsForm, setSettingsForm, orgs, orgsLoaded, activeOrg, switchOrg, createOrg } = useAppData(user, toast)
@@ -197,7 +197,7 @@ export function AppContextProvider({ children }) {
     user, authLoading, signOut,
 
     // UI
-    toasts, toast,
+    toasts, toast, dismissToast, pauseToast, resumeToast,
     confirmDialog, requestConfirm, settleConfirm,
     completionDialog, requestCompletion, settleCompletion,
 
@@ -231,7 +231,7 @@ export function AppContextProvider({ children }) {
     handleSaveSettings, handleClearAudit, exportJSON,
   }), [
     user, authLoading, signOut,
-    toasts, toast,
+    toasts, toast, dismissToast, pauseToast, resumeToast,
     confirmDialog, requestConfirm, settleConfirm,
     completionDialog, requestCompletion, settleCompletion,
     db, setDb, loading, settingsForm, setSettingsForm,

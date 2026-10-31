@@ -38,3 +38,25 @@ test('boot script is plain ES5 that sets data-theme and cannot throw', () => {
   assert.equal(run('/', null, true), 'dark')
   assert.equal(run('/', null, false), 'light')
 })
+
+import { normalizeDensity, DENSITIES } from '../lib/theme.js'
+test('density: only "compact" is compact; anything else is comfortable', () => {
+  assert.equal(normalizeDensity('compact'), 'compact')
+  for (const v of ['comfortable', '', null, undefined, 'tiny', 7]) assert.equal(normalizeDensity(v), 'comfortable')
+  assert.deepEqual(DENSITIES.map(d => d.id), ['comfortable', 'compact'])
+})
+test('boot script restores a saved compact density before first paint', () => {
+  assert.match(THEME_BOOT_SCRIPT, /lc_density/)
+  assert.match(THEME_BOOT_SCRIPT, /data-density/)
+})
+
+import { normalizeStyle, STYLES, THEME_BOOT_SCRIPT as BOOT2 } from '../lib/theme.js'
+test('style: Studio is the default; only "glass" selects Glass', () => {
+  assert.equal(normalizeStyle('glass'), 'glass')
+  for (const v of ['studio', '', null, undefined, 'flat', 3]) assert.equal(normalizeStyle(v), 'studio')
+  assert.deepEqual(STYLES.map(s => s.id), ['studio', 'glass'])
+})
+test('boot script sets the style before first paint and is valid JavaScript', () => {
+  assert.match(BOOT2, /data-style/)
+  assert.doesNotThrow(() => new Function(BOOT2))
+})

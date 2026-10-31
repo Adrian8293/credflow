@@ -1,5 +1,5 @@
 import { useAppearance } from '../../hooks/useAppearance.js'
-import { TEXT_SIZES } from '../../lib/theme.js'
+import { TEXT_SIZES, DENSITIES, STYLES } from '../../lib/theme.js'
 
 const THEMES = [['light', 'Light'], ['dark', 'Dark'], ['system', 'Match device']]
 
@@ -20,12 +20,14 @@ function Segmented({ legend, value, options, onChange }) {
 
 // Theme + text size. Used on the Settings page.
 export function AppearanceControls() {
-  const { choice, text, chooseTheme, chooseText } = useAppearance()
+  const { choice, text, density, look, chooseTheme, chooseText, chooseDensity, chooseLook } = useAppearance()
   return (
     <div style={{ display: 'grid', gap: 18, gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
       <Segmented legend="Theme" value={choice} options={THEMES} onChange={chooseTheme} />
+      <Segmented legend="Look" value={look} options={STYLES.map(s => [s.id, s.label])} onChange={chooseLook} />
       <Segmented legend="Text size" value={text} options={TEXT_SIZES.map(t => [t.id, t.label])} onChange={chooseText} />
-      <p style={{ fontSize: 13, color: 'var(--text-3)', margin: 0, gridColumn: '1 / -1' }}>Saved on this device only. Sign-in pages always use the standard light design.</p>
+      <Segmented legend="Layout density (computers)" value={density} options={DENSITIES.map(d => [d.id, d.label])} onChange={chooseDensity} />
+      <p style={{ fontSize: 13, color: 'var(--text-3)', margin: 0, gridColumn: '1 / -1' }}>Compact fits more on screen with tighter rows; phones and tablets always use the roomy layout. Saved on this device only. Sign-in pages always use the standard light design.</p>
     </div>
   )
 }

@@ -10,6 +10,7 @@
  * For existing documents the file can be replaced or removed inline.
  */
 
+import { FieldError, focusFirstInvalid } from '../../components/ui/FieldError.jsx'
 import { useRef, useState } from 'react'
 import { Modal } from '../../components/ui/Modal.jsx'
 import { uploadDocumentFile, deleteDocumentFile } from '../../lib/db.js'
@@ -104,6 +105,7 @@ export function DocModal({ db, docForm, setDocForm, editingId, handleSaveDocumen
     // inline validation errors show when the user hits Save on an empty form
     const isExempt = NO_EXPIRY_TYPES.has(docForm.type)
     setDocForm(prev => ({ ...prev, _touched: { provId: true, exp: !isExempt } }))
+    if (!docForm.provId || (!isExempt && !docForm.exp)) focusFirstInvalid()
     const saved = await handleSaveDocument()
     if (saved && stagedFile) {
       setUploading(true)
@@ -151,15 +153,13 @@ export function DocModal({ db, docForm, setDocForm, editingId, handleSaveDocumen
             value={f('provId')}
             onChange={e => set('provId', e.target.value)}
             style={{ border: docForm._touched?.provId && !f('provId') ? '1.5px solid var(--danger)' : undefined, borderRadius: 'var(--r)' }}
+            aria-required="true" aria-invalid={(docForm._touched?.provId && !f('provId')) || undefined} aria-describedby={(docForm._touched?.provId && !f('provId')) ? 'doc-prov-err' : undefined}
           >
             <option value="">— Select Provider —</option>
             {db.providers.map(p => <option key={p.id} value={p.id}>{p.fname} {p.lname}</option>)}
           </select>
           {docForm._touched?.provId && !f('provId') && (
-            <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              Provider is required
-            </div>
+            <FieldError id="doc-prov-err">Provider is required</FieldError>
           )}
         </div>
         <div className="fg">
@@ -195,12 +195,10 @@ export function DocModal({ db, docForm, setDocForm, editingId, handleSaveDocumen
               value={f('exp')}
               onChange={e => set('exp', e.target.value)}
               style={{ border: docForm._touched?.exp && !f('exp') ? '1.5px solid var(--danger)' : undefined, borderRadius: 'var(--r)' }}
+            aria-required="true" aria-invalid={(docForm._touched?.exp && !f('exp')) || undefined} aria-describedby={(docForm._touched?.exp && !f('exp')) ? 'doc-exp-err' : undefined}
             />
             {docForm._touched?.exp && !f('exp') && (
-              <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                Expiration date is required for this document type
-              </div>
+              <FieldError id="doc-exp-err">Expiration date is required for this document type</FieldError>
             )}
           </div>
         )}

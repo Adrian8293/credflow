@@ -5,6 +5,8 @@ import { Sidebar } from './ui/Sidebar.jsx'
 import { Topbar } from './ui/Topbar.jsx'
 import { LoadingScreen } from './ui/LoadingScreen.jsx'
 import { PageSkeleton } from './ui/Skeletons.jsx'
+import { ShortcutsHelp } from './ShortcutsHelp.jsx'
+import { useShortcuts } from '../hooks/useShortcuts.js'
 import { applyTheme, currentTheme } from '../lib/theme.js'
 
 const PAGE_TITLES = { '/': 'Today', '/enrollments': 'Applications', '/providers': 'Providers', '/tasks': 'Tasks', '/alerts': 'Alerts', '/requests': 'Requests', '/screening': 'Exclusion Screening', '/payers': 'Payers', '/groups': 'Groups', '/matrix': 'Billing Matrix', '/documents': 'Documents', '/reports': 'Reports', '/audit': 'Audit Trail', '/settings': 'Settings', '/access': 'Access' }
@@ -33,7 +35,7 @@ export function Layout({ children }) {
   const router = useRouter()
   const {
     user, authLoading, signOut, db, loading, setPage, activeOrg, orgsLoaded,
-    toasts, toast,
+    toasts, toast, dismissToast, pauseToast, resumeToast,
     confirmDialog, settleConfirm,
     completionDialog, settleCompletion,
     modal, setModal,
@@ -92,6 +94,15 @@ export function Layout({ children }) {
   // Phone/tablet: the sidebar slides in over the page; it closes when you pick a page.
   const [navOpen, setNavOpen] = React.useState(false)
   useEffect(() => { setNavOpen(false) }, [router.asPath])
+  // Keyboard shortcuts (⌘K, /, ?, N, G + letter) — see lib/shortcuts.js
+  const [helpOpen, setHelpOpen] = React.useState(false)
+  useShortcuts({
+    search: () => setGlobalSearchOpen(true),
+    go: page => setPage(page),
+    newApplication: () => openEnrollModal(),
+    help: () => setHelpOpen(o => !o),
+  })
+
   // Paper is always light: switch to the light theme while the print dialog is open, then restore.
   useEffect(() => {
     let prev = null
@@ -121,8 +132,10 @@ export function Layout({ children }) {
   useEffect(() => {
     if (lastPath.current === router.pathname) return
     lastPath.current = router.pathname
+    // A docked profile pane belongs to the page it was opened on — don't carry it across routes.
+    if (window.matchMedia?.('(min-width: 1500px)').matches) { setProvDetailId(null) }
     document.getElementById('main-content')?.focus({ preventScroll: true })
-  }, [router.pathname])
+  }, [router.pathname, setProvDetailId])
   useEffect(() => {
     if (!navOpen) return
     const onKey = (e) => { if (e.key === 'Escape') setNavOpen(false) }
@@ -264,9 +277,10 @@ export function Layout({ children }) {
       )}
       {modal === 'provDetail' && provDetail && (
         <ProvDetailModal
+          key={provDetail.id}
           prov={provDetail}
           db={db}
-          onClose={() => setModal(null)}
+          onClose={() => { setModal(null); setProvDetailId(null) }}
           editProvider={(id) => { providers.editProvider(id); setModal(null); setPage('providers') }}
           openEnrollModal={openEnrollModal}
           toast={toast}
@@ -307,8 +321,13 @@ export function Layout({ children }) {
           setPage={setPage}
           openProvDetail={openProvDetail}
           openEnrollModal={openEnrollModal}
+          openPayerModal={openPayerModal}
+          openDocModal={openDocModal}
+          openTaskModal={openTaskModal}
+          onShowHelp={() => setHelpOpen(true)}
         />
       )}
+      {helpOpen && <ShortcutsHelp onClose={() => setHelpOpen(false)} />}
 
       {completionDialog && <CompletionCheck config={completionDialog} onSettle={settleCompletion} />}
 
@@ -333,10 +352,11 @@ export function Layout({ children }) {
         </Modal>
       )}
 
-      <div className="toast-wrap">
+      <div className="toast-wrap" role="region" aria-label="Notifications" aria-live="polite">
         {toasts.map(t => (
-          <div key={t.id} className={`toast t-${t.type}`}>
-            <div className="toast-icon">
+          <div key={t.id} className={`toast t-${t.type}`} role={t.type === 'error' ? 'alert' : 'status'}
+            onMouseEnter={() => pauseToast(t.id)} onMouseLeave={() => resumeToast(t.id, t.type)} onFocus={() => pauseToast(t.id)} onBlur={() => resumeToast(t.id, t.type)}>
+            <div className="toast-icon" aria-hidden="true">
               {t.type === 'success' ? (
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
               ) : t.type === 'error' ? (
@@ -347,7 +367,8 @@ export function Layout({ children }) {
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
               )}
             </div>
-            {t.msg}
+            <span className="toast-msg">{t.msg}</span>
+            <button type="button" className="toast-x" onClick={() => dismissToast(t.id)} aria-label="Dismiss message">×</button>
           </div>
         ))}
       </div>

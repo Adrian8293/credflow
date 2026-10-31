@@ -6,6 +6,8 @@
 import { useRef, useState, useEffect } from 'react'
 import { Badge } from './ui/Badge.jsx'
 import { daysUntil } from '../lib/helpers.js'
+import { useTheme } from '../hooks/useTheme.js'
+import { GO_KEYS } from '../lib/shortcuts.js'
 
 function pName(provs, id) {
   const p = provs?.find(x => x.id === id)
@@ -26,12 +28,12 @@ const CLOSE_ICON = (
   </svg>
 )
 
-function ResultRow({ icon, primary, secondary, badge, badgeCls, onClick, focused }) {
+function ResultRow({ icon, primary, secondary, badge, badgeCls, onClick, focused, kb }) {
   return (
     <div onClick={onClick} className={`gs-row${focused ? ' gs-focused' : ''}`}>
       <div className="gs-row-icon">{icon}</div>
       <div className="gs-row-text">
-        <div className="gs-row-primary">{primary}</div>
+        <div className="gs-row-primary">{primary}{kb && <span className="gs-row-kb" aria-hidden="true">{kb.map(k => <kbd key={k}>{k}</kbd>)}</span>}</div>
         {secondary && <div className="gs-row-secondary">{secondary}</div>}
       </div>
       {badge && <span className={`badge ${badgeCls || 'b-gray'}`}>{badge}</span>}
@@ -56,7 +58,8 @@ const STAGE_CLS = s => {
   return 'b-blue'
 }
 
-export function GlobalSearch({ db, onClose, setPage, openProvDetail, openEnrollModal }) {
+export function GlobalSearch({ db, onClose, setPage, openProvDetail, openEnrollModal, openPayerModal, openDocModal, openTaskModal, onShowHelp }) {
+  const { toggle: toggleTheme } = useTheme()
   const [query, setQuery] = useState('')
   const [focused, setFocused] = useState(0)
   const inputRef = useRef(null)
@@ -102,25 +105,30 @@ export function GlobalSearch({ db, onClose, setPage, openProvDetail, openEnrollM
     `${t.task} ${t.cat}`.toLowerCase().includes(q)
   ).slice(0, 2)
 
-  // Quick nav shortcuts — show when query matches a page name
-  const NAV_PAGES = [
-    { pg: 'dashboard',    label: 'Dashboard',          icon: '🏠' },
-    { pg: 'providers',    label: 'Providers',           icon: '👤' },
-    { pg: 'applications', label: 'Applications',        icon: '📄' },
-    { pg: 'payers',       label: 'Payers',              icon: '💳' },
-    { pg: 'documents',    label: 'Documents',           icon: '📁' },
-    { pg: 'tasks',        label: 'Tasks',               icon: '✅' },
-    { pg: 'alerts',       label: 'Alerts',              icon: '🔔' },
-    { pg: 'reports',      label: 'Reports',             icon: '📈' },
-    { pg: 'audit',        label: 'Audit Trail',         icon: '🔍' },
-    { pg: 'settings',     label: 'Settings',            icon: '⚙️' },
-  ]
-  const navMatches = q.length < 2 ? [] : NAV_PAGES.filter(n =>
+  // Pages you can jump to (same list as the G-then-letter shortcuts)
+  const NAV_PAGES = GO_KEYS.map(g => ({ pg: g.page, label: g.label, kb: ['G', g.key.toUpperCase()] }))
+  const navMatches = q.length < 1 ? [] : NAV_PAGES.filter(n =>
     n.label.toLowerCase().includes(q) || n.pg.includes(q)
-  ).slice(0, 2)
+  ).slice(0, 4)
+
+  // Things you can do from anywhere
+  const ACTIONS = [
+    { id: 'new-app',   label: 'New application',   kb: ['N'], run: () => openEnrollModal?.() },
+    { id: 'add-prov',  label: 'Add provider',      run: () => setPage('providers?add=1') },
+    { id: 'add-task',  label: 'New task',          run: () => openTaskModal?.() },
+    { id: 'add-payer', label: 'Add payer',         run: () => openPayerModal?.() },
+    { id: 'add-doc',   label: 'Add document',      run: () => openDocModal?.() },
+    { id: 'theme',     label: 'Switch light / dark theme', run: () => toggleTheme() },
+    { id: 'print',     label: 'Print this page',   run: () => setTimeout(() => window.print(), 150) },
+    { id: 'help',      label: 'Keyboard shortcuts', kb: ['?'], run: () => onShowHelp?.() },
+  ]
+  const actionMatches = q.length < 1 ? ACTIONS.slice(0, 5) : ACTIONS.filter(a => a.label.toLowerCase().includes(q)).slice(0, 4)
+  // With nothing typed yet, also offer the most-used pages so the palette is useful straight away.
+  const homeNav = q.length < 1 ? NAV_PAGES.filter(n => ['dashboard', 'enrollments', 'providers', 'tasks', 'alerts'].includes(n.pg)) : navMatches
 
   const allItems = [
-    ...navMatches.map(r => ({ type: 'nav',        data: r })),
+    ...actionMatches.map(r => ({ type: 'action',  data: r })),
+    ...homeNav.map(r => ({ type: 'nav',           data: r })),
     ...provs.map(r  => ({ type: 'provider',   data: r })),
     ...enrs.map(r   => ({ type: 'enrollment', data: r })),
     ...pays.map(r   => ({ type: 'payer',      data: r })),
@@ -138,6 +146,7 @@ export function GlobalSearch({ db, onClose, setPage, openProvDetail, openEnrollM
   }
 
   function select(item) {
+    if (item.type === 'action')     { onClose(); item.data.run() }
     if (item.type === 'nav')        { setPage(item.data.pg); onClose() }
     if (item.type === 'provider')   { setPage('providers'); openProvDetail?.(item.data.id); onClose() }
     if (item.type === 'enrollment') { setPage('applications'); openEnrollModal?.(item.data.id); onClose() }
@@ -160,7 +169,8 @@ export function GlobalSearch({ db, onClose, setPage, openProvDetail, openEnrollM
           value={query}
           onChange={e => setQuery(e.target.value)}
           onKeyDown={handleKey}
-          placeholder="Search providers, applications, payers…"
+          placeholder="Search, or type an action…"
+          aria-label="Search providers, applications and payers, or run an action"
           autoComplete="off"
         />
         {query && (
@@ -170,21 +180,34 @@ export function GlobalSearch({ db, onClose, setPage, openProvDetail, openEnrollM
       </div>
 
       {/* Dropdown results */}
-      {query && (
+      {(
         <div className="gs-dropdown">
-          {!hasResults && (
+          {query && !hasResults && (
             <div className="gs-empty">No results for "<strong>{query}</strong>"</div>
           )}
 
-          {navMatches.length > 0 && (
+          {actionMatches.length > 0 && (
             <div className="gs-section">
-              <div className="gs-section-label">Navigate to</div>
-              {navMatches.map((n, i) => {
+              <div className="gs-section-label">{q ? 'Actions' : 'Quick actions'}</div>
+              {actionMatches.map(act => {
+                const idx = allItems.findIndex(x => x.type === 'action' && x.data.id === act.id)
+                return (
+                  <ResultRow key={act.id} icon={<span style={{ fontSize: 13 }} aria-hidden="true">⚡</span>}
+                    primary={act.label} kb={act.kb}
+                    focused={focused === idx} onClick={() => select({ type: 'action', data: act })} />
+                )
+              })}
+            </div>
+          )}
+
+          {homeNav.length > 0 && (
+            <div className="gs-section">
+              <div className="gs-section-label">{q ? 'Go to' : 'Jump to'}</div>
+              {homeNav.map((n, i) => {
                 const idx = allItems.findIndex(x => x.type === 'nav' && x.data.label === n.label)
                 return (
-                  <ResultRow key={n.label} icon={<span style={{ fontSize: 13 }}>{n.icon}</span>}
-                    primary={n.label}
-                    secondary="Go to page"
+                  <ResultRow key={n.label} icon={<span style={{ fontSize: 13 }} aria-hidden="true">→</span>}
+                    primary={n.label} kb={n.kb}
                     focused={focused === idx} onClick={() => select({ type: 'nav', data: n })} />
                 )
               })}
@@ -276,9 +299,7 @@ export function GlobalSearch({ db, onClose, setPage, openProvDetail, openEnrollM
             <span><kbd>↵</kbd> select</span>
             <span><kbd>Esc</kbd> close</span>
             <span style={{ marginLeft: 'auto', borderLeft: '1px solid var(--border-l)', paddingLeft: 12, display: 'flex', gap: 10 }}>
-              <span><kbd>G</kbd><kbd>P</kbd> Providers</span>
-              <span><kbd>G</kbd><kbd>A</kbd> Applications</span>
-              <span><kbd>N</kbd> New App</span>
+              <span><kbd>?</kbd> all shortcuts</span>
             </span>
           </div>
         </div>

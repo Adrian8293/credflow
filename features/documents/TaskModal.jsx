@@ -1,3 +1,4 @@
+import { FieldError, focusFirstInvalid } from '../../components/ui/FieldError.jsx'
 import { useState } from 'react'
 import { Modal } from '../../components/ui/Modal.jsx'
 import { DateInput } from '../../components/ui/DateInput.jsx'
@@ -13,7 +14,7 @@ export function TaskModal({ db, taskForm, setTaskForm, editingId, handleSaveTask
 
   function handleSaveWithValidation() {
     setTouched({ task: true, due: true })
-    if (!f('task').trim() || !f('due')) return
+    if (!f('task').trim() || !f('due')) { focusFirstInvalid(); return }
     handleSaveTask()
   }
 
@@ -22,14 +23,8 @@ export function TaskModal({ db, taskForm, setTaskForm, editingId, handleSaveTask
     borderRadius: 'var(--r)',
   })
 
-  const InlineError = ({ msg }) => (
-    <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-      {msg}
-    </div>
-  )
+  const InlineError = ({ id, msg }) => <FieldError id={id}>{msg}</FieldError>
+
 
   return (
     <Modal
@@ -56,8 +51,9 @@ export function TaskModal({ db, taskForm, setTaskForm, editingId, handleSaveTask
             onBlur={() => setTouched(t => ({ ...t, task: true }))}
             placeholder="Follow up with Aetna re: enrollment…"
             style={fieldStyle(taskInvalid)}
+            aria-required="true" aria-invalid={(taskInvalid) || undefined} aria-describedby={(taskInvalid) ? 'task-desc-err' : undefined}
           />
-          {taskInvalid && <InlineError msg="Task description is required" />}
+          {taskInvalid && <InlineError id="task-desc-err" msg="Task description is required" />}
         </div>
 
         <div className="fg">
@@ -70,8 +66,9 @@ export function TaskModal({ db, taskForm, setTaskForm, editingId, handleSaveTask
             onChange={e => { set('due', e.target.value); setTouched(t => ({ ...t, due: true })) }}
             onBlur={() => setTouched(t => ({ ...t, due: true }))}
             style={fieldStyle(dueInvalid)}
+            aria-required="true" aria-invalid={(dueInvalid) || undefined} aria-describedby={(dueInvalid) ? 'task-due-err' : undefined}
           />
-          {dueInvalid && <InlineError msg="Due date is required" />}
+          {dueInvalid && <InlineError id="task-due-err" msg="Due date is required" />}
         </div>
 
         <div className="fg">

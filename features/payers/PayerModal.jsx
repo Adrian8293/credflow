@@ -1,3 +1,4 @@
+import { FieldError, focusFirstInvalid } from '../../components/ui/FieldError.jsx'
 import { useState } from 'react'
 import { Modal, DrawerModal } from '../../components/ui/Modal.jsx'
 import { PAYER_CATALOG } from '../../constants/payerRequirements.js'
@@ -15,6 +16,7 @@ export function PayerModal({ payerForm, setPayerForm, editingId, handleSavePayer
 
   function handleSaveWithValidation() {
     setTouched({ name: true })
+    if (!f('name').trim()) focusFirstInvalid()
     if (!f('name').trim()) return
     handleSavePayer()
   }
@@ -131,12 +133,10 @@ export function PayerModal({ payerForm, setPayerForm, editingId, handleSavePayer
                 onBlur={() => setTouched(t => ({ ...t, name: true }))}
                 placeholder="Payer name"
                 style={{ border: nameInvalid ? '1.5px solid var(--danger)' : undefined, borderRadius: 'var(--r)' }}
+            aria-required="true" aria-invalid={(nameInvalid) || undefined} aria-describedby={(nameInvalid) ? 'payer-name-err' : undefined}
               />
               {nameInvalid && (
-                <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                  Payer name is required
-                </div>
+                <FieldError id="payer-name-err">Payer name is required</FieldError>
               )}
             </div>
             <div className="fg"><label>Payer ID / EDI ID</label>

@@ -1,3 +1,4 @@
+import { FieldError, focusFirstInvalid } from '../../components/ui/FieldError.jsx'
 import { useState, useEffect } from 'react'
 import { pNameShort, payName } from '../../lib/helpers.js'
 import { Modal, DrawerModal } from '../../components/ui/Modal.jsx'
@@ -37,6 +38,7 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
 
   function handleSaveWithValidation() {
     setTouched({ provId: true, payId: true })
+    if (!f('provId') || !f('payId')) focusFirstInvalid()
     if (!f('provId') || !f('payId')) return
     if (level === 'Group' && f('groupNpi') && !/^\d{10}$/.test(f('groupNpi'))) { setNpiBad(true); return }
     handleSaveEnrollment()
@@ -162,15 +164,13 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
           onChange={e => { set('provId', e.target.value); setTouched(t => ({ ...t, provId: true })) }}
           onBlur={() => setTouched(t => ({ ...t, provId: true }))}
           style={fieldStyle(provInvalid)}
+            aria-required="true" aria-invalid={(provInvalid) || undefined} aria-describedby={(provInvalid) ? 'enr-prov-err' : undefined}
         >
           <option value="">— Select Provider —</option>
           {db.providers.map(p => <option key={p.id} value={p.id}>{p.fname} {p.lname}, {p.cred}</option>)}
         </select>
         {provInvalid && (
-          <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            Provider is required
-          </div>
+          <FieldError id="enr-prov-err">Provider is required</FieldError>
         )}
       </div>
 
@@ -185,16 +185,14 @@ export function EnrollModal({ db, enrollForm, setEnrollForm, editingId, handleSa
             onChange={e => { set('payId', e.target.value); setTouched(t => ({ ...t, payId: true })) }}
             onBlur={() => setTouched(t => ({ ...t, payId: true }))}
             style={{ ...fieldStyle(payInvalid), width: '100%' }}
+            aria-required="true" aria-invalid={(payInvalid) || undefined} aria-describedby={(payInvalid) ? 'enr-pay-err' : undefined}
           >
             <option value="">— Select Payer —</option>
             {db.payers.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </div>
         {payInvalid && (
-          <div style={{ fontSize: 11, color: 'var(--danger)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            Payer is required
-          </div>
+          <FieldError id="enr-pay-err">Payer is required</FieldError>
         )}
         {/* Quick-add payer link */}
         {onAddPayer && (

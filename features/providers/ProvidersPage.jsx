@@ -17,7 +17,7 @@ export function ProvidersPage({
   provSearch, setProvSearch,
   provFStatus, setProvFStatus,
   provFSpec, setProvFSpec,
-  openProvDetail, editProvider, pendingEdit, clearPendingEdit,
+  openProvDetail, selectedProvId, editProvider, pendingEdit, clearPendingEdit,
   setPage, setProvForm, setEditingId,
   setNpiInput, setNpiResult,
   syncFromNPPES,
@@ -184,6 +184,7 @@ export function ProvidersPage({
             fStatus={effectiveStatus} setFStatus={setProvFStatus}
             fSpec={provFSpec}         setFSpec={setProvFSpec}
             openProvDetail={openProvDetail}
+            selectedProvId={selectedProvId}
             editProvider={handleEditFromCard}
             setPage={setPage}
             setProvForm={setProvForm}
