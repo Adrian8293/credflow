@@ -11,7 +11,7 @@
 
 import { EmptyIcon } from '../../components/ui/EmptyIcon.jsx'
 import { safeUrl } from '../../lib/safeUrl.js'
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useDialog } from '../../hooks/useDialog.js'
 import { useMediaQuery } from '../../hooks/useMediaQuery.js'
 import { DocViewerModal } from '../documents/DocViewerModal.jsx'
@@ -601,13 +601,27 @@ function JourneyPanel({ lc, onNext }) {
 const NEXT_BUTTON = { edit: 'Edit provider', renew: 'Record renewal', enroll: 'New application', enrollment: 'Open application' }
 
 // ─── MAIN MODAL ───────────────────────────────────────────────────────────────
+let mountedPanes = 0   // module-level: how many profile panes are mounted right now
 export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollModal, toast, syncFromNPPES, onSaveLicense, onDeleteLicense, onRenewCredential, onSyncRenewalDocument, onAddDocument, staff, userId, onAssign }) {
   const [renew, setRenew] = useState(null)   // { kind, license? } — which credential is being renewed
   const [tab, setTab] = useState('overview')
   const dialogRef = useRef(null)
   // On wide screens the profile docks beside the list (master–detail) instead of covering it.
   const docked = useMediaQuery('(min-width: 1500px)')
-  useDialog(dialogRef, onClose, { active: !!prov, trap: !docked })
+  // Animated close: play the exit (≈180ms) and then call onClose. Reduced-motion users close instantly.
+  const [closing, setClosing] = useState(false)
+  const closeTimer = useRef(null)
+  const close = useCallback(() => {
+    if (closeTimer.current) return
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) { onClose(); return }
+    setClosing(true)
+    closeTimer.current = setTimeout(() => { closeTimer.current = null; onClose() }, 180)
+  }, [onClose])
+  // Switching straight from one provider to another remounts this component; don't replay the slide-in then.
+  // (React renders the new instance while the old one is still mounted, so a count > 0 means "switching".)
+  const [swap] = useState(() => mountedPanes > 0)
+  useEffect(() => { mountedPanes += 1; return () => { mountedPanes -= 1; if (closeTimer.current) clearTimeout(closeTimer.current) } }, [])
+  useDialog(dialogRef, close, { active: !!prov, trap: !docked })
 
   if (!prov) return null
 
@@ -655,8 +669,8 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
 
   return (
     <>
-      {!docked && <div className="drawer-overlay open" onClick={onClose} aria-hidden="true" />}
-      <div ref={dialogRef} className={`drawer-xl${docked ? ' docked' : ''}`} role="dialog" aria-modal={docked ? 'false' : 'true'} aria-label={`Provider profile: ${prov.fname} ${prov.lname}`}>
+      {!docked && <div className={`drawer-overlay open${closing ? ' is-closing' : ''}`} onClick={close} aria-hidden="true" />}
+      <div ref={dialogRef} className={`drawer-xl${docked ? ' docked' : ''}${docked && swap ? ' dock-swap' : ''}${closing ? ' is-closing' : ''}`} role="dialog" aria-modal={docked ? 'false' : 'true'} aria-label={`Provider profile: ${prov.fname} ${prov.lname}`}>
 
         {/* ── Sticky header ─────────────────────────────────────────────── */}
         <div className="drawer-header" style={{ paddingBottom: 0, borderBottom: 'none', flexDirection: 'column', gap: 0 }}>
@@ -721,7 +735,7 @@ export function ProvDetailModal({ prov, db, onClose, editProvider, openEnrollMod
                   {I.sync} Sync NPPES
                 </button>
               )}
-              <button className="modal-close" onClick={onClose} aria-label="Close provider profile">{I.close}</button>
+              <button className="modal-close" onClick={close} aria-label="Close provider profile">{I.close}</button>
             </div>
           </div>
 

@@ -1,0 +1,85 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   motion.css — Stage 97. One motion language for the whole app.
+   Rules: animate only transform/opacity (GPU, no layout thrash) except the one
+   dock margin shift; short durations (≤240ms); decelerating ease for things that
+   appear, accelerating ease for things that leave; never block input.
+   Rollback: remove the import of this file in pages/_app.js.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root {
+  --m-fast: 120ms; --m-base: 180ms; --m-slow: 240ms;
+  --m-out: cubic-bezier(.2, .8, .2, 1);      /* arriving: fast start, soft landing */
+  --m-in:  cubic-bezier(.4, 0, 1, 1);        /* leaving: quick, no lingering       */
+  --m-std: cubic-bezier(.4, 0, .2, 1);       /* property changes                    */
+}
+
+/* ── Hover / press feedback: every interactive control eases, nothing snaps ── */
+.btn, .btn-primary, .btn-secondary, .btn-ghost, .modal-close, .toast-x, .sort-pill, .pill, .badge,
+.tab, [role="tab"], .sb-item, .tb-icon-btn, .filter-select, .form-input, .form-select, .form-textarea, input, select, textarea,
+.card, .kpi, tbody tr, .task-row, .alert-item, .alert-feed-item, .gs-row, .menu-item, [role="menuitem"] {
+  transition-property: background-color, border-color, color, box-shadow, opacity, transform;
+  transition-duration: var(--m-fast);
+  transition-timing-function: var(--m-std);
+}
+.btn:active:not(:disabled), .modal-close:active, .sort-pill:active { transform: scale(.97); transition-duration: 60ms; }
+html[data-style="studio"] .btn-primary:hover:not(:disabled), html[data-style="studio"] .btn-secondary:hover:not(:disabled) { transform: none; }
+input:focus-visible, select:focus-visible, textarea:focus-visible { transition-duration: var(--m-base); }
+
+/* ── Pages: a quiet fade (no vertical travel, so nothing jitters while data loads) ── */
+html[data-style="studio"] .page { animation: mFade var(--m-base) var(--m-out) both; }
+@keyframes mFade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ── Menus, dropdowns, palette ── */
+.tb-dropdown, [role="menu"], .gs-panel { transform-origin: top; animation: mPop var(--m-base) var(--m-out) both; }
+@keyframes mPop { from { opacity: 0; transform: translateY(-4px) scale(.98); } to { opacity: 1; transform: none; } }
+
+/* ── Dialogs: scrim fades, panel eases up; bottom sheet on phones ── */
+.overlay.open, .drawer-overlay.open { animation: mScrim var(--m-base) var(--m-std) both; }
+@keyframes mScrim { from { opacity: 0; } to { opacity: 1; } }
+html[data-style] .modal { animation: mModal var(--m-slow) var(--m-out) both; }
+@keyframes mModal { from { opacity: 0; transform: translateY(10px) scale(.985); } to { opacity: 1; transform: none; } }
+html[data-style] .drawer { animation: mDrawer var(--m-slow) var(--m-out) both; }
+@keyframes mDrawer { from { transform: translateX(32px); opacity: .6; } to { transform: none; opacity: 1; } }
+@media (max-width: 900px) {
+  html[data-style] .modal { animation: mSheet var(--m-slow) var(--m-out) both; }
+  @keyframes mSheet { from { transform: translateY(32px); opacity: .6; } to { transform: none; opacity: 1; } }
+}
+
+/* ── Provider profile ─────────────────────────────────────────────────────
+   Overlay (< 1500px): slides in from the right with the scrim.
+   Docked  (≥ 1500px): the list column glides over while the pane slides in,
+   and both reverse on close. Switching providers only cross-fades.          */
+html[data-style] .drawer-xl:not(.docked) { animation: mDrawer var(--m-slow) var(--m-out) both; will-change: transform; }
+html[data-style] .drawer-xl:not(.docked).is-closing { animation: mDrawerOut var(--m-base) var(--m-in) both; }
+@keyframes mDrawerOut { from { transform: none; opacity: 1; } to { transform: translateX(32px); opacity: 0; } }
+html[data-style] .drawer-overlay.is-closing { animation: mScrimOut var(--m-base) var(--m-in) both; }
+@keyframes mScrimOut { from { opacity: 1; } to { opacity: 0; } }
+
+@media (min-width: 1500px) {
+  .pages { margin-right: 0; transition: margin-right var(--m-slow) var(--m-out); }
+  html[data-style] .drawer-xl.docked { animation: mDockIn var(--m-slow) var(--m-out) both; will-change: transform; }
+  html[data-style] .drawer-xl.docked.dock-swap { animation: mFade var(--m-fast) var(--m-std) both; }
+  html[data-style] .drawer-xl.docked.is-closing { animation: mDockOut var(--m-base) var(--m-in) both; }
+  /* while closing, hand the space back immediately so list and pane move together */
+  body:has(.drawer-xl.docked.is-closing) .pages { margin-right: 0; }
+  .drawer-xl.docked .drawer-body { animation: mFade var(--m-base) var(--m-std) both; }
+}
+@keyframes mDockIn  { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes mDockOut { from { transform: none; opacity: 1; } to { transform: translateX(40px); opacity: 0; } }
+
+/* Selected-row highlight eases in instead of flashing */
+tbody tr.is-selected { transition-duration: var(--m-base); }
+
+/* ── Tab content, toasts, progress, skeleton ── */
+[role="tabpanel"] { animation: mFade var(--m-base) var(--m-std) both; }
+.toast { animation: mToast var(--m-slow) var(--m-out) both; }
+@keyframes mToast { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.progress-fill, .setup-compact-bar > div { transition: width var(--m-slow) var(--m-out), transform var(--m-slow) var(--m-out); }
+
+/* ── Smooth scrolling for in-page jumps; keep scroll anchoring on ── */
+html { scroll-behavior: smooth; }
+.pages, .drawer-body { overscroll-behavior: contain; }
+
+/* ── Honour the OS "reduce motion" setting: everything becomes instant ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

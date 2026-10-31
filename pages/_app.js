@@ -3,7 +3,8 @@ import '../styles/credflow.css'
 import '../styles/redesign.css'
 import '../styles/print.css'     // Stage 89 print layer; remove this line to roll back
 import '../styles/premium.css'
-import '../styles/studio.css'    // Stage 96 flat "Studio" style (default); remove this line to roll back to the Glass look   // Stage 84 glass/gradient/motion layer; remove this line to roll back
+import '../styles/studio.css'    // Stage 96 flat "Studio" style (default); remove this line to roll back to the Glass look
+import '../styles/motion.css'    // Stage 97 motion system; must load last (rollback = remove this line)
 import React from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
